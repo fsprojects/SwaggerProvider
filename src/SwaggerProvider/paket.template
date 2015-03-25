@@ -1,0 +1,23 @@
+type project
+owners
+    Sergey Tihon
+authors 
+    Sergey Tihon
+projectUrl
+    http://github.com/sergey-tihon/SwaggerProvider
+iconUrl
+    https://raw.githubusercontent.com/sergey-tihon/SwaggerProvider/master/docs/files/img/logo.png
+licenseUrl
+    http://github.com/sergey-tihon/SwaggerProvider/blob/master/LICENSE.txt
+requireLicenseAcceptance
+    false
+copyright
+    Copyright 2015
+tags
+    F# sharp data typeprovider Swagger API REST
+summary
+    Type provider for Swagger.io
+description
+    Type provider for Swagger.io
+
+
