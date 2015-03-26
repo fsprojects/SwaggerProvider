@@ -1,31 +1,31 @@
-[![Issue Stats](http://issuestats.com/github/fsprojects/ProjectScaffold/badge/issue)](http://issuestats.com/github/fsprojects/ProjectScaffold)
-[![Issue Stats](http://issuestats.com/github/fsprojects/ProjectScaffold/badge/pr)](http://issuestats.com/github/fsprojects/ProjectScaffold)
+[![Issue Stats](http://issuestats.com/github/sergey-tihon/SwaggerProvider/badge/issue)](http://issuestats.com/github/sergey-tihon/SwaggerProvider)
+[![Issue Stats](http://issuestats.com/github/sergey-tihon/SwaggerProvider/badge/pr)](http://issuestats.com/github/sergey-tihon/SwaggerProvider)
 
-# ProjectScaffold
+# SwaggerProvider
 
-This project can be used to scaffold a prototypical .NET solution including file system layout and tooling. This includes a build process that: 
+This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 
-* updates all AssemblyInfo files
-* compiles the application and runs all test projects
-* generates [SourceLinks](https://github.com/ctaggart/SourceLink)
-* generates API docs based on XML document tags
-* generates [documentation based on Markdown files](http://fsprojects.github.io/ProjectScaffold/writing-docs.html)
-* generates [NuGet](http://www.nuget.org) packages
-* and allows a simple [one step release process](http://fsprojects.github.io/ProjectScaffold/release-process.html).
+[![Travis build status](https://travis-ci.org/sergey-tihon/SwaggerProvider.svg)](https://travis-ci.org/sergey-tihon/SwaggerProvider)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/tcahkn4b1tayh39u?svg=true)](https://ci.appveyor.com/project/sergey-tihon/swaggerprovider)
+[![NuGet Status](http://img.shields.io/nuget/v/SwaggerProvider.svg?style=flat)](https://www.nuget.org/packages/SwaggerProvider/)
 
-In order to start the scaffolding process run 
+Documentation: http://sergey-tihon.github.io/SwaggerProvider/
 
-    $ build.cmd // on windows    
-    $ build.sh  // on mono
-    
-Read the [Getting started tutorial](http://fsprojects.github.io/ProjectScaffold/index.html#Getting-started) to learn more.
+## Swagger RESTful API Documentation Specification
 
-Documentation: http://fsprojects.github.io/ProjectScaffold
+Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle)
+
+### [Swagger v2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md):
+
+- [PerStore Sample Application](http://petstore.swagger.io/v2/swagger.json)
+
+### [Swagger v1.2](https://github.com/swagger-api/swagger-spec/blob/master/versions/1.2.md)
+
+- [Jetty Images API](https://api.gettyimages.com/swagger/api-docs/)
+
 
 ## Maintainer(s)
 
-- [@forki](https://github.com/forki)
-- [@pblasucci](https://github.com/pblasucci)
 - [@sergey-tihon](https://github.com/sergey-tihon)
 
 The default maintainer account for projects under "fsprojects" is [@fsgit](https://github.com/fsgit) - F# Community Project Incubation Space (repo management)
