@@ -19,7 +19,7 @@ Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.c
 
 - [PerStore Sample Application](http://petstore.swagger.io/v2/swagger.json)
 
-### [Swagger v1.2](https://github.com/swagger-api/swagger-spec/blob/master/versions/1.2.md)
+### [Swagger v1.2](https://github.com/swagger-api/swagger-spec/blob/master/versions/1.2.md):
 
 - [Jetty Images API](https://api.gettyimages.com/swagger/api-docs/)
 

@@ -65,9 +65,12 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <ItemGroup>
-    <Compile Include="Tests.fs" />
+    <Compile Include="SchemaTests.fs" />
     <None Include="paket.references" />
     <Content Include="App.config" />
+    <None Include="Schemas\PetStore.Swagger.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
