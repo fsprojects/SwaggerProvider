@@ -65,7 +65,8 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <ItemGroup>
-    <Compile Include="SchemaTests.fs" />
+    <Compile Include="Schema.DefinitionsTests.fs" />
+    <Compile Include="Schema.Tests.fs" />
     <None Include="paket.references" />
     <Content Include="App.config" />
     <None Include="Schemas\PetStore.Swagger.json">
