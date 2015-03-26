@@ -51,7 +51,7 @@ type DefinitionPropertyType =
         | None ->
             match obj.TryGetProperty("$ref") with
             | Some(ref) -> Definition (ref.AsString())
-            | None -> failwith "Unknown property definition %A" obj
+            | None -> failwithf "Unknown property definition %A" obj
 
 
 type DefinitionProperty =
@@ -63,7 +63,10 @@ type DefinitionProperty =
         {
         Name = name;
         Type = DefinitionPropertyType.Parse obj
-        Description = obj?description.AsString();
+        Description =
+            match obj.TryGetProperty("description") with
+            | Some(descr) -> descr.AsString();
+            | None -> System.String.Empty
         }
 
 
@@ -75,6 +78,17 @@ type Definition =
         {
         Name = name
         Properties =
-            obj.Properties
+            obj?properties.Properties
             |> Array.map DefinitionProperty.Parse
+        }
+
+
+type SwaggerSchema =
+    { Definitions: Definition[]}
+
+    static member Parse (obj:JsonValue) =
+        {
+        Definitions =
+            obj?definitions.Properties
+            |> Array.map Definition.Parse
         }

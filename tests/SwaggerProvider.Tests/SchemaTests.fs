@@ -3,6 +3,9 @@ module SwaggerProvider.Tests
 open SwaggerProvider.Schema
 open FSharp.Data
 open NUnit.Framework
+open System.IO
+
+// ------------------ DefinitionPropertyType Tests --------------
 
 let shouldBeEqual (expected:DefinitionPropertyType) s =
     let json =JsonValue.Parse(s)
@@ -112,3 +115,15 @@ let ``parse array of string`` () =
 		}
 	}"""
     |> shouldBeEqual (Array String)
+
+
+// ------------------ SwaggerSchema Tests --------------
+
+[<Test>]
+let ``Schema parse of PetStore.Swagger.json sample`` () =
+    let schema =
+        "Schemas\\PetStore.Swagger.json"
+        |> File.ReadAllText
+        |> JsonValue.Parse
+        |> SwaggerSchema.Parse
+    Assert.AreEqual(6, schema.Definitions.Length)
