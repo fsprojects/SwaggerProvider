@@ -129,6 +129,11 @@ Target "Build" (fun _ ->
     !! solutionFile
     |> MSBuildRelease "" "Rebuild"
     |> ignore
+    
+    !! "SwaggerProvider.TestsAndDocs.sln"
+    |> MSBuildRelease "" "Rebuild"
+    |> ignore
+
 )
 
 // --------------------------------------------------------------------------------------
