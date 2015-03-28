@@ -1,4 +1,4 @@
-namespace SwaggerProvider.Schema
+namespace SwaggerProvider.Internal.Schema
 
 open FSharp.Data
 open FSharp.Data.Runtime.NameUtils
@@ -50,19 +50,21 @@ type DefinitionPropertyType =
             | x -> failwith "Unsupported property type %s" x
         | None ->
             match obj.TryGetProperty("$ref") with
-            | Some(ref) -> Definition (ref.AsString())
+            | Some(ref) -> Definition (ref.AsString().Replace("#/definitions/",""))
             | None -> failwithf "Unknown property definition %A" obj
 
 
 type DefinitionProperty =
     { Name: string
       Type: DefinitionPropertyType
+      IsRequired : bool
       Description: string}
 
-    static member Parse (name:string, obj:JsonValue) =
+    static member Parse (name, obj, required) =
         {
         Name = name;
         Type = DefinitionPropertyType.Parse obj
+        IsRequired = required
         Description =
             match obj.TryGetProperty("description") with
             | Some(descr) -> descr.AsString();
@@ -75,11 +77,19 @@ type Definition =
       Properties: DefinitionProperty[] }
 
     static member Parse (name:string, obj:JsonValue) =
+        let requiredProperties =
+            match obj.TryGetProperty("required") with
+            | Some(req) ->
+                req.AsArray()
+                |> Array.map (fun x-> x.AsString())
+                |> Set.ofArray
+            | None -> Set.empty<_>
         {
         Name = name
         Properties =
             obj?properties.Properties
-            |> Array.map DefinitionProperty.Parse
+            |> Array.map (fun (name,obj) ->
+                DefinitionProperty.Parse (name,obj, requiredProperties.Contains name))
         }
 
 

@@ -26,13 +26,14 @@ Example
 This example demonstrates using a function defined in this sample library.
 
 *)
-#r "SwaggerProvider.dll"
+#r "../../bin/SwaggerProvider/SwaggerProvider.dll"
 open SwaggerProvider
 
-printfn "hello = %i" <| Library.hello 0
+let PetStore = SwaggerProvider< "http://petstore.swagger.io/v2/swagger.json">
 
 (**
-Some more info
+![alt text](img/DefinitionInference.png "Intellisense for the Swagger Definitions")
+
 
 Samples & documentation
 -----------------------

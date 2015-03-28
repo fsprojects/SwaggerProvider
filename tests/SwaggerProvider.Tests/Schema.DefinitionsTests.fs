@@ -1,6 +1,6 @@
 module SwaggerProvider.DefinitionsTests
 
-open SwaggerProvider.Schema
+open SwaggerProvider.Internal.Schema
 open FSharp.Data
 open NUnit.Framework
 

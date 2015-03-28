@@ -65,13 +65,14 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <ItemGroup>
-    <Compile Include="Schema.DefinitionsTests.fs" />
-    <Compile Include="Schema.Tests.fs" />
-    <None Include="paket.references" />
-    <Content Include="App.config" />
     <None Include="Schemas\PetStore.Swagger.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Schema.DefinitionsTests.fs" />
+    <Compile Include="Schema.Tests.fs" />
+    <None Include="Script.fsx" />
+    <None Include="paket.references" />
+    <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -81,11 +82,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\..\src\SwaggerProvider\SwaggerProvider.fsproj">
-      <Name>SwaggerProvider</Name>
-      <Project>{ad0b2860-9373-4bd9-906d-6d19f2f7dee9}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
