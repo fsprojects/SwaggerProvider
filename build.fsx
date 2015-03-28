@@ -129,11 +129,12 @@ Target "Build" (fun _ ->
     !! solutionFile
     |> MSBuildRelease "" "Rebuild"
     |> ignore
-    
+)
+
+Target "BuildTests" (fun _ ->    
     !! "SwaggerProvider.TestsAndDocs.sln"
     |> MSBuildRelease "" "Rebuild"
     |> ignore
-
 )
 
 // --------------------------------------------------------------------------------------
@@ -346,6 +347,7 @@ Target "All" DoNothing
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "CopyBinaries"
+  ==> "BuildTests"
   ==> "RunTests"
   =?> ("GenerateReferenceDocs",isLocalBuild)
   =?> ("GenerateDocs",isLocalBuild)

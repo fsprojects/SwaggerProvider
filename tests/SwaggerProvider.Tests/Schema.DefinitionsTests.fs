@@ -84,7 +84,7 @@ let ``parse enum`` () =
 [<Test>]
 let ``parse definition reference`` () =
     """{"$ref" : "#/definitions/Tag"}"""
-    |> shouldBeEqual (Definition "#/definitions/Tag")
+    |> shouldBeEqual (Definition "Tag")
 
 [<Test>]
 let ``parse array of definitions`` () =
@@ -98,7 +98,7 @@ let ``parse array of definitions`` () =
 			"$ref" : "#/definitions/Tag"
 		}
 	}"""
-    |> shouldBeEqual (Array (Definition "#/definitions/Tag"))
+    |> shouldBeEqual (Array (Definition "Tag"))
 
 [<Test>]
 let ``parse array of string`` () =
