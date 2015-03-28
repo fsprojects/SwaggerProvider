@@ -36,19 +36,361 @@
 <h1>SwaggerProvider</h1>
 
 
-  <h2>SwaggerProvider Namespace</h2>
+  <h2>FSharp.Data Namespace</h2>
     <div>
-      <table class="table table-bordered module-list">
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-http.html">Http</a>
+          </td>
+          <td class="xmldoc"><p>Utilities for working with network via HTTP. Includes methods for downloading 
+resources with specified headers, query parameters and HTTP body</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-httprequestbody.html">HttpRequestBody</a>
+          </td>
+          <td class="xmldoc"><p>The body to send in an HTTP request</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-httpresponse.html">HttpResponse</a>
+          </td>
+          <td class="xmldoc"><p>The response returned by an HTTP request</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-httpresponsebody.html">HttpResponseBody</a>
+          </td>
+          <td class="xmldoc"><p>The response body returned by an HTTP request</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-httpresponsewithstream.html">HttpResponseWithStream</a>
+          </td>
+          <td class="xmldoc"><p>The response returned by an HTTP request with direct access to the response stream</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-jsonextensions.html">JsonExtensions</a>
+          </td>
+          <td class="xmldoc"><p>Extension methods with operations on JSON values</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-jsonsaveoptions.html">JsonSaveOptions</a>
+          </td>
+          <td class="xmldoc"><p>Specifies the formatting behaviour of JSON values</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-jsonvalue.html">JsonValue</a>
+          </td>
+          <td class="xmldoc"><p>Represents a JSON value. Large numbers that do not fit in the
+Decimal type are represented using the Float case, while
+smaller numbers are represented as decimals to avoid precision loss.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-textconversions.html">TextConversions</a>
+          </td>
+          <td class="xmldoc"><p>Conversions from string to string/int/int64/decimal/float/boolean/datetime/guid options</p>
+</td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
     <thead>
       <tr><td>Module</td><td>Description</td></tr>
     </thead>
     <tbody>
         <tr>
           <td class="module-name">
-            <a href="swaggerprovider-library.html">Library</a>
+            <a href="fsharp-data-httpcontenttypes.html">HttpContentTypes</a>
           </td>
-          <td class="xmldoc"><p>Documentation for my library</p>
+          <td class="xmldoc"><p>Constants for common HTTP content types</p>
 </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-httpencodings.html">HttpEncodings</a>
+          </td>
+          <td class="xmldoc"><p>Constants for common HTTP encodings</p>
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-httpmethod.html">HttpMethod</a>
+          </td>
+          <td class="xmldoc"><p>The method to use in an HTTP request</p>
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-httprequestheaders.html">HttpRequestHeaders</a>
+          </td>
+          <td class="xmldoc"><p>Headers that can be sent in an HTTP request</p>
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-httpresponseheaders.html">HttpResponseHeaders</a>
+          </td>
+          <td class="xmldoc"><p>Headers that can be received in an HTTP response</p>
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-jsonextensionsmodule.html">JsonExtensions</a>
+          </td>
+          <td class="xmldoc"><p>Provides the dynamic operator for getting a property of a JSON object</p>
+</td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>FSharp.Data.Runtime Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-data-runtime-jsonconversions.html">JsonConversions</a>
+          </td>
+          <td class="xmldoc"><p>Conversions from JsonValue to string/int/int64/decimal/float/boolean/datetime/guid options</p>
+</td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-runtime-io.html">IO</a>
+          </td>
+          <td class="xmldoc"><p>Helper functions called from the generated code for working with files</p>
+</td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-data-runtime-nameutils.html">NameUtils</a>
+          </td>
+          <td class="xmldoc"><p>Tools for generating nice member names that follow F# &amp; .NET naming conventions</p>
+</td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>ProviderImplementation.ProvidedTypes Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedassembly.html">ProvidedAssembly</a>
+          </td>
+          <td class="xmldoc"><p>A provided generated assembly</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedconstructor.html">ProvidedConstructor</a>
+          </td>
+          <td class="xmldoc"><p>Represents an erased provided constructor.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedevent.html">ProvidedEvent</a>
+          </td>
+          <td class="xmldoc"><p>Represents an erased provided property.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedfield.html">ProvidedField</a>
+          </td>
+          <td class="xmldoc"><p>Represents an erased provided field.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedliteralfield.html">ProvidedLiteralField</a>
+          </td>
+          <td class="xmldoc"><p>Represents an erased provided field.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedmeasurebuilder.html">ProvidedMeasureBuilder</a>
+          </td>
+          <td class="xmldoc"><p>Helps create erased provided unit-of-measure annotations.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedmethod.html">ProvidedMethod</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedparameter.html">ProvidedParameter</a>
+          </td>
+          <td class="xmldoc"><p>Represents an erased provided parameter</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedproperty.html">ProvidedProperty</a>
+          </td>
+          <td class="xmldoc"><p>Represents an erased provided property.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedstaticparameter.html">ProvidedStaticParameter</a>
+          </td>
+          <td class="xmldoc"><p>Represents a provided static parameter.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedsymboltype.html">ProvidedSymbolType</a>
+          </td>
+          <td class="xmldoc"><p>FSharp.Data addition: ProvidedSymbolType is used by AssemblyReplacer.fs
+Represents an array or other symbolic type involving a provided type as the argument.
+See the type provider spec for the methods that must be implemented.
+Note that the type provider specification does not require us to implement pointer-equality for provided types.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedtypebuilder.html">ProvidedTypeBuilder</a>
+          </td>
+          <td class="xmldoc"><p>Provides symbolic provided types</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-providedtypedefinition.html">ProvidedTypeDefinition</a>
+          </td>
+          <td class="xmldoc"><p>Represents a provided type definition.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-symbolkind.html">SymbolKind</a>
+          </td>
+          <td class="xmldoc"><p>FSharp.Data addition: SymbolKind is used by AssemblyReplacer.fs
+Represents the type constructor in a provided symbol type.</p>
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="providerimplementation-providedtypes-typeproviderfornamespaces.html">TypeProviderForNamespaces</a>
+          </td>
+          <td class="xmldoc"><p>A base type providing default implementations of type provider functionality when all provided 
+types are of type ProvidedTypeDefinition.</p>
+</td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>SwaggerProvider Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-swaggerprovider.html">SwaggerProvider</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-swaggerprovider-0.html">SwaggerProvider</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>SwaggerProvider.Internal.Compilers Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-compilers-definitioncompiler.html">DefinitionCompiler</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>SwaggerProvider.Internal.Schema Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-definition.html">Definition</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-definitionproperty.html">DefinitionProperty</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-definitionpropertytype.html">DefinitionPropertyType</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-swaggerschema.html">SwaggerSchema</a>
+          </td>
+          <td class="xmldoc"></td>
         </tr>
     </tbody>
   </table>
