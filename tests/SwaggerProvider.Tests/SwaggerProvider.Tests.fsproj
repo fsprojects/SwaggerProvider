@@ -69,6 +69,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Compile Include="Schema.DefinitionsTests.fs" />
+    <Compile Include="Schema.PathsTests.fs" />
     <Compile Include="Schema.Tests.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />

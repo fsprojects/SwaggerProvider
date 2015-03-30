@@ -3,6 +3,37 @@ namespace SwaggerProvider.Internal.Schema
 open FSharp.Data
 open FSharp.Data.Runtime.NameUtils
 open FSharp.Data.JsonExtensions
+open System
+
+[<AutoOpen>]
+module Extensions =
+    type JsonValue with
+        member this.GetString(propertyName) =
+            match this.TryGetProperty(propertyName) with
+            | Some(value) -> value.AsString()
+            | None -> String.Empty
+
+type InfoObject =
+    { Title: string
+      Description: string
+      Version: string}
+
+    static member Parse (obj:JsonValue) =
+        {
+            Title = obj?title.AsString()
+            Description = obj.GetString("description")
+            Version = obj?version.AsString()
+        }
+
+type TagObject =
+    { Name: string
+      Description: string}
+
+    static member Parse (obj:JsonValue) =
+        {
+            Name = obj?name.AsString()
+            Description = obj.GetString("description")
+        }
 
 //https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#data-types
 type DefinitionPropertyType =
@@ -62,13 +93,10 @@ type DefinitionProperty =
 
     static member Parse (name, obj, required) =
         {
-        Name = name;
-        Type = DefinitionPropertyType.Parse obj
-        IsRequired = required
-        Description =
-            match obj.TryGetProperty("description") with
-            | Some(descr) -> descr.AsString();
-            | None -> System.String.Empty
+            Name = name;
+            Type = DefinitionPropertyType.Parse obj
+            IsRequired = required
+            Description = obj.GetString("description")
         }
 
 
@@ -85,20 +113,26 @@ type Definition =
                 |> Set.ofArray
             | None -> Set.empty<_>
         {
-        Name = name
-        Properties =
-            obj?properties.Properties
-            |> Array.map (fun (name,obj) ->
-                DefinitionProperty.Parse (name,obj, requiredProperties.Contains name))
+            Name = name
+            Properties =
+                obj?properties.Properties
+                |> Array.map (fun (name,obj) ->
+                    DefinitionProperty.Parse (name,obj, requiredProperties.Contains name))
         }
 
 
 type SwaggerSchema =
-    { Definitions: Definition[]}
+    { Info: InfoObject
+      Tags: TagObject[]
+      Definitions: Definition[]}
 
     static member Parse (obj:JsonValue) =
         {
-        Definitions =
-            obj?definitions.Properties
-            |> Array.map Definition.Parse
+            Info = InfoObject.Parse(obj?info)
+            Tags =
+                obj?tags.AsArray()
+                |> Array.map TagObject.Parse
+            Definitions =
+                obj?definitions.Properties
+                |> Array.map Definition.Parse
         }
