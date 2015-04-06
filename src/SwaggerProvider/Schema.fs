@@ -52,6 +52,7 @@ type DefinitionPropertyType =
     | DateTime
     | Enum of values:string[]
     | Array of itemTy:DefinitionPropertyType
+    | Dictionary of valTy:DefinitionPropertyType
     | Definition of name:string
 
     static member Parse (obj:JsonValue) =
@@ -83,7 +84,10 @@ type DefinitionPropertyType =
                     | _ -> String
             | "array" ->
                 Array (DefinitionPropertyType.Parse obj?items)
-            | x -> failwith "Unsupported property type %s" x
+            | "object" ->
+                Dictionary (DefinitionPropertyType.Parse obj?additionalProperties)
+            //| "file"
+            | x -> failwithf "Unsupported property type %s" x
         | None ->
             match obj.TryGetProperty("$ref") with
             | Some(ref) -> Definition (ref.AsString().Replace("#/definitions/",""))
@@ -137,13 +141,15 @@ type OperationParameter =
         }
 
 type OperationResponse =
-    { StatusCode: int
+    { StatusCode: int option
       Description: string
       Schema: DefinitionPropertyType option}
 
     static member Parse (code, obj:JsonValue) =
         {
-            StatusCode = Int32.Parse(code)
+            StatusCode =
+                if code = "default" then None
+                else code |> Int32.Parse |> Some
             Description = obj.GetString("description")
             Schema =
                 obj.TryGetProperty("schema")
