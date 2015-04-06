@@ -13,6 +13,11 @@ module Extensions =
             | Some(value) -> value.AsString()
             | None -> String.Empty
 
+        member this.GetStringArray(propertyName) =
+            match this.TryGetProperty(propertyName) with
+            | Some(value) -> value.AsArray() |> Array.map (fun x->x.AsString())
+            | None -> [||]
+
 type InfoObject =
     { Title: string
       Description: string
@@ -84,6 +89,92 @@ type DefinitionPropertyType =
             | Some(ref) -> Definition (ref.AsString().Replace("#/definitions/",""))
             | None -> failwithf "Unknown property definition %A" obj
 
+type OperationType =
+    | Get
+    | Put
+    | Post
+    | Delete
+    | Options
+    | Head
+    | Patch
+
+type OperationParameterLocation =
+    | Query
+    | Header
+    | Path
+    | FormData
+    | Body
+
+    static member Parse = function
+        | "query" -> Query
+        | "header" -> Header
+        | "path" -> Header
+        | "formData" -> FormData
+        | "body" -> Body
+        | x -> failwithf "Unknown parameter location '%s'" x
+
+type OperationParameter =
+    { Name: string
+      In: OperationParameterLocation
+      Description: string
+      Required: bool
+      Type: DefinitionPropertyType}
+
+    static member Parse (obj:JsonValue) =
+        let location =
+            obj.GetProperty("in").AsString()
+            |> OperationParameterLocation.Parse
+        {
+            Name = obj?name.AsString()
+            In = location
+            Description = obj.GetString("description")
+            Required = match obj.TryGetProperty("required") with
+                       | Some(x) -> x.AsBoolean() | None -> false
+            Type =
+                match location with
+                | Body -> obj?schema |> DefinitionPropertyType.Parse
+                | _ -> obj |> DefinitionPropertyType.Parse // TODO: Parse more options
+        }
+
+type OperationResponse =
+    { StatusCode: int
+      Description: string
+      Schema: DefinitionPropertyType option}
+
+    static member Parse (code, obj:JsonValue) =
+        {
+            StatusCode = Int32.Parse(code)
+            Description = obj.GetString("description")
+            Schema =
+                obj.TryGetProperty("schema")
+                |> Option.map DefinitionPropertyType.Parse
+        }
+
+type OperationObject =
+    { Path: string
+      Type: OperationType
+      Tags: string[]
+      Summary: string
+      Description: string
+      OperationId: string
+      Consumes: string[]
+      Produces: string[]
+      Responses: OperationResponse []}
+
+    static member Parse (path, opType, obj:JsonValue) =
+        {
+            Path = path
+            Type = opType
+            Tags = obj.GetStringArray("tags")
+            Summary = obj.GetString("summary")
+            Description = obj.GetString("description")
+            OperationId = obj.GetString("operationId")
+            Consumes = obj.GetStringArray("consumes")
+            Produces = obj.GetStringArray("produces")
+            Responses =
+                (obj?responses).Properties
+                |> Array.map OperationResponse.Parse
+        }
 
 type DefinitionProperty =
     { Name: string
@@ -98,7 +189,6 @@ type DefinitionProperty =
             IsRequired = required
             Description = obj.GetString("description")
         }
-
 
 type Definition =
     { Name: string
@@ -124,14 +214,30 @@ type Definition =
 type SwaggerSchema =
     { Info: InfoObject
       Tags: TagObject[]
+      Operations: OperationObject[]
       Definitions: Definition[]}
 
     static member Parse (obj:JsonValue) =
+        let parseOperation (obj:JsonValue) path prop opType =
+            obj.TryGetProperty prop
+            |> Option.map (fun value->
+                OperationObject.Parse(path, opType, value))
         {
             Info = InfoObject.Parse(obj?info)
             Tags =
                 obj?tags.AsArray()
                 |> Array.map TagObject.Parse
+            Operations =
+                obj?paths.Properties
+                |> Array.map (fun (path, pathObj) ->
+                     [|parseOperation pathObj path "get"     Get
+                       parseOperation pathObj path "put"     Put
+                       parseOperation pathObj path "post"    Post
+                       parseOperation pathObj path "delete"  Delete
+                       parseOperation pathObj path "options" Options
+                       parseOperation pathObj path "patch"   Patch|])
+                |> Array.concat
+                |> Array.choose (id)
             Definitions =
                 obj?definitions.Properties
                 |> Array.map Definition.Parse

@@ -17,7 +17,7 @@ Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.c
 
 ### [Swagger v2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md):
 
-- [PerStore Sample Application](http://petstore.swagger.io/v2/swagger.json)
+- [PetStore Sample Application](http://petstore.swagger.io/v2/swagger.json)
 
 ### [Swagger v1.2](https://github.com/swagger-api/swagger-spec/blob/master/versions/1.2.md):
 
