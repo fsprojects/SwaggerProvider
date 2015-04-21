@@ -3,4 +3,4 @@ open SwaggerProvider
 
 type PetStore = SwaggerProvider< @"D:\Personal\GitHub\SwaggerProvider\tests\SwaggerProvider.Tests\Schemas\PetStore.Swagger.json">
 
-PetStore.Definitions.
+PetStore.Store.GetInventory()

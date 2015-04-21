@@ -1,27 +1,9 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B98-5CED-492C-A5B7-A5B4F73CF142}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-		paket.lock = paket.lock
-	EndProjectSection
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider", "src\SwaggerProvider\SwaggerProvider.fsproj", "{AD0B2860-9373-4BD9-906D-6D19F2F7DEE9}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"
-	ProjectSection(SolutionItems) = preProject
-		build.fsx = build.fsx
-		paket.dependencies = paket.dependencies
-		README.md = README.md
-		RELEASE_NOTES.md = RELEASE_NOTES.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schemas", "schemas", "{F9D42F6C-CE9C-46CA-B791-910F6F567D6B}"
-	ProjectSection(SolutionItems) = preProject
-		tests\SwaggerProvider.Tests\Schemas\PetStore.Swagger.json = tests\SwaggerProvider.Tests\Schemas\PetStore.Swagger.json
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

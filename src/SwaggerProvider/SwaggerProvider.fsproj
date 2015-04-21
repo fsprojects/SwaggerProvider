@@ -79,8 +79,10 @@
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonExtensions.fs">
       <Link>FSharp.Data\Json\JsonExtensions.fs</Link>
     </Compile>
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Schema.fs" />
     <Compile Include="DefinitionCompiler.fs" />
+    <Compile Include="OperationCompiler.fs" />
     <Compile Include="SwaggerProvider.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />

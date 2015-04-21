@@ -53,6 +53,7 @@ type DefinitionPropertyType =
     | Enum of values:string[]
     | Array of itemTy:DefinitionPropertyType
     | Dictionary of valTy:DefinitionPropertyType
+    | File
     | Definition of name:string
 
     static member Parse (obj:JsonValue) =
@@ -86,7 +87,7 @@ type DefinitionPropertyType =
                 Array (DefinitionPropertyType.Parse obj?items)
             | "object" ->
                 Dictionary (DefinitionPropertyType.Parse obj?additionalProperties)
-            //| "file"
+            | "file" -> File
             | x -> failwithf "Unsupported property type %s" x
         | None ->
             match obj.TryGetProperty("$ref") with
@@ -165,7 +166,8 @@ type OperationObject =
       OperationId: string
       Consumes: string[]
       Produces: string[]
-      Responses: OperationResponse []}
+      Responses: OperationResponse[]
+      Parameters: OperationParameter[]}
 
     static member Parse (path, opType, obj:JsonValue) =
         {
@@ -180,6 +182,11 @@ type OperationObject =
             Responses =
                 (obj?responses).Properties
                 |> Array.map OperationResponse.Parse
+            Parameters =
+                match obj.TryGetProperty("parameters") with
+                | Some(parameters) ->
+                    parameters.AsArray() |> Array.map OperationParameter.Parse
+                | None -> [||]
         }
 
 type DefinitionProperty =

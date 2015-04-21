@@ -36,10 +36,12 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
                     |> IO.File.ReadAllText
                     |> JsonValue.Parse
                     |> SwaggerSchema.Parse
-                let defCompiler = DefinitionCompiler(schema)
 
-                // Add all definitions
-                ty.AddMember <| defCompiler.Compile()
+                let defCompiler = DefinitionCompiler(schema)
+                ty.AddMember <| defCompiler.Compile() // Add all definitions
+
+                let opCompiler = OperationCompiler(schema, defCompiler)
+                ty.AddMembers <| opCompiler.Compile() // Add all operations
 
                 tempAsm.AddTypes [ty]
                 ty

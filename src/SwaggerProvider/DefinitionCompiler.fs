@@ -49,7 +49,9 @@ type DefinitionCompiler (schema:SwaggerSchema) =
         | Date, false | DateTime, false -> typeof<Option<DateTime>>
         | Enum vals, _ -> typeof<string> //TODO: find better type
         | Array iTy, _ -> (compilePropertyType iTy true).MakeArrayType(1)
+        | Dictionary eTy, _ -> typedefof<Map<string, obj>>.MakeGenericType([|typeof<string>; compilePropertyType eTy true|])
         | Definition name, _ -> compileDefinition name :> Type //TODO: make types nullable
+        | File, _ -> typeof<byte>.MakeArrayType(1)
 
     member __.Compile() =
         let root = ProvidedTypeDefinition("Definitions", Some typeof<obj>, IsErased = false)
@@ -59,3 +61,5 @@ type DefinitionCompiler (schema:SwaggerSchema) =
             root.AddMember pTy
         root
 
+    member __.CompileTy ty =
+        compilePropertyType ty true
