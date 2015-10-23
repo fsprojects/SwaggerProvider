@@ -75,7 +75,6 @@
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <Content Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -83,11 +82,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
+      <Paket>True</Paket>
     </Reference>
     <Reference Include="SwaggerProvider">
-      <HintPath>..\..\src\SwaggerProvider\bin\Release\SwaggerProvider.dll</HintPath>
+      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
