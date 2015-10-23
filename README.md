@@ -1,30 +1,31 @@
-#Delegate Swagger
+[![Issue Stats](http://issuestats.com/github/sergey-tihon/SwaggerProvider/badge/issue)](http://issuestats.com/github/sergey-tihon/SwaggerProvider)
+[![Issue Stats](http://issuestats.com/github/sergey-tihon/SwaggerProvider/badge/pr)](http://issuestats.com/github/sergey-tihon/SwaggerProvider)
 
-Install with 
-```
-Install-Package Delegate.Swagger
-```
+# SwaggerProvider
 
-##System.Web Hosted Application
-To start using the Delegate Swagger UI in your web api project add the following line to
+This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 
-Global.asax Application_Start:
-```
-GlobalConfiguration.Configure(SwaggerConfig.Register);
-```
+[![Travis build status](https://travis-ci.org/sergey-tihon/SwaggerProvider.svg)](https://travis-ci.org/sergey-tihon/SwaggerProvider)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/tcahkn4b1tayh39u?svg=true)](https://ci.appveyor.com/project/sergey-tihon/swaggerprovider)
+[![NuGet Status](http://img.shields.io/nuget/v/SwaggerProvider.svg?style=flat)](https://www.nuget.org/packages/SwaggerProvider/)
 
-##OWIN Hosted
-To start using Delegate Swagger UI in your WebAPI project add the following lines to 
+Documentation: http://sergey-tihon.github.io/SwaggerProvider/
 
-Startup.cs Configuration 
-```
-var httpConfiguration = new HttpConfiguration();
-SwaggerConfig.Register(httpConfiguration);
-```
+## Swagger RESTful API Documentation Specification
 
-##Update version and API Name
-In SwaggerConfig.cs you should update the following line:
-```
-c.SingleApiVersion("VersionHere", "Title here"); 
-```
-With your version number and title of the API. 
+Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle)
+
+### [Swagger v2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md):
+
+- [PetStore Sample Application](http://petstore.swagger.io/v2/swagger.json)
+
+### [Swagger v1.2](https://github.com/swagger-api/swagger-spec/blob/master/versions/1.2.md):
+
+- [Jetty Images API](https://api.gettyimages.com/swagger/api-docs/)
+
+
+## Maintainer(s)
+
+- [@sergey-tihon](https://github.com/sergey-tihon)
+
+The default maintainer account for projects under "fsprojects" is [@fsgit](https://github.com/fsgit) - F# Community Project Incubation Space (repo management)
