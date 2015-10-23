@@ -4,9 +4,7 @@ open SwaggerProvider
 open FSharp.Data
 open NUnit.Framework
 
-[<Literal>]
-let filePath =  __SOURCE_DIRECTORY__ + "\Schemas\PetStore.Swagger.json"
-type PetStore = SwaggerProvider<filePath, "Content-Type,application/json">
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type,application/json">
 
 let apiKey = "special-key"
 
