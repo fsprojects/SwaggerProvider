@@ -2,6 +2,10 @@
 // FAKE build script
 // --------------------------------------------------------------------------------------
 
+#if INTERACTIVE
+System.IO.Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
+#endif
+
 #r @"packages/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.Git
@@ -140,7 +144,7 @@ Target "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-Target "RunTests" (fun _ ->
+Target "RunTests" (fun _ -> 
     !! testAssemblies
     |> NUnit (fun p ->
         { p with
@@ -239,8 +243,8 @@ Target "GenerateHelpDebug" (fun _ ->
     Rename "docs/content/release-notes.md" "docs/content/RELEASE_NOTES.md"
 
     DeleteFile "docs/content/license.md"
-    CopyFile "docs/content/" "LICENSE.txt"
-    Rename "docs/content/license.md" "docs/content/LICENSE.txt"
+    CopyFile "docs/content/" "LICENSE.md"
+    Rename "docs/content/license.md" "docs/content/LICENSE.md"
 
     generateHelp' true true
 )
@@ -268,7 +272,6 @@ let createIndexFsx lang =
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../../bin"
-
 (**
 F# Project Scaffold ({0})
 =========================
