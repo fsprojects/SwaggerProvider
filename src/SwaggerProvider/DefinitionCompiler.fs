@@ -17,10 +17,8 @@ type DefinitionCompiler (schema:SwaggerSchema) =
     let compiledTys = System.Collections.Generic.Dictionary<_,_>()
 
     let generateProperty name ty providedField = 
-         let pPr = ProvidedProperty(nicePascalName name, ty, GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)), SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
-         //pPr.GetterCode <- fun args ->  <@@ printfn "%A" ((%%args.[0] : ContentTypeModel).ToString()) @@>
-//       pPr.SetterCode <- fun args ->  <@@ ((%%(args.[0]) : obj) :?> System.Collections.Generic.Dictionary<string,obj>).[def.Name] = %%(args.[1]) @@>        
-         pPr
+         ProvidedProperty(nicePascalName name, ty, GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)), 
+                                                   SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
     
     let rec compileDefinition name =
         match compiledTys.TryGetValue name with
