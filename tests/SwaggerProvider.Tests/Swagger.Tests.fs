@@ -23,7 +23,7 @@ let ``call provided methods`` () =
     | exn -> ()
 
     let tag = new PetStore.Definitions.Tag (Name = "foobar")
-    let pet = new PetStore.Definitions.Pet (Name = "foo", Id = Some 1337L, Tags = [|tag|], Status = "available")
+    let pet = new PetStore.Definitions.Pet (Name = "foo", Id = Some 1337L, Status = "available")
     
     try 
         PetStore.Pet.AddPet(pet)
@@ -33,7 +33,6 @@ let ``call provided methods`` () =
     let pet2 = PetStore.Pet.GetPetById(1337L)
     Assert.AreEqual (pet.Name, pet2.Name)
     Assert.AreEqual (pet.Id, pet2.Id)
-//    Assert.AreEqual (pet.Tags, pet2.Tags)
     Assert.AreEqual (pet.Category, pet2.Category)
     Assert.AreEqual (pet.Status, pet2.Status)
 //    Assert.AreEqual (pet.PhotoUrls, pet2.PhotoUrls)
