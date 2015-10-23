@@ -1,7 +1,7 @@
 (*** hide ***)
 // This block of code is omitted in the generated HTML documentation. Use
 // it to define helpers that you do not want to show in the documentation.
-#I "../../src/SwaggerProvider/bin"
+#I "../../bin"
 
 [<Literal>]
 let filePath = __SOURCE_DIRECTORY__ + "../../../tests/SwaggerProvider.Tests/Schemas/PetStore.Swagger.json"
@@ -22,7 +22,6 @@ Documentation
   <div class="span1"></div>
 </div>
 
-
 Example
 -------
 
@@ -32,12 +31,12 @@ the optional argument Headers may also be used. Headers supplied here will be us
 
 *)
 
-#r "Release/SwaggerProvider.dll"
+#r "SwaggerProvider/SwaggerProvider.dll"
 open SwaggerProvider
 
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
 type PetStore1 = SwaggerProvider<filePath>
-type PetStore2 = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
-type PetStore = SwaggerProvider<filePath, "Content-Type,application/json">
+type PetStore2 = SwaggerProvider<filePath, "Content-Type,application/json">
 
 (**
 ![alt text](img/DefinitionInference.png "Intellisense for the Swagger Definitions")

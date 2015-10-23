@@ -93,12 +93,12 @@ type DefinitionPropertyType =
             match ty.AsString() with
             | "boolean" -> Boolean
             | "integer" ->
-                match obj?format.AsString() with // Enum?
+                match obj?format.AsString() with
                 | "int32" -> Int32
                 | "int64" -> Int64
                 | x -> failwithf "Unsupported `integer` format %s" x
             | "number" ->
-                match obj?format.AsString() with // Enum?
+                match obj?format.AsString() with
                 | "float" -> Float
                 | "double" -> Double
                 | x -> failwithf "Unsupported `number` format %s" x

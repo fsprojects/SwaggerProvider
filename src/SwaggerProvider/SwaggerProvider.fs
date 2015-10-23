@@ -51,7 +51,7 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
 
                 // Create Swagger provider type
                 let ty = ProvidedTypeDefinition(asm, ns, typeName, Some typeof<obj>, IsErased = false)
-                ty.AddXmlDoc ("Swagger.io Provider for " + schemaPath.Substring(schemaPath.LastIndexOfAny [|'/';'\\'|]))
+                ty.AddXmlDoc ("Swagger.io Provider for " + schemaPathRaw.Substring(schemaPathRaw.LastIndexOfAny [|'/';'\\'|]))
 
                 let schema =
                     schemaPath

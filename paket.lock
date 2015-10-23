@@ -10,7 +10,7 @@ NUGET
       FSharp.Compiler.Service (>= 0.0.81)
     Microsoft.Bcl (1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21) - import_targets: false
+    Microsoft.Bcl.Build (1.0.21)
     Microsoft.Net.Http (2.2.29)
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)

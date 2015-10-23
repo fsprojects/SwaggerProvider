@@ -6,6 +6,3 @@ open SwaggerProvider
 
 let num = Library.hello 42
 printfn "%i" num
-
-
-#r "SwaggerProvider.dll"

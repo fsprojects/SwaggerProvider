@@ -69,15 +69,10 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
                 | Array String
                 | Array (Enum _) ->
                     <@@ Array.fold 
-                            (fun state str -> state + str + ",") //format.ToString())
+                            (fun state str -> state + str + ",") //TODO: Use format.ToString())
                             ""
                             (%%exp : string[])
                     @@>
-//                    <@@ let mutable str = ""
-//                        for a in (%%exp : string[]) do
-//                            str <- str + a + ","
-//                        str.Substring(0, str.Length - 1)
-//                    @@>
                 | _ -> Expr.Coerce (exp, typeof<string>)
             
             let replacePathTemplate path name (exp : Expr) =
