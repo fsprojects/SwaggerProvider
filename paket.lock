@@ -38,5 +38,5 @@ GITHUB
     src/Net/UriUtils.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
-    src/ProvidedTypes.fs (b0a9ae57b2a1b470cecb2b5fd50833ceac989289)
-    src/ProvidedTypes.fsi (b0a9ae57b2a1b470cecb2b5fd50833ceac989289)
+    src/ProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
+    src/ProvidedTypes.fsi (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
