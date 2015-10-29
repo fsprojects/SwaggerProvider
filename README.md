@@ -13,7 +13,8 @@ Documentation: http://sergey-tihon.github.io/SwaggerProvider/
 
 ## Swagger RESTful API Documentation Specification
 
-Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle)
+Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle).
+Also possible to [Create an ASP.NET API app in Azure App Service](https://azure.microsoft.com/en-us/documentation/articles/app-service-dotnet-create-api-app/)
 
 ### [Swagger v2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md):
 
