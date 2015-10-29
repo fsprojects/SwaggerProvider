@@ -36,28 +36,22 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
 
                 let schemaPathRaw = args.[0] :?> string
 
-                let schemaPath = 
+                let schemaData = 
                     match schemaPathRaw.StartsWith("http", true, null) with
-                    | true -> 
-                        let root =  __SOURCE_DIRECTORY__
-                        let swaggerFilePath = root + @"/../../tests/SwaggerProvider.Tests/Schemas/swaggerSchema.json"
-                        // Download File
-                        System.Net.ServicePointManager.ServerCertificateValidationCallback <-
-                          System.Net.Security.RemoteCertificateValidationCallback(fun _ _ _ _ -> true)
-                        (new System.Net.WebClient()).DownloadFile((schemaPathRaw), swaggerFilePath )
-                        swaggerFilePath
+                    | true ->
+                        Http.RequestString(schemaPathRaw) 
                     | false ->
-                        schemaPathRaw
+                        schemaPathRaw |> IO.File.ReadAllText
+             
+                let schema =
+                    schemaData
+                    |> JsonValue.Parse
+                    |> SwaggerSchema.Parse
 
                 // Create Swagger provider type
                 let ty = ProvidedTypeDefinition(asm, ns, typeName, Some typeof<obj>, IsErased = false)
-                ty.AddXmlDoc ("Swagger.io Provider for " + schemaPathRaw.Substring(schemaPathRaw.LastIndexOfAny [|'/';'\\'|]))
+                ty.AddXmlDoc ("Swagger.io Provider for " + schema.Host)
 
-                let schema =
-                    schemaPath
-                    |> IO.File.ReadAllText
-                    |> JsonValue.Parse
-                    |> SwaggerSchema.Parse
 
                 let defCompiler = DefinitionCompiler(schema)
                 ty.AddMember <| defCompiler.Compile() // Add all definitions
