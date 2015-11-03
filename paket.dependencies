@@ -1,13 +1,6 @@
 source https://nuget.org/api/v2
 
-nuget FSharp.Formatting
 nuget Newtonsoft.Json
-nuget NUnit
-nuget NUnit.Runners
-nuget FAKE
-nuget SourceLink.Fake
-
-github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
 github fsharp/FSharp.Data src/Net/Http.fs
@@ -21,3 +14,21 @@ github fsharp/FSharp.Data src/Json/JsonConversions.fs
 github fsharp/FSharp.Data src/Json/JsonExtensions.fs
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
+
+group Build
+	
+	source https://nuget.org/api/v2
+	
+	nuget FAKE
+	nuget FSharp.Formatting
+	nuget SourceLink.Fake
+
+	github fsharp/FAKE modules/Octokit/Octokit.fsx
+
+	
+group Test
+	
+	source https://nuget.org/api/v2
+	
+	nuget NUnit
+	nuget NUnit.Runners
