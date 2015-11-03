@@ -1,8 +1,9 @@
 source https://nuget.org/api/v2
 
 nuget FSharp.Formatting
-nuget NUnit 2.6.3
-nuget NUnit.Runners 2.6.3
+nuget Newtonsoft.Json
+nuget NUnit
+nuget NUnit.Runners
 nuget FAKE
 nuget SourceLink.Fake
 

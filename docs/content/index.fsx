@@ -3,6 +3,8 @@
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
 
+[<Literal>]
+let filePath = __SOURCE_DIRECTORY__ + "../../../tests/SwaggerProvider.Tests/Schemas/PetStore.Swagger.json"
 (**
 SwaggerProvider
 ======================
@@ -24,16 +26,23 @@ Example
 -------
 
 This example demonstrates using a function defined in this sample library.
+First we generate the Swagger Provider. This can be done either by supplying a filepath or a URI. In either case
+the optional argument Headers may also be used. Headers supplied here will be used in all REST calls.
 
 *)
-#r "../../bin/SwaggerProvider/SwaggerProvider.dll"
+
+#r "SwaggerProvider/SwaggerProvider.dll"
 open SwaggerProvider
 
-let PetStore = SwaggerProvider< "http://petstore.swagger.io/v2/swagger.json">
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
+type PetStore1 = SwaggerProvider<filePath>
+type PetStore2 = SwaggerProvider<filePath, "Content-Type,application/json">
 
 (**
 ![alt text](img/DefinitionInference.png "Intellisense for the Swagger Definitions")
 ![alt text](img/OperationsInference.png "Intellisense for the Swagger Operations")
+![alt text](img/Instantiation.png "Intellisense for the Swagger Instantiations")
+![alt text](img/Invocation.png "Intellisense for the Swagger Invocations")
 
 Samples & documentation
 -----------------------

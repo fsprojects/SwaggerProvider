@@ -6,7 +6,7 @@
 // Web site location for the generated documentation
 let website = "/SwaggerProvider"
 
-let githubLink = "http://github.com/sergey-tihon/SwaggerProvider"
+let githubLink = "https://github.com/sergey-tihon/SwaggerProvider"
 
 // Specify more information about your project
 let info =
@@ -14,10 +14,11 @@ let info =
     "project-author", "Sergey Tihon"
     "project-summary", "Type provider for Swagger.io"
     "project-github", githubLink
-    "project-nuget", "http://nuget.org/packages/SwaggerProvider" ]
+    "project-nuget", "http://nuget.org/packages/SwaggerProvider" 
+  ]
 
 // --------------------------------------------------------------------------------------
-// For typical project, no changes are needed below
+// For a typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
 #I "../../packages/FAKE/tools/"
@@ -100,12 +101,16 @@ let libDirs =
 let buildReference () =
   CleanDir (output @@ "reference")
   MetadataFormat.Generate
-    ( binaries, output @@ "reference", layoutRootsAll.["en"],
+    ( binaries, 
+      output @@ "reference", 
+      layoutRootsAll.["en"],
       parameters = ("root", root)::info,
       sourceRepo = githubLink @@ "tree/master",
       sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
       ?assemblyReferences = references,
-      publicOnly = true,libDirs = libDirs )
+      publicOnly = true,
+      libDirs = libDirs 
+    )
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =

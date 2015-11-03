@@ -14,29 +14,30 @@ NUGET
     Microsoft.Net.Http (2.2.29)
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
-    NUnit (2.6.3)
-    NUnit.Runners (2.6.3)
+    Newtonsoft.Json (7.0.1)
+    NUnit (2.6.4)
+    NUnit.Runners (2.6.4)
     Octokit (0.8.0)
       Microsoft.Net.Http
     SourceLink.Fake (0.5.0)
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (12b839de599dd8ed448416a963025bb26b978a8d)
+    modules/Octokit/Octokit.fsx (0cedad490fa06bd072823b2215f3f05cf917a7ba)
       Octokit
   remote: fsharp/FSharp.Data
   specs:
-    src/CommonRuntime/IO.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/CommonRuntime/NameUtils.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/CommonRuntime/Pluralizer.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/CommonRuntime/StructuralTypes.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/CommonRuntime/TextConversions.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/Json/JsonConversions.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/Json/JsonExtensions.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/Json/JsonValue.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/Net/Http.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
-    src/Net/UriUtils.fs (68cf79763e4afc1df21c665524c9dbfd9fedec21)
+    src/CommonRuntime/IO.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/CommonRuntime/NameUtils.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/CommonRuntime/Pluralizer.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/CommonRuntime/StructuralTypes.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/CommonRuntime/TextConversions.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/Json/JsonConversions.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/Json/JsonExtensions.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/Json/JsonValue.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/Net/Http.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/Net/UriUtils.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
-    src/ProvidedTypes.fs (cf96cf990590da7082197452b1b544e26ebed472)
-    src/ProvidedTypes.fsi (cf96cf990590da7082197452b1b544e26ebed472)
+    src/ProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
+    src/ProvidedTypes.fsi (f1234ba078dad7cbb674b1d1ab8b94f92f827911)

@@ -2,6 +2,12 @@
 // FAKE build script
 // --------------------------------------------------------------------------------------
 
+// Added to allow building the script from F# interactive. If the build fails F# 
+// interactive allows you to review the full log, unlike the Windows Command Prompt.
+#if INTERACTIVE
+System.IO.Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
+#endif
+
 #r @"packages/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.Git
@@ -140,7 +146,7 @@ Target "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-Target "RunTests" (fun _ ->
+Target "RunTests" (fun _ -> 
     !! testAssemblies
     |> NUnit (fun p ->
         { p with
