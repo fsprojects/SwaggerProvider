@@ -14,7 +14,7 @@ requireLicenseAcceptance
 copyright
     Copyright 2015
 tags
-    F# sharp data typeprovider Swagger API REST
+    F# fsharp data typeprovider Swagger API REST
 summary
     Type provider for Swagger.io
 description
