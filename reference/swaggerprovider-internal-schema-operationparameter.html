@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+<head>
+    <meta charset="utf-8" />
+
+
     <title>OperationParameter - SwaggerProvider</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Sergey Tihon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Sergey Tihon" />
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet" />
 
     <link type="text/css" rel="stylesheet" href="/SwaggerProvider/content/style.css" />
     <script type="text/javascript" src="/SwaggerProvider/content/tips.js"></script>
@@ -18,25 +20,32 @@
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+                <li><a href="https://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
+            </ul>
+            <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                
 
 
 
 <h1>OperationParameter</h1>
+<p>
+  <span>Namespace: SwaggerProvider.Internal.Schema</span><br />
+</p>
 <div class="xmldoc">
+<p>Describes a single operation parameter.
+<a href="http://swagger.io/specification/#parameterObject">http://swagger.io/specification/#parameterObject</a></p>
+
+
 </div>
   <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
@@ -47,91 +56,129 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '381', 381)" onmouseover="showTip(event, '381', 381)">
-            Description
+          <code onmouseout="hideTip(event, '391', 391)" onmouseover="showTip(event, '391', 391)">
+            CollectionFormat
           </code>
-          <div class="tip" id="381">
-            <strong>Signature:</strong> string<br />
+          <div class="tip" id="391">
+            <strong>Signature:</strong> CollectionFormat<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L124-124" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L228-228" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Determines the format of the array if type array is used.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '382', 382)" onmouseover="showTip(event, '382', 382)">
+          <code onmouseout="hideTip(event, '392', 392)" onmouseover="showTip(event, '392', 392)">
+            Description
+          </code>
+          <div class="tip" id="392">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L222-222" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A brief description of the parameter. This could contain examples of use.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '393', 393)" onmouseover="showTip(event, '393', 393)">
             In
           </code>
-          <div class="tip" id="382">
+          <div class="tip" id="393">
             <strong>Signature:</strong> OperationParameterLocation<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L123-123" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L220-220" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Required. The location of the parameter.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '383', 383)" onmouseover="showTip(event, '383', 383)">
+          <code onmouseout="hideTip(event, '394', 394)" onmouseover="showTip(event, '394', 394)">
             Name
           </code>
-          <div class="tip" id="383">
+          <div class="tip" id="394">
             <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L122-122" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L218-218" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Required. The name of the parameter. Parameter names are case sensitive.
+If in is "path", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.
+For all other cases, the name corresponds to the parameter name used based on the in property.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '384', 384)" onmouseover="showTip(event, '384', 384)">
+          <code onmouseout="hideTip(event, '395', 395)" onmouseover="showTip(event, '395', 395)">
             Required
           </code>
-          <div class="tip" id="384">
+          <div class="tip" id="395">
             <strong>Signature:</strong> bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L125-125" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L224-224" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Determines whether this parameter is mandatory. If the parameter is in "path", this property is required and its value MUST be true. Otherwise, the property MAY be included and its default value is false.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '385', 385)" onmouseover="showTip(event, '385', 385)">
+          <code onmouseout="hideTip(event, '396', 396)" onmouseover="showTip(event, '396', 396)">
             Type
           </code>
-          <div class="tip" id="385">
+          <div class="tip" id="396">
             <strong>Signature:</strong> DefinitionPropertyType<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L126-126" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L226-226" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>The type of the parameter. Unlike the corresponding swagger field, this contains the Schema Object if 'in' is of type Body.</p>
+
+
+
         </td>
       </tr>
     </tbody>
@@ -145,45 +192,48 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '386', 386)" onmouseover="showTip(event, '386', 386)">
+          <code onmouseout="hideTip(event, '397', 397)" onmouseover="showTip(event, '397', 397)">
             Parse(obj)
           </code>
-          <div class="tip" id="386">
+          <div class="tip" id="397">
             <strong>Signature:</strong> obj:JsonValue -&gt; OperationParameter<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L128-128" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L231-231" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Parses the Json value as an OperationParameter.</p>
+
+
+
         </td>
       </tr>
     </tbody>
   </table>
 
-        </div>
-        <div class="span3">
-          <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">SwaggerProvider</li>
-            <li><a href="/SwaggerProvider/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
-            <li><a href="/SwaggerProvider/license.html">License</a></li>
-            <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
-            
-            <li class="nav-header">Getting started</li>
-            <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+            </div>
+            <div class="span3">
+                <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />
+                <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+                    <li class="nav-header">SwaggerProvider</li>
+                    <li><a href="/SwaggerProvider/index.html">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
+                    <li><a href="https://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
+                    <li><a href="/SwaggerProvider/license.html">License</a></li>
+                    <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
-          </ul>
+                    <li class="nav-header">Getting started</li>
+                    <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </div>
-    <a href="http://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+</body>
+</html>

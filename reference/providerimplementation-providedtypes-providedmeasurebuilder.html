@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+<head>
+    <meta charset="utf-8" />
+
+
     <title>ProvidedMeasureBuilder - SwaggerProvider</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Sergey Tihon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Sergey Tihon" />
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet" />
 
     <link type="text/css" rel="stylesheet" href="/SwaggerProvider/content/style.css" />
     <script type="text/javascript" src="/SwaggerProvider/content/tips.js"></script>
@@ -18,26 +20,31 @@
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+                <li><a href="https://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
+            </ul>
+            <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                
 
 
 
 <h1>ProvidedMeasureBuilder</h1>
+<p>
+  <span>Namespace: ProviderImplementation.ProvidedTypes</span><br />
+</p>
 <div class="xmldoc">
 <p>Helps create erased provided unit-of-measure annotations.</p>
+
+
 </div>
   <h3>Instance members</h3>
   <table class="table table-bordered member-list">
@@ -48,38 +55,22 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '244', 244)" onmouseover="showTip(event, '244', 244)">
+          <code onmouseout="hideTip(event, '245', 245)" onmouseover="showTip(event, '245', 245)">
             AnnotateType(basic, argument)
           </code>
-          <div class="tip" id="244">
+          <div class="tip" id="245">
             <strong>Signature:</strong> (basic:Type * argument:Type list) -&gt; Type<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1220-1220" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1255-1255" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>e.g. float<kg>, Vector<int, kg></p>
+          <p>Returns a type where the type has been annotated with the given types and/or units-of-measure.
+e.g. float<kg>, Vector<int, kg></p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '245', 245)" onmouseover="showTip(event, '245', 245)">
-            Inverse(denominator)
-          </code>
-          <div class="tip" id="245">
-            <strong>Signature:</strong> denominator:Type -&gt; Type<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1193-1193" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>e.g. 1 / kg</p>
 
         </td>
       </tr>
@@ -87,18 +78,20 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '246', 246)" onmouseover="showTip(event, '246', 246)">
-            One
+            Inverse(denominator)
           </code>
           <div class="tip" id="246">
-            <strong>Signature:</strong> Type<br />
+            <strong>Signature:</strong> denominator:Type -&gt; Type<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1191-1191" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1228-1228" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>e.g. 1</p>
+          <p>Returns the measure indicating the inverse of two units of measure, e.g. 1 / s</p>
+
+
 
         </td>
       </tr>
@@ -106,18 +99,20 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '247', 247)" onmouseover="showTip(event, '247', 247)">
-            Product(measure1, measure1)
+            One
           </code>
           <div class="tip" id="247">
-            <strong>Signature:</strong> (measure1:Type * measure1:Type) -&gt; Type<br />
+            <strong>Signature:</strong> Type<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1192-1192" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1226-1226" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>e.g. m * kg</p>
+          <p>Gets the measure indicating the "1" unit of measure, that is the unitless measure.</p>
+
+
 
         </td>
       </tr>
@@ -125,18 +120,20 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '248', 248)" onmouseover="showTip(event, '248', 248)">
-            Ratio(numerator, denominator)
+            Product(measure1, measure1)
           </code>
           <div class="tip" id="248">
-            <strong>Signature:</strong> (numerator:Type * denominator:Type) -&gt; Type<br />
+            <strong>Signature:</strong> (measure1:Type * measure1:Type) -&gt; Type<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1194-1194" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1227-1227" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>e.g. kg / m</p>
+          <p>Returns the measure indicating the product of two units of measure, e.g. kg * m</p>
+
+
 
         </td>
       </tr>
@@ -144,18 +141,20 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '249', 249)" onmouseover="showTip(event, '249', 249)">
-            SI(arg1)
+            Ratio(numerator, denominator)
           </code>
           <div class="tip" id="249">
-            <strong>Signature:</strong> string -&gt; Type<br />
+            <strong>Signature:</strong> (numerator:Type * denominator:Type) -&gt; Type<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1200-1200" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1229-1229" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>the SI unit from the F# core library, where the string is in capitals and US spelling, e.g. Meter</p>
+          <p>Returns the measure indicating the ratio of two units of measure, e.g. kg / m</p>
+
+
 
         </td>
       </tr>
@@ -163,18 +162,41 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '250', 250)" onmouseover="showTip(event, '250', 250)">
-            Square(measure)
+            SI(unitName)
           </code>
           <div class="tip" id="250">
+            <strong>Signature:</strong> unitName:string -&gt; Type<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1235-1235" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns the measure for an SI unit from the F# core library, where the string is in capitals and US spelling, e.g. Meter</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
+            Square(measure)
+          </code>
+          <div class="tip" id="251">
             <strong>Signature:</strong> measure:Type -&gt; Type<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1195-1195" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1230-1230" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>e.g. m * m</p>
+          <p>Returns the measure indicating the square of a unit of measure, e.g. m * m</p>
+
+
 
         </td>
       </tr>
@@ -189,46 +211,48 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
+          <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
             Default
           </code>
-          <div class="tip" id="251">
+          <div class="tip" id="252">
             <strong>Signature:</strong> ProvidedMeasureBuilder<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1190-1190" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L1225-1225" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>The ProvidedMeasureBuilder for building measures.</p>
+
+
 
         </td>
       </tr>
     </tbody>
   </table>
 
-        </div>
-        <div class="span3">
-          <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">SwaggerProvider</li>
-            <li><a href="/SwaggerProvider/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
-            <li><a href="/SwaggerProvider/license.html">License</a></li>
-            <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
-            
-            <li class="nav-header">Getting started</li>
-            <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+            </div>
+            <div class="span3">
+                <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />
+                <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+                    <li class="nav-header">SwaggerProvider</li>
+                    <li><a href="/SwaggerProvider/index.html">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
+                    <li><a href="https://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
+                    <li><a href="/SwaggerProvider/license.html">License</a></li>
+                    <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
-          </ul>
+                    <li class="nav-header">Getting started</li>
+                    <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </div>
-    <a href="http://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+</body>
+</html>

@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+<head>
+    <meta charset="utf-8" />
+
+
     <title>Http - SwaggerProvider</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Sergey Tihon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Sergey Tihon" />
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet" />
 
     <link type="text/css" rel="stylesheet" href="/SwaggerProvider/content/style.css" />
     <script type="text/javascript" src="/SwaggerProvider/content/tips.js"></script>
@@ -18,27 +20,32 @@
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+                <li><a href="https://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
+            </ul>
+            <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                
 
 
 
 <h1>Http</h1>
+<p>
+  <span>Namespace: FSharp.Data</span><br />
+</p>
 <div class="xmldoc">
 <p>Utilities for working with network via HTTP. Includes methods for downloading 
 resources with specified headers, query parameters and HTTP body</p>
+
+
 </div>
   <h3>Static members</h3>
   <table class="table table-bordered member-list">
@@ -49,15 +56,15 @@ resources with specified headers, query parameters and HTTP body</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
+          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
             AsyncRequest(...)
           </code>
-          <div class="tip" id="125">
+          <div class="tip" id="126">
             <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * responseEncodingOverride:string option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; Async&lt;HttpResponse&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L812-812" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L843-843" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -67,28 +74,7 @@ headers that have to be handled specially - such as Accept, Content-Type &amp; R
 The body for POST request can be specified either as text or as a list of parameters
 that will be encoded, and the method will automatically be set if not specified</p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
-            AsyncRequestStream(...)
-          </code>
-          <div class="tip" id="126">
-            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; Async&lt;HttpResponseWithStream&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L835-835" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Download an HTTP web resource from the specified URL synchronously
-(allows specifying query string parameters and HTTP headers including
-headers that have to be handled specially - such as Accept, Content-Type &amp; Referer)
-The body for POST request can be specified either as text or as a list of parameters
-that will be encoded, and the method will automatically be set if not specified</p>
 
         </td>
       </tr>
@@ -96,14 +82,39 @@ that will be encoded, and the method will automatically be set if not specified<
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
-            AsyncRequestString(...)
+            AsyncRequestStream(...)
           </code>
           <div class="tip" id="127">
+            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; Async&lt;HttpResponseWithStream&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L866-866" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Download an HTTP web resource from the specified URL synchronously
+(allows specifying query string parameters and HTTP headers including
+headers that have to be handled specially - such as Accept, Content-Type &amp; Referer)
+The body for POST request can be specified either as text or as a list of parameters
+that will be encoded, and the method will automatically be set if not specified</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
+            AsyncRequestString(...)
+          </code>
+          <div class="tip" id="128">
             <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * responseEncodingOverride:string option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; Async&lt;string&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L821-821" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L852-852" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -113,28 +124,7 @@ headers that have to be handled specially - such as Accept, Content-Type &amp; R
 The body for POST request can be specified either as text or as a list of parameters
 that will be encoded, and the method will automatically be set if not specified</p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
-            Request(...)
-          </code>
-          <div class="tip" id="128">
-            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * responseEncodingOverride:string option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; HttpResponse<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L863-863" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Download an HTTP web resource from the specified URL synchronously
-(allows specifying query string parameters and HTTP headers including
-headers that have to be handled specially - such as Accept, Content-Type &amp; Referer)
-The body for POST request can be specified either as text or as a list of parameters
-that will be encoded, and the method will automatically be set if not specified</p>
 
         </td>
       </tr>
@@ -142,14 +132,14 @@ that will be encoded, and the method will automatically be set if not specified<
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
-            RequestStream(...)
+            Request(...)
           </code>
           <div class="tip" id="129">
-            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; HttpResponseWithStream<br />
+            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * responseEncodingOverride:string option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; HttpResponse<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L883-883" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L894-894" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -158,6 +148,8 @@ that will be encoded, and the method will automatically be set if not specified<
 headers that have to be handled specially - such as Accept, Content-Type &amp; Referer)
 The body for POST request can be specified either as text or as a list of parameters
 that will be encoded, and the method will automatically be set if not specified</p>
+
+
 
         </td>
       </tr>
@@ -165,14 +157,14 @@ that will be encoded, and the method will automatically be set if not specified<
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
-            RequestString(...)
+            RequestStream(...)
           </code>
           <div class="tip" id="130">
-            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * responseEncodingOverride:string option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; string<br />
+            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; HttpResponseWithStream<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L873-873" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L914-914" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -182,32 +174,59 @@ headers that have to be handled specially - such as Accept, Content-Type &amp; R
 The body for POST request can be specified either as text or as a list of parameters
 that will be encoded, and the method will automatically be set if not specified</p>
 
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+            RequestString(...)
+          </code>
+          <div class="tip" id="131">
+            <strong>Signature:</strong> (url:string * query:(string * string) list option * headers:seq&lt;string * string&gt; option * httpMethod:string option * body:HttpRequestBody option * cookies:seq&lt;string * string&gt; option * cookieContainer:CookieContainer option * silentHttpErrors:bool option * responseEncodingOverride:string option * customizeHttpRequest:(HttpWebRequest -&gt; HttpWebRequest) option) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Net/Http.fs#L904-904" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Download an HTTP web resource from the specified URL synchronously
+(allows specifying query string parameters and HTTP headers including
+headers that have to be handled specially - such as Accept, Content-Type &amp; Referer)
+The body for POST request can be specified either as text or as a list of parameters
+that will be encoded, and the method will automatically be set if not specified</p>
+
+
+
         </td>
       </tr>
     </tbody>
   </table>
 
-        </div>
-        <div class="span3">
-          <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">SwaggerProvider</li>
-            <li><a href="/SwaggerProvider/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
-            <li><a href="/SwaggerProvider/license.html">License</a></li>
-            <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
-            
-            <li class="nav-header">Getting started</li>
-            <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+            </div>
+            <div class="span3">
+                <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />
+                <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+                    <li class="nav-header">SwaggerProvider</li>
+                    <li><a href="/SwaggerProvider/index.html">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
+                    <li><a href="https://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
+                    <li><a href="/SwaggerProvider/license.html">License</a></li>
+                    <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
-          </ul>
+                    <li class="nav-header">Getting started</li>
+                    <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </div>
-    <a href="http://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+</body>
+</html>

@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+<head>
+    <meta charset="utf-8" />
+
+
     <title>ProvidedMethod - SwaggerProvider</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Sergey Tihon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Sergey Tihon" />
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet" />
 
     <link type="text/css" rel="stylesheet" href="/SwaggerProvider/content/style.css" />
     <script type="text/javascript" src="/SwaggerProvider/content/tips.js"></script>
@@ -18,24 +20,27 @@
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+                <li><a href="https://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
+            </ul>
+            <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                
 
 
 
 <h1>ProvidedMethod</h1>
+<p>
+  <span>Namespace: ProviderImplementation.ProvidedTypes</span><br />
+</p>
 <div class="xmldoc">
 </div>
   <h3>Constructors</h3>
@@ -47,19 +52,21 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
+          <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
             new(methodName, parameters, returnType)
           </code>
-          <div class="tip" id="252">
+          <div class="tip" id="253">
             <strong>Signature:</strong> (methodName:string * parameters:ProvidedParameter list * returnType:Type) -&gt; ProvidedMethod<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L661-661" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L665-665" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Create a new provided method. It is not initially associated with any specific provided type definition.</p>
+
+
 
         </td>
       </tr>
@@ -74,38 +81,21 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
+          <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
             AddCustomAttribute(arg1)
           </code>
-          <div class="tip" id="253">
+          <div class="tip" id="254">
             <strong>Signature:</strong> CustomAttributeData -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L676-676" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L683-683" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Add a custom attribute to the provided method definition.</p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
-            AddDefinitionLocation(...)
-          </code>
-          <div class="tip" id="254">
-            <strong>Signature:</strong> (line:int * column:int * filePath:string) -&gt; unit<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L675-675" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Add definition location information to the provided type definition.</p>
 
         </td>
       </tr>
@@ -113,14 +103,35 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '255', 255)" onmouseover="showTip(event, '255', 255)">
-            AddMethodAttrs(attributes)
+            AddDefinitionLocation(...)
           </code>
           <div class="tip" id="255">
+            <strong>Signature:</strong> (line:int * column:int * filePath:string) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L682-682" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Add definition location information to the provided type definition.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '256', 256)" onmouseover="showTip(event, '256', 256)">
+            AddMethodAttrs(attributes)
+          </code>
+          <div class="tip" id="256">
             <strong>Signature:</strong> attributes:MethodAttributes -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L684-684" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L691-691" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -130,38 +141,21 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '256', 256)" onmouseover="showTip(event, '256', 256)">
+          <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
             AddObsoleteAttribute(message, isError)
           </code>
-          <div class="tip" id="256">
+          <div class="tip" id="257">
             <strong>Signature:</strong> (message:string * isError:bool option) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L674-674" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L681-681" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Add XML documentation information to this provided method</p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
-            AddXmlDoc(xmlDoc)
-          </code>
-          <div class="tip" id="257">
-            <strong>Signature:</strong> xmlDoc:string -&gt; unit<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L673-673" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Add XML documentation information to this provided constructor</p>
 
         </td>
       </tr>
@@ -169,19 +163,20 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
-            AddXmlDocComputed(xmlDocFunction)
+            AddXmlDoc(xmlDoc)
           </code>
           <div class="tip" id="258">
-            <strong>Signature:</strong> (xmlDocFunction:(unit -&gt; string)) -&gt; unit<br />
+            <strong>Signature:</strong> xmlDoc:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L671-671" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L680-680" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
-The documentation is re-computed  every time it is required.</p>
+          <p>Add XML documentation information to this provided constructor</p>
+
+
 
         </td>
       </tr>
@@ -189,18 +184,21 @@ The documentation is re-computed  every time it is required.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '259', 259)" onmouseover="showTip(event, '259', 259)">
-            AddXmlDocDelayed(xmlDocFunction)
+            AddXmlDocComputed(xmlDocFunction)
           </code>
           <div class="tip" id="259">
             <strong>Signature:</strong> (xmlDocFunction:(unit -&gt; string)) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L672-672" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L678-678" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary</p>
+          <p>Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary
+The documentation is re-computed  every time it is required.</p>
+
+
 
         </td>
       </tr>
@@ -208,18 +206,20 @@ The documentation is re-computed  every time it is required.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '260', 260)" onmouseover="showTip(event, '260', 260)">
-            InvokeCode()
+            AddXmlDocDelayed(xmlDocFunction)
           </code>
           <div class="tip" id="260">
-            <strong>Signature:</strong> unit -&gt; Expr list -&gt; Expr<br />
+            <strong>Signature:</strong> (xmlDocFunction:(unit -&gt; string)) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L691-691" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L679-679" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Set the quotation used to compute the implementation of invocations of this method.</p>
+          <p>Add XML documentation information to this provided constructor, where the computation of the documentation is delayed until necessary</p>
+
+
 
         </td>
       </tr>
@@ -227,18 +227,20 @@ The documentation is re-computed  every time it is required.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '261', 261)" onmouseover="showTip(event, '261', 261)">
-            InvokeCode()
+            DefineStaticParameters(...)
           </code>
           <div class="tip" id="261">
-            <strong>Signature:</strong> unit -&gt; unit<br />
+            <strong>Signature:</strong> (parameters:ProvidedStaticParameter list * instantiationFunction:(string -&gt; obj [] -&gt; ProvidedMethod)) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L691-691" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L706-706" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Set the quotation used to compute the implementation of invocations of this method.</p>
+          <p>Define the static parameters available on a statically parameterized method</p>
+
+
 
         </td>
       </tr>
@@ -246,18 +248,20 @@ The documentation is re-computed  every time it is required.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '262', 262)" onmouseover="showTip(event, '262', 262)">
-            IsStaticMethod()
+            InvokeCode()
           </code>
           <div class="tip" id="262">
-            <strong>Signature:</strong> unit -&gt; bool<br />
+            <strong>Signature:</strong> unit -&gt; Expr list -&gt; Expr<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L688-688" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L699-699" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get or set a flag indicating if the property is static.</p>
+          <p>Set the quotation used to compute the implementation of invocations of this method.</p>
+
+
 
         </td>
       </tr>
@@ -265,18 +269,20 @@ The documentation is re-computed  every time it is required.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '263', 263)" onmouseover="showTip(event, '263', 263)">
-            IsStaticMethod()
+            InvokeCode()
           </code>
           <div class="tip" id="263">
             <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L687-687" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L699-699" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get or set a flag indicating if the property is static.</p>
+          <p>Set the quotation used to compute the implementation of invocations of this method.</p>
+
+
 
         </td>
       </tr>
@@ -284,45 +290,89 @@ The documentation is re-computed  every time it is required.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '264', 264)" onmouseover="showTip(event, '264', 264)">
-            SetMethodAttrs(attributes)
+            IsStaticMethod()
           </code>
           <div class="tip" id="264">
+            <strong>Signature:</strong> unit -&gt; bool<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L695-695" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get or set a flag indicating if the property is static.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '265', 265)" onmouseover="showTip(event, '265', 265)">
+            IsStaticMethod()
+          </code>
+          <div class="tip" id="265">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L694-694" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get or set a flag indicating if the property is static.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '266', 266)" onmouseover="showTip(event, '266', 266)">
+            SetMethodAttrs(attributes)
+          </code>
+          <div class="tip" id="266">
             <strong>Signature:</strong> attributes:MethodAttributes -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L683-683" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsprojects/FSharp.TypeProviders.StarterPack/src/ProvidedTypes.fs#L690-690" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Set the method attributes of the method. By default these are simple 'MethodAttributes.Public'</p>
+
+
 
         </td>
       </tr>
     </tbody>
   </table>
 
-        </div>
-        <div class="span3">
-          <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">SwaggerProvider</li>
-            <li><a href="/SwaggerProvider/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
-            <li><a href="/SwaggerProvider/license.html">License</a></li>
-            <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
-            
-            <li class="nav-header">Getting started</li>
-            <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+            </div>
+            <div class="span3">
+                <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />
+                <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+                    <li class="nav-header">SwaggerProvider</li>
+                    <li><a href="/SwaggerProvider/index.html">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
+                    <li><a href="https://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
+                    <li><a href="/SwaggerProvider/license.html">License</a></li>
+                    <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
-          </ul>
+                    <li class="nav-header">Getting started</li>
+                    <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </div>
-    <a href="http://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+</body>
+</html>

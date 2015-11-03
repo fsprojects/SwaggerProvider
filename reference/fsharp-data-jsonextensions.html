@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
+<head>
+    <meta charset="utf-8" />
+
+
     <title>JsonExtensions - SwaggerProvider</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content=""/>
-    <meta name="author" content="Sergey Tihon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Sergey Tihon" />
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet" />
 
     <link type="text/css" rel="stylesheet" href="/SwaggerProvider/content/style.css" />
     <script type="text/javascript" src="/SwaggerProvider/content/tips.js"></script>
@@ -18,26 +20,31 @@
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
-        </ul>
-        <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+                <li><a href="https://github.com/sergey-tihon/SwaggerProvider">github page</a></li>
+            </ul>
+            <h3 class="muted"><a href="/SwaggerProvider/index.html">SwaggerProvider</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                
 
 
 
 <h1>JsonExtensions</h1>
+<p>
+  <span>Namespace: FSharp.Data</span><br />
+</p>
 <div class="xmldoc">
 <p>Extension methods with operations on JSON values</p>
+
+
 </div>
   <h3>Static members</h3>
   <table class="table table-bordered member-list">
@@ -48,39 +55,22 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
             AsArray(x)
           </code>
-          <div class="tip" id="146">
+          <div class="tip" id="147">
             <strong>Signature:</strong> x:JsonValue -&gt; JsonValue []<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L52-52" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L52-52" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Get all the elements of a JSON value.
 Returns an empty array if the value is not a JSON array.</p>
 
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
 
-          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
-            AsBoolean(x)
-          </code>
-          <div class="tip" id="147">
-            <strong>Signature:</strong> x:JsonValue -&gt; bool<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L109-109" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Get the boolean value of an element (assuming that the value is a boolean)</p>
 
         </td>
       </tr>
@@ -88,19 +78,20 @@ Returns an empty array if the value is not a JSON array.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
-            AsDateTime(x, cultureInfo)
+            AsBoolean(x)
           </code>
           <div class="tip" id="148">
-            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; DateTime<br />
+            <strong>Signature:</strong> x:JsonValue -&gt; bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L117-117" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L109-109" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the datetime value of an element (assuming that the value is a string
-containing well-formed ISO date or MSFT JSON date)</p>
+          <p>Get the boolean value of an element (assuming that the value is a boolean)</p>
+
+
 
         </td>
       </tr>
@@ -108,18 +99,21 @@ containing well-formed ISO date or MSFT JSON date)</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
-            AsDecimal(x, cultureInfo)
+            AsDateTime(x, cultureInfo)
           </code>
           <div class="tip" id="149">
-            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; decimal<br />
+            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; DateTime<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L92-92" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L117-117" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get a number as a decimal (assuming that the value fits in decimal)</p>
+          <p>Get the datetime value of an element (assuming that the value is a string
+containing well-formed ISO date or MSFT JSON date)</p>
+
+
 
         </td>
       </tr>
@@ -127,18 +121,20 @@ containing well-formed ISO date or MSFT JSON date)</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
-            AsFloat(x, cultureInfo, missingValues)
+            AsDecimal(x, cultureInfo)
           </code>
           <div class="tip" id="150">
-            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option * missingValues:string [] option) -&gt; float<br />
+            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; decimal<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L100-100" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L92-92" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get a number as a float (assuming that the value is convertible to a float)</p>
+          <p>Get a number as a decimal (assuming that the value fits in decimal)</p>
+
+
 
         </td>
       </tr>
@@ -146,18 +142,20 @@ containing well-formed ISO date or MSFT JSON date)</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
-            AsGuid(x)
+            AsFloat(x, cultureInfo, missingValues)
           </code>
           <div class="tip" id="151">
-            <strong>Signature:</strong> x:JsonValue -&gt; Guid<br />
+            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option * missingValues:string [] option) -&gt; float<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L125-125" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L100-100" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the guid value of an element (assuming that the value is a guid)</p>
+          <p>Get a number as a float (assuming that the value is convertible to a float)</p>
+
+
 
         </td>
       </tr>
@@ -165,18 +163,20 @@ containing well-formed ISO date or MSFT JSON date)</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '152', 152)" onmouseover="showTip(event, '152', 152)">
-            AsInteger(x, cultureInfo)
+            AsGuid(x)
           </code>
           <div class="tip" id="152">
-            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; int<br />
+            <strong>Signature:</strong> x:JsonValue -&gt; Guid<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L76-76" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L125-125" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get a number as an integer (assuming that the value fits in integer)</p>
+          <p>Get the guid value of an element (assuming that the value is a guid)</p>
+
+
 
         </td>
       </tr>
@@ -184,18 +184,20 @@ containing well-formed ISO date or MSFT JSON date)</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '153', 153)" onmouseover="showTip(event, '153', 153)">
-            AsInteger64(x, cultureInfo)
+            AsInteger(x, cultureInfo)
           </code>
           <div class="tip" id="153">
-            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; int64<br />
+            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; int<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L84-84" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L76-76" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get a number as a 64-bit integer (assuming that the value fits in 64-bit integer)</p>
+          <p>Get a number as an integer (assuming that the value fits in integer)</p>
+
+
 
         </td>
       </tr>
@@ -203,19 +205,20 @@ containing well-formed ISO date or MSFT JSON date)</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '154', 154)" onmouseover="showTip(event, '154', 154)">
-            AsString(x, cultureInfo)
+            AsInteger64(x, cultureInfo)
           </code>
           <div class="tip" id="154">
-            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; string<br />
+            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; int64<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L68-68" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L84-84" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get the string value of an element (assuming that the value is a scalar)
-Returns the empty string for JsonValue.Null</p>
+          <p>Get a number as a 64-bit integer (assuming that the value fits in 64-bit integer)</p>
+
+
 
         </td>
       </tr>
@@ -223,18 +226,21 @@ Returns the empty string for JsonValue.Null</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '155', 155)" onmouseover="showTip(event, '155', 155)">
-            GetEnumerator(x)
+            AsString(x, cultureInfo)
           </code>
           <div class="tip" id="155">
-            <strong>Signature:</strong> x:JsonValue -&gt; IEnumerator<br />
+            <strong>Signature:</strong> (x:JsonValue * cultureInfo:CultureInfo option) -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L59-59" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L68-68" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get all the elements of a JSON value (assuming that the value is an array)</p>
+          <p>Get the string value of an element (assuming that the value is a scalar)
+Returns the empty string for JsonValue.Null</p>
+
+
 
         </td>
       </tr>
@@ -242,19 +248,20 @@ Returns the empty string for JsonValue.Null</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '156', 156)" onmouseover="showTip(event, '156', 156)">
-            GetProperty(x, propertyName)
+            GetEnumerator(x)
           </code>
           <div class="tip" id="156">
-            <strong>Signature:</strong> (x:JsonValue * propertyName:string) -&gt; JsonValue<br />
+            <strong>Signature:</strong> x:JsonValue -&gt; IEnumerator<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L28-28" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L59-59" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get property of a JSON object. Fails if the value is not an object
-or if the property is not present</p>
+          <p>Get all the elements of a JSON value (assuming that the value is an array)</p>
+
+
 
         </td>
       </tr>
@@ -262,18 +269,21 @@ or if the property is not present</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '157', 157)" onmouseover="showTip(event, '157', 157)">
-            InnerText(x)
+            GetProperty(x, propertyName)
           </code>
           <div class="tip" id="157">
-            <strong>Signature:</strong> x:JsonValue -&gt; string<br />
+            <strong>Signature:</strong> (x:JsonValue * propertyName:string) -&gt; JsonValue<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L132-132" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L28-28" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get inner text of an element</p>
+          <p>Get property of a JSON object. Fails if the value is not an object
+or if the property is not present</p>
+
+
 
         </td>
       </tr>
@@ -281,18 +291,20 @@ or if the property is not present</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '158', 158)" onmouseover="showTip(event, '158', 158)">
-            Item(x, index)
+            InnerText(x)
           </code>
           <div class="tip" id="158">
-            <strong>Signature:</strong> (x:JsonValue * index:int) -&gt; JsonValue<br />
+            <strong>Signature:</strong> x:JsonValue -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L63-63" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L132-132" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Try to get the value at the specified index, if the value is a JSON array.</p>
+          <p>Get inner text of an element</p>
+
+
 
         </td>
       </tr>
@@ -300,18 +312,20 @@ or if the property is not present</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '159', 159)" onmouseover="showTip(event, '159', 159)">
-            Item(x, propertyName)
+            Item(x, index)
           </code>
           <div class="tip" id="159">
-            <strong>Signature:</strong> (x:JsonValue * propertyName:string) -&gt; JsonValue<br />
+            <strong>Signature:</strong> (x:JsonValue * index:int) -&gt; JsonValue<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L47-47" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L63-63" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Assuming the value is an object, get value with the specified name</p>
+          <p>Try to get the value at the specified index, if the value is a JSON array.</p>
+
+
 
         </td>
       </tr>
@@ -319,18 +333,20 @@ or if the property is not present</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '160', 160)" onmouseover="showTip(event, '160', 160)">
-            Properties(x)
+            Item(x, propertyName)
           </code>
           <div class="tip" id="160">
-            <strong>Signature:</strong> x:JsonValue -&gt; (string * JsonValue) []<br />
+            <strong>Signature:</strong> (x:JsonValue * propertyName:string) -&gt; JsonValue<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L20-20" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L47-47" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Get a sequence of key-value pairs representing the properties of an object</p>
+          <p>Assuming the value is an object, get value with the specified name</p>
+
+
 
         </td>
       </tr>
@@ -338,46 +354,69 @@ or if the property is not present</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '161', 161)" onmouseover="showTip(event, '161', 161)">
-            TryGetProperty(x, propertyName)
+            Properties(x)
           </code>
           <div class="tip" id="161">
+            <strong>Signature:</strong> x:JsonValue -&gt; (string * JsonValue) []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L20-20" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Get a sequence of key-value pairs representing the properties of an object</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '162', 162)" onmouseover="showTip(event, '162', 162)">
+            TryGetProperty(x, propertyName)
+          </code>
+          <div class="tip" id="162">
             <strong>Signature:</strong> (x:JsonValue * propertyName:string) -&gt; JsonValue option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L39-39" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/paket-files/fsharp/FSharp.Data/src/Json/JsonExtensions.fs#L39-39" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Try to get a property of a JSON value.
 Returns None if the value is not an object or if the property is not present.</p>
 
+
+
         </td>
       </tr>
     </tbody>
   </table>
 
-        </div>
-        <div class="span3">
-          <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
-          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">SwaggerProvider</li>
-            <li><a href="/SwaggerProvider/index.html">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
-            <li><a href="/SwaggerProvider/license.html">License</a></li>
-            <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
-            
-            <li class="nav-header">Getting started</li>
-            <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+            </div>
+            <div class="span3">
+                <img src="/SwaggerProvider/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />
+                <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+                    <li class="nav-header">SwaggerProvider</li>
+                    <li><a href="/SwaggerProvider/index.html">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="http://nuget.org/packages/SwaggerProvider">Get Library via NuGet</a></li>
+                    <li><a href="https://github.com/sergey-tihon/SwaggerProvider">Source Code on GitHub</a></li>
+                    <li><a href="/SwaggerProvider/license.html">License</a></li>
+                    <li><a href="/SwaggerProvider/release-notes.html">Release Notes</a></li>
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
-          </ul>
+                    <li class="nav-header">Getting started</li>
+                    <li><a href="/SwaggerProvider/tutorial.html">Sample tutorial</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="/SwaggerProvider/reference/index.html">API Reference</a></li>
+                </ul>
+            </div>
         </div>
-      </div>
     </div>
-    <a href="http://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
-  </body>
-  </html>
+    <a href="https://github.com/sergey-tihon/SwaggerProvider"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" /></a>
+</body>
+</html>
