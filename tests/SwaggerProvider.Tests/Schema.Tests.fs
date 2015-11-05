@@ -21,3 +21,37 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
     }
     if schema.Info <> expectedInfo
         then Assert.Fail (sprintf "\n%A \n<> \n%A" schema.Info expectedInfo)
+
+
+// Test that provider can parse real-word Swagger 2.0 schemas
+
+type ApisGuru = FSharp.Data.JsonProvider<"https://apis-guru.github.io/api-models/apis.json">
+
+let ApisGuruSchemaUrls =
+    ApisGuru.GetSample().Apis
+    |> Array.choose (fun x ->
+        x.Properties
+        |> Array.tryFind (fun y ->
+            y.Type = "Swagger")
+       )
+    |> Array.map (fun x -> x.Url)
+
+let ManualSchemaUrls =
+    [|"http://netflix.github.io/genie/docs/rest/swagger.json"
+      "https://www.expedia.com/static/mobile/swaggerui/swagger.json"|]
+
+let SchemaUrls =
+    Array.concat [ManualSchemaUrls; ApisGuruSchemaUrls]
+
+[<Test; TestCaseSource("SchemaUrls")>]
+let ``Schema Parse`` url =
+    let json =
+        try
+            Http.RequestString url
+        with
+        | :? System.Net.WebException ->
+            printfn "Schema is unaccessible %s" url
+            ""
+    if not <| System.String.IsNullOrEmpty(json) then
+        let schema = json |> JsonValue.Parse |> SwaggerSchema.Parse
+        Assert.Greater(schema.Definitions.Length + schema.Operations.Length, 0)

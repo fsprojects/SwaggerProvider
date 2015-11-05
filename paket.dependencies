@@ -32,3 +32,4 @@ group Test
 	
 	nuget NUnit
 	nuget NUnit.Runners
+	nuget FSharp.Data

@@ -1,4 +1,4 @@
-﻿module Swagger.Tests
+﻿module Swagger.PetStore.Tests
 
 open SwaggerProvider
 open FSharp.Data
@@ -17,15 +17,15 @@ let ``instantiate provided objects`` () =
 
 [<Test>]
 let ``call provided methods`` () =
-    try 
+    try
         PetStore.Pet.DeletePet(1337L, apiKey)
-    with 
+    with
     | exn -> ()
 
     let tag = new PetStore.Definitions.Tag (Name = "foobar")
     let pet = new PetStore.Definitions.Pet (Name = "foo", Id = Some 1337L, Status = "available")
-    
-    try 
+
+    try
         PetStore.Pet.AddPet(pet)
     with
     | exn -> Assert.Fail ("Adding pet failed with message: " + exn.Message)
