@@ -16,10 +16,10 @@ type DefinitionCompiler (schema:SwaggerSchema) =
         |> Map.ofSeq
     let compiledTys = System.Collections.Generic.Dictionary<_,_>()
 
-    let generateProperty name ty providedField = 
-         ProvidedProperty(nicePascalName name, ty, GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)), 
+    let generateProperty name ty providedField =
+         ProvidedProperty(nicePascalName name, ty, GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
                                                    SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
-    
+
     let rec compileDefinition name =
         match compiledTys.TryGetValue name with
         | true, ty -> ty
@@ -28,7 +28,7 @@ type DefinitionCompiler (schema:SwaggerSchema) =
             | Some(def) ->
                 let ty = ProvidedTypeDefinition(nicePascalName def.Name, Some typeof<obj>, IsErased = false)
                 ty.AddMemberDelayed(fun () -> ProvidedConstructor([],
-                                                        InvokeCode = fun args -> <@@ () @@>))                
+                                                        InvokeCode = fun args -> <@@ () @@>))
                 for p in def.Properties do
                     let pTy = compilePropertyType p.Type p.IsRequired
                     let field = ProvidedField("_" + p.Name.ToLower(), pTy)

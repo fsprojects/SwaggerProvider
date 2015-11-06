@@ -29,20 +29,20 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
             parameters=parameters,
             instantiationFunction = (fun typeName args ->
                 let h = args.[1] :?> string
-                let headers = h.Split(';') |> Seq.filter (fun f -> f.Contains(",")) |> Seq.map (fun e -> 
+                let headers = h.Split(';') |> Seq.filter (fun f -> f.Contains(",")) |> Seq.map (fun e ->
                     let pair = e.Split(',')
                     (pair.[0],pair.[1])
-                    )                    
+                    )
 
                 let schemaPathRaw = args.[0] :?> string
 
-                let schemaData = 
+                let schemaData =
                     match schemaPathRaw.StartsWith("http", true, null) with
                     | true ->
-                        Http.RequestString(schemaPathRaw) 
+                        Http.RequestString(schemaPathRaw)
                     | false ->
                         schemaPathRaw |> IO.File.ReadAllText
-             
+
                 let schema =
                     schemaData
                     |> JsonValue.Parse

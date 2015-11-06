@@ -42,22 +42,22 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
         m.AddXmlDoc(op.Summary)
         m.InvokeCode <- fun args ->
             let scheme =
-                match schema.Schemes with 
-                | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself. 
+                match schema.Schemes with
+                | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
                 | array -> array.[0]
             let basePath = scheme + "://" + schema.Host + schema.BasePath
 
             // Fit headers into quotation
-            let h1 = List.map 
-                        (fun (h1,h2) -> Quotations.Expr.NewTuple [(<@@ h1 @@>); (<@@ h2 @@>)]) 
+            let h1 = List.map
+                        (fun (h1,h2) -> Quotations.Expr.NewTuple [(<@@ h1 @@>); (<@@ h2 @@>)])
                         (Seq.toList headers)
             let h2 = Quotations.Expr.NewArray (typeof<Tuple<string,string>>, h1)
 
             // Locates parameters matching the arguments
-            let parameters = 
+            let parameters =
                 List.map (
                     function
-                        | ShapeVar v as ex -> Array.find (fun (parameter : OperationParameter) -> parameter.Name = v.Name) op.Parameters, 
+                        | ShapeVar v as ex -> Array.find (fun (parameter : OperationParameter) -> parameter.Name = v.Name) op.Parameters,
                                               ex
                         | _                -> failwith ("Function '" + m.Name + "' does not support functions as arguments.")
                     )
@@ -68,13 +68,13 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
                 match defType with
                 | Array String
                 | Array (Enum _) ->
-                    <@@ Array.fold 
+                    <@@ Array.fold
                             (fun state str -> state + str + ",") //TODO: Use format.ToString())
                             ""
                             (%%exp : string[])
                     @@>
                 | _ -> Expr.Coerce (exp, typeof<string>)
-            
+
             let replacePathTemplate path name (exp : Expr) =
                 let template = "{" + name + "}"
                 <@@ Regex.Replace(%%path, template, string (%%exp : string)) @@>
@@ -96,10 +96,10 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
                 <@@ Array.append (%%head : (string*string) []) ([|name, (%%exp : string)|]) @@>
 
             // Partitions arguments based on their locations
-            let (path, payload, queries, heads) = 
+            let (path, payload, queries, heads) =
                 let mPath = op.Path
                 List.fold (
-                    fun (path, load, quer, head) (param : OperationParameter, exp) -> 
+                    fun (path, load, quer, head) (param : OperationParameter, exp) ->
                         let name = param.Name
                         let value = coerceString param.Type param.CollectionFormat exp
                         match param.In with
@@ -111,29 +111,29 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
                     )
                     (<@@ mPath @@>, None, <@@ ([("","")] : (string*string) list)  @@>, h2)
                     parameters
-                    
+
             let address = <@@ basePath + %%path @@>
             let restCall = op.Type.ToString()
-            
+
             // Make HTTP call
-            let result = 
+            let result =
                 match payload with
                 | None               -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), query = (%%queries : (string * string) list)) @@>
                 | Some (FormData, b) -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.FormValues (%%b : seq<string * string>), query = (%%queries : (string * string) list)) @@>
                 | Some (Body, b)     ->
                     <@@ let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
-                        settings.Converters.Add(new OptionConverter () :> JsonConverter) 
+                        settings.Converters.Add(new OptionConverter () :> JsonConverter)
                         let data = (%%b : obj)
                         let body = (JsonConvert.SerializeObject(data, settings)).ToLower()
-                        Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.TextRequest body, query = (%%queries : (string * string) list)) 
+                        Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.TextRequest body, query = (%%queries : (string * string) list))
                     @@>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
-            
+
             // Return deserialized object
-            <@@ 
+            <@@
                 let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
-                settings.Converters.Add(new OptionConverter () :> JsonConverter) 
-                JsonConvert.DeserializeObject((%%result : string), retTy, settings) 
+                settings.Converters.Add(new OptionConverter () :> JsonConverter)
+                JsonConvert.DeserializeObject((%%result : string), retTy, settings)
             @@>
 
         m

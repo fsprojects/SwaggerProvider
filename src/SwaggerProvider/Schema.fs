@@ -23,11 +23,11 @@ module Extensions =
             | None -> [||]
 
 /// Basic swagger information, relevant to the type provider.
-/// http://swagger.io/specification/#infoObject 
+/// http://swagger.io/specification/#infoObject
 type InfoObject =
     { /// Required. The title of the application.
       Title: string
-      /// A short description of the application. 
+      /// A short description of the application.
       Description: string
       /// Required Provides the version of the application API (not to be confused with the specification version).
       Version: string}
@@ -41,7 +41,7 @@ type InfoObject =
         }
 
 /// Allows adding meta data to a single tag.
-/// http://swagger.io/specification/#tagObject 
+/// http://swagger.io/specification/#tagObject
 type TagObject =
     { /// Required. The name of the tag.
       Name: string
@@ -144,7 +144,7 @@ type DefinitionPropertyType =
 /// The type of the REST call.
 /// http://swagger.io/specification/#pathItemObject
 type OperationType =
-    
+
     /// Returns en element or collection.
     | Get
     /// Updates an element.
@@ -157,7 +157,7 @@ type OperationType =
     | Head
     | Patch
 
-    override this.ToString() = 
+    override this.ToString() =
         match this with
         | Get     -> "Get"
         | Put     -> "Put"
@@ -179,8 +179,8 @@ type CollectionFormat =
     | Pipes
     /// Corresponds to multiple parameter instances instead of multiple values for a single instance.
     | Multi
-    
-    override this.ToString() = 
+
+    override this.ToString() =
         match this with
         | Csv   -> ","
         | Ssv   -> " "
@@ -232,7 +232,7 @@ type OperationParameter =
         let location =
             obj.GetProperty("in").AsString()
             |> OperationParameterLocation.Parse
-        {   
+        {
             Name = obj?name.AsString()
             In = location
             Description = obj.GetString("description")
@@ -242,7 +242,7 @@ type OperationParameter =
                 match location with
                 | Body -> obj?schema |> DefinitionPropertyType.Parse
                 | _ -> obj |> DefinitionPropertyType.Parse // TODO: Parse more options
-            CollectionFormat = 
+            CollectionFormat =
                 match location, obj.TryGetProperty("collectionFormat") with
                 | Body,     Some _                             -> failwith "The field collectionFormat is not apllicable for parameters of type body"
                 | _,        Some x when x.AsString() = "csv"   -> Csv
@@ -281,7 +281,7 @@ type OperationResponse =
 /// Describes a single API operation on a path.
 /// http://swagger.io/specification/#operationObject
 type OperationObject =
-    { /// The name of the operation. 
+    { /// The name of the operation.
       Path: string
       /// The type of the REST call.
       Type: OperationType
@@ -389,7 +389,7 @@ type SwaggerSchema =
         let parseOperation (obj:JsonValue) path prop opType =
             obj.TryGetProperty prop
             |> Option.map (fun value->
-                OperationObject.Parse(path, opType, value))        
+                OperationObject.Parse(path, opType, value))
         if (obj?swagger.AsString() <> "2.0") then
             failwith "Swagger version must be 2.0"
         {
@@ -397,7 +397,7 @@ type SwaggerSchema =
             Host = obj.GetString("host")
             BasePath = obj.GetString("basePath")
             Schemes = obj.GetStringArray("schemes")
-            Tags = 
+            Tags =
                 try obj?tags.AsArray() |> Array.map TagObject.Parse
                 with | Failure _ -> [||]
             Operations =
