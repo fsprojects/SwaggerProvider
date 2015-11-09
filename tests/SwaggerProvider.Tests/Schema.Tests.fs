@@ -1,6 +1,7 @@
 ﻿module SwaggerProvider.Tests
 
 open SwaggerProvider.Internal.Schema
+open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
 open System.IO
@@ -11,7 +12,7 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
         "Schemas/PetStore.Swagger.json"
         |> File.ReadAllText
         |> JsonValue.Parse
-        |> SwaggerSchema.Parse
+        |> JsonParser.parseSwaggerSchema
     Assert.AreEqual(6, schema.Definitions.Length)
 
     let expectedInfo = {
@@ -38,7 +39,8 @@ let ApisGuruSchemaUrls =
 
 let ManualSchemaUrls =
     [|"http://netflix.github.io/genie/docs/rest/swagger.json"
-      "https://www.expedia.com/static/mobile/swaggerui/swagger.json"|]
+      //"https://www.expedia.com/static/mobile/swaggerui/swagger.json" // This schema is incorrect
+      "https://graphhopper.com/api/1/vrp/swagger.json"|]
 
 let SchemaUrls =
     Array.concat [ManualSchemaUrls; ApisGuruSchemaUrls]
@@ -53,5 +55,5 @@ let ``Schema Parse`` url =
             printfn "Schema is unaccessible %s" url
             ""
     if not <| System.String.IsNullOrEmpty(json) then
-        let schema = json |> JsonValue.Parse |> SwaggerSchema.Parse
+        let schema = json |> JsonValue.Parse |> Parsers.JsonParser.parseSwaggerSchema
         Assert.Greater(schema.Definitions.Length + schema.Operations.Length, 0)

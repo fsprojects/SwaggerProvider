@@ -1,13 +1,14 @@
 module SwaggerProvider.DefinitionsTests
 
 open SwaggerProvider.Internal.Schema
+open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
 
 
 let shouldBeEqual (expected:DefinitionPropertyType) s =
-    let json =JsonValue.Parse(s)
-    let result = DefinitionPropertyType.Parse(json)
+    let json =JsonValue.Parse s
+    let result = JsonParser.parseDefinitionPropertyType json
     if expected <> result then
         failwithf "Expected %A, but received %A" expected result
 

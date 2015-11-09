@@ -43,6 +43,7 @@ type DefinitionCompiler (schema:SwaggerSchema) =
                 failwithf "Unknown definition '%s'" name
     and compilePropertyType ty isRequired =
         match ty, isRequired with
+        | Object, _       -> typeof<obj>
         | Boolean, true   -> typeof<bool>
         | Boolean, false  -> typeof<Option<bool>>
         | Int32, true     -> typeof<int32>

@@ -1,27 +1,6 @@
 /// Internal schema used to parse json objects to internal swagger objects.
 namespace SwaggerProvider.Internal.Schema
 
-open FSharp.Data
-open FSharp.Data.Runtime.NameUtils
-open FSharp.Data.JsonExtensions
-open System
-
-/// Helper functions for optional swagger values of types string and string array.
-[<AutoOpen>]
-module Extensions =
-    type JsonValue with
-        /// Gets the string value of the property if it exists. Empty string otherwise.
-        member this.GetString(propertyName) =
-            match this.TryGetProperty(propertyName) with
-            | Some(value) -> value.AsString()
-            | None -> String.Empty
-
-        /// Gets the string array for the property if it exists. Empty array otherwise.
-        member this.GetStringArray(propertyName) =
-            match this.TryGetProperty(propertyName) with
-            | Some(value) -> value.AsArray() |> Array.map (fun x->x.AsString())
-            | None -> [||]
-
 /// Basic swagger information, relevant to the type provider.
 /// http://swagger.io/specification/#infoObject
 type InfoObject =
@@ -29,16 +8,9 @@ type InfoObject =
       Title: string
       /// A short description of the application.
       Description: string
-      /// Required Provides the version of the application API (not to be confused with the specification version).
+      /// Required. Provides the version of the application API (not to be confused with the specification version).
       Version: string}
 
-    /// Parses the Json value as an InfoObject.
-    static member Parse (obj:JsonValue) =
-        {
-            Title = obj?title.AsString()
-            Description = obj.GetString("description")
-            Version = obj?version.AsString()
-        }
 
 /// Allows adding meta data to a single tag.
 /// http://swagger.io/specification/#tagObject
@@ -48,17 +20,12 @@ type TagObject =
       /// A short description for the tag.
       Description: string}
 
-    /// Parses the Json value as a TagObject.
-    static member Parse (obj:JsonValue) =
-        {
-            Name = obj?name.AsString()
-            Description = obj.GetString("description")
-        }
 
-//https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#data-types
 /// Primitive data types from the Swagger Specification.
 /// http://swagger.io/specification/#data-types
 type DefinitionPropertyType =
+    /// Object
+    | Object // Not specified in Swagger specification
     /// Boolean.
     | Boolean
     /// Integer (signed 32 bits).
@@ -83,50 +50,12 @@ type DefinitionPropertyType =
     | Dictionary of valTy:DefinitionPropertyType
     /// An additional primitive data type used by the Parameter Object and the Response Object to set the parameter type or the response as being a file.
     | File
-    /// A defintion of an object defined by a Schema Object.
+    /// A definition of an object defined by a Schema Object.
     | Definition of name:string
-
-    /// Parses the Json value as a DefinitionPropertyType.
-    static member Parse (obj:JsonValue) =
-        match obj.TryGetProperty("type") with
-        | Some(ty) ->
-            match ty.AsString() with
-            | "boolean" -> Boolean
-            | "integer" ->
-                match obj?format.AsString() with
-                | "int32" -> Int32
-                | "int64" -> Int64
-                | x -> failwithf "Unsupported `integer` format %s" x
-            | "number" ->
-                match obj?format.AsString() with
-                | "float" -> Float
-                | "double" -> Double
-                | x -> failwithf "Unsupported `number` format %s" x
-            | "string" ->
-                match obj.TryGetProperty("format") with
-                | None ->
-                    match obj.TryGetProperty("enum") with
-                    | Some(enum) ->
-                        Enum (enum.AsArray() |> Array.map (fun x->x.AsString()))
-                    | None -> String
-                | Some(format) ->
-                    match format.AsString() with
-                    | "date" -> Date
-                    | "date-time" -> DateTime
-                    | _ -> String
-            | "array" ->
-                Array (DefinitionPropertyType.Parse obj?items)
-            | "object" ->
-                Dictionary (DefinitionPropertyType.Parse obj?additionalProperties)
-            | "file" -> File
-            | x -> failwithf "Unsupported property type %s" x
-        | None ->
-            match obj.TryGetProperty("$ref") with
-            | Some(ref) -> Definition (ref.AsString().Replace("#/definitions/",""))
-            | None -> failwithf "Unknown property definition %A" obj
 
     override this.ToString() =
         match this with
+        | Object       -> "Object"
         | Boolean      -> "Boolean"
         | Int32        -> "Int32"
         | Int64        -> "Int64"
@@ -141,10 +70,10 @@ type DefinitionPropertyType =
         | File         -> "File"
         | Definition s -> "Definition " + s
 
+
 /// The type of the REST call.
 /// http://swagger.io/specification/#pathItemObject
 type OperationType =
-
     /// Returns en element or collection.
     | Get
     /// Updates an element.
@@ -167,6 +96,7 @@ type OperationType =
         | Head    -> "Head"
         | Patch   -> "Patch"
 
+
 /// Determines the format of the array if type array is used. Array value separator.
 type CollectionFormat =
     /// Comma separated values.
@@ -188,6 +118,7 @@ type CollectionFormat =
         | Pipes -> "|"
         | Multi -> failwith "CollectionFormat 'Multi' does not support ToString()"
 
+
 /// Required. The location of the parameter.
 type OperationParameterLocation =
     /// Parameter that are appended to the URL. For example, in /items?id=###, the query parameter is id.
@@ -201,13 +132,6 @@ type OperationParameterLocation =
     /// The payload that's appended to the HTTP request. Since there can only be one payload, there can only be one body parameter. The name of the body parameter has no effect on the parameter itself and is used for documentation purposes only. Since Form parameters are also in the payload, body and form parameters cannot exist together for the same operation.
     | Body
 
-    static member Parse = function
-        | "query"    -> Query
-        | "header"   -> Header
-        | "path"     -> Path
-        | "formData" -> FormData
-        | "body"     -> Body
-        | x          -> failwithf "Unknown parameter location '%s'" x
 
 /// Describes a single operation parameter.
 /// http://swagger.io/specification/#parameterObject
@@ -227,34 +151,6 @@ type OperationParameter =
       /// Determines the format of the array if type array is used.
       CollectionFormat: CollectionFormat}
 
-    /// Parses the Json value as an OperationParameter.
-    static member Parse (obj:JsonValue) =
-        let location =
-            obj.GetProperty("in").AsString()
-            |> OperationParameterLocation.Parse
-        {
-            Name = obj?name.AsString()
-            In = location
-            Description = obj.GetString("description")
-            Required = match obj.TryGetProperty("required") with
-                       | Some(x) -> x.AsBoolean() | None -> false
-            Type =
-                match location with
-                | Body -> obj?schema |> DefinitionPropertyType.Parse
-                | _ -> obj |> DefinitionPropertyType.Parse // TODO: Parse more options
-            CollectionFormat =
-                match location, obj.TryGetProperty("collectionFormat") with
-                | Body,     Some _                             -> failwith "The field collectionFormat is not apllicable for parameters of type body"
-                | _,        Some x when x.AsString() = "csv"   -> Csv
-                | _,        Some x when x.AsString() = "ssv"   -> Ssv
-                | _,        Some x when x.AsString() = "tsv"   -> Tsv
-                | _,        Some x when x.AsString() = "pipes" -> Pipes
-                | FormData, Some x when x.AsString() = "multi" -> Multi
-                | Query,    Some x when x.AsString() = "multi" -> Multi
-                | _,        Some x when x.AsString() = "multi" -> failwith "Format multi is only supported by Query and FormData"
-                | _,        Some x                             -> failwithf "Format '%s' is not supported" (x.AsString())
-                | _,        None                               -> Csv // Default value
-        }
 
 /// Describes a single response from an API Operation.
 /// http://swagger.io/specification/#responseObject
@@ -266,17 +162,6 @@ type OperationResponse =
       /// A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response.
       Schema: DefinitionPropertyType option}
 
-    /// Parses the Json value as an OperationResponse.
-    static member Parse (code, obj:JsonValue) =
-        {
-            StatusCode =
-                if code = "default" then None
-                else code |> Int32.Parse |> Some
-            Description = obj.GetString("description")
-            Schema =
-                obj.TryGetProperty("schema")
-                |> Option.map DefinitionPropertyType.Parse
-        }
 
 /// Describes a single API operation on a path.
 /// http://swagger.io/specification/#operationObject
@@ -302,26 +187,6 @@ type OperationObject =
       /// A list of parameters that are applicable for this operation. The list MUST NOT include duplicated parameters.
       Parameters: OperationParameter[]}
 
-    /// Parses the Json value as an OperationObject.
-    static member Parse (path, opType, obj:JsonValue) =
-        {
-            Path = path
-            Type = opType
-            Tags = obj.GetStringArray("tags")
-            Summary = obj.GetString("summary")
-            Description = obj.GetString("description")
-            OperationId = obj.GetString("operationId")
-            Consumes = obj.GetStringArray("consumes")
-            Produces = obj.GetStringArray("produces")
-            Responses =
-                (obj?responses).Properties
-                |> Array.map OperationResponse.Parse
-            Parameters =
-                match obj.TryGetProperty("parameters") with
-                | Some(parameters) ->
-                    parameters.AsArray() |> Array.map OperationParameter.Parse
-                | None -> [||]
-        }
 
 /// The property of a data type.
 type DefinitionProperty =
@@ -334,13 +199,6 @@ type DefinitionProperty =
       /// A description of the property.
       Description: string}
 
-    static member Parse (name, obj, required) =
-        {
-            Name = name;
-            Type = DefinitionPropertyType.Parse obj
-            IsRequired = required
-            Description = obj.GetString("description")
-        }
 
 /// A data type produced or consumed by operations.
 type Definition =
@@ -349,22 +207,6 @@ type Definition =
       /// The data types properties.
       Properties: DefinitionProperty[] }
 
-    /// Parses the Json value as a Definition.
-    static member Parse (name:string, obj:JsonValue) =
-        let requiredProperties =
-            match obj.TryGetProperty("required") with
-            | Some(req) ->
-                req.AsArray()
-                |> Array.map (fun x-> x.AsString())
-                |> Set.ofArray
-            | None -> Set.empty<_>
-        {
-            Name = name
-            Properties =
-                obj?properties.Properties
-                |> Array.map (fun (name,obj) ->
-                    DefinitionProperty.Parse (name,obj, requiredProperties.Contains name))
-        }
 
 /// This is the main object.
 /// http://swagger.io/specification/#swaggerObject
@@ -383,35 +225,3 @@ type SwaggerSchema =
       Definitions: Definition[]
       /// A list of tags used by the specification with additional metadata.
       Tags: TagObject[]}
-
-    /// Parses the Json value as a SwaggerSchema.
-    static member Parse (obj:JsonValue) =
-        let parseOperation (obj:JsonValue) path prop opType =
-            obj.TryGetProperty prop
-            |> Option.map (fun value->
-                OperationObject.Parse(path, opType, value))
-        if (obj?swagger.AsString() <> "2.0") then
-            failwith "Swagger version must be 2.0"
-        {
-            Info = InfoObject.Parse(obj?info)
-            Host = obj.GetString("host")
-            BasePath = obj.GetString("basePath")
-            Schemes = obj.GetStringArray("schemes")
-            Tags =
-                try obj?tags.AsArray() |> Array.map TagObject.Parse
-                with | Failure _ -> [||]
-            Operations =
-                obj?paths.Properties
-                |> Array.map (fun (path, pathObj) ->
-                     [|parseOperation pathObj path "get"     Get
-                       parseOperation pathObj path "put"     Put
-                       parseOperation pathObj path "post"    Post
-                       parseOperation pathObj path "delete"  Delete
-                       parseOperation pathObj path "options" Options
-                       parseOperation pathObj path "patch"   Patch|])
-                |> Array.concat
-                |> Array.choose (id)
-            Definitions =
-                obj?definitions.Properties
-                |> Array.map Definition.Parse
-        }

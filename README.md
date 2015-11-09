@@ -16,17 +16,8 @@ Documentation: http://sergey-tihon.github.io/SwaggerProvider/
 Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle).
 Also possible to [Create an ASP.NET API app in Azure App Service](https://azure.microsoft.com/en-us/documentation/articles/app-service-dotnet-create-api-app/)
 
-### [Swagger v2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md):
-
-- [PetStore Sample Application](http://petstore.swagger.io/v2/swagger.json)
-
-### [Swagger v1.2](https://github.com/swagger-api/swagger-spec/blob/master/versions/1.2.md):
-
-- [Jetty Images API](https://api.gettyimages.com/swagger/api-docs/)
-
 
 ## Maintainer(s)
 
 - [@sergey-tihon](https://github.com/sergey-tihon)
 
-The default maintainer account for projects under "fsprojects" is [@fsgit](https://github.com/fsgit) - F# Community Project Incubation Space (repo management)

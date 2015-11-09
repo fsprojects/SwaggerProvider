@@ -7,6 +7,7 @@ open Microsoft.FSharp.Quotations
 open System
 open FSharp.Data
 open SwaggerProvider.Internal.Schema
+open SwaggerProvider.Internal.Schema.Parsers
 open SwaggerProvider.Internal.Compilers
 
 /// The Swagger Type Provider.
@@ -46,7 +47,7 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
                 let schema =
                     schemaData
                     |> JsonValue.Parse
-                    |> SwaggerSchema.Parse
+                    |> JsonParser.parseSwaggerSchema
 
                 // Create Swagger provider type
                 let ty = ProvidedTypeDefinition(asm, ns, typeName, Some typeof<obj>, IsErased = false)
