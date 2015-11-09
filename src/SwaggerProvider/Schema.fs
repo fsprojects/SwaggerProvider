@@ -120,7 +120,7 @@ type CollectionFormat =
 
 
 /// Required. The location of the parameter.
-type OperationParameterLocation =
+type ParameterObjectLocation =
     /// Parameter that are appended to the URL. For example, in /items?id=###, the query parameter is id.
     | Query
     /// Custom header that are expected as part of the request.
@@ -135,13 +135,13 @@ type OperationParameterLocation =
 
 /// Describes a single operation parameter.
 /// http://swagger.io/specification/#parameterObject
-type OperationParameter =
+type ParameterObject =
     { /// Required. The name of the parameter. Parameter names are case sensitive.
       /// If in is "path", the name field MUST correspond to the associated path segment from the path field in the Paths Object. See Path Templating for further information.
       /// For all other cases, the name corresponds to the parameter name used based on the in property.
       Name: string
       /// Required. The location of the parameter.
-      In: OperationParameterLocation
+      In: ParameterObjectLocation
       /// A brief description of the parameter. This could contain examples of use.
       Description: string
       /// Determines whether this parameter is mandatory. If the parameter is in "path", this property is required and its value MUST be true. Otherwise, the property MAY be included and its default value is false.
@@ -182,10 +182,13 @@ type OperationObject =
       Consumes: string[]
       /// A list of MIME types the operation can produce.
       Produces: string[]
-      /// The nonempty list of possible responses as they are returned from executing this operation.
+      /// Required. The nonempty list of possible responses as they are returned from executing this operation.
       Responses: OperationResponse[]
       /// A list of parameters that are applicable for this operation. The list MUST NOT include duplicated parameters.
-      Parameters: OperationParameter[]}
+      Parameters: ParameterObject[]
+      /// Declares this operation to be deprecated.
+      Deprecated: bool
+    }
 
 
 /// The property of a data type.
@@ -201,7 +204,8 @@ type DefinitionProperty =
 
 
 /// A data type produced or consumed by operations.
-type Definition =
+/// http://swagger.io/specification/#schemaObject
+type SchemaObject =
     { /// Name of the data type.
       Name: string
       /// The data types properties.
@@ -210,8 +214,8 @@ type Definition =
 
 /// This is the main object.
 /// http://swagger.io/specification/#swaggerObject
-type SwaggerSchema =
-    { /// Provides metadata about the API.
+type SwaggerObject =
+    { /// Required. Provides metadata about the API.
       Info: InfoObject
       /// The host (name or ip) serving the API.
       Host: string
@@ -219,9 +223,10 @@ type SwaggerSchema =
       BasePath: string
       /// The transfer protocol of the API. Values MUST be from the list: "http", "https", "ws", "wss". (Only the first element of the list will be used)
       Schemes: string[]
-      /// A list of all operations.
-      Operations: OperationObject[] // paths
+      /// Required. A list of all operations.
+      Paths: OperationObject[]
       /// An object to hold data types produced and consumed by operations.
-      Definitions: Definition[]
+      Definitions: SchemaObject[]
       /// A list of tags used by the specification with additional metadata.
-      Tags: TagObject[]}
+      Tags: TagObject[]
+   }

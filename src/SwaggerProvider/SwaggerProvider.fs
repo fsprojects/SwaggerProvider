@@ -47,7 +47,7 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
                 let schema =
                     schemaData
                     |> JsonValue.Parse
-                    |> JsonParser.parseSwaggerSchema
+                    |> JsonParser.parseSwaggerObject
 
                 // Create Swagger provider type
                 let ty = ProvidedTypeDefinition(asm, ns, typeName, Some typeof<obj>, IsErased = false)

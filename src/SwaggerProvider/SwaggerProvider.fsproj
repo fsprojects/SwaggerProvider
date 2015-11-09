@@ -92,7 +92,6 @@
     <Compile Include="DefinitionCompiler.fs" />
     <Compile Include="OperationCompiler.fs" />
     <Compile Include="SwaggerProvider.fs" />
-    <None Include="Script.fsx" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>

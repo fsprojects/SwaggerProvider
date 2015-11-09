@@ -8,7 +8,7 @@ open System
 open System.Collections.Generic
 
 /// Object for compiling definitions.
-type DefinitionCompiler (schema:SwaggerSchema) =
+type DefinitionCompiler (schema:SwaggerObject) =
     let rootType = typeof<System.Collections.Generic.Dictionary<string,obj>>
     let definitions =
         schema.Definitions

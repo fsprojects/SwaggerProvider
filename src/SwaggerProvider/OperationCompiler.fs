@@ -14,10 +14,10 @@ open Microsoft.FSharp.Quotations
 open System.Text.RegularExpressions
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, headers : seq<string*string>) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, headers : seq<string*string>) =
 
     let operationGroups =
-        schema.Operations
+        schema.Paths
         |> Seq.groupBy (fun op->
             if op.Tags.Length > 0
             then op.Tags.[0] else "Root")
@@ -57,7 +57,7 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
             let parameters =
                 List.map (
                     function
-                        | ShapeVar v as ex -> Array.find (fun (parameter : OperationParameter) -> parameter.Name = v.Name) op.Parameters,
+                        | ShapeVar v as ex -> Array.find (fun (parameter : ParameterObject) -> parameter.Name = v.Name) op.Parameters,
                                               ex
                         | _                -> failwith ("Function '" + m.Name + "' does not support functions as arguments.")
                     )
@@ -79,7 +79,7 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
                 let template = "{" + name + "}"
                 <@@ Regex.Replace(%%path, template, string (%%exp : string)) @@>
 
-            let addPayload load (param : OperationParameter) (exp : Expr) =
+            let addPayload load (param : ParameterObject) (exp : Expr) =
                 let name = param.Name
                 let var = coerceString param.Type param.CollectionFormat exp
                 match load with
@@ -99,7 +99,7 @@ type OperationCompiler (schema:SwaggerSchema, defCompiler:DefinitionCompiler, he
             let (path, payload, queries, heads) =
                 let mPath = op.Path
                 List.fold (
-                    fun (path, load, quer, head) (param : OperationParameter, exp) ->
+                    fun (path, load, quer, head) (param : ParameterObject, exp) ->
                         let name = param.Name
                         let value = coerceString param.Type param.CollectionFormat exp
                         match param.In with

@@ -15,15 +15,15 @@ let shouldBeEqual (expected:DefinitionPropertyType) s =
 [<Test>]
 let ``parse boolean`` () =
     """{
-		"type" : "boolean"
-	}"""
+        "type" : "boolean"
+    }"""
     |> shouldBeEqual Boolean
 
 [<Test>]
 let ``parse int32`` () =
     """{
-	    "type" : "integer",
-	    "format" : "int32",
+        "type" : "integer",
+        "format" : "int32",
         "description" : "User Status"
     }"""
     |> shouldBeEqual Int32
@@ -31,24 +31,24 @@ let ``parse int32`` () =
 [<Test>]
 let ``parse int64`` () =
     """{
-	    "type" : "integer",
-	    "format" : "int64"
+        "type" : "integer",
+        "format" : "int64"
     }"""
     |> shouldBeEqual Int64
 
 [<Test>]
 let ``parse float`` () =
     """{
-	    "type" : "number",
-	    "format" : "float"
+        "type" : "number",
+        "format" : "float"
     }"""
     |> shouldBeEqual Float
 
 [<Test>]
 let ``parse double`` () =
     """{
-	    "type" : "number",
-	    "format" : "double"
+        "type" : "number",
+        "format" : "double"
     }"""
     |> shouldBeEqual Double
 
@@ -60,26 +60,26 @@ let ``parse string`` () =
 [<Test>]
 let ``parse date-time`` () =
     """{
-		"type" : "string",
-		"format" : "date-time"
-	}"""
+        "type" : "string",
+        "format" : "date-time"
+    }"""
     |> shouldBeEqual DateTime
 
 [<Test>]
 let ``parse date`` () =
     """{
-		"type" : "string",
-		"format" : "date"
-	}"""
+        "type" : "string",
+        "format" : "date"
+    }"""
     |> shouldBeEqual Date
 
 [<Test>]
 let ``parse enum`` () =
     """{
-		"type" : "string",
-		"description" : "pet status in the store",
-		"enum" : ["available", "pending", "sold"]
-	}"""
+        "type" : "string",
+        "description" : "pet status in the store",
+        "enum" : ["available", "pending", "sold"]
+    }"""
     |> shouldBeEqual (Enum [|"available"; "pending"; "sold"|])
 
 [<Test>]
@@ -90,27 +90,27 @@ let ``parse definition reference`` () =
 [<Test>]
 let ``parse array of definitions`` () =
     """{
-		"type" : "array",
-		"xml" : {
-			"name" : "tag",
-			"wrapped" : true
-		},
-		"items" : {
-			"$ref" : "#/definitions/Tag"
-		}
-	}"""
+        "type" : "array",
+        "xml" : {
+            "name" : "tag",
+            "wrapped" : true
+        },
+        "items" : {
+            "$ref" : "#/definitions/Tag"
+        }
+    }"""
     |> shouldBeEqual (Array (Definition "Tag"))
 
 [<Test>]
 let ``parse array of string`` () =
     """{
-		"type" : "array",
-		"xml" : {
-			"name" : "photoUrl",
-			"wrapped" : true
-		},
-		"items" : {
-			"type" : "string"
-		}
-	}"""
+        "type" : "array",
+        "xml" : {
+            "name" : "photoUrl",
+            "wrapped" : true
+        },
+        "items" : {
+            "type" : "string"
+        }
+    }"""
     |> shouldBeEqual (Array String)
