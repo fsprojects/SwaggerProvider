@@ -36,7 +36,7 @@ module JsonParser =
             /// An object to hold parameters that can be used across operations
             Parameters: Map<string, ParameterObject>
             /// An object to hold responses that can be used across operations.
-            Responses: Map<string, OperationResponse>
+            Responses: Map<string, ResponseObject>
             /// A list of parameters that are applicable for all the operations described under this path.
             /// These parameters can be overridden at the operation level, but cannot be removed there.
             /// The list MUST NOT include duplicated parameters. A unique parameter is defined by a combination of
@@ -45,8 +45,8 @@ module JsonParser =
             ApplicableParameters : ParameterObject[]
         }
 
-        /// Resolve Parameter by `$ref` in such field exists
-        member this.ResolveParameter (obj:JsonValue) =
+        /// Resolve ParameterObject by `$ref` if such field exists
+        member this.ResolveParameterObject (obj:JsonValue) =
             obj.TryGetProperty("$ref")
             |> Option.map (fun refObj ->
                 let ref = refObj.AsString()
@@ -55,6 +55,15 @@ module JsonParser =
                     match obj.TryGetProperty("required") with
                     | Some(req) -> {param with Required = req.AsBoolean()}
                     | _ -> param
+                | None -> raise <| UnknownSwaggerReferenceException(ref))
+
+        // Resolve ResponseObject by `$ref` if such field exists
+        member this.ResolveResponseObject (obj:JsonValue) =
+            obj.TryGetProperty("$ref")
+            |> Option.map (fun refObj ->
+                let ref = refObj.AsString()
+                match this.Responses.TryFind(ref) with
+                | Some(response) -> response
                 | None -> raise <| UnknownSwaggerReferenceException(ref))
 
         /// Default empty context
@@ -70,100 +79,82 @@ module JsonParser =
     let isSwaggerSchemaExtensionName (name:string) =
         name.StartsWith("x-")
 
-    /// Parses the JsonValue as an InfoObject.
-    let parseInfoObject (obj:JsonValue) : InfoObject =
-        let spec = "http://swagger.io/specification/#infoObject"
+    // TODO: ...
+    /// Parses the JsonValue as a SchemaObject
+    let rec parseSchemaObject (obj:JsonValue) : SchemaObject =
+        let spec = "http://swagger.io/specification/#schemaObject"
+        let parsers : (JsonValue->Option<SchemaObject>)[] =
+            [|
+                (fun obj -> // Parse `enum` - http://json-schema.org/latest/json-schema-validation.html#anchor76
+                    obj.TryGetProperty("enum")
+                    |> Option.map (fun enum -> Enum (enum.AsArray() |> Array.map (fun x->x.AsString())))
+                )
+                (fun obj -> // Parse `$refs`
+                    obj.TryGetProperty("$ref")
+                    |> Option.map (fun ref -> Reference (ref.AsString()) )
+                )
+                (fun obj -> // Parse Arrays - http://json-schema.org/latest/json-schema-validation.html#anchor36
+                            // TODO: `items` may be an array, `additionalItems` may be filled
+                    obj.TryGetProperty("type")
+                    |> Option.bind (fun ty ->
+                        if ty.AsString() <> "array" then None
+                        else obj.TryGetProperty("items")
+                       )
+                    |> Option.map (fun items ->
+                        Array (parseSchemaObject items)
+                       )
+                )
+                (fun obj -> // Parse primitive types
+                     obj.TryGetProperty("type")
+                     |> Option.bind (fun ty ->
+                        let format = obj.GetStringSafe("format")
+                        match ty.AsString() with
+                        | "boolean" -> Some Boolean
+                        | "integer" when format = "int32" -> Some Int32
+                        | "integer" -> Some Int64
+                        | "number" when format = "float" -> Some Float
+                        | "number" when format = "int32" -> Some Int32
+                        | "number" when format = "int64" -> Some Int64
+                        | "number" -> Some Double
+                        | "string" when format = "date" -> Some Date
+                        | "string" when format = "date-time" -> Some DateTime
+                        | "string" -> Some String
+                        | "file" -> Some File
+                        | _ -> None
+                    )
+                )
+                (fun obj -> // TODO: Parse Objects
+                    let requiredProperties =
+                        match obj.TryGetProperty("required") with
+                        | None -> Set.empty<_>
+                        | Some(req) ->
+                            req.AsArray()
+                            |> Array.map (fun x-> x.AsString())
+                            |> Set.ofArray
+                    let properties =
+                        match obj.TryGetProperty("properties") with
+                        | None -> [||]
+                        | Some(x) ->
+                            x.Properties
+                            |> Array.map (fun (name,obj) ->
+                                parseDefinitionProperty (name,obj, requiredProperties.Contains name))
+                    Some <| Object properties
+                )
+            |]
+
+        let result = Array.tryPick (fun f -> f obj) parsers
+        match result with
+        | Some(schemaObj) -> schemaObj
+        | None -> failwithf "Unable to parse SchemaObject: %A" obj
+
+    /// Parses DefinitionProperty
+    and parseDefinitionProperty (name, obj, required) : DefinitionProperty =
         {
-            Title = obj.GetRequiredField("title", spec).AsString()
-            Description = obj.GetStringSafe("description")
-            Version = obj.GetRequiredField("version", spec).AsString()
-        }
-
-    /// Parses the JsonValue as a TagObject.
-    let parseTagObject (obj:JsonValue) : TagObject =
-        let spec = "http://swagger.io/specification/#tagObject"
-        {
-            Name = obj.GetRequiredField("name", spec).AsString()
+            Name = name;
+            Type = parseSchemaObject obj
+            IsRequired = required
             Description = obj.GetStringSafe("description")
         }
-
-    // TODO: Validate this parser
-    /// Parses the JsonValue as a DefinitionPropertyType.
-    let rec parseDefinitionPropertyType (obj:JsonValue) : DefinitionPropertyType =
-        let spec = "http://swagger.io/specification/#data-types"
-
-        let parseRef (obj:JsonValue) =
-            obj.TryGetProperty("$ref")
-            |> Option.map (fun ref ->
-                Definition (ref.AsString().Replace("#/definitions/",""))
-               )
-        let parseIntFormatForType obj format ty =
-            match format with
-            | "integer"-> Int32
-            | "int32"  -> Int32
-            | "int64"  -> Int64
-
-            | "int8"   -> Int32 // ??
-            | "uint32" -> Int64 // ??
-            | "utc-millisec" -> Int64 // ??
-            | "id64"   -> Int64 // ??
-            | _ -> raise <| UnknownFieldValueException(obj, format, "format", spec)
-                   //failwithf "Unsupported `%s` format `%s`" ty x
-
-        match obj.TryGetProperty("type") with
-        | Some(ty) ->
-            match ty.AsString() with
-            | "boolean" -> Boolean
-            | "integer" ->
-                match obj.TryGetProperty("format") with
-                | None -> Int32
-                | Some(format) ->
-                    parseIntFormatForType obj (format.AsString()) "integer"
-            | "number" ->
-                match obj.TryGetProperty("format") with
-                | None -> Float
-                | Some(format) ->
-                    match format.AsString() with
-                    | "float"   -> Float
-                    | "float32" -> Float
-                    | "double"  -> Double
-                    | strFormat ->
-                        parseIntFormatForType obj strFormat "number"
-            | "string" ->
-                match obj.TryGetProperty("format") with
-                | None ->
-                    match obj.TryGetProperty("enum") with
-                    | Some(enum) ->
-                        Enum (enum.AsArray() |> Array.map (fun x->x.AsString()))
-                    | None -> String
-                | Some(format) ->
-                    match format.AsString() with
-                    | "date" -> Date
-                    | "date-time" -> DateTime
-                    | _ -> String
-            | "array" ->
-                match parseRef obj with
-                | Some ref -> Array  ref
-                | None ->
-                    match obj.TryGetProperty("items") with
-                    | Some(items) -> Array (parseDefinitionPropertyType items)
-                    | None ->
-                        match obj.TryGetProperty("enum") with
-                        | Some(enum) ->
-                            Enum (enum.AsArray() |> Array.map (fun x->x.AsString()))
-                        | None -> failwithf "Could not parse type of array elements\nArray:%A" obj
-            | "object" ->
-                let elementTy = // TODO: We need to improve this parsing
-                    obj.TryGetProperty("additionalProperties")
-                    |> Option.map parseDefinitionPropertyType
-                Dictionary (defaultArg elementTy Object)
-            | "file" -> File
-            | x -> failwithf "Unsupported DefinitionPropertyType type %s" x
-        | None ->
-            match parseRef obj with
-            | Some(ref) -> ref
-            | None -> Object // TODO: Understand what to do in this case during serialization
-                      //failwithf "Unknown DefinitionPropertyType definition %A" obj
 
     /// Parses string as a ParameterObjectLocation.
     let parseOperationParameterLocation obj (location:string) : ParameterObjectLocation =
@@ -176,7 +167,6 @@ module JsonParser =
         | "body"     -> Body
         | _ -> raise <| UnknownFieldValueException(obj, location, "in", spec)
 
-    // TODO:
     /// Parses the JsonValue as an ParameterObject.
     let parseParameterObject (obj:JsonValue) : ParameterObject =
         let spec = "http://swagger.io/specification/#parameterObject"
@@ -191,34 +181,49 @@ module JsonParser =
                        | Some(x) -> x.AsBoolean() | None -> false
             Type =
                 match location with
-                | Body -> obj?schema |> parseDefinitionPropertyType
-                | _ -> obj |> parseDefinitionPropertyType // TODO: Parse more options
+                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject
+                | _    -> obj |> parseSchemaObject // TODO: Restrict parser
+                          // The `type` value MUST be one of "string", "number", "integer", "boolean", "array" or "file"
             CollectionFormat =
                 match location, obj.TryGetProperty("collectionFormat") with
-                | Body,     Some _                             -> failwith "The field collectionFormat is not apllicable for parameters of type body"
+                | Body,     Some _                             -> failwith "The field collectionFormat is not applicable for parameters of type body"
                 | _,        Some x when x.AsString() = "csv"   -> Csv
                 | _,        Some x when x.AsString() = "ssv"   -> Ssv
                 | _,        Some x when x.AsString() = "tsv"   -> Tsv
                 | _,        Some x when x.AsString() = "pipes" -> Pipes
                 | FormData, Some x when x.AsString() = "multi" -> Multi
                 | Query,    Some x when x.AsString() = "multi" -> Multi
-                | _,        Some x when x.AsString() = "multi" -> failwith "Format multi is only supported by Query and FormData"
-                | _,        Some x                             -> failwithf "Format '%s' is not supported" (x.AsString())
+                | _,        Some x when x.AsString() = "multi" -> failwith "Format `multi` is only supported by Query and FormData"
+                | _,        Some x                             -> failwithf "Format `%s` is not supported" (x.AsString())
                 | _,        None                               -> Csv // Default value
         }
 
-    // TODO:
-    /// Parses the Json value as an OperationResponse.
-    let parseOperationResponse (code, obj:JsonValue) : OperationResponse =
+    /// Parses the JsonValue as an ResponseObject.
+    let parseResponseObject (context:ParserContext) (obj:JsonValue) : ResponseObject =
+        let spec = "http://swagger.io/specification/#responseObject"
+        match context.ResolveResponseObject obj with
+        | Some(response) -> response
+        | None ->
             {
-            StatusCode =
-                if code = "default" then None
-                else code |> Int32.Parse |> Some
-            Description = obj.GetStringSafe("description")
-            Schema =
-                obj.TryGetProperty("schema")
-                |> Option.map parseDefinitionPropertyType
-        }
+                Description = obj.GetRequiredField("description", spec).AsString()
+                Schema =
+                    obj.TryGetProperty("schema")
+                    |> Option.map parseSchemaObject
+            }
+
+    /// Parses the JsonValue as an ResponseObject[].
+    let parseResponsesObject (context:ParserContext) (obj:JsonValue) : (Option<int>*ResponseObject)[] =
+        let spec = "http://swagger.io/specification/#httpCodes"
+        obj.Properties
+        |> Array.filter (fun (property,_) -> not <| isSwaggerSchemaExtensionName property)
+        |> Array.map (fun (property, objValue) ->
+            let code =
+                if property = "default" then None
+                else
+                    match Int32.TryParse(property) with
+                    | true, value -> Some value
+                    | false, _ -> raise <| UnknownFieldValueException(obj, property, "HTTP Status Code", spec)
+            code, parseResponseObject context objValue)
 
     /// Parses the JsonValue as an OperationObject.
     let parseOperationObject (context:ParserContext) path opType (obj:JsonValue) : OperationObject =
@@ -246,53 +251,19 @@ module JsonParser =
                          | Some(value) -> value.AsBoolean()
                          | None -> false
             Responses =
-                Array.append
-                    (obj.GetRequiredField("responses", spec).Properties
-                     |> Array.map parseOperationResponse)
-                    (context.Responses |> Map.toArray |> Array.map snd)
+                obj.GetRequiredField("responses", spec)
+                |> (parseResponsesObject context)
             Parameters =
                 mergeParameters
                    (match obj.TryGetProperty("parameters") with
                         | Some(parameters) ->
                             parameters.AsArray()
                             |> Array.map (fun obj ->
-                                match context.ResolveParameter obj with
+                                match context.ResolveParameterObject obj with
                                 | Some(param) -> param
                                 | None -> parseParameterObject obj)
                         | None -> [||])
                    context.ApplicableParameters
-        }
-
-    // TODO:
-    /// Parses DefinitionProperty
-    let parseDefinitionProperty (name, obj, required) : DefinitionProperty =
-        {
-            Name = name;
-            Type = parseDefinitionPropertyType obj
-            IsRequired = required
-            Description = obj.GetStringSafe("description")
-        }
-
-    // TODO:
-    /// Parses the JsonValue as a SchemaObject.
-    let parseSchemaObject (name:string, obj:JsonValue) : SchemaObject =
-        let spec = "http://swagger.io/specification/#schemaObject"
-        let requiredProperties =
-            match obj.TryGetProperty("required") with
-            | None -> Set.empty<_>
-            | Some(req) ->
-                req.AsArray()
-                |> Array.map (fun x-> x.AsString())
-                |> Set.ofArray
-        {
-            Name = name
-            Properties =
-                match obj.TryGetProperty("properties") with
-                | None -> Array.empty<_>
-                | Some(properties) ->
-                    properties.Properties
-                    |> Array.map (fun (name,obj) ->
-                        parseDefinitionProperty (name,obj, requiredProperties.Contains name))
         }
 
     /// Parse Paths Object as PathItemObject[]
@@ -317,7 +288,7 @@ module JsonParser =
                     ApplicableParameters =
                         parameters.AsArray()
                         |> Array.map (fun paramObj ->
-                            match context.ResolveParameter paramObj with
+                            match context.ResolveParameterObject paramObj with
                             | Some(param) -> param
                             | None -> parseParameterObject paramObj
                         )
@@ -333,9 +304,27 @@ module JsonParser =
         |> Array.concat
 
     /// Parse Definitions Object as SchemaObject[]
-    let parseDefinitionsObject (obj:JsonValue) : SchemaObject[] =
+    let parseDefinitionsObject (obj:JsonValue) : (string*SchemaObject)[] =
         obj.Properties
-        |> Array.map parseSchemaObject
+        |> Array.map (fun (name, schemaObj) ->
+            ("#/definitions/"+name), parseSchemaObject schemaObj)
+
+    /// Parses the JsonValue as an InfoObject.
+    let parseInfoObject (obj:JsonValue) : InfoObject =
+        let spec = "http://swagger.io/specification/#infoObject"
+        {
+            Title = obj.GetRequiredField("title", spec).AsString()
+            Description = obj.GetStringSafe("description")
+            Version = obj.GetRequiredField("version", spec).AsString()
+        }
+
+    /// Parses the JsonValue as a TagObject.
+    let parseTagObject (obj:JsonValue) : TagObject =
+        let spec = "http://swagger.io/specification/#tagObject"
+        {
+            Name = obj.GetRequiredField("name", spec).AsString()
+            Description = obj.GetStringSafe("description")
+        }
 
     /// Parses the JsonValue as a SwaggerSchema.
     let parseSwaggerObject (obj:JsonValue) : SwaggerObject =
@@ -363,7 +352,7 @@ module JsonParser =
                         | Some(responses) ->
                             responses.Properties
                             |> Array.map (fun (name, obj) ->
-                                 "#/responses/"+name, parseOperationResponse (name, obj))
+                                 "#/responses/"+name, parseResponseObject (ParserContext.Empty) obj)
                             |> Map.ofSeq
             }
 

@@ -29,11 +29,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
              for x in Array.append required optional ->
                 ProvidedParameter(x.Name, defCompiler.CompileTy x.Type x.Required)]
         let retTy =
-            let okResponse =
-                op.Responses |> Array.tryFind (fun x->
-                    (x.StatusCode.IsSome && x.StatusCode.Value = 200) || x.StatusCode.IsNone)
+            let okResponse = // BUG :  wrong selector
+                op.Responses |> Array.tryFind (fun (code, resp)->
+                    (code.IsSome && code.Value = 200) || code.IsNone)
             match okResponse with
-            | Some resp ->
+            | Some (_,resp) ->
                 match resp.Schema with
                 | None -> typeof<unit>
                 | Some ty -> defCompiler.CompileTy ty true

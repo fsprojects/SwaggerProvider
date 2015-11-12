@@ -6,9 +6,9 @@ open FSharp.Data
 open NUnit.Framework
 
 
-let shouldBeEqual (expected:DefinitionPropertyType) s =
+let shouldBeEqual (expected:SchemaObject) s =
     let json =JsonValue.Parse s
-    let result = JsonParser.parseDefinitionPropertyType json
+    let result = JsonParser.parseSchemaObject json
     if expected <> result then
         failwithf "Expected %A, but received %A" expected result
 
@@ -85,7 +85,7 @@ let ``parse enum`` () =
 [<Test>]
 let ``parse definition reference`` () =
     """{"$ref" : "#/definitions/Tag"}"""
-    |> shouldBeEqual (Definition "Tag")
+    |> shouldBeEqual (Reference "#/definitions/Tag")
 
 [<Test>]
 let ``parse array of definitions`` () =
@@ -99,7 +99,7 @@ let ``parse array of definitions`` () =
             "$ref" : "#/definitions/Tag"
         }
     }"""
-    |> shouldBeEqual (Array (Definition "Tag"))
+    |> shouldBeEqual (Array (Reference "#/definitions/Tag"))
 
 [<Test>]
 let ``parse array of string`` () =

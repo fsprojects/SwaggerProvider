@@ -14,8 +14,8 @@ let shouldBeEqualToTag (expected:TagObject) s =
 [<Test>]
 let ``parse simple tag`` () =
     """{
-		"name" : "store",
-		"description" : "Operations about user"
+        "name" : "store",
+        "description" : "Operations about user"
     }"""
     |> shouldBeEqualToTag
         {
@@ -26,7 +26,7 @@ let ``parse simple tag`` () =
 [<Test>]
 let ``parse partial tag`` () =
     """{
-		"name" : "store"
+        "name" : "store"
     }"""
     |> shouldBeEqualToTag
         {
@@ -37,11 +37,11 @@ let ``parse partial tag`` () =
 [<Test>]
 let ``parse complex tag`` () =
     """{
-		"name" : "user",
-		"description" : "Access to Petstore orders",
-		"externalDocs" : {
-			"description" : "Find out more about our store",
-			"url" : "http://swagger.io"
+        "name" : "user",
+        "description" : "Access to Petstore orders",
+        "externalDocs" : {
+            "description" : "Find out more about our store",
+            "url" : "http://swagger.io"
         }
     }"""
     |> shouldBeEqualToTag

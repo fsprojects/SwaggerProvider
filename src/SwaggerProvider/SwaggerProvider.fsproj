@@ -19,13 +19,13 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>.\bin\Debug</OutputPath>
+    <OutputPath>.\..\..\bin\SwaggerProvider\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>.\bin\Debug\SwaggerProvider.xml</DocumentationFile>
+    <DocumentationFile>.\..\..\bin\SwaggerProvider\SwaggerProvider.xml</DocumentationFile>
     <StartAction>Program</StartAction>
-    <StartProgram>D:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\devenv.exe</StartProgram>
-    <StartArguments>d:\Personal\GitHub\SwaggerProvider\SwaggerProvider.TestsAndDocs.sln</StartArguments>
+    <StartProgram>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe</StartProgram>
+    <StartArguments>d:\GitHub\SwaggerProvider\SwaggerProvider.TestsAndDocs.sln</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

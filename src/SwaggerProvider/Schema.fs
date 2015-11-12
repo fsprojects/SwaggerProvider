@@ -1,31 +1,10 @@
 /// Internal schema used to parse json objects to internal swagger objects.
 namespace SwaggerProvider.Internal.Schema
 
-/// Basic swagger information, relevant to the type provider.
-/// http://swagger.io/specification/#infoObject
-type InfoObject =
-    { /// Required. The title of the application.
-      Title: string
-      /// A short description of the application.
-      Description: string
-      /// Required. Provides the version of the application API (not to be confused with the specification version).
-      Version: string}
 
-
-/// Allows adding meta data to a single tag.
-/// http://swagger.io/specification/#tagObject
-type TagObject =
-    { /// Required. The name of the tag.
-      Name: string
-      /// A short description for the tag.
-      Description: string}
-
-
-/// Primitive data types from the Swagger Specification.
-/// http://swagger.io/specification/#data-types
-type DefinitionPropertyType =
-    /// Object
-    | Object // Not specified in Swagger specification
+/// A data type produced or consumed by operations.
+/// http://swagger.io/specification/#schemaObject
+type SchemaObject =
     /// Boolean.
     | Boolean
     /// Integer (signed 32 bits).
@@ -42,20 +21,20 @@ type DefinitionPropertyType =
     | Date
     /// Date-Time (As defined by date-time - RFC3339).
     | DateTime
+    /// An additional primitive data type used by the Parameter Object and the Response Object to set the parameter type or the response as being a file.
+    | File
     /// Enumeration
     | Enum of values:string[]
     /// Array of items of type itemTy
-    | Array of itemTy:DefinitionPropertyType
-    /// Dictionary / Map
-    | Dictionary of valTy:DefinitionPropertyType
-    /// An additional primitive data type used by the Parameter Object and the Response Object to set the parameter type or the response as being a file.
-    | File
-    /// A definition of an object defined by a Schema Object.
-    | Definition of name:string
+    | Array of itemTy:SchemaObject
+    /// Object
+    | Object of DefinitionProperty[]
+    /// A reference to an object defined by a Schema Object.
+    | Reference of name:string
 
     override this.ToString() =
         match this with
-        | Object       -> "Object"
+        | Object _     -> "Object"
         | Boolean      -> "Boolean"
         | Int32        -> "Int32"
         | Int64        -> "Int64"
@@ -64,11 +43,22 @@ type DefinitionPropertyType =
         | String       -> "String"
         | Date         -> "Date"
         | DateTime     -> "DateTime"
-        | Enum _       -> "Enum"
-        | Array x      -> "Array " + x.ToString()
-        | Dictionary x -> "Dictionary " + x.ToString()
+        | Enum x       -> sprintf "Enum  %A" x
+        | Array x      -> sprintf "Array %O" x
         | File         -> "File"
-        | Definition s -> "Definition " + s
+        | Reference s  -> sprintf "Reference %s" s
+
+
+/// The property of a data type.
+and DefinitionProperty =
+    { /// The name of the property.
+      Name: string
+      /// The type of the property.
+      Type: SchemaObject
+      /// True if the property is required.
+      IsRequired : bool
+      /// A description of the property.
+      Description: string}
 
 
 /// The type of the REST call.
@@ -147,20 +137,20 @@ type ParameterObject =
       /// Determines whether this parameter is mandatory. If the parameter is in "path", this property is required and its value MUST be true. Otherwise, the property MAY be included and its default value is false.
       Required: bool
       /// The type of the parameter. Unlike the corresponding swagger field, this contains the Schema Object if 'in' is of type Body.
-      Type: DefinitionPropertyType
+      Type: SchemaObject
       /// Determines the format of the array if type array is used.
-      CollectionFormat: CollectionFormat}
+      CollectionFormat: CollectionFormat
+    }
 
 
 /// Describes a single response from an API Operation.
 /// http://swagger.io/specification/#responseObject
-type OperationResponse =
-    { /// HTTP status code
-      StatusCode: int option
-      /// A short description of the response.
+type ResponseObject =
+    { /// Required. A short description of the response.
       Description: string
       /// A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response.
-      Schema: DefinitionPropertyType option}
+      Schema: SchemaObject option
+    }
 
 
 /// Describes a single API operation on a path.
@@ -182,8 +172,8 @@ type OperationObject =
       Consumes: string[]
       /// A list of MIME types the operation can produce.
       Produces: string[]
-      /// Required. The nonempty list of possible responses as they are returned from executing this operation.
-      Responses: OperationResponse[]
+      /// Required. The nonempty list of possible status codes and responses as they are returned from executing this operation.
+      Responses: (Option<int>*ResponseObject)[]
       /// A list of parameters that are applicable for this operation. The list MUST NOT include duplicated parameters.
       Parameters: ParameterObject[]
       /// Declares this operation to be deprecated.
@@ -191,25 +181,26 @@ type OperationObject =
     }
 
 
-/// The property of a data type.
-type DefinitionProperty =
-    { /// The name of the property.
-      Name: string
-      /// The type of the property.
-      Type: DefinitionPropertyType
-      /// True if the property is required.
-      IsRequired : bool
-      /// A description of the property.
-      Description: string}
+/// Basic swagger information, relevant to the type provider.
+/// http://swagger.io/specification/#infoObject
+type InfoObject =
+    { /// Required. The title of the application.
+      Title: string
+      /// A short description of the application.
+      Description: string
+      /// Required. Provides the version of the application API (not to be confused with the specification version).
+      Version: string
+    }
 
 
-/// A data type produced or consumed by operations.
-/// http://swagger.io/specification/#schemaObject
-type SchemaObject =
-    { /// Name of the data type.
+/// Allows adding meta data to a single tag.
+/// http://swagger.io/specification/#tagObject
+type TagObject =
+    { /// Required. The name of the tag.
       Name: string
-      /// The data types properties.
-      Properties: DefinitionProperty[] }
+      /// A short description for the tag.
+      Description: string
+    }
 
 
 /// This is the main object.
@@ -226,7 +217,7 @@ type SwaggerObject =
       /// Required. A list of all operations.
       Paths: OperationObject[]
       /// An object to hold data types produced and consumed by operations.
-      Definitions: SchemaObject[]
+      Definitions: (string*SchemaObject)[]
       /// A list of tags used by the specification with additional metadata.
       Tags: TagObject[]
-   }
+    }
