@@ -1,3 +1,4 @@
 group Test
-    FsUnit
+    NUnit
     FSharp.Data
+	File:FsUnit.fs

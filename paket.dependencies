@@ -16,20 +16,22 @@ github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
 
 group Build
-	
+
 	source https://nuget.org/api/v2
-	
+
 	nuget FAKE
 	nuget FSharp.Formatting
 	nuget SourceLink.Fake
 
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
-	
+
 group Test
-	
+
 	source https://nuget.org/api/v2
-	
-	nuget FsUnit
+
+	nuget NUnit
 	nuget NUnit.Runners
 	nuget FSharp.Data
+
+	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnit.fs
