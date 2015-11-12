@@ -461,28 +461,9 @@ types are of type ProvidedTypeDefinition.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="swaggerprovider-internal-schema-definition.html">Definition</a>
-          </td>
-          <td class="xmldoc"><p>A data type produced or consumed by operations.</p>
-
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
             <a href="swaggerprovider-internal-schema-definitionproperty.html">DefinitionProperty</a>
           </td>
           <td class="xmldoc"><p>The property of a data type.</p>
-
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="swaggerprovider-internal-schema-definitionpropertytype.html">DefinitionPropertyType</a>
-          </td>
-          <td class="xmldoc"><p>Primitive data types from the Swagger Specification.
-<a href="http://swagger.io/specification/#data-types">http://swagger.io/specification/#data-types</a></p>
 
 
 </td>
@@ -509,35 +490,6 @@ types are of type ProvidedTypeDefinition.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="swaggerprovider-internal-schema-operationparameter.html">OperationParameter</a>
-          </td>
-          <td class="xmldoc"><p>Describes a single operation parameter.
-<a href="http://swagger.io/specification/#parameterObject">http://swagger.io/specification/#parameterObject</a></p>
-
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="swaggerprovider-internal-schema-operationparameterlocation.html">OperationParameterLocation</a>
-          </td>
-          <td class="xmldoc"><p>Required. The location of the parameter.</p>
-
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="swaggerprovider-internal-schema-operationresponse.html">OperationResponse</a>
-          </td>
-          <td class="xmldoc"><p>Describes a single response from an API Operation.
-<a href="http://swagger.io/specification/#responseObject">http://swagger.io/specification/#responseObject</a></p>
-
-
-</td>
-        </tr>
-        <tr>
-          <td class="type-name">
             <a href="swaggerprovider-internal-schema-operationtype.html">OperationType</a>
           </td>
           <td class="xmldoc"><p>The type of the REST call.
@@ -548,7 +500,46 @@ types are of type ProvidedTypeDefinition.</p>
         </tr>
         <tr>
           <td class="type-name">
-            <a href="swaggerprovider-internal-schema-swaggerschema.html">SwaggerSchema</a>
+            <a href="swaggerprovider-internal-schema-parameterobject.html">ParameterObject</a>
+          </td>
+          <td class="xmldoc"><p>Describes a single operation parameter.
+<a href="http://swagger.io/specification/#parameterObject">http://swagger.io/specification/#parameterObject</a></p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-parameterobjectlocation.html">ParameterObjectLocation</a>
+          </td>
+          <td class="xmldoc"><p>Required. The location of the parameter.</p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-responseobject.html">ResponseObject</a>
+          </td>
+          <td class="xmldoc"><p>Describes a single response from an API Operation.
+<a href="http://swagger.io/specification/#responseObject">http://swagger.io/specification/#responseObject</a></p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-schemaobject.html">SchemaObject</a>
+          </td>
+          <td class="xmldoc"><p>A data type produced or consumed by operations.
+<a href="http://swagger.io/specification/#schemaObject">http://swagger.io/specification/#schemaObject</a></p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-swaggerobject.html">SwaggerObject</a>
           </td>
           <td class="xmldoc"><p>This is the main object.
 <a href="http://swagger.io/specification/#swaggerObject">http://swagger.io/specification/#swaggerObject</a></p>
@@ -568,6 +559,59 @@ types are of type ProvidedTypeDefinition.</p>
         </tr>
     </tbody>
   </table>
+
+    </div>
+  <h2>SwaggerProvider.Internal.Schema.Parsers Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-parsers-fieldnotfoundexception.html">FieldNotFoundException</a>
+          </td>
+          <td class="xmldoc"><p>Schema object does not contain the <code>field</code> that is Required in Swagger specification.</p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-parsers-swaggerschemaparseexception.html">SwaggerSchemaParseException</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-parsers-unknownfieldvalueexception.html">UnknownFieldValueException</a>
+          </td>
+          <td class="xmldoc"><p>The <code>field</code> value is not specified in Swagger specification</p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-parsers-unknownswaggerreferenceexception.html">UnknownSwaggerReferenceException</a>
+          </td>
+          <td class="xmldoc"><p>Unknown reference</p>
+
+
+</td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="swaggerprovider-internal-schema-parsers-unsupportedswaggerversionexception.html">UnsupportedSwaggerVersionException</a>
+          </td>
+          <td class="xmldoc"><p>Unsupported Swagger version</p>
+
+
+</td>
+        </tr>
+    </tbody>
+  </table>
   <table class="table table-bordered module-list">
     <thead>
       <tr><td>Module</td><td>Description</td></tr>
@@ -575,7 +619,7 @@ types are of type ProvidedTypeDefinition.</p>
     <tbody>
         <tr>
           <td class="module-name">
-            <a href="swaggerprovider-internal-schema-extensions.html">Extensions</a>
+            <a href="swaggerprovider-internal-schema-parsers-extensions.html">Extensions</a>
           </td>
           <td class="xmldoc"><p>Helper functions for optional swagger values of types string and string array.</p>
 

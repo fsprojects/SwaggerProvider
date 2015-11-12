@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>OptionConverter - SwaggerProvider</title>
+    <title>Extensions - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,37 +37,85 @@
 
 
 
-<h1>OptionConverter</h1>
+<h1>Extensions</h1>
 <p>
-  <span>Namespace: SwaggerProvider.OptionConverter</span><br />
+  <span>Namespace: SwaggerProvider.Internal.Schema.Parsers</span><br />
 </p>
 <div class="xmldoc">
-<p>Serializer for serializing the F# option types.</p>
+<p>Helper functions for optional swagger values of types string and string array.</p>
 
 
 </div>
-  <h3>Constructors</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Type extensions</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Type extension</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '420', 420)" onmouseover="showTip(event, '420', 420)">
-            new()
+          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+            GetRequiredField(fieldName, spec)
           </code>
-          <div class="tip" id="420">
-            <strong>Signature:</strong> unit -&gt; OptionConverter<br />
+          <div class="tip" id="124">
+            <strong>Signature:</strong> (fieldName:string * spec:string) -&gt; JsonValue<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/OptionConverter.fs#L10-10" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/SchemaJsonParser.fs#L14-14" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Get field that is <code>Required</code> in Swagger specification</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
+            GetStringArraySafe(propertyName)
+          </code>
+          <div class="tip" id="125">
+            <strong>Signature:</strong> propertyName:string -&gt; string []<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/SchemaJsonParser.fs#L26-26" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets the string array for the property if it exists. Empty array otherwise.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
+            GetStringSafe(propertyName)
+          </code>
+          <div class="tip" id="126">
+            <strong>Signature:</strong> propertyName:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/SchemaJsonParser.fs#L20-20" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Gets the string value of the property if it exists. Empty string otherwise.</p>
+
+
+
         </td>
       </tr>
     </tbody>

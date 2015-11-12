@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>OptionConverter - SwaggerProvider</title>
+    <title>FieldNotFoundException - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,12 +37,12 @@
 
 
 
-<h1>OptionConverter</h1>
+<h1>FieldNotFoundException</h1>
 <p>
-  <span>Namespace: SwaggerProvider.OptionConverter</span><br />
+  <span>Namespace: SwaggerProvider.Internal.Schema.Parsers</span><br />
 </p>
 <div class="xmldoc">
-<p>Serializer for serializing the F# option types.</p>
+<p>Schema object does not contain the <code>field</code> that is Required in Swagger specification.</p>
 
 
 </div>
@@ -55,15 +55,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '420', 420)" onmouseover="showTip(event, '420', 420)">
-            new()
+          <code onmouseout="hideTip(event, '415', 415)" onmouseover="showTip(event, '415', 415)">
+            new(obj, field, specLink)
           </code>
-          <div class="tip" id="420">
-            <strong>Signature:</strong> unit -&gt; OptionConverter<br />
+          <div class="tip" id="415">
+            <strong>Signature:</strong> (obj:JsonValue * field:string * specLink:string) -&gt; FieldNotFoundException<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/OptionConverter.fs#L10-10" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/SchemaParserExceptions.fs#L10-10" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

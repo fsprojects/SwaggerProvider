@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>OptionConverter - SwaggerProvider</title>
+    <title>ResponseObject - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,37 +37,62 @@
 
 
 
-<h1>OptionConverter</h1>
+<h1>ResponseObject</h1>
 <p>
-  <span>Namespace: SwaggerProvider.OptionConverter</span><br />
+  <span>Namespace: SwaggerProvider.Internal.Schema</span><br />
 </p>
 <div class="xmldoc">
-<p>Serializer for serializing the F# option types.</p>
+<p>Describes a single response from an API Operation.
+<a href="http://swagger.io/specification/#responseObject">http://swagger.io/specification/#responseObject</a></p>
 
 
 </div>
-  <h3>Constructors</h3>
+  <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Record Field</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '420', 420)" onmouseover="showTip(event, '420', 420)">
-            new()
+          <code onmouseout="hideTip(event, '391', 391)" onmouseover="showTip(event, '391', 391)">
+            Description
           </code>
-          <div class="tip" id="420">
-            <strong>Signature:</strong> unit -&gt; OptionConverter<br />
+          <div class="tip" id="391">
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/OptionConverter.fs#L10-10" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L150-150" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Required. A short description of the response.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '392', 392)" onmouseover="showTip(event, '392', 392)">
+            Schema
+          </code>
+          <div class="tip" id="392">
+            <strong>Signature:</strong> SchemaObject option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L152-152" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response.</p>
+
+
+
         </td>
       </tr>
     </tbody>

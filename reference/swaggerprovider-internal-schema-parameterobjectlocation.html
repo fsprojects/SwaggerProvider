@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>CollectionFormat - SwaggerProvider</title>
+    <title>ParameterObjectLocation - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,12 +37,12 @@
 
 
 
-<h1>CollectionFormat</h1>
+<h1>ParameterObjectLocation</h1>
 <p>
   <span>Namespace: SwaggerProvider.Internal.Schema</span><br />
 </p>
 <div class="xmldoc">
-<p>Determines the format of the array if type array is used. Array value separator.</p>
+<p>Required. The location of the parameter.</p>
 
 
 </div>
@@ -55,19 +55,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
-            Csv
+          <code onmouseout="hideTip(event, '386', 386)" onmouseover="showTip(event, '386', 386)">
+            Body
           </code>
-          <div class="tip" id="350">
+          <div class="tip" id="386">
             <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L93-93" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L123-123" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Comma separated values.</p>
+          <p>The payload that's appended to the HTTP request. Since there can only be one payload, there can only be one body parameter. The name of the body parameter has no effect on the parameter itself and is used for documentation purposes only. Since Form parameters are also in the payload, body and form parameters cannot exist together for the same operation.</p>
 
 
 
@@ -76,19 +76,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
-            Multi
+          <code onmouseout="hideTip(event, '387', 387)" onmouseover="showTip(event, '387', 387)">
+            FormData
           </code>
-          <div class="tip" id="351">
+          <div class="tip" id="387">
             <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L101-101" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L121-121" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Corresponds to multiple parameter instances instead of multiple values for a single instance.</p>
+          <p>Used to describe the payload of an HTTP request.</p>
 
 
 
@@ -97,19 +97,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '352', 352)" onmouseover="showTip(event, '352', 352)">
-            Pipes
+          <code onmouseout="hideTip(event, '388', 388)" onmouseover="showTip(event, '388', 388)">
+            Header
           </code>
-          <div class="tip" id="352">
+          <div class="tip" id="388">
             <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L99-99" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L117-117" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Pipe separated values.</p>
+          <p>Custom header that are expected as part of the request.</p>
 
 
 
@@ -118,19 +118,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '353', 353)" onmouseover="showTip(event, '353', 353)">
-            Ssv
+          <code onmouseout="hideTip(event, '389', 389)" onmouseover="showTip(event, '389', 389)">
+            Path
           </code>
-          <div class="tip" id="353">
+          <div class="tip" id="389">
             <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L95-95" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L119-119" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Space separated values.</p>
+          <p>Used together with Path Templating, where the parameter value is actually part of the operation's URL. This does not include the host or base path of the API. For example, in /items/{itemId}, the path parameter is itemId.</p>
 
 
 
@@ -139,19 +139,19 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '354', 354)" onmouseover="showTip(event, '354', 354)">
-            Tsv
+          <code onmouseout="hideTip(event, '390', 390)" onmouseover="showTip(event, '390', 390)">
+            Query
           </code>
-          <div class="tip" id="354">
+          <div class="tip" id="390">
             <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L97-97" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L115-115" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Tab separated values.</p>
+          <p>Parameter that are appended to the URL. For example, in /items?id=###, the query parameter is id.</p>
 
 
 

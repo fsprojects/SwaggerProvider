@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>OptionConverter - SwaggerProvider</title>
+    <title>UnknownFieldValueException - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,12 +37,12 @@
 
 
 
-<h1>OptionConverter</h1>
+<h1>UnknownFieldValueException</h1>
 <p>
-  <span>Namespace: SwaggerProvider.OptionConverter</span><br />
+  <span>Namespace: SwaggerProvider.Internal.Schema.Parsers</span><br />
 </p>
 <div class="xmldoc">
-<p>Serializer for serializing the F# option types.</p>
+<p>The <code>field</code> value is not specified in Swagger specification</p>
 
 
 </div>
@@ -55,15 +55,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '420', 420)" onmouseover="showTip(event, '420', 420)">
-            new()
+          <code onmouseout="hideTip(event, '417', 417)" onmouseover="showTip(event, '417', 417)">
+            new(obj, value, field, specLink)
           </code>
-          <div class="tip" id="420">
-            <strong>Signature:</strong> unit -&gt; OptionConverter<br />
+          <div class="tip" id="417">
+            <strong>Signature:</strong> (obj:JsonValue * value:string * field:string * specLink:string) -&gt; UnknownFieldValueException<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/OptionConverter.fs#L10-10" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/SchemaParserExceptions.fs#L16-16" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
