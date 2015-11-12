@@ -4,13 +4,13 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
+open FsUnit
 
-
-let shouldBeEqual (expected:SchemaObject) s =
-    let json =JsonValue.Parse s
-    let result = JsonParser.parseSchemaObject json
-    if expected <> result then
-        failwithf "Expected %A, but received %A" expected result
+let shouldBeEqual (expected:SchemaObject) content =
+    content
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal expected
 
 [<Test>]
 let ``parse boolean`` () =

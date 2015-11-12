@@ -4,12 +4,13 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
+open FsUnit
 
-let shouldBeEqualToTag (expected:TagObject) s =
-    let json =JsonValue.Parse s
-    let result = JsonParser.parseTagObject json
-    if expected <> result then
-        failwithf "Expected %A, but received %A" expected result
+let shouldBeEqualToTag (expected:TagObject) content =
+    content
+    |> JsonValue.Parse
+    |> JsonParser.parseTagObject
+    |> should equal expected
 
 [<Test>]
 let ``parse simple tag`` () =

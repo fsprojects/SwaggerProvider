@@ -4,6 +4,7 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
+open FsUnit
 open System.IO
 
 [<Test>]
@@ -13,15 +14,14 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
         |> File.ReadAllText
         |> JsonValue.Parse
         |> JsonParser.parseSwaggerObject
-    Assert.AreEqual(6, schema.Definitions.Length)
+    schema.Definitions |> should haveLength 6
 
-    let expectedInfo = {
+    schema.Info
+    |> should equal {
         Title = "Swagger Petstore"
         Version = "1.0.0"
         Description = "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters."
     }
-    if schema.Info <> expectedInfo
-        then Assert.Fail (sprintf "\n%A \n<> \n%A" schema.Info expectedInfo)
 
 
 // Test that provider can parse real-word Swagger 2.0 schemas
@@ -38,7 +38,7 @@ let ApisGuruSchemaUrls =
     |> Array.map (fun x -> x.Url)
 
 let ManualSchemaUrls =
-    [|//"http://netflix.github.io/genie/docs/rest/swagger.json" // This schema is incorrect
+    [|"http://netflix.github.io/genie/docs/rest/swagger.json"
       //"https://www.expedia.com/static/mobile/swaggerui/swagger.json" // This schema is incorrect
       "https://graphhopper.com/api/1/vrp/swagger.json"|]
 
@@ -56,4 +56,4 @@ let ``Schema Parse`` url =
             ""
     if not <| System.String.IsNullOrEmpty(json) then
         let schema = json |> JsonValue.Parse |> Parsers.JsonParser.parseSwaggerObject
-        Assert.Greater(schema.Paths.Length + schema.Definitions.Length, 0)
+        schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)

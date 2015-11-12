@@ -3,6 +3,7 @@
 open SwaggerProvider
 open FSharp.Data
 open NUnit.Framework
+open FsUnit
 
 type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type,application/json">
 
@@ -10,10 +11,10 @@ let apiKey = "special-key"
 
 [<Test>]
 let ``instantiate provided objects`` () =
-    let pet = new PetStore.Definitions.Pet(Name = "foo")
-    Assert.AreEqual (pet.Name, "foo")
+    let pet = PetStore.Definitions.Pet(Name = "foo")
+    pet.Name |> should equal "foo"
     pet.Name <- "bar"
-    Assert.AreEqual (pet.Name, "bar")
+    pet.Name |> should equal "bar"
 
 [<Test>]
 let ``call provided methods`` () =
@@ -22,8 +23,8 @@ let ``call provided methods`` () =
     with
     | exn -> ()
 
-    let tag = new PetStore.Definitions.Tag (Name = "foobar")
-    let pet = new PetStore.Definitions.Pet (Name = "foo", Id = Some 1337L, Status = "available")
+    let tag = PetStore.Definitions.Tag (Name = "foobar")
+    let pet = PetStore.Definitions.Pet (Name = "foo", Id = Some 1337L, Status = "available")
 
     try
         PetStore.Pet.AddPet(pet)
@@ -31,9 +32,9 @@ let ``call provided methods`` () =
     | exn -> Assert.Fail ("Adding pet failed with message: " + exn.Message)
 
     let pet2 = PetStore.Pet.GetPetById(1337L)
-    Assert.AreEqual (pet.Name, pet2.Name)
-    Assert.AreEqual (pet.Id, pet2.Id)
-    Assert.AreEqual (pet.Category, pet2.Category)
-    Assert.AreEqual (pet.Status, pet2.Status)
-//    Assert.AreEqual (pet.PhotoUrls, pet2.PhotoUrls)
-    Assert.AreNotEqual (pet, pet2)
+    pet.Name        |> should equal pet2.Name
+    pet.Id          |> should equal pet.Id
+    pet.Category    |> should equal pet2.Category
+    pet.Status      |> should equal pet2.Status
+    pet             |> should not' (equal pet2)
+
