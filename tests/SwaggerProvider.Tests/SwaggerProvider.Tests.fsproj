@@ -72,9 +72,10 @@
     <None Include="Schemas\PetStore.Swagger.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Compile Include="Schema.Spec.Tests.fs" />
     <Compile Include="Schema.DefinitionsTests.fs" />
     <Compile Include="Schema.PathsTests.fs" />
-    <Compile Include="Schema.Tests.fs" />
+    <Compile Include="Schema.Parser.Tests.fs" />
     <None Include="paket.references" />
     <Content Include="App.config" />
   </ItemGroup>
