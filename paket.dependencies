@@ -33,5 +33,6 @@ group Test
 	nuget NUnit
 	nuget NUnit.Runners
 	nuget FSharp.Data
+	nuget FSharp.Core
 
 	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnit.fs

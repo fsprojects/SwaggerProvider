@@ -1,3 +1,4 @@
 group Test
+    FSharp.Core
     NUnit
     File:FsUnit.fs
