@@ -1,3 +1,7 @@
+#### 0.0.4-alpha - November 13 2015
+* Added support of Dictionaries
+* Added tests for all samples from Swagger specification
+
 #### 0.0.3-alpha - November 12 2015
 * Implemented new Swagger JSON schema parser
 * Added tests for parsing 200+ real-world Swagger schemas

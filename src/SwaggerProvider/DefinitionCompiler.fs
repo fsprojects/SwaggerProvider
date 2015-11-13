@@ -44,7 +44,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | Date, false | DateTime, false  -> typeof<Option<DateTime>>
         | File, _         -> typeof<byte>.MakeArrayType(1)
         | Enum _, _       -> typeof<string> //TODO: find better type
-        | Array iTy, _    -> (compileSchemaObject null iTy true).MakeArrayType()
+        | Array eTy, _    -> (compileSchemaObject null eTy true).MakeArrayType()
+        | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType([|typeof<string>; compileSchemaObject null eTy false|])
         | Object properties, _ ->
             if name = null then
                 if properties.Length = 0
@@ -80,4 +81,3 @@ type DefinitionCompiler (schema:SwaggerObject) =
     /// Compiles the definition.
     member __.CompileTy ty required =
         compileSchemaObject null ty required
-

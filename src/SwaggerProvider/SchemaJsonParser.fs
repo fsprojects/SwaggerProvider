@@ -124,28 +124,39 @@ module JsonParser =
                     )
                 )
                 (fun obj -> // TODO: Parse Objects
-                    let requiredProperties =
-                        match obj.TryGetProperty("required") with
-                        | None -> Set.empty<_>
-                        | Some(req) ->
-                            req.AsArray()
-                            |> Array.map (fun x-> x.AsString())
-                            |> Set.ofArray
-                    let properties =
-                        match obj.TryGetProperty("properties") with
-                        | None -> [||]
-                        | Some(x) ->
-                            x.Properties
-                            |> Array.map (fun (name,obj) ->
-                                parseDefinitionProperty (name,obj, requiredProperties.Contains name))
-                    Some <| Object properties
+                    obj.TryGetProperty("properties")
+                    |> Option.bind (fun properties ->
+                        let requiredProperties =
+                          match obj.TryGetProperty("required") with
+                          | None -> Set.empty<_>
+                          | Some(req) ->
+                              req.AsArray()
+                              |> Array.map (fun x-> x.AsString())
+                              |> Set.ofArray
+                        let properties =
+                          properties.Properties
+                          |> Array.map (fun (name,obj) ->
+                              parseDefinitionProperty (name,obj, requiredProperties.Contains name))
+
+                        Some <| Object properties
+                      )
+                )
+                (fun obj -> // Parse Object that represent Dictionary
+                    match obj.TryGetProperty("type") with
+                    | Some(ty) when ty.AsString() = "object" ->
+                        obj.TryGetProperty("additionalProperties")
+                        |> Option.map (parseSchemaObject >> Dictionary)
+                    | _ -> None
                 )
             |]
 
         let result = Array.tryPick (fun f -> f obj) parsers
         match result with
         | Some(schemaObj) -> schemaObj
-        | None -> failwithf "Unable to parse SchemaObject: %A" obj
+        | None -> Object [||] // Default type when parsers could not determine the type based ob schema.
+                              // Example of schema : {}
+                  //failwithf "Unable to parse SchemaObject: %A" obj
+
 
     /// Parses DefinitionProperty
     and parseDefinitionProperty (name, obj, required) : DefinitionProperty =
@@ -167,7 +178,7 @@ module JsonParser =
         | "body"     -> Body
         | _ -> raise <| UnknownFieldValueException(obj, location, "in", spec)
 
-    /// Parses the JsonValue as an ParameterObject.
+    /// Parses the JsonValue as a ParameterObject.
     let parseParameterObject (obj:JsonValue) : ParameterObject =
         let spec = "http://swagger.io/specification/#parameterObject"
         let location =
@@ -198,7 +209,14 @@ module JsonParser =
                 | _,        None                               -> Csv // Default value
         }
 
-    /// Parses the JsonValue as an ResponseObject.
+    /// Parse the JsonValue as a Parameters Definition Object
+    let parseParametersDefinition (obj:JsonValue) : Map<string, ParameterObject> =
+        obj.Properties
+        |> Array.map (fun (name, obj) ->
+            "#/parameters/"+name, parseParameterObject obj)
+        |> Map.ofArray
+
+    /// Parses the JsonValue as a ResponseObject.
     let parseResponseObject (context:ParserContext) (obj:JsonValue) : ResponseObject =
         let spec = "http://swagger.io/specification/#responseObject"
         match context.ResolveResponseObject obj with
@@ -211,7 +229,14 @@ module JsonParser =
                     |> Option.map parseSchemaObject
             }
 
-    /// Parses the JsonValue as an ResponseObject[].
+    /// Parses the JsonValue as a Responses  Definition Object
+    let parseResponsesDefinition (obj:JsonValue) : Map<string, ResponseObject> =
+        obj.Properties
+        |> Array.map (fun (name, obj) ->
+                "#/responses/"+name, parseResponseObject (ParserContext.Empty) obj)
+        |> Map.ofSeq
+
+    /// Parses the JsonValue as a ResponseObject[].
     let parseResponsesObject (context:ParserContext) (obj:JsonValue) : (Option<int>*ResponseObject)[] =
         let spec = "http://swagger.io/specification/#httpCodes"
         obj.Properties
@@ -266,7 +291,7 @@ module JsonParser =
                    context.ApplicableParameters
         }
 
-    /// Parse Paths Object as PathItemObject[]
+    /// Parse Paths Object as a PathItemObject[]
     let parsePathsObject (context:ParserContext) (obj:JsonValue) : OperationObject[] =
         let parsePathItemObject (context:ParserContext) path (field, obj) =
             match field with
@@ -303,7 +328,7 @@ module JsonParser =
            )
         |> Array.concat
 
-    /// Parse Definitions Object as SchemaObject[]
+    /// Parse Definitions Object as a SchemaObject[]
     let parseDefinitionsObject (obj:JsonValue) : (string*SchemaObject)[] =
         obj.Properties
         |> Array.map (fun (name, schemaObj) ->
@@ -341,19 +366,11 @@ module JsonParser =
                     Parameters =
                         match obj.TryGetProperty("parameters") with
                         | None -> Map.empty<_,_>
-                        | Some(parameters) ->
-                            parameters.Properties
-                            |> Array.map (fun (name, obj) ->
-                                "#/parameters/"+name, parseParameterObject obj)
-                            |> Map.ofArray
+                        | Some(parameters) -> parseParametersDefinition parameters
                     Responses =
                         match obj.TryGetProperty("responses") with
                         | None -> Map.empty<_,_>
-                        | Some(responses) ->
-                            responses.Properties
-                            |> Array.map (fun (name, obj) ->
-                                 "#/responses/"+name, parseResponseObject (ParserContext.Empty) obj)
-                            |> Map.ofSeq
+                        | Some(responses) -> parseResponsesDefinition responses
             }
 
         {

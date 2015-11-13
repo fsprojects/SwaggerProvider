@@ -29,6 +29,8 @@ type SchemaObject =
     | Array of itemTy:SchemaObject
     /// Object
     | Object of DefinitionProperty[]
+    /// Dictionary
+    | Dictionary of ty:SchemaObject
     /// A reference to an object defined by a Schema Object.
     | Reference of name:string
 
@@ -45,6 +47,7 @@ type SchemaObject =
         | DateTime     -> "DateTime"
         | Enum x       -> sprintf "Enum  %A" x
         | Array x      -> sprintf "Array %O" x
+        | Dictionary x -> sprintf "Dictionary %O" x
         | File         -> "File"
         | Reference s  -> sprintf "Reference %s" s
 

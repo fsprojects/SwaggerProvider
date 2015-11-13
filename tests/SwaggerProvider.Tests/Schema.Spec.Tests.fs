@@ -404,4 +404,495 @@ let ``Parameter Object Examples: Other Parameters - File``() =
         }
 
 
-// !!! Items Object Examples
+[<Test>]
+let ``Response Object Examples: Response of an array of a complex type`` () =
+    """{
+      "description": "A complex object array response",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/VeryComplexType"
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> should equal
+        {
+            Description = "A complex object array response"
+            Schema = Some <| Array (Reference "#/definitions/VeryComplexType")
+        }
+
+
+
+[<Test>]
+let ``Response Object Examples: Response with a string type`` () =
+    """{
+      "description": "A simple string response",
+      "schema": {
+        "type": "string"
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> should equal
+        {
+            Description = "A simple string response"
+            Schema = Some String
+        }
+
+
+[<Test>]
+let ``Response Object Examples: Response with headers`` () =
+    """{
+      "description": "A simple string response",
+      "schema": {
+        "type": "string"
+      },
+      "headers": {
+        "X-Rate-Limit-Limit": {
+          "description": "The number of allowed requests in the current period",
+          "type": "integer"
+        },
+        "X-Rate-Limit-Remaining": {
+          "description": "The number of remaining requests in the current period",
+          "type": "integer"
+        },
+        "X-Rate-Limit-Reset": {
+          "description": "The number of seconds left in the current period",
+          "type": "integer"
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> should equal
+        {
+            Description = "A simple string response"
+            Schema = Some String
+        }
+
+
+[<Test>]
+let ``Response Object Examples: Response with no return value`` () =
+    """{
+      "description": "object created"
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> should equal
+        {
+            Description = "object created"
+            Schema = None
+        }
+
+
+
+[<Test>]
+let ``Tag Object Example`` () =
+    """{
+        "name": "pet",
+        "description": "Pets operations"
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseTagObject
+    |> should equal
+        ({
+            Name = "pet"
+            Description = "Pets operations"
+        }:TagObject)
+
+
+[<Test>]
+let ``Reference Object Example`` () =
+    """{
+        "$ref": "#/definitions/Pet"
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Reference "#/definitions/Pet")
+
+
+[<Test>]
+let ``Schema Object Examples: Primitive Sample`` () =
+    """{
+        "type": "string",
+        "format": "email"
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        String
+
+
+[<Test>]
+let ``Schema Object Examples: Simple Model`` () =
+    """{
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "age": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Object
+            [|{Name = "name"
+               Type = String
+               IsRequired = true
+               Description = ""}
+              {Name = "address"
+               Type = Reference "#/definitions/Address"
+               IsRequired = false
+               Description = ""}
+              {Name = "age"
+               Type = Int32
+               IsRequired = false
+               Description = ""}|]
+        )
+
+
+[<Test>]
+let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping`` () =
+    """{
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Dictionary String)
+
+
+[<Test>]
+let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping`` () =
+    """{
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ComplexModel"
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Dictionary (Reference "#/definitions/ComplexModel"))
+
+
+[<Test>]
+let ``Schema Object Examples: Model with Example`` () =
+    """{
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "example": {
+        "name": "Puma",
+        "id": 1
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Object
+            [|{Name = "id"
+               Type = Int64
+               IsRequired = false
+               Description = ""}
+              {Name = "name"
+               Type = String
+               IsRequired = true
+               Description = ""}|]
+        )
+
+
+[<Test; Ignore>] // TODO : Not supported
+let ``Schema Object Examples: Models with Composition`` () =
+    """{
+      "definitions": {
+        "ErrorModel": {
+          "type": "object",
+          "required": [
+            "message",
+            "code"
+          ],
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "code": {
+              "type": "integer",
+              "minimum": 100,
+              "maximum": 600
+            }
+          }
+        },
+        "ExtendedErrorModel": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ErrorModel"
+            },
+            {
+              "type": "object",
+              "required": [
+                "rootCause"
+              ],
+              "properties": {
+                "rootCause": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Object
+            [||]
+        )
+
+
+[<Test; Ignore>] // TODO : Not supported
+let ``Schema Object Examples: Models with Polymorphism Support`` () =
+    """{
+      "definitions": {
+        "Pet": {
+          "type": "object",
+          "discriminator": "petType",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "petType": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "petType"
+          ]
+        },
+        "Cat": {
+          "description": "A representation of a cat",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Pet"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "huntingSkill": {
+                  "type": "string",
+                  "description": "The measured skill for hunting",
+                  "default": "lazy",
+                  "enum": [
+                    "clueless",
+                    "lazy",
+                    "adventurous",
+                    "aggressive"
+                  ]
+                }
+              },
+              "required": [
+                "huntingSkill"
+              ]
+            }
+          ]
+        },
+        "Dog": {
+          "description": "A representation of a dog",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Pet"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "packSize": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "the size of the pack the dog is from",
+                  "default": 0,
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "packSize"
+              ]
+            }
+          ]
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseSchemaObject
+    |> should equal
+        (Object
+            [||]
+        )
+
+
+[<Test>]
+let ``Definitions Object Example`` () =
+    """{
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseDefinitionsObject
+    |> should equal
+        [|
+            "#/definitions/Category",
+            (Object
+                [|{Name = "id"
+                   Type = Int64
+                   IsRequired = false
+                   Description = ""}
+                  {Name = "name"
+                   Type = String
+                   IsRequired = false
+                   Description = ""}|]
+            )
+            "#/definitions/Tag",
+            (Object
+                [|{Name = "id"
+                   Type = Int64
+                   IsRequired = false
+                   Description = ""}
+                  {Name = "name"
+                   Type = String
+                   IsRequired = false
+                   Description = ""}|]
+            )
+        |]
+
+
+[<Test>]
+let ``Parameters Definition Object Example`` () =
+    """{
+      "skipParam": {
+        "name": "skip",
+        "in": "query",
+        "description": "number of items to skip",
+        "required": true,
+        "type": "integer",
+        "format": "int32"
+      },
+      "limitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "max records to return",
+        "required": true,
+        "type": "integer",
+        "format": "int32"
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseParametersDefinition
+    |> should equal
+        ([|
+            "#/parameters/skipParam",
+            {
+                Name = "skip"
+                In = Query
+                Description = "number of items to skip"
+                Required = true
+                Type = Int32
+                CollectionFormat = Csv
+            }
+            "#/parameters/limitParam",
+            {
+                Name = "limit"
+                In = Query
+                Description = "max records to return"
+                Required = true
+                Type = Int32
+                CollectionFormat = Csv
+            }
+        |] |> Map.ofArray)
+
+[<Test>]
+let ``Responses Definitions Object Example`` () =
+    """{
+      "NotFound": {
+        "description": "Entity not found."
+      },
+      "IllegalInput": {
+        "description": "Illegal input for operation."
+      },
+      "GeneralError": {
+        "description": "General Error",
+        "schema": {
+            "$ref": "#/definitions/GeneralError"
+        }
+      }
+    }"""
+    |> JsonValue.Parse
+    |> JsonParser.parseResponsesDefinition
+    |> should equal
+        ([|
+            "#/responses/NotFound",
+            {
+                Description = "Entity not found."
+                Schema = None
+            }
+            "#/responses/IllegalInput",
+            {
+                Description = "Illegal input for operation."
+                Schema = None
+            }
+            "#/responses/GeneralError",
+            {
+                Description = "General Error"
+                Schema = Some (Reference "#/definitions/GeneralError")
+            }
+        |] |> Map.ofArray)
