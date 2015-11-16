@@ -1,3 +1,6 @@
+#### 0.0.5-alpha - November 16 2015
+* Added support of object composition
+
 #### 0.0.4-alpha - November 13 2015
 * Added support of Dictionaries
 * Added tests for all samples from Swagger specification

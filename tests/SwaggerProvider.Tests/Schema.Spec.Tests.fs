@@ -509,7 +509,7 @@ let ``Reference Object Example`` () =
         "$ref": "#/definitions/Pet"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         (Reference "#/definitions/Pet")
 
@@ -521,7 +521,7 @@ let ``Schema Object Examples: Primitive Sample`` () =
         "format": "email"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         String
 
@@ -548,7 +548,7 @@ let ``Schema Object Examples: Simple Model`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         (Object
             [|{Name = "name"
@@ -575,7 +575,7 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         (Dictionary String)
 
@@ -589,7 +589,7 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         (Dictionary (Reference "#/definitions/ComplexModel"))
 
@@ -616,7 +616,7 @@ let ``Schema Object Examples: Model with Example`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         (Object
             [|{Name = "id"
@@ -630,10 +630,9 @@ let ``Schema Object Examples: Model with Example`` () =
         )
 
 
-[<Test; Ignore>] // TODO : Not supported
+[<Test>]
 let ``Schema Object Examples: Models with Composition`` () =
     """{
-      "definitions": {
         "ErrorModel": {
           "type": "object",
           "required": [
@@ -669,14 +668,36 @@ let ``Schema Object Examples: Models with Composition`` () =
             }
           ]
         }
-      }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseDefinitionsObject
     |> should equal
-        (Object
-            [||]
-        )
+        [|
+            "#/definitions/ErrorModel",
+            (Object
+                [|{ Name = "message"
+                    Type = String
+                    IsRequired = true
+                    Description = "" }
+                  { Name = "code"
+                    Type = Int64
+                    IsRequired = true
+                    Description = "" }|])
+            "#/definitions/ExtendedErrorModel",
+            (Object
+                [|{ Name = "message"
+                    Type = String
+                    IsRequired = true
+                    Description = "" }
+                  { Name = "code"
+                    Type = Int64
+                    IsRequired = true
+                    Description = "" }
+                  { Name = "rootCause"
+                    Type = String
+                    IsRequired = true
+                    Description = "" }|])
+        |]
 
 
 [<Test; Ignore>] // TODO : Not supported
@@ -752,7 +773,7 @@ let ``Schema Object Examples: Models with Polymorphism Support`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject
+    |> JsonParser.parseSchemaObject Map.empty
     |> should equal
         (Object
             [||]

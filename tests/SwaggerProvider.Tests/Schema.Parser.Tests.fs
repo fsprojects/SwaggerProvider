@@ -25,17 +25,21 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
 
 
 // Test that provider can parse real-word Swagger 2.0 schemas
-
-type ApisGuru = FSharp.Data.JsonProvider<"https://apis-guru.github.io/api-models/apis.json">
+// https://github.com/APIs-guru/api-models/blob/master/API.md
+type ApisGuru = FSharp.Data.JsonProvider<"http://apis-guru.github.io/api-models/api/v1/list.json">
 
 let ApisGuruSchemaUrls =
-    ApisGuru.GetSample().Apis
-    |> Array.choose (fun x ->
-        x.Properties
-        |> Array.tryFind (fun y ->
-            y.Type = "Swagger")
+    ApisGuru.GetSample().JsonValue.Properties()
+    |> Array.choose (fun (name, obj)->
+        obj.TryGetProperty("versions")
+        |> Option.bind (fun v->
+            v.Properties()
+            |> Array.choose (fun (_,x)-> x.TryGetProperty("swaggerUrl"))
+            |> Some
+        )
        )
-    |> Array.map (fun x -> x.Url)
+    |> Array.concat
+    |> Array.map (fun x->x.AsString())
 
 let ManualSchemaUrls =
     [|"http://netflix.github.io/genie/docs/rest/swagger.json"

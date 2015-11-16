@@ -81,7 +81,7 @@ module JsonParser =
 
     // TODO: ...
     /// Parses the JsonValue as a SchemaObject
-    let rec parseSchemaObject (obj:JsonValue) : SchemaObject =
+    let rec parseSchemaObject (parsedTys:Map<string,SchemaObject>) (obj:JsonValue) : SchemaObject =
         let spec = "http://swagger.io/specification/#schemaObject"
         let parsers : (JsonValue->Option<SchemaObject>)[] =
             [|
@@ -101,7 +101,7 @@ module JsonParser =
                         else obj.TryGetProperty("items")
                        )
                     |> Option.map (fun items ->
-                        Array (parseSchemaObject items)
+                        Array (parseSchemaObject parsedTys items)
                        )
                 )
                 (fun obj -> // Parse primitive types
@@ -145,8 +145,34 @@ module JsonParser =
                     match obj.TryGetProperty("type") with
                     | Some(ty) when ty.AsString() = "object" ->
                         obj.TryGetProperty("additionalProperties")
-                        |> Option.map (parseSchemaObject >> Dictionary)
+                        |> Option.map ((parseSchemaObject parsedTys) >> Dictionary)
                     | _ -> None
+                )
+                (fun obj -> // Models with Composition
+                    match obj.TryGetProperty("allOf") with
+                    | Some(allOf) ->
+                        let props =
+                            allOf.AsArray()
+                            |> Array.map (parseSchemaObject parsedTys)
+                            |> Array.map (function
+                                | Object props -> props
+                                | Reference path ->
+                                    match parsedTys.TryFind path with
+                                    | Some(obj) ->
+                                        match obj with
+                                        | Object props -> props
+                                        | _ -> failwithf "Could not compose %O" obj
+                                    | None -> failwithf "Reference to unknown type %s" path
+                                | obj -> failwithf "Could not compose %O" obj)
+                            |> Array.concat
+                        Some <| Object props
+                    | None -> None
+                )
+                (fun obj -> // Models with Polymorphism Support
+                    match obj.TryGetProperty("discriminator") with
+                    | Some(discriminator) ->
+                        failwith "Models with Polymorphism Support is not supported yet. If you see this error plrease report it on GitHub (https://github.com/sergey-tihon/SwaggerProvider/issues) with schema example."
+                    | None -> None
                 )
             |]
 
@@ -162,7 +188,7 @@ module JsonParser =
     and parseDefinitionProperty (name, obj, required) : DefinitionProperty =
         {
             Name = name;
-            Type = parseSchemaObject obj
+            Type = parseSchemaObject Map.empty obj
             IsRequired = required
             Description = obj.GetStringSafe("description")
         }
@@ -192,8 +218,8 @@ module JsonParser =
                        | Some(x) -> x.AsBoolean() | None -> false
             Type =
                 match location with
-                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject
-                | _    -> obj |> parseSchemaObject // TODO: Restrict parser
+                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject Map.empty
+                | _    -> obj |> parseSchemaObject Map.empty // TODO: Restrict parser
                           // The `type` value MUST be one of "string", "number", "integer", "boolean", "array" or "file"
             CollectionFormat =
                 match location, obj.TryGetProperty("collectionFormat") with
@@ -226,7 +252,7 @@ module JsonParser =
                 Description = obj.GetRequiredField("description", spec).AsString()
                 Schema =
                     obj.TryGetProperty("schema")
-                    |> Option.map parseSchemaObject
+                    |> Option.map (parseSchemaObject Map.empty)
             }
 
     /// Parses the JsonValue as a Responses  Definition Object
@@ -331,8 +357,13 @@ module JsonParser =
     /// Parse Definitions Object as a SchemaObject[]
     let parseDefinitionsObject (obj:JsonValue) : (string*SchemaObject)[] =
         obj.Properties
-        |> Array.map (fun (name, schemaObj) ->
-            ("#/definitions/"+name), parseSchemaObject schemaObj)
+        |> Array.fold (fun tys (name, schemaObj) ->
+            Map.add
+                ("#/definitions/"+name)
+                (parseSchemaObject tys schemaObj)
+                tys
+            ) Map.empty<_,_>
+        |> Map.toArray
 
     /// Parses the JsonValue as an InfoObject.
     let parseInfoObject (obj:JsonValue) : InfoObject =
