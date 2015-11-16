@@ -24,7 +24,13 @@ group Build
 	nuget SourceLink.Fake
 
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
-
+	
+group OWIN
+	
+	source https://nuget.org/api/v2
+	
+	nuget Microsoft.AspNet.WebApi.OwinSelfHost
+	nuget Swashbuckle.Core
 
 group Test
 

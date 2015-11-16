@@ -17,8 +17,6 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
 
     let ns = "SwaggerProvider"
     let asm = Assembly.GetExecutingAssembly()
-    let tempAsmPath = IO.Path.ChangeExtension(IO.Path.GetTempFileName(), ".dll")
-    let tempAsm = ProvidedAssembly tempAsmPath
 
     let t = ProvidedTypeDefinition(asm, ns, "SwaggerProvider", Some typeof<obj>, IsErased = false)
 
@@ -60,12 +58,14 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
                 let opCompiler = OperationCompiler(schema, defCompiler, headers)
                 ty.AddMembers <| opCompiler.Compile() // Add all operations
 
+                let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
+                let tempAsm = ProvidedAssembly tempAsmPath
                 tempAsm.AddTypes [ty]
+
                 ty
             ))
     do
         this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
-        tempAsm.AddTypes [t]
         this.AddNamespace(ns, [t])
 
 

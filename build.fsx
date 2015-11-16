@@ -137,6 +137,11 @@ Target "Build" (fun _ ->
     |> ignore
 )
 
+Target "StartServer" (fun _ ->
+    ProcessHelper.StartProcess (fun prInfo ->
+        prInfo.FileName <- "tests/Swashbuckle.OWIN.Server/bin/Release/Swashbuckle.OWIN.Server.exe")
+)
+
 Target "BuildTests" (fun _ ->
     !! "SwaggerProvider.TestsAndDocs.sln"
     |> MSBuildRelease "" "Rebuild"
@@ -146,7 +151,7 @@ Target "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-Target "RunTests" (fun _ ->
+Target "ExecuteTests" (fun _ ->
     !! testAssemblies
     |> NUnit (fun p ->
         { p with
@@ -154,6 +159,12 @@ Target "RunTests" (fun _ ->
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
 )
+
+FinalTarget "StopServer" (fun _ ->
+    ProcessHelper.killProcess "Swashbuckle.OWIN.Server"
+)
+
+Target "RunTests" DoNothing
 
 #if MONO
 #else
@@ -353,7 +364,10 @@ Target "All" DoNothing
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "CopyBinaries"
+  ==> "StartServer"
   ==> "BuildTests"
+  ==> "ExecuteTests"
+  ==> "StopServer"
   ==> "RunTests"
   =?> ("GenerateReferenceDocs",isLocalBuild)
   =?> ("GenerateDocs",isLocalBuild)

@@ -23,7 +23,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             then op.Tags.[0] else "Root")
         |> Seq.toList
 
-    let compileOperation (op:OperationObject) =
+    let compileOperation (tag:string) (op:OperationObject) =
         let parameters =
             [let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
              for x in Array.append required optional ->
@@ -38,8 +38,16 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 | None -> typeof<unit>
                 | Some ty -> defCompiler.CompileTy ty true
             | None -> typeof<unit>
-        let m = ProvidedMethod(nicePascalName op.OperationId, parameters, retTy, IsStaticMethod = true)
-        m.AddXmlDoc(op.Summary)
+
+        let methodName =
+            let prefix = tag.TrimStart('/') + "_"
+            if op.OperationId.StartsWith(prefix) // Beatify names in Swashbuckle generated schemas
+                then nicePascalName <| op.OperationId.Substring(prefix.Length)
+                else nicePascalName <| op.OperationId
+
+        let m = ProvidedMethod(methodName, parameters, retTy, IsStaticMethod = true)
+        if not <| String.IsNullOrEmpty(op.Summary)
+            then m.AddXmlDoc(op.Summary)
         m.InvokeCode <- fun args ->
             let scheme =
                 match schema.Schemes with
@@ -115,17 +123,23 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             let address = <@@ basePath + %%path @@>
             let restCall = op.Type.ToString()
 
+            let customizeHttpRequest =
+                <@@ fun (request:Net.HttpWebRequest) ->
+                        if restCall = "Post"
+                            then request.ContentLength <- 0L
+                        request @@>
+
             // Make HTTP call
             let result =
                 match payload with
-                | None               -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), query = (%%queries : (string * string) list)) @@>
-                | Some (FormData, b) -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.FormValues (%%b : seq<string * string>), query = (%%queries : (string * string) list)) @@>
+                | None               -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), query = (%%queries : (string * string) list), customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
+                | Some (FormData, b) -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.FormValues (%%b : seq<string * string>), query = (%%queries : (string * string) list), customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
                 | Some (Body, b)     ->
                     <@@ let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
                         settings.Converters.Add(new OptionConverter () :> JsonConverter)
                         let data = (%%b : obj)
                         let body = (JsonConvert.SerializeObject(data, settings)).ToLower()
-                        Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.TextRequest body, query = (%%queries : (string * string) list))
+                        Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.TextRequest body, query = (%%queries : (string * string) list), customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))
                     @@>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
 
@@ -144,7 +158,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         |> List.map (fun (tag, operations) ->
             let ty = ProvidedTypeDefinition(nicePascalName tag, Some typeof<obj>, IsErased = false)
             operations
-            |> Seq.map compileOperation
+            |> Seq.map (compileOperation tag)
             |> Seq.toList
             |> ty.AddMembers
             ty
