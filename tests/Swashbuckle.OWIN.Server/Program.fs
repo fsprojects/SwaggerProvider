@@ -21,15 +21,20 @@ let getAppBuilder() =
 
 [<EntryPoint>]
 let main argv =
-    let hostAddress = "http://localhost:8735"
-    let server = WebApp.Start(hostAddress, getAppBuilder())
+    try
+        let hostAddress = "http://localhost:8735"
+        let server = WebApp.Start(hostAddress, getAppBuilder())
 
-    printfn "Web server up and running on %s\n" hostAddress
-    printfn "Swagger UI is running on %s/swagger/ui/index" hostAddress
-    printfn "Swagger Json Schema is available on %s/swagger/docs/v1" hostAddress
-    printf  "\nPress any key to stop"
+        printfn "Web server up and running on %s\n" hostAddress
+        printfn "Swagger UI is running on %s/swagger/ui/index" hostAddress
+        printfn "Swagger Json Schema is available on %s/swagger/docs/v1" hostAddress
+        printf  "\nPress any key to stop"
 
-    Console.ReadKey() |> ignore
+        Console.ReadKey() |> ignore
 
-    server.Dispose()
+        server.Dispose()
+    with
+    | e ->
+        printfn "Exception %A" e
+        raise e
     0 // return an integer exit code
