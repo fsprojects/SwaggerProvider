@@ -53,7 +53,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
                 else failwith "This should not happened"
             else
                 let name =name.Substring("#/definitions/".Length);
-                let ty = ProvidedTypeDefinition(nicePascalName name, Some typeof<obj>, IsErased = false)
+                let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
                 ty.AddMemberDelayed(fun () -> ProvidedConstructor([],
                                                InvokeCode = fun args -> <@@ () @@>))
                 for p in properties do

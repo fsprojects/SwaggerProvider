@@ -17,8 +17,12 @@ GITHUB
     src/Net/UriUtils.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
+    src/DebugProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
     src/ProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
     src/ProvidedTypes.fsi (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
+  remote: fsprojects/FSharp.Configuration
+  specs:
+    src/FSharp.Configuration/TypeProviders.Helper.fs (a4355f1f1ded46ff2f3d0098aa46421e37eb5c9f)
 GROUP Build
 NUGET
   remote: https://nuget.org/api/v2

@@ -23,16 +23,19 @@ let getAppBuilder() =
 let main argv =
     try
         let hostAddress = "http://localhost:8735"
-        let server = WebApp.Start(hostAddress, getAppBuilder())
+        use server = WebApp.Start(hostAddress, getAppBuilder())
 
+        let swaggerUiUrl = sprintf "%s/swagger/ui/index" hostAddress
         printfn "Web server up and running on %s\n" hostAddress
-        printfn "Swagger UI is running on %s/swagger/ui/index" hostAddress
+        printfn "Swagger UI is running on %s" swaggerUiUrl
         printfn "Swagger Json Schema is available on %s/swagger/docs/v1" hostAddress
-        printf  "\nPress any key to stop"
 
-        Console.ReadKey() |> ignore
+        printf  "\nPress Enter to open Swagger UI"
+        Console.ReadLine() |> ignore
+        System.Diagnostics.Process.Start(swaggerUiUrl) |> ignore
 
-        server.Dispose()
+        printf  "\nPress Enter key to stop"
+        Console.ReadLine() |> ignore
     with
     | e ->
         printfn "Exception %A" e

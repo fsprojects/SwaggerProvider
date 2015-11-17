@@ -6,8 +6,8 @@ open System.Web.Http
 type ReturnController<'T>(value:'T) =
     inherit ApiController()
 
-    member __.Get () = value
-    member __.Post () = value
+    member this.Get () = value
+    member this.Post () = value
 
 
 type ReturnBooleanController () =
@@ -46,5 +46,5 @@ type ReturnListIntController () =
 type ReturnSeqIntController () =
     inherit ReturnController<int seq>([1;2;3] |> List.toSeq)
 
-type ReturnObjectRecordConrtoller () =
-    inherit ReturnController<Types.Record>({X=0;Y=0})
+type ReturnObjectPointClassController () =
+    inherit ReturnController<Types.PointClass>(Types.PointClass(0,0))

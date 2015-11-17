@@ -100,9 +100,7 @@ module JsonParser =
                         if ty.AsString() <> "array" then None
                         else obj.TryGetProperty("items")
                        )
-                    |> Option.map (fun items ->
-                        Array (parseSchemaObject parsedTys items)
-                       )
+                    |> Option.map ((parseSchemaObject parsedTys) >> Array)
                 )
                 (fun obj -> // Parse primitive types
                      obj.TryGetProperty("type")

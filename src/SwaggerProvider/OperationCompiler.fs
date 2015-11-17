@@ -41,7 +41,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
 
         let methodName =
             let prefix = tag.TrimStart('/') + "_"
-            if op.OperationId.StartsWith(prefix) // Beatify names in Swashbuckle generated schemas
+            if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
                 then nicePascalName <| op.OperationId.Substring(prefix.Length)
                 else nicePascalName <| op.OperationId
 
@@ -49,27 +49,33 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary)
         m.InvokeCode <- fun args ->
-            let scheme =
-                match schema.Schemes with
-                | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
-                | array -> array.[0]
-            let basePath = scheme + "://" + schema.Host + schema.BasePath
+            let basePath =
+                let scheme =
+                    match schema.Schemes with
+                    | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
+                    | array -> array.[0]
+                scheme + "://" + schema.Host + schema.BasePath
 
             // Fit headers into quotation
-            let h1 = List.map
-                        (fun (h1,h2) -> Quotations.Expr.NewTuple [(<@@ h1 @@>); (<@@ h2 @@>)])
-                        (Seq.toList headers)
-            let h2 = Quotations.Expr.NewArray (typeof<Tuple<string,string>>, h1)
+            let headers =
+                let headerPairs =
+                    List.ofSeq headers
+                    |> List.map (fun (h1,h2) -> Expr.NewTuple [Expr.Value(h1);Expr.Value(h2)])
+                Expr.NewArray (typeof<Tuple<string,string>>, headerPairs)
 
             // Locates parameters matching the arguments
             let parameters =
-                List.map (
-                    function
-                        | ShapeVar v as ex -> Array.find (fun (parameter : ParameterObject) -> parameter.Name = v.Name) op.Parameters,
-                                              ex
-                        | _                -> failwith ("Function '" + m.Name + "' does not support functions as arguments.")
+                args
+                |> List.map (function
+                    | ShapeVar sVar as expr ->
+                        let param =
+                            op.Parameters
+                            |> Array.find (fun x -> x.Name = sVar.Name)
+                        param, expr
+                    | _  ->
+                        failwithf "Function '%s' does not support functions as arguments." m.Name
                     )
-                    args
+
 
             // Makes argument a string // TODO: Make body an exception
             let coerceString defType (format : CollectionFormat) exp =
@@ -117,7 +123,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                         | Query  -> (path, load, addQuery quer name value, head)
                         | Header -> (path, load, quer, addHeader head name value)
                     )
-                    (<@@ mPath @@>, None, <@@ ([("","")] : (string*string) list)  @@>, h2)
+                    (<@@ mPath @@>, None, <@@ ([("","")] : (string*string) list)  @@>, headers)
                     parameters
 
             let address = <@@ basePath + %%path @@>
@@ -144,11 +150,13 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
 
             // Return deserialized object
-            <@@
-                let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
-                settings.Converters.Add(new OptionConverter () :> JsonConverter)
-                JsonConvert.DeserializeObject((%%result : string), retTy, settings)
-            @@>
+            let value =
+                <@@
+                    let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
+                    settings.Converters.Add(new OptionConverter () :> JsonConverter)
+                    JsonConvert.DeserializeObject((%%result : string), retTy, settings)
+                @@>
+            Expr.Coerce(value, retTy)
 
         m
 

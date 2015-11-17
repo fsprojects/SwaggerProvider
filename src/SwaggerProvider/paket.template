@@ -1,7 +1,7 @@
 type project
 owners
     Sergey Tihon
-authors 
+authors
     Sergey Tihon
 projectUrl
     http://sergey-tihon.github.io/SwaggerProvider/
@@ -19,5 +19,7 @@ summary
     Type provider for Swagger.io
 description
     Type provider for Swagger.io
-
-
+files
+	../../bin/SwaggerProvider/*.* ==> lib/net40
+excludeddependencies
+	Newtonsoft.Json

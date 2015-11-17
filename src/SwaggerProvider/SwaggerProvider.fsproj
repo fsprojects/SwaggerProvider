@@ -44,6 +44,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -53,6 +54,9 @@
     </Compile>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
       <Link>FSharp.TypeProviders.StarterPack\ProvidedTypes.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\DebugProvidedTypes.fs">
+      <Link>FSharp.TypeProviders.StarterPack\DebugProvidedTypes.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
       <Link>FSharp.Data\Net\UriUtils.fs</Link>
@@ -80,6 +84,9 @@
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonExtensions.fs">
       <Link>FSharp.Data\Json\JsonExtensions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.Configuration\src\FSharp.Configuration\TypeProviders.Helper.fs">
+      <Link>FSharp.Configuration\TypeProviders.Helper.fs</Link>
     </Compile>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Schema.fs" />
