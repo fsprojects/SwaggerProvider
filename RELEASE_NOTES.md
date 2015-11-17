@@ -1,3 +1,13 @@
+#### 0.1.0-beta - November 17 2015
+* Improved speed: Added caching for generated types
+* Improved support of Swashbuckle generated schemas
+* Fixed bug in compilation to IL
+* Fixed bug in POST calls (Content-Length is set to 0)
+* Fixed bug in definition type names beatification
+* Fixed type coerce bug in provided methods
+* Fixed NuGet package
+* Added Swashbuckle.OWIN.API Server with REST API and communication/deserialization tests
+
 #### 0.0.5-alpha - November 16 2015
 * Added support of object composition
 
