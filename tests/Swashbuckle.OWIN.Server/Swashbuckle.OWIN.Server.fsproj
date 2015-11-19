@@ -42,10 +42,12 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Types.fs" />
     <Compile Include="ReturnControllers.fs" />
+    <Compile Include="UpdateControllers.fs" />
     <Compile Include="Program.fs" />
     <None Include="paket.references" />
     <None Include="App.config" />

@@ -9,8 +9,8 @@ open System
 open FSharp.Data
 open Newtonsoft.Json
 
-open Microsoft.FSharp.Quotations.ExprShape
 open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 
 /// Object for compiling operations.
@@ -27,7 +27,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         let parameters =
             [let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
              for x in Array.append required optional ->
-                ProvidedParameter(x.Name, defCompiler.CompileTy x.Type x.Required)]
+                ProvidedParameter(niceCamelName x.Name, defCompiler.CompileTy x.Type x.Required)]
         let retTy =
             let okResponse = // BUG :  wrong selector
                 op.Responses |> Array.tryFind (fun (code, resp)->
@@ -59,7 +59,13 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             // Fit headers into quotation
             let headers =
                 let headerPairs =
-                    List.ofSeq headers
+                    seq {
+                        yield! headers
+                        if (headers |> Seq.exists (fun (h,_)->h="Content-Type") |> not) then
+                            if (op.Consumes |> Seq.exists (fun mt -> mt="application/json")) then
+                                yield "Content-Type","application/json"
+                    }
+                    |> List.ofSeq
                     |> List.map (fun (h1,h2) -> Expr.NewTuple [Expr.Value(h1);Expr.Value(h2)])
                 Expr.NewArray (typeof<Tuple<string,string>>, headerPairs)
 
@@ -70,7 +76,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                     | ShapeVar sVar as expr ->
                         let param =
                             op.Parameters
-                            |> Array.find (fun x -> x.Name = sVar.Name)
+                            |> Array.find (fun x -> niceCamelName x.Name = sVar.Name) // ???
                         param, expr
                     | _  ->
                         failwithf "Function '%s' does not support functions as arguments." m.Name
@@ -79,15 +85,13 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
 
             // Makes argument a string // TODO: Make body an exception
             let coerceString defType (format : CollectionFormat) exp =
-                match defType with
-                | Array String
-                | Array (Enum _) ->
-                    <@@ Array.fold
-                            (fun state str -> state + str + ",") //TODO: Use format.ToString())
-                            ""
-                            (%%exp : string[])
-                    @@>
-                | _ -> Expr.Coerce (exp, typeof<string>)
+                let obj = Expr.Coerce(exp, typeof<obj>)
+                <@ (%%obj : obj).ToString() @>
+
+            let rec corceQueryString name expr =
+                let obj = Expr.Coerce(expr, typeof<obj>)
+                <@ let o = (%%obj : obj)
+                   SwaggerProvider.Internal.RuntimeHelpers.toQueryParams name o @>
 
             let replacePathTemplate path name (exp : Expr) =
                 let template = "{" + name + "}"
@@ -97,14 +101,17 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 let name = param.Name
                 let var = coerceString param.Type param.CollectionFormat exp
                 match load with
-                | Some (FormData, b) -> Some (FormData, <@@ Seq.append %%b [name, (%%var : string)] @@>)
+                | Some (FormData, b) -> Some (FormData, <@@ Seq.append %%b [name, (%var : string)] @@>)
                 | None               -> match param.In with
                                         | Body -> Some (Body, Expr.Coerce (exp, typeof<obj>))
-                                        | _    -> Some (FormData, <@@ (seq [name, (%%var : string)]) @@>)
+                                        | _    -> Some (FormData, <@@ (seq [name, (%var : string)]) @@>)
                 | _                  -> failwith ("Can only contain one payload")
 
             let addQuery quer name (exp : Expr) =
-                <@@ List.append (%%quer : (string*string) list) [name, (%%exp : string)] @@>
+                let listValues = corceQueryString name exp
+                <@@ List.append
+                        (%%quer : (string*string) list)
+                        (%listValues : (string*string) list) @@>
 
             let addHeader head name (exp : Expr) =
                 <@@ Array.append (%%head : (string*string) []) ([|name, (%%exp : string)|]) @@>
@@ -112,7 +119,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             // Partitions arguments based on their locations
             let (path, payload, queries, heads) =
                 let mPath = op.Path
-                List.fold (
+                parameters
+                |> List.fold (
                     fun (path, load, quer, head) (param : ParameterObject, exp) ->
                         let name = param.Name
                         let value = coerceString param.Type param.CollectionFormat exp
@@ -120,11 +128,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                         | Path   -> (replacePathTemplate path name value, load, quer, head)
                         | FormData
                         | Body   -> (path, addPayload load param exp, quer, head)
-                        | Query  -> (path, load, addQuery quer name value, head)
+                        | Query  -> (path, load, addQuery quer name exp, head)
                         | Header -> (path, load, quer, addHeader head name value)
                     )
-                    (<@@ mPath @@>, None, <@@ ([("","")] : (string*string) list)  @@>, headers)
-                    parameters
+                    (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers)
+
 
             let address = <@@ basePath + %%path @@>
             let restCall = op.Type.ToString()
@@ -138,14 +146,30 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             // Make HTTP call
             let result =
                 match payload with
-                | None               -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), query = (%%queries : (string * string) list), customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
-                | Some (FormData, b) -> <@@ Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.FormValues (%%b : seq<string * string>), query = (%%queries : (string * string) list), customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
+                | None ->
+                    <@@ Http.RequestString(%%address,
+                            httpMethod = restCall,
+                            headers = (%%heads : array<string*string>),
+                            query = (%%queries : (string * string) list),
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
+                | Some (FormData, b) ->
+                    <@@ Http.RequestString(%%address,
+                            httpMethod = restCall,
+                            headers = (%%heads : array<string*string>),
+                            body = HttpRequestBody.FormValues (%%b : seq<string * string>),
+                            query = (%%queries : (string * string) list),
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
                 | Some (Body, b)     ->
                     <@@ let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
                         settings.Converters.Add(new OptionConverter () :> JsonConverter)
                         let data = (%%b : obj)
                         let body = (JsonConvert.SerializeObject(data, settings)).ToLower()
-                        Http.RequestString(%%address, httpMethod = restCall, headers = (%%heads : array<string*string>), body = HttpRequestBody.TextRequest body, query = (%%queries : (string * string) list), customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))
+                        Http.RequestString(%%address,
+                            httpMethod = restCall,
+                            headers = (%%heads : array<string*string>),
+                            body = HttpRequestBody.TextRequest body,
+                            query = (%%queries : (string * string) list),
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))
                     @@>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
 

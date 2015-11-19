@@ -1,4 +1,4 @@
-﻿module Controllers
+﻿namespace Controllers
 
 open System
 open System.Web.Http

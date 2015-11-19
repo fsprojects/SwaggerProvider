@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Swagger.PetStore.Tests.fs" />
     <Compile Include="Swashbuckle.ReturnControllers.Tests.fs" />
+    <Compile Include="Swashbuckle.UpdateControllers.Tests.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <Content Include="App.config" />

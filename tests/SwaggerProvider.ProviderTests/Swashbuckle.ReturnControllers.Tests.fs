@@ -1,4 +1,4 @@
-﻿module Swashbuckle
+﻿module SwashbuckleReturnControllersTests
 
 open NUnit.Framework
 open FsUnit
@@ -140,13 +140,13 @@ let ``Return Seq Int POST Test`` () =
 
 
 [<Test>]
-let ``Return Object Record GET Test`` () =
+let ``Return Object Point GET Test`` () =
     let point = WebAPI.ReturnObjectPointClass.Get()
     point.X |> should equal (Some(0))
     point.Y |> should equal (Some(0))
 
 [<Test>]
-let ``Return Object Record POST Test`` () =
+let ``Return Object Point POST Test`` () =
     let point = WebAPI.ReturnObjectPointClass.Post()
     point.X |> should equal (Some(0))
     point.Y |> should equal (Some(0))

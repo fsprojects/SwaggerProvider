@@ -12,8 +12,19 @@ type DefinitionCompiler (schema:SwaggerObject) =
     let compiledTys = System.Collections.Generic.Dictionary<_,_>()
 
     let generateProperty name ty providedField =
-         ProvidedProperty(nicePascalName name, ty, GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
-                                                   SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
+        let propertyName = nicePascalName name
+        let property =
+            ProvidedProperty(propertyName, ty,
+                GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
+                SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
+        if name <> propertyName then
+            let attribute =
+                { new Reflection.CustomAttributeData() with
+                    member __.Constructor =  typeof<Newtonsoft.Json.JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
+                    member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> System.Collections.Generic.IList<_>
+                    member __.NamedArguments = [||] :> System.Collections.Generic.IList<_> }
+            property.AddCustomAttribute(attribute)
+        property
 
     let rec compileDefinition (name:string) =
         match compiledTys.TryGetValue name with
@@ -35,8 +46,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | Int32, false    -> typeof<Option<int32>>
         | Int64, true     -> typeof<int64>
         | Int64, false    -> typeof<Option<int64>>
-        | Float, true     -> typeof<float>
-        | Float, false    -> typeof<Option<float>>
+        | Float, true     -> typeof<float32>
+        | Float, false    -> typeof<Option<float32>>
         | Double, true    -> typeof<double>
         | Double, false   -> typeof<Option<double>>
         | String, _       -> typeof<string>
