@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>ResponseObject - SwaggerProvider</title>
+    <title>RuntimeHelpers - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,62 +37,37 @@
 
 
 
-<h1>ResponseObject</h1>
+<h1>RuntimeHelpers</h1>
 <p>
-  <span>Namespace: SwaggerProvider.Internal.Schema</span><br />
+  <span>Namespace: SwaggerProvider.Internal</span><br />
 </p>
 <div class="xmldoc">
-<p>Describes a single response from an API Operation.
-<a href="http://swagger.io/specification/#responseObject">http://swagger.io/specification/#responseObject</a></p>
-
-
 </div>
-  <h3>Record Fields</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '392', 392)" onmouseover="showTip(event, '392', 392)">
-            Description
+          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+            toQueryParams name obj
           </code>
-          <div class="tip" id="392">
-            <strong>Signature:</strong> string<br />
+          <div class="tip" id="124">
+            <strong>Signature:</strong> name:string -&gt; obj:obj -&gt; (string * string) list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L153-153" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/RuntimeHelpers.fs#L21-21" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Required. A short description of the response.</p>
-
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '393', 393)" onmouseover="showTip(event, '393', 393)">
-            Schema
-          </code>
-          <div class="tip" id="393">
-            <strong>Signature:</strong> SchemaObject option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider/Schema.fs#L155-155" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response.</p>
-
-
-
+          
         </td>
       </tr>
     </tbody>
