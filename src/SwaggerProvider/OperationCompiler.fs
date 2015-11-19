@@ -3,11 +3,9 @@
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
 open SwaggerProvider.Internal.Schema
-open SwaggerProvider.OptionConverter
 
 open System
 open FSharp.Data
-open Newtonsoft.Json
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
@@ -48,6 +46,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         let m = ProvidedMethod(methodName, parameters, retTy, IsStaticMethod = true)
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary)
+        if op.Deprecated
+            then m.AddObsoleteAttribute("Operation is deprecated", false)
+
         m.InvokeCode <- fun args ->
             let basePath =
                 let scheme =
@@ -160,10 +161,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                             query = (%%queries : (string * string) list),
                             customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
                 | Some (Body, b)     ->
-                    <@@ let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
-                        settings.Converters.Add(new OptionConverter () :> JsonConverter)
-                        let data = (%%b : obj)
-                        let body = (JsonConvert.SerializeObject(data, settings)).ToLower()
+                    <@@ let body = SwaggerProvider.Internal.RuntimeHelpers.serialize (%%b : obj)
                         Http.RequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
@@ -174,12 +172,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
 
             // Return deserialized object
-            let value =
-                <@@
-                    let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
-                    settings.Converters.Add(new OptionConverter () :> JsonConverter)
-                    JsonConvert.DeserializeObject((%%result : string), retTy, settings)
-                @@>
+            let value = <@@ SwaggerProvider.Internal.RuntimeHelpers.deserialize
+                                (%%result : string) retTy @@>
             Expr.Coerce(value, retTy)
 
         m

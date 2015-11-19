@@ -92,7 +92,6 @@
     <Compile Include="Schema.fs" />
     <Compile Include="SchemaParserExceptions.fs" />
     <Compile Include="SchemaJsonParser.fs" />
-    <Compile Include="OptionConverter.fs" />
     <Compile Include="RuntimeHelpers.fs" />
     <Compile Include="DefinitionCompiler.fs" />
     <Compile Include="OperationCompiler.fs" />

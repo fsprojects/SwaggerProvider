@@ -1,11 +1,41 @@
 ﻿namespace SwaggerProvider.Internal
 
+open System
+open Newtonsoft.Json
+open Microsoft.FSharp.Reflection
+
+/// Serializer for serializing the F# option types.
+// https://github.com/eulerfx/JsonNet.FSharp
+type private OptionConverter() =
+    inherit JsonConverter()
+
+    override x.CanConvert(t) =
+        t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<option<_>>
+
+    override x.WriteJson(writer, value, serializer) =
+        let value =
+            if value = null then null
+            else
+                let _,fields = FSharpValue.GetUnionFields(value, value.GetType())
+                fields.[0]
+        serializer.Serialize(writer, value)
+
+    override x.ReadJson(reader, t, existingValue, serializer) =
+        let innerType = t.GetGenericArguments().[0]
+        let innerType =
+            if innerType.IsValueType then (typedefof<Nullable<_>>).MakeGenericType([|innerType|])
+            else innerType
+        let value = serializer.Deserialize(reader, innerType)
+        let cases = FSharpType.GetUnionCases(t)
+        if value = null then FSharpValue.MakeUnion(cases.[0], [||])
+        else FSharpValue.MakeUnion(cases.[1], [|value|])
+
+
 module RuntimeHelpers =
 
     let inline private toStrArray name values =
         values
-        |> Array.map (sprintf "%O")
-        |> Array.map (fun value-> name, value)
+        |> Array.map (fun value-> name, value.ToString())
         |> Array.toList
 
     let inline private toStrArrayOpt name values =
@@ -42,3 +72,15 @@ module RuntimeHelpers =
         | :? Option<string> as x -> x |> toStrOpt name
         | :? Option<System.DateTime> as x -> x |> toStrOpt name
         | _ -> [name, obj.ToString()]
+
+    let serialize =
+        let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
+        settings.Converters.Add(new OptionConverter () :> JsonConverter)
+        fun (value:obj) ->
+            JsonConvert.SerializeObject(value, settings)
+
+    let deserialize =
+        let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
+        settings.Converters.Add(new OptionConverter () :> JsonConverter)
+        fun value (retTy:Type) ->
+            JsonConvert.DeserializeObject(value, retTy, settings)
