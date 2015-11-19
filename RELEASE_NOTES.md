@@ -1,3 +1,12 @@
+#### 0.1.1-beta - November 19 2015
+* Supported serialization of basic data types for passing in query
+* Fixed bugs in query builder logic
+* Added support of nice names for provided parameters
+* Added support of JSON serialization for properties with nice names
+* Auto Content-Type:application/json header to POST queries when it is supported 
+* Fixed bug in float compilation
+* Added communication tests for data transferring to the server
+
 #### 0.1.0-beta - November 17 2015
 * Improved speed: Added caching for generated types
 * Improved support of Swashbuckle generated schemas
