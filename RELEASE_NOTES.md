@@ -1,3 +1,7 @@
+#### 0.1.2-beta - November 22 2015
+* Fixed bug in the query builder for POST and PUT requests
+* Added tests for PUT & DELETE requests
+
 #### 0.1.1-beta - November 19 2015
 * Supported serialization of basic data types for passing in query
 * Fixed bugs in query builder logic
