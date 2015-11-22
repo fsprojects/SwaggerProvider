@@ -7,9 +7,10 @@ open Swashbuckle.Application
 
 let getAppBuilder() =
     let config = new HttpConfiguration()
+    // Web API routes
+    config.MapHttpAttributeRoutes();
     // Configure routes
-    config.Routes
-        .MapHttpRoute("default", "{controller}") |> ignore
+    config.Routes.MapHttpRoute("default",  "api/{controller}") |> ignore
     // Enable Swagger and Swagger UI
     config
         .EnableSwagger(fun c -> c.SingleApiVersion("v1", "Test Controllers for SwaggerProvider") |> ignore)
