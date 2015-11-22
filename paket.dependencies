@@ -38,8 +38,8 @@ group Test
 
 	source https://nuget.org/api/v2
 
-	nuget NUnit
-	nuget NUnit.Runners
+	nuget NUnit ~> 2
+	nuget NUnit.Runners ~> 2
 	nuget FSharp.Data
 	nuget FSharp.Core
 
