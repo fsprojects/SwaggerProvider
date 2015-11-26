@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>dbe9aa3e-ab4c-4fe3-915b-886cc6e6a88d</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SwaggerProvider.DesignTime</RootNamespace>
+    <AssemblyName>SwaggerProvider.DesignTime</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Name>SwaggerProvider.DesignTime</Name>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Debug\SwaggerProvider.DesignTime.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\SwaggerProvider.DesignTime.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Caching" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fsi">
+      <Link>FSharp.TypeProviders.StarterPack\ProvidedTypes.fsi</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
+      <Link>FSharp.TypeProviders.StarterPack\ProvidedTypes.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\DebugProvidedTypes.fs">
+      <Link>FSharp.TypeProviders.StarterPack\DebugProvidedTypes.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
+      <Link>FSharp.Data\Net\UriUtils.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\Http.fs">
+      <Link>FSharp.Data\Net\Http.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\IO.fs">
+      <Link>FSharp.Data\CommonRuntime\IO.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextConversions.fs">
+      <Link>FSharp.Data\CommonRuntime\TextConversions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
+      <Link>FSharp.Data\CommonRuntime\Pluralizer.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\NameUtils.fs">
+      <Link>FSharp.Data\CommonRuntime\NameUtils.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonValue.fs">
+      <Link>FSharp.Data\Json\JsonValue.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonConversions.fs">
+      <Link>FSharp.Data\Json\JsonConversions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonExtensions.fs">
+      <Link>FSharp.Data\Json\JsonExtensions.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.Configuration\src\FSharp.Configuration\TypeProviders.Helper.fs">
+      <Link>FSharp.Configuration\TypeProviders.Helper.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\AssemblyInfo.fs">
+      <Link>AssemblyInfo.fs</Link>
+    </Compile>
+    <Compile Include="Schema.fs" />
+    <Compile Include="SchemaParserExceptions.fs" />
+    <Compile Include="SchemaJsonParser.fs" />
+    <Compile Include="DefinitionCompiler.fs" />
+    <Compile Include="OperationCompiler.fs" />
+    <Compile Include="SwaggerProviderConfig.fs" />
+    <Compile Include="SwaggerProvider.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj">
+      <Name>SwaggerProvider.Runtime</Name>
+      <Project>{ad0b2860-9373-4bd9-906d-6d19f2f7dee9}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '11.0'">
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Import Project="$(FSharpTargetsPath)" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

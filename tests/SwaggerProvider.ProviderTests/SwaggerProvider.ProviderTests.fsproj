@@ -82,6 +82,12 @@
     <Reference Include="SwaggerProvider">
       <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.dll</HintPath>
     </Reference>
+    <Reference Include="SwaggerProvider.DesignTime">
+      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.DesignTime.dll</HintPath>
+    </Reference>
+    <Reference Include="SwaggerProvider.Runtime">
+      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />

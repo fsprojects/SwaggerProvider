@@ -88,9 +88,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SwaggerProvider\SwaggerProvider.fsproj">
-      <Name>SwaggerProvider</Name>
-      <Project>{ad0b2860-9373-4bd9-906d-6d19f2f7dee9}</Project>
+    <ProjectReference Include="..\..\src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj">
+      <Name>SwaggerProvider.DesignTime</Name>
+      <Project>{dbe9aa3e-ab4c-4fe3-915b-886cc6e6a88d}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

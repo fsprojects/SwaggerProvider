@@ -2,8 +2,6 @@
 
 open System.Reflection
 open ProviderImplementation.ProvidedTypes
-open Microsoft.FSharp.Core.CompilerServices
-open Microsoft.FSharp.Quotations
 open System
 open System.Runtime.Caching
 open FSharp.Data
@@ -12,7 +10,7 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open SwaggerProvider.Internal.Compilers
 
-module private SwaggerProviderConfig =
+module SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
 
     let internal typedSwaggerProvider (context: Context) =
@@ -76,20 +74,3 @@ module private SwaggerProviderConfig =
                     cache.GetOrAdd(typeName, value)
                 ))
         swaggerProvider
-
-
-/// The Swagger Type Provider.
-[<TypeProvider>]
-type public SwaggerProvider(cfg : TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces()
-    let context = new Context(this, cfg)
-    do
-        this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
-        this.AddNamespace(
-            SwaggerProviderConfig.NameSpace,
-            [SwaggerProviderConfig.typedSwaggerProvider context])
-
-
-[<TypeProviderAssembly>]
-do ()
-
