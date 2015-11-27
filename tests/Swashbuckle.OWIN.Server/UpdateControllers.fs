@@ -44,7 +44,7 @@ type UpdateListIntController () =
     inherit UpdateController<int list>(List.rev)
 
 type UpdateSeqIntController () =
-    inherit UpdateController<int seq>(Seq.rev)
+    inherit UpdateController<int seq>(Seq.toList >> List.rev >> Seq.ofList)
 
 type UpdateObjectPointClassController () =
     inherit UpdateController<Types.PointClass>

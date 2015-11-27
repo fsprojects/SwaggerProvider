@@ -41,6 +41,6 @@ group Test
 	nuget NUnit ~> 2
 	nuget NUnit.Runners ~> 2
 	nuget FSharp.Data
-	nuget FSharp.Core
+	nuget FSharp.Core 3.0.2
 
 	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnit.fs
