@@ -7,7 +7,7 @@ open FSharp.Configuration.Helper
 
 /// The Swagger Type Provider.
 [<TypeProvider>]
-type public SwaggerProvider(cfg : TypeProviderConfig) as this =
+type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
     static do
