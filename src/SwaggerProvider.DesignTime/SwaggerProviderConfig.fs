@@ -3,6 +3,7 @@
 open System.Reflection
 open ProviderImplementation.ProvidedTypes
 open System
+open System.IO
 open System.Runtime.Caching
 open FSharp.Data
 open FSharp.Configuration.Helper
@@ -14,9 +15,10 @@ module SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
 
     let internal typedSwaggerProvider (context: Context) runtimeAssembly =
-        let asm = Assembly.ReflectionOnlyLoadFrom runtimeAssembly
-
+        let asm = Assembly.LoadFrom runtimeAssembly
         let swaggerProvider = ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, IsErased = false)
+        let tempAsm = ProvidedAssembly( Path.ChangeExtension(Path.GetTempFileName(), ".dll"))
+        do tempAsm.AddTypes [swaggerProvider]
 
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
@@ -66,8 +68,7 @@ module SwaggerProviderConfig =
                         let opCompiler = OperationCompiler(schema, defCompiler, headers)
                         ty.AddMembers <| opCompiler.Compile() // Add all operations
 
-                        let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
-                        let tempAsm = ProvidedAssembly tempAsmPath
+                        let tempAsm = ProvidedAssembly( Path.ChangeExtension(Path.GetTempFileName(), ".dll"))
                         tempAsm.AddTypes [ty]
 
                         ty)
