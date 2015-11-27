@@ -13,8 +13,8 @@ open SwaggerProvider.Internal.Compilers
 module SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
 
-    let internal typedSwaggerProvider (context: Context) =
-        let asm = Assembly.GetExecutingAssembly()
+    let internal typedSwaggerProvider (context: Context) runtimeAssembly =
+        let asm = Assembly.ReflectionOnlyLoadFrom runtimeAssembly
 
         let swaggerProvider = ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, IsErased = false)
 

@@ -23,4 +23,4 @@ type public SwaggerProvider(cfg : TypeProviderConfig) as this =
         this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
         this.AddNamespace(
             SwaggerProviderConfig.NameSpace,
-            [SwaggerProviderConfig.typedSwaggerProvider context])
+            [SwaggerProviderConfig.typedSwaggerProvider context cfg.RuntimeAssembly])
