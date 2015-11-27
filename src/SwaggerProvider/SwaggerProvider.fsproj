@@ -55,9 +55,7 @@
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="SwaggerProviderAttribute.fs" />
-    <None Include="SwaggerProvider.fsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="SwaggerProvider.fsx" />
     <None Include="paket.template" />
     <Content Include="App.config" />
   </ItemGroup>

@@ -16,8 +16,11 @@ copyright
 tags
     F# fsharp data typeprovider Swagger API REST
 summary
-    F# Type Provider for Swagge
+    F# Type Provider for Swagger
 description
-    F# Type Provider for Swagge
+    F# Type Provider for Swagger
 files
 	../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net40
+	SwaggerProvider.fsx ==> .
+dependencies
+	Newtonsoft.Json
