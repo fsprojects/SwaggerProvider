@@ -1,5 +1,3 @@
-﻿group Test
-    FSharp.Core
-group OWIN
+﻿group OWIN
     Microsoft.AspNet.WebApi.OwinSelfHost
     Swashbuckle.Core
