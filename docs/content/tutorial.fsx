@@ -21,7 +21,7 @@ open SwaggerProvider
 
 [<Literal>]
 let path = __SOURCE_DIRECTORY__ + "/Schemas/PetStore.Swagger.json"
-type PetStore = SwaggerProvider<path, "Content-Type,application/json">
+type PetStore = SwaggerProvider<path, "Content-Type=application/json">
 
 (**
 Instantiate the types provided by the SwaggerProvider.

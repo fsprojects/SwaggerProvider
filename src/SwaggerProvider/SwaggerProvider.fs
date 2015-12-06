@@ -37,8 +37,8 @@ module private SwaggerProviderConfig =
                 instantiationFunction = (fun typeName args ->
                     let value = lazy (
                         let h = args.[1] :?> string
-                        let headers = h.Split(';') |> Seq.filter (fun f -> f.Contains(",")) |> Seq.map (fun e ->
-                            let pair = e.Split(',')
+                        let headers = h.Split('|') |> Seq.filter (fun f -> f.Contains("=")) |> Seq.map (fun e ->
+                            let pair = e.Split('=')
                             (pair.[0],pair.[1])
                             )
 
@@ -80,7 +80,7 @@ module private SwaggerProviderConfig =
 
 /// The Swagger Type Provider.
 [<TypeProvider>]
-type public SwaggerProvider(cfg : TypeProviderConfig) as this =
+type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
     let context = new Context(this, cfg)
     do
