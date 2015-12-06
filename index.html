@@ -62,13 +62,17 @@ the optional argument Headers may also be used. Headers supplied here will be us
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;SwaggerProvider/SwaggerProvider.dll&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">SwaggerProvider</span>
 
 <span class="k">type</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="t">PetStore</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="t">SwaggerProvider</span><span class="o">&lt;</span><span class="s">&quot;http://petstore.swagger.io/v2/swagger.json&quot;</span><span class="o">&gt;</span>
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="t">PetStore1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 7)" onmouseover="showTip(event, 'fs5', 7)" class="t">SwaggerProvider</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs2', 8)" onmouseover="showTip(event, 'fs2', 8)" class="i">filePath</span><span class="o">&gt;</span>
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="t">PetStore2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="t">SwaggerProvider</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs2', 11)" onmouseover="showTip(event, 'fs2', 11)" class="i">filePath</span>, <span class="s">&quot;Content-Type,application/json&quot;</span><span class="o">&gt;</span>
+
+[&lt;<span onmouseout="hideTip(event, 'fs1', 6)" onmouseover="showTip(event, 'fs1', 6)" class="t">Literal</span>&gt;]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 7)" onmouseover="showTip(event, 'fs2', 7)" class="i">filePath</span> <span class="o">=</span> <span class="k">__SOURCE_DIRECTORY__</span> <span class="o">+</span> <span class="s">&quot;/Schemas/PetStore.Swagger.json&quot;</span>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs6', 8)" onmouseover="showTip(event, 'fs6', 8)" class="t">PetStore2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 9)" onmouseover="showTip(event, 'fs5', 9)" class="t">SwaggerProvider</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs2', 10)" onmouseover="showTip(event, 'fs2', 10)" class="i">filePath</span>, <span class="s">&quot;Content-Type=application/json&quot;</span><span class="o">&gt;</span>
 </code></pre></td>
 </tr>
 </table>
@@ -107,8 +111,7 @@ redistribution for both commercial and non-commercial purposes. For more informa
 <div class="tip" id="fs3">namespace SwaggerProvider</div>
 <div class="tip" id="fs4">type PetStore =<br />&#160;&#160;nested type Definitions<br />&#160;&#160;nested type Pet<br />&#160;&#160;nested type Store<br />&#160;&#160;nested type User<br /><br />Full name: Index.PetStore<br /><em><br /><br />Swagger.io Provider for petstore.swagger.io</em></div>
 <div class="tip" id="fs5">Multiple items<br />namespace SwaggerProvider<br /><br />--------------------<br />type SwaggerProvider<br /><br />Full name: SwaggerProvider.SwaggerProvider<br /><em><br /><br />&lt;summary&gt;Statically typed Swagger provider.&lt;/summary&gt;<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;param name=&#39;Schema&#39;&gt;Url or Path to Swagger schema file.&lt;/param&gt;<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&lt;param name=&#39;Headers&#39;&gt;Headers that will be added to all HTTP requests.&lt;/param&gt;</em></div>
-<div class="tip" id="fs6">type PetStore1 =<br />&#160;&#160;nested type Definitions<br />&#160;&#160;nested type Pet<br />&#160;&#160;nested type Store<br />&#160;&#160;nested type User<br /><br />Full name: Index.PetStore1<br /><em><br /><br />Swagger.io Provider for petstore.swagger.io</em></div>
-<div class="tip" id="fs7">type PetStore2 =<br />&#160;&#160;nested type Definitions<br />&#160;&#160;nested type Pet<br />&#160;&#160;nested type Store<br />&#160;&#160;nested type User<br /><br />Full name: Index.PetStore2<br /><em><br /><br />Swagger.io Provider for petstore.swagger.io</em></div>
+<div class="tip" id="fs6">type PetStore2<br /><br />Full name: Index.PetStore2</div>
 
             </div>
             <div class="span3">
