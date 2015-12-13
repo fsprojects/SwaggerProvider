@@ -1,6 +1,6 @@
 source https://nuget.org/api/v2
 
-nuget Newtonsoft.Json
+nuget Newtonsoft.Json >= 7.0.1
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
 github fsharp/FSharp.Data src/Net/Http.fs
@@ -26,11 +26,11 @@ group Build
 	nuget SourceLink.Fake
 
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
-	
+
 group OWIN
-	
+
 	source https://nuget.org/api/v2
-	
+
 	nuget Microsoft.AspNet.WebApi.OwinSelfHost
 	nuget Swashbuckle.Core
 

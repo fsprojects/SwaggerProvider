@@ -7,11 +7,15 @@ open System.Reflection
 open System.Configuration
 open System.Collections.Generic
 
+type Logging() =
+    static member logf (s:string) =
+        ()//System.IO.File.AppendAllLines(@"c:\swaggerlog.txt", [|s|])
+
 /// Returns the Assembly object of SwaggerProvider.Runtime.dll (this needs to
 /// work when called from SwaggerProvider.DesignTime.dll)
 let getSwaggerProviderRuntimeAssembly() =
   AppDomain.CurrentDomain.GetAssemblies()
-  |> Seq.find (fun a -> a.FullName.StartsWith("SwaggerProvider.Runtime,"))
+  |> Seq.find (fun a -> a.FullName.StartsWith("SwaggerProvider,"))
 
 /// Finds directories relative to 'dirs' using the specified 'patterns'.
 /// Patterns is a string, such as "..\foo\*\bar" split by '\'. Standard
@@ -39,8 +43,10 @@ let getAssemblyLocation (assem:Assembly) =
 let getProbingLocations() =
   try
     let root = getSwaggerProviderRuntimeAssembly() |> getAssemblyLocation
+    Logging.logf <| sprintf "Root %s" root
     let config = System.Configuration.ConfigurationManager.OpenExeConfiguration(root)
     let pattern = config.AppSettings.Settings.["ProbingLocations"]
+    Logging.logf <| sprintf "Pattern %s" pattern.Value
     if pattern <> null then
       [ yield root
         let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
@@ -50,7 +56,6 @@ let getProbingLocations() =
             if Directory.Exists(dir) then yield dir ]
     else []
   with :? ConfigurationErrorsException | :? KeyNotFoundException -> []
-
 
 /// Given an assembly name, try to find it in either assemblies
 /// loaded in the current AppDomain, or in one of the specified
@@ -75,22 +80,22 @@ let resolveReferencedAssembly (asmName:string) =
       if idx > 0 then asmName.Substring(0, idx) else asmName
 
     let locations = getProbingLocations()
-    //Logging.logf "Probing locations: %s" (String.concat ";" locations)
+    Logging.logf <| sprintf "Probing locations: %A" locations
 
     let asm = locations |> Seq.tryPick (fun dir ->
       let library = Path.Combine(dir, libraryName+".dll")
       if File.Exists(library) then
-        //Logging.logf "Found assembly, checking version! (%s)" library
+        Logging.logf <| sprintf "Found assembly, checking version! (%s)" library
         // We do a ReflectionOnlyLoad so that we can check the version
         let refAssem = Assembly.ReflectionOnlyLoadFrom(library)
         // If it matches, we load the actual assembly
         if refAssem.FullName = asmName then
-          //Logging.logf "...version matches, returning!"
+          Logging.logf "...version matches, returning!"
           Some(Assembly.LoadFrom(library))
         else
-          //Logging.logf "...version mismatch, skipping"
+          Logging.logf "...version mismatch, skipping"
           None
       else None)
 
-    //if asm = None then Logging.logf "Assembly not found!"
+    if asm = None then Logging.logf "Assembly not found!"
     defaultArg asm null

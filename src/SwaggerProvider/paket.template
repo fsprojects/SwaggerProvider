@@ -23,4 +23,4 @@ files
 	../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net40
 	SwaggerProvider.fsx ==> .
 dependencies
-	Newtonsoft.Json
+	Newtonsoft.Json >= 7.0.1

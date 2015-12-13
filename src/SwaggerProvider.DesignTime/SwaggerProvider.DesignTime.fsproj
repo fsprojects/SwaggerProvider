@@ -40,6 +40,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Caching" />
@@ -93,6 +94,7 @@
     <Compile Include="DefinitionCompiler.fs" />
     <Compile Include="OperationCompiler.fs" />
     <Compile Include="SwaggerProviderConfig.fs" />
+    <Compile Include="Configuration.fs" />
     <Compile Include="SwaggerProvider.fs" />
   </ItemGroup>
   <ItemGroup>
