@@ -18,12 +18,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
                 GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
                 SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
         if name <> propertyName then
-            let attribute =
-                { new Reflection.CustomAttributeData() with
-                    member __.Constructor =  typeof<Newtonsoft.Json.JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
-                    member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> System.Collections.Generic.IList<_>
-                    member __.NamedArguments = [||] :> System.Collections.Generic.IList<_> }
-            property.AddCustomAttribute(attribute)
+            property.AddCustomAttribute
+                <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute name
         property
 
     let rec compileDefinition (name:string) =

@@ -37,11 +37,11 @@ let project = "SwaggerProvider"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = "Type provider for Swagger.io"
+let summary = "F# Type Provider for Swagger"
 
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = "Type provider for Swagger.io"
+let description = "F# Type Provider for Swagger"
 
 // List of author names (for NuGet package)
 let authors = [ "Sergey Tihon" ]
@@ -83,29 +83,13 @@ let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-    let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title (projectName)
-          Attribute.Product project
-          Attribute.Description summary
-          Attribute.Version release.AssemblyVersion
-          Attribute.FileVersion release.AssemblyVersion ]
-
-    let getProjectDetails projectPath =
-        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath,
-          projectName,
-          System.IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
-        )
-
-    !! "src/**/*.??proj"
-    |> Seq.map getProjectDetails
-    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
-        match projFileName with
-        | Fsproj -> CreateFSharpAssemblyInfo (folderName @@ "AssemblyInfo.fs") attributes
-        | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
-        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
-        )
+    let fileName = "src/Common/AssemblyInfo.fs"
+    CreateFSharpAssemblyInfo fileName
+      [ Attribute.Title gitName
+        Attribute.Product gitName
+        Attribute.Description description
+        Attribute.Version release.AssemblyVersion
+        Attribute.FileVersion release.AssemblyVersion ]
 )
 
 // Copies binaries from default VS location to exepcted bin folder
@@ -115,6 +99,9 @@ Target "CopyBinaries" (fun _ ->
     !! "src/**/*.??proj"
     |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin/Release", "bin" @@ (System.IO.Path.GetFileNameWithoutExtension f)))
     |>  Seq.iter (fun (fromDir, toDir) -> CopyDir toDir fromDir (fun _ -> true))
+
+    // All Type Providers components should be in the same directory
+    CopyDir "bin/SwaggerProvider" "bin/SwaggerProvider.DesignTime" (fun _ -> true)
 )
 
 // --------------------------------------------------------------------------------------

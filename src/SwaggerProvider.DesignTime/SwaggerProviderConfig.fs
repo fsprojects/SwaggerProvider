@@ -15,8 +15,8 @@ open SwaggerProvider.Internal.Compilers
 module private SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
 
-    let internal typedSwaggerProvider (context: Context) =
-        let asm = Assembly.GetExecutingAssembly()
+    let internal typedSwaggerProvider (context: Context) runtimeAssemlby =
+        let asm = Assembly.LoadFrom runtimeAssemlby
 
         let swaggerProvider = ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, IsErased = false)
 
@@ -77,19 +77,4 @@ module private SwaggerProviderConfig =
                 ))
         swaggerProvider
 
-
-/// The Swagger Type Provider.
-[<TypeProvider>]
-type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces()
-    let context = new Context(this, cfg)
-    do
-        this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
-        this.AddNamespace(
-            SwaggerProviderConfig.NameSpace,
-            [SwaggerProviderConfig.typedSwaggerProvider context])
-
-
-[<TypeProviderAssembly>]
-do ()
 

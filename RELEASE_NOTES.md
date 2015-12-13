@@ -1,4 +1,8 @@
-#### 0.1.3-beta - December 12 2015
+#### 0.2.0 - December 13 2015
+* `AssemblyResolve` handler that resolve location of 3rd party dependencies
+* Added dependencies on `Newtonsoft.Json` NuGet package
+
+#### 0.1.3-beta - December 7 2015
 * Bug fixes
 
 #### 0.1.2-beta - November 22 2015

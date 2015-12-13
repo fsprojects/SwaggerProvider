@@ -73,6 +73,12 @@ module RuntimeHelpers =
         | :? Option<System.DateTime> as x -> x |> toStrOpt name
         | _ -> [name, obj.ToString()]
 
+    let getPropertyNameAttribute name =
+        { new Reflection.CustomAttributeData() with
+            member __.Constructor =  typeof<Newtonsoft.Json.JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
+            member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> System.Collections.Generic.IList<_>
+            member __.NamedArguments = [||] :> System.Collections.Generic.IList<_> }
+
     let serialize =
         let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
         settings.Converters.Add(new OptionConverter () :> JsonConverter)
