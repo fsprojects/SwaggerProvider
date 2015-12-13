@@ -3,7 +3,7 @@ open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("SwaggerProvider")>]
 [<assembly: AssemblyProductAttribute("SwaggerProvider")>]
-[<assembly: AssemblyDescriptionAttribute("Type provider for Swagger.io")>]
+[<assembly: AssemblyDescriptionAttribute("F# Type Provider for Swagger")>]
 [<assembly: AssemblyVersionAttribute("0.1.3")>]
 [<assembly: AssemblyFileVersionAttribute("0.1.3")>]
 do ()
