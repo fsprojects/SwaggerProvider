@@ -35,8 +35,10 @@ the optional argument Headers may also be used. Headers supplied here will be us
 open SwaggerProvider
 
 type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
-type PetStore1 = SwaggerProvider<filePath>
-type PetStore2 = SwaggerProvider<filePath, "Content-Type,application/json">
+
+[<Literal>]
+let filePath = __SOURCE_DIRECTORY__ + "/Schemas/PetStore.Swagger.json"
+type PetStore2 = SwaggerProvider<filePath, "Content-Type=application/json">
 
 (**
 ![alt text](img/DefinitionInference.png "Intellisense for the Swagger Definitions")

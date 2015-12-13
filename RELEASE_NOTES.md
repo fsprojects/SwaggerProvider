@@ -1,3 +1,6 @@
+#### 0.1.3-beta - December 12 2015
+* Bug fixes
+
 #### 0.1.2-beta - November 22 2015
 * Fixed bug in the query builder for POST and PUT requests
 * Added tests for PUT & DELETE requests

@@ -5,7 +5,7 @@ open FSharp.Data
 open NUnit.Framework
 open FsUnit
 
-type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type,application/json">
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type=application/json">
 
 let apiKey = "special-key"
 

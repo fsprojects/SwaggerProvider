@@ -2,8 +2,9 @@
 
 open System.Reflection
 open ProviderImplementation.ProvidedTypes
+open Microsoft.FSharp.Core.CompilerServices
+open Microsoft.FSharp.Quotations
 open System
-open System.IO
 open System.Runtime.Caching
 open FSharp.Data
 open FSharp.Configuration.Helper
@@ -11,14 +12,13 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open SwaggerProvider.Internal.Compilers
 
-module SwaggerProviderConfig =
+module private SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
 
-    let internal typedSwaggerProvider (context: Context) runtimeAssembly =
-        let asm = Assembly.LoadFrom runtimeAssembly
+    let internal typedSwaggerProvider (context: Context) =
+        let asm = Assembly.GetExecutingAssembly()
+
         let swaggerProvider = ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, IsErased = false)
-        let tempAsm = ProvidedAssembly( Path.ChangeExtension(Path.GetTempFileName(), ".dll"))
-        do tempAsm.AddTypes [swaggerProvider]
 
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
@@ -37,8 +37,8 @@ module SwaggerProviderConfig =
                 instantiationFunction = (fun typeName args ->
                     let value = lazy (
                         let h = args.[1] :?> string
-                        let headers = h.Split(';') |> Seq.filter (fun f -> f.Contains(",")) |> Seq.map (fun e ->
-                            let pair = e.Split(',')
+                        let headers = h.Split('|') |> Seq.filter (fun f -> f.Contains("=")) |> Seq.map (fun e ->
+                            let pair = e.Split('=')
                             (pair.[0],pair.[1])
                             )
 
@@ -68,10 +68,28 @@ module SwaggerProviderConfig =
                         let opCompiler = OperationCompiler(schema, defCompiler, headers)
                         ty.AddMembers <| opCompiler.Compile() // Add all operations
 
-                        let tempAsm = ProvidedAssembly( Path.ChangeExtension(Path.GetTempFileName(), ".dll"))
+                        let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
+                        let tempAsm = ProvidedAssembly tempAsmPath
                         tempAsm.AddTypes [ty]
 
                         ty)
                     cache.GetOrAdd(typeName, value)
                 ))
         swaggerProvider
+
+
+/// The Swagger Type Provider.
+[<TypeProvider>]
+type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
+    inherit TypeProviderForNamespaces()
+    let context = new Context(this, cfg)
+    do
+        this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
+        this.AddNamespace(
+            SwaggerProviderConfig.NameSpace,
+            [SwaggerProviderConfig.typedSwaggerProvider context])
+
+
+[<TypeProviderAssembly>]
+do ()
+

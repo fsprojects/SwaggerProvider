@@ -1,0 +1,63 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a Sample for GitHub API.",
+        "version": "1.0.0",
+        "title": "Swagger GitHub"
+    },
+    "host": "api.github.com",
+    "basePath": "/",
+    "tags": [
+        {
+            "name": "repos",
+            "description": "Repositories API"
+        }
+    ],
+    "schemes": [ "https" ],
+    "paths": {
+        "orgs/{orgId}/repos": {
+            "get": {
+                "tags": [ "repos" ],
+                "summary": "List organization repositories",
+                "description": "",
+                "operationId": "orgRepos",
+                "consumes": [ "application/json" ],
+                "produces": [ "application/json" ],
+                "parameters": [
+                    {
+                        "name": "orgId",
+                        "in": "path",
+                        "description": "Organization name",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Repo"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Repo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
