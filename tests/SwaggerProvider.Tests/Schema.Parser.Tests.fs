@@ -28,18 +28,21 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
 // https://github.com/APIs-guru/api-models/blob/master/API.md
 type ApisGuru = FSharp.Data.JsonProvider<"http://apis-guru.github.io/api-models/api/v1/list.json">
 
-let ApisGuruSchemaUrls =
+let getApisGuruSchemas propertyName =
     ApisGuru.GetSample().JsonValue.Properties()
     |> Array.choose (fun (name, obj)->
         obj.TryGetProperty("versions")
         |> Option.bind (fun v->
             v.Properties()
-            |> Array.choose (fun (_,x)-> x.TryGetProperty("swaggerUrl"))
+            |> Array.choose (fun (_,x)-> x.TryGetProperty(propertyName))
             |> Some
         )
        )
     |> Array.concat
     |> Array.map (fun x->x.AsString())
+
+let ApisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
+let ApisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
 
 let ManualSchemaUrls =
     [|"http://netflix.github.io/genie/docs/rest/swagger.json"
@@ -47,10 +50,10 @@ let ManualSchemaUrls =
       "https://graphhopper.com/api/1/vrp/swagger.json"|]
 
 let SchemaUrls =
-    Array.concat [ManualSchemaUrls; ApisGuruSchemaUrls]
+    Array.concat [ManualSchemaUrls; ApisGuruJsonSchemaUrls]
 
 [<Test; TestCaseSource("SchemaUrls")>]
-let ``Schema Parse`` url =
+let ``Parse Json Schema`` url =
     let json =
         try
             Http.RequestString url
@@ -61,3 +64,17 @@ let ``Schema Parse`` url =
     if not <| System.String.IsNullOrEmpty(json) then
         let schema = json |> JsonValue.Parse |> Parsers.JsonParser.parseSwaggerObject
         schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+
+[<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
+let ``Parse Yaml Schema`` url =
+    let yaml =
+        try
+            Http.RequestString url
+        with
+        | :? System.Net.WebException ->
+            printfn "Schema is unaccessible %s" url
+            ""
+    if not <| System.String.IsNullOrEmpty(yaml) then
+        let schema = yaml |> SwaggerProvider.YamlParser.parse
+        ()
+        //schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)

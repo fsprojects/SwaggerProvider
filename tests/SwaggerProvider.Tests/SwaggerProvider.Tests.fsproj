@@ -96,6 +96,11 @@
       <Project>{dbe9aa3e-ab4c-4fe3-915b-886cc6e6a88d}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj">
+      <Name>SwaggerProvider.Runtime</Name>
+      <Project>{ad0b2860-9373-4bd9-906d-6d19f2f7dee9}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
