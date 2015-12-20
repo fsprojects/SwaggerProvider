@@ -2,19 +2,20 @@ NUGET
   remote: https://nuget.org/api/v2
   specs:
     Newtonsoft.Json (7.0.1)
+    SharpYaml (1.5.2)
 GITHUB
   remote: fsharp/FSharp.Data
   specs:
-    src/CommonRuntime/IO.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/CommonRuntime/NameUtils.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/CommonRuntime/Pluralizer.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/CommonRuntime/StructuralTypes.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/CommonRuntime/TextConversions.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/Json/JsonConversions.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/Json/JsonExtensions.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/Json/JsonValue.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/Net/Http.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
-    src/Net/UriUtils.fs (88ef75bb7a3e3638453a6e361eddb0e57cc8c409)
+    src/CommonRuntime/IO.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/CommonRuntime/NameUtils.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/CommonRuntime/Pluralizer.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/CommonRuntime/StructuralTypes.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/CommonRuntime/TextConversions.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/Json/JsonConversions.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/Json/JsonExtensions.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/Json/JsonValue.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/Net/Http.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/Net/UriUtils.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
     src/DebugProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
@@ -22,7 +23,7 @@ GITHUB
     src/ProvidedTypes.fsi (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
   remote: fsprojects/FSharp.Configuration
   specs:
-    src/FSharp.Configuration/TypeProviders.Helper.fs (a4355f1f1ded46ff2f3d0098aa46421e37eb5c9f)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (6d80ccd126cf72d6e9d706f8262fd90e0a41f5c4)
 GROUP Build
 NUGET
   remote: https://nuget.org/api/v2

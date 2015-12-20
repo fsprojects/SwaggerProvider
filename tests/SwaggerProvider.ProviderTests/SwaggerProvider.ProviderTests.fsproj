@@ -70,7 +70,6 @@
       <Link>paket-files/FsUnit.fs</Link>
     </Compile>
     <Content Include="Schemes\GitHub.json">
-      <Paket>True</Paket>
       <Link>Schemes/GitHub.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

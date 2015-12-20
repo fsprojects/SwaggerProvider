@@ -1,6 +1,7 @@
 source https://nuget.org/api/v2
 
 nuget Newtonsoft.Json >= 7.0.1
+nuget SharpYaml
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
 github fsharp/FSharp.Data src/Net/Http.fs

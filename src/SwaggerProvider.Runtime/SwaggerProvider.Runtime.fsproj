@@ -52,6 +52,7 @@
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="RuntimeHelpers.fs" />
+    <Compile Include="YamlParser.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <PropertyGroup>
@@ -134,4 +135,11 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <Reference Include="SharpYaml">
+      <HintPath>..\..\packages\SharpYaml\lib\SharpYaml.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
+  </ItemGroup>
 </Project>
