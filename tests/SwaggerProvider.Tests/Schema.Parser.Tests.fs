@@ -13,7 +13,8 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
         "Schemas/PetStore.Swagger.json"
         |> File.ReadAllText
         |> JsonValue.Parse
-        |> JsonParser.parseSwaggerObject
+        |> JsonNodeAdapter
+        |> Parser.parseSwaggerObject
     schema.Definitions |> should haveLength 6
 
     schema.Info
@@ -62,7 +63,7 @@ let ``Parse Json Schema`` url =
             printfn "Schema is unaccessible %s" url
             ""
     if not <| System.String.IsNullOrEmpty(json) then
-        let schema = json |> JsonValue.Parse |> Parsers.JsonParser.parseSwaggerObject
+        let schema = json |> JsonValue.Parse |> JsonNodeAdapter |> Parsers.Parser.parseSwaggerObject
         schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
 [<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]

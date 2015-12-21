@@ -55,7 +55,8 @@ module private SwaggerProviderConfig =
                         let schema =
                             schemaData
                             |> JsonValue.Parse
-                            |> JsonParser.parseSwaggerObject
+                            |> JsonNodeAdapter
+                            |> Parser.parseSwaggerObject
 
                         // Create Swagger provider type
                         let ty = ProvidedTypeDefinition(asm, NameSpace, typeName, Some typeof<obj>, IsErased = false)

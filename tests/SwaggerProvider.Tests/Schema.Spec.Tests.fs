@@ -24,7 +24,8 @@ let ``Info Object Example`` () =
         "version": "1.0.1"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseInfoObject
+    |> JsonNodeAdapter
+    |> Parser.parseInfoObject
     |> should equal
         {
             Title = "Swagger Sample App"
@@ -57,7 +58,8 @@ let ``Paths Object Example`` () =
         }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parsePathsObject JsonParser.ParserContext.Empty
+    |> JsonNodeAdapter
+    |> Parser.parsePathsObject Parser.ParserContext.Empty
     |> should equal
         [|{
             Path = "/pets"
@@ -121,7 +123,8 @@ let ``Path Item Object Example`` () =
       ]
     }}"""
     |> JsonValue.Parse
-    |> JsonParser.parsePathsObject JsonParser.ParserContext.Empty
+    |> JsonNodeAdapter
+    |> Parser.parsePathsObject Parser.ParserContext.Empty
     |> should equal
         [|{
             Path = "/pets"
@@ -209,7 +212,8 @@ let ``Operation Object Example`` () =
       ]
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseOperationObject JsonParser.ParserContext.Empty "/" Get
+    |> JsonNodeAdapter
+    |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
     |> should equal
         {
             Path = "/"
@@ -268,7 +272,8 @@ let ``Parameter Object Examples: Body Parameters``() =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParameterObject
+    |> JsonNodeAdapter
+    |> Parser.parseParameterObject
     |> should equal
         {
             Name = "user"
@@ -295,7 +300,8 @@ let ``Parameter Object Examples: Body Parameters Array``() =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParameterObject
+    |> JsonNodeAdapter
+    |> Parser.parseParameterObject
     |> should equal
         {
             Name = "user"
@@ -322,7 +328,8 @@ let ``Parameter Object Examples: Other Parameters``() =
       "collectionFormat": "csv"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParameterObject
+    |> JsonNodeAdapter
+    |> Parser.parseParameterObject
     |> should equal
         {
             Name = "token"
@@ -344,7 +351,8 @@ let ``Parameter Object Examples: Other Parameters - Path String``() =
       "type": "string"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParameterObject
+    |> JsonNodeAdapter
+    |> Parser.parseParameterObject
     |> should equal
         {
             Name = "username"
@@ -370,7 +378,8 @@ let ``Parameter Object Examples: Other Parameters - Array String Multi``() =
       "collectionFormat": "multi"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParameterObject
+    |> JsonNodeAdapter
+    |> Parser.parseParameterObject
     |> should equal
         {
             Name = "id"
@@ -392,7 +401,8 @@ let ``Parameter Object Examples: Other Parameters - File``() =
       "type": "file"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParameterObject
+    |> JsonNodeAdapter
+    |> Parser.parseParameterObject
     |> should equal
         {
             Name = "avatar"
@@ -416,7 +426,8 @@ let ``Response Object Examples: Response of an array of a complex type`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> JsonNodeAdapter
+    |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
             Description = "A complex object array response"
@@ -434,7 +445,8 @@ let ``Response Object Examples: Response with a string type`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> JsonNodeAdapter
+    |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
             Description = "A simple string response"
@@ -465,7 +477,8 @@ let ``Response Object Examples: Response with headers`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> JsonNodeAdapter
+    |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
             Description = "A simple string response"
@@ -479,7 +492,8 @@ let ``Response Object Examples: Response with no return value`` () =
       "description": "object created"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseResponseObject (JsonParser.ParserContext.Empty)
+    |> JsonNodeAdapter
+    |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
             Description = "object created"
@@ -495,7 +509,8 @@ let ``Tag Object Example`` () =
         "description": "Pets operations"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseTagObject
+    |> JsonNodeAdapter
+    |> Parser.parseTagObject
     |> should equal
         ({
             Name = "pet"
@@ -509,7 +524,8 @@ let ``Reference Object Example`` () =
         "$ref": "#/definitions/Pet"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Reference "#/definitions/Pet")
 
@@ -521,7 +537,8 @@ let ``Schema Object Examples: Primitive Sample`` () =
         "format": "email"
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         String
 
@@ -548,7 +565,8 @@ let ``Schema Object Examples: Simple Model`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Object
             [|{Name = "name"
@@ -575,7 +593,8 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Dictionary String)
 
@@ -589,7 +608,8 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Dictionary (Reference "#/definitions/ComplexModel"))
 
@@ -616,7 +636,8 @@ let ``Schema Object Examples: Model with Example`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Object
             [|{Name = "id"
@@ -670,7 +691,8 @@ let ``Schema Object Examples: Models with Composition`` () =
         }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseDefinitionsObject
+    |> JsonNodeAdapter
+    |> Parser.parseDefinitionsObject
     |> should equal
         [|
             "#/definitions/ErrorModel",
@@ -773,7 +795,8 @@ let ``Schema Object Examples: Models with Polymorphism Support`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Object
             [||]
@@ -809,7 +832,8 @@ let ``Definitions Object Example`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseDefinitionsObject
+    |> JsonNodeAdapter
+    |> Parser.parseDefinitionsObject
     |> should equal
         [|
             "#/definitions/Category",
@@ -858,7 +882,8 @@ let ``Parameters Definition Object Example`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseParametersDefinition
+    |> JsonNodeAdapter
+    |> Parser.parseParametersDefinition
     |> should equal
         ([|
             "#/parameters/skipParam",
@@ -898,7 +923,8 @@ let ``Responses Definitions Object Example`` () =
       }
     }"""
     |> JsonValue.Parse
-    |> JsonParser.parseResponsesDefinition
+    |> JsonNodeAdapter
+    |> Parser.parseResponsesDefinition
     |> should equal
         ([|
             "#/responses/NotFound",

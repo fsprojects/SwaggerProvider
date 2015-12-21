@@ -1,34 +1,9 @@
 ﻿namespace SwaggerProvider.Internal.Schema.Parsers
 
-open FSharp.Data
-open FSharp.Data.JsonExtensions
 open System
-
 open SwaggerProvider.Internal.Schema
 
-/// Helper functions for optional swagger values of types string and string array.
-[<AutoOpen>]
-module Extensions =
-    type JsonValue with
-        /// Get field that is `Required` in Swagger specification
-        member this.GetRequiredField (fieldName, spec) =
-            match this.TryGetProperty(fieldName) with
-            | Some(value) -> value
-            | None -> raise <| FieldNotFoundException(this, fieldName, spec)
-
-        /// Gets the string value of the property if it exists. Empty string otherwise.
-        member this.GetStringSafe(propertyName) =
-            match this.TryGetProperty(propertyName) with
-            | Some(value) -> value.AsString()
-            | None -> String.Empty
-
-        /// Gets the string array for the property if it exists. Empty array otherwise.
-        member this.GetStringArraySafe(propertyName) =
-            match this.TryGetProperty(propertyName) with
-            | Some(value) -> value.AsArray() |> Array.map (fun x->x.AsString())
-            | None -> [||]
-
-module JsonParser =
+module Parser =
 
     // Type that hold parsing context to resolve `$ref`s
     type ParserContext =
@@ -46,7 +21,7 @@ module JsonParser =
         }
 
         /// Resolve ParameterObject by `$ref` if such field exists
-        member this.ResolveParameterObject (obj:JsonValue) =
+        member this.ResolveParameterObject (obj:SchemaNode) =
             obj.TryGetProperty("$ref")
             |> Option.map (fun refObj ->
                 let ref = refObj.AsString()
@@ -58,7 +33,7 @@ module JsonParser =
                 | None -> raise <| UnknownSwaggerReferenceException(ref))
 
         // Resolve ResponseObject by `$ref` if such field exists
-        member this.ResolveResponseObject (obj:JsonValue) =
+        member this.ResolveResponseObject (obj:SchemaNode) =
             obj.TryGetProperty("$ref")
             |> Option.map (fun refObj ->
                 let ref = refObj.AsString()
@@ -81,9 +56,9 @@ module JsonParser =
 
     // TODO: ...
     /// Parses the JsonValue as a SchemaObject
-    let rec parseSchemaObject (parsedTys:Map<string,SchemaObject>) (obj:JsonValue) : SchemaObject =
+    let rec parseSchemaObject (parsedTys:Map<string,SchemaObject>) (obj:SchemaNode) : SchemaObject =
         let spec = "http://swagger.io/specification/#schemaObject"
-        let parsers : (JsonValue->Option<SchemaObject>)[] =
+        let parsers : (SchemaNode->Option<SchemaObject>)[] =
             [|
                 (fun obj -> // Parse `enum` - http://json-schema.org/latest/json-schema-validation.html#anchor76
                     obj.TryGetProperty("enum")
@@ -132,7 +107,7 @@ module JsonParser =
                               |> Array.map (fun x-> x.AsString())
                               |> Set.ofArray
                         let properties =
-                          properties.Properties
+                          properties.Properties()
                           |> Array.map (fun (name,obj) ->
                               parseDefinitionProperty (name,obj, requiredProperties.Contains name))
 
@@ -203,7 +178,7 @@ module JsonParser =
         | _ -> raise <| UnknownFieldValueException(obj, location, "in", spec)
 
     /// Parses the JsonValue as a ParameterObject.
-    let parseParameterObject (obj:JsonValue) : ParameterObject =
+    let parseParameterObject (obj:SchemaNode) : ParameterObject =
         let spec = "http://swagger.io/specification/#parameterObject"
         let location =
             obj.GetRequiredField("in", spec).AsString()
@@ -234,14 +209,14 @@ module JsonParser =
         }
 
     /// Parse the JsonValue as a Parameters Definition Object
-    let parseParametersDefinition (obj:JsonValue) : Map<string, ParameterObject> =
-        obj.Properties
+    let parseParametersDefinition (obj:SchemaNode) : Map<string, ParameterObject> =
+        obj.Properties()
         |> Array.map (fun (name, obj) ->
             "#/parameters/"+name, parseParameterObject obj)
         |> Map.ofArray
 
     /// Parses the JsonValue as a ResponseObject.
-    let parseResponseObject (context:ParserContext) (obj:JsonValue) : ResponseObject =
+    let parseResponseObject (context:ParserContext) (obj:SchemaNode) : ResponseObject =
         let spec = "http://swagger.io/specification/#responseObject"
         match context.ResolveResponseObject obj with
         | Some(response) -> response
@@ -254,16 +229,16 @@ module JsonParser =
             }
 
     /// Parses the JsonValue as a Responses  Definition Object
-    let parseResponsesDefinition (obj:JsonValue) : Map<string, ResponseObject> =
-        obj.Properties
+    let parseResponsesDefinition (obj:SchemaNode) : Map<string, ResponseObject> =
+        obj.Properties()
         |> Array.map (fun (name, obj) ->
                 "#/responses/"+name, parseResponseObject (ParserContext.Empty) obj)
         |> Map.ofSeq
 
     /// Parses the JsonValue as a ResponseObject[].
-    let parseResponsesObject (context:ParserContext) (obj:JsonValue) : (Option<int>*ResponseObject)[] =
+    let parseResponsesObject (context:ParserContext) (obj:SchemaNode) : (Option<int>*ResponseObject)[] =
         let spec = "http://swagger.io/specification/#httpCodes"
-        obj.Properties
+        obj.Properties()
         |> Array.filter (fun (property,_) -> not <| isSwaggerSchemaExtensionName property)
         |> Array.map (fun (property, objValue) ->
             let code =
@@ -275,7 +250,7 @@ module JsonParser =
             code, parseResponseObject context objValue)
 
     /// Parses the JsonValue as an OperationObject.
-    let parseOperationObject (context:ParserContext) path opType (obj:JsonValue) : OperationObject =
+    let parseOperationObject (context:ParserContext) path opType (obj:SchemaNode) : OperationObject =
         let spec = "http://swagger.io/specification/#operationObject"
         let mergeParameters (specified:ParameterObject[]) (inherited:ParameterObject[]) =
             Array.append specified inherited
@@ -316,7 +291,7 @@ module JsonParser =
         }
 
     /// Parse Paths Object as a PathItemObject[]
-    let parsePathsObject (context:ParserContext) (obj:JsonValue) : OperationObject[] =
+    let parsePathsObject (context:ParserContext) (obj:SchemaNode) : OperationObject[] =
         let parsePathItemObject (context:ParserContext) path (field, obj) =
             match field with
             | "get"     -> Some <| parseOperationObject context path Get obj
@@ -328,7 +303,7 @@ module JsonParser =
             | "patch"   -> Some <| parseOperationObject context path Patch obj
             | "$ref"       -> failwith "External definition of this path item is not supported yet"
             | _ -> None
-        let updateContext (pathItemObj:JsonValue) =
+        let updateContext (pathItemObj:SchemaNode) =
             match pathItemObj.TryGetProperty("parameters") with
             | None -> context
             | Some(parameters) ->
@@ -343,18 +318,18 @@ module JsonParser =
                         )
                 }
 
-        obj.Properties
+        obj.Properties()
         |> Array.filter(fun (path,_) -> not <| isSwaggerSchemaExtensionName path)
         |> Array.map (fun (path, pathItemObj) ->
             let newContext = updateContext pathItemObj
-            pathItemObj.Properties
+            pathItemObj.Properties()
             |> Array.choose (parsePathItemObject newContext path)
            )
         |> Array.concat
 
     /// Parse Definitions Object as a SchemaObject[]
-    let parseDefinitionsObject (obj:JsonValue) : (string*SchemaObject)[] =
-        obj.Properties
+    let parseDefinitionsObject (obj:SchemaNode) : (string*SchemaObject)[] =
+        obj.Properties()
         |> Array.fold (fun tys (name, schemaObj) ->
             Map.add
                 ("#/definitions/"+name)
@@ -364,7 +339,7 @@ module JsonParser =
         |> Map.toArray
 
     /// Parses the JsonValue as an InfoObject.
-    let parseInfoObject (obj:JsonValue) : InfoObject =
+    let parseInfoObject (obj:SchemaNode) : InfoObject =
         let spec = "http://swagger.io/specification/#infoObject"
         {
             Title = obj.GetRequiredField("title", spec).AsString()
@@ -373,7 +348,7 @@ module JsonParser =
         }
 
     /// Parses the JsonValue as a TagObject.
-    let parseTagObject (obj:JsonValue) : TagObject =
+    let parseTagObject (obj:SchemaNode) : TagObject =
         let spec = "http://swagger.io/specification/#tagObject"
         {
             Name = obj.GetRequiredField("name", spec).AsString()
@@ -381,7 +356,7 @@ module JsonParser =
         }
 
     /// Parses the JsonValue as a SwaggerSchema.
-    let parseSwaggerObject (obj:JsonValue) : SwaggerObject =
+    let parseSwaggerObject (obj:SchemaNode) : SwaggerObject =
         let spec = "http://swagger.io/specification/#swaggerObject"
 
         let swaggerVersion = obj.GetRequiredField("swagger", spec).AsString()

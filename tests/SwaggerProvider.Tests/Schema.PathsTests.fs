@@ -9,7 +9,8 @@ open FsUnit
 let shouldBeEqualToTag (expected:TagObject) content =
     content
     |> JsonValue.Parse
-    |> JsonParser.parseTagObject
+    |> JsonNodeAdapter
+    |> Parser.parseTagObject
     |> should equal expected
 
 [<Test>]

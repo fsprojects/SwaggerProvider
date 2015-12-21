@@ -90,7 +90,8 @@
     </Compile>
     <Compile Include="Schema.fs" />
     <Compile Include="SchemaParserExceptions.fs" />
-    <Compile Include="SchemaJsonParser.fs" />
+    <Compile Include="SchemaNode.fs" />
+    <Compile Include="SchemaParser.fs" />
     <Compile Include="DefinitionCompiler.fs" />
     <Compile Include="OperationCompiler.fs" />
     <Compile Include="SwaggerProviderConfig.fs" />

@@ -9,7 +9,8 @@ open FsUnit
 let shouldBeEqual (expected:SchemaObject) content =
     content
     |> JsonValue.Parse
-    |> JsonParser.parseSchemaObject Map.empty
+    |> JsonNodeAdapter
+    |> Parser.parseSchemaObject Map.empty
     |> should equal expected
 
 [<Test>]
