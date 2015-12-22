@@ -1,30 +1,28 @@
-﻿module Schema.Spec.Tests
+﻿module Schema.Spec.Yaml.Tests
 
+open SwaggerProvider
 open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open NUnit.Framework
 open FsUnit
-open FSharp.Data
 
 [<Test>]
 let ``Info Object Example`` () =
-    """{
-        "title": "Swagger Sample App",
-        "description": "This is a sample server Petstore server.",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
-        "version": "1.0.1"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+title: Swagger Sample App
+description: This is a sample server Petstore server.
+termsOfService: http://swagger.io/terms/
+contact:
+    name: API Support
+    url: http://www.swagger.io/support
+    email: support@swagger.io
+license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+version: 1.0.1
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseInfoObject
     |> should equal
         {
@@ -36,29 +34,22 @@ let ``Info Object Example`` () =
 
 [<Test>]
 let ``Paths Object Example`` () =
-    """{
-        "/pets": {
-        "get": {
-            "description": "Returns all pets from the system that the user has access to",
-            "produces": [
-            "application/json"
-            ],
-            "responses": {
-            "200": {
-                "description": "A list of pets.",
-                "schema": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/pet"
-                }
-                }
-            }
-            }
-        }
-        }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+/pets:
+  get:
+    description: Returns all pets from the system that the user has access to
+    produces:
+    - application/json
+    responses:
+      '200':
+        description: A list of pets.
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/pet'
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
     |> should equal
         [|{
@@ -81,49 +72,38 @@ let ``Paths Object Example`` () =
 
 [<Test>]
 let ``Path Item Object Example`` () =
-    """{"/pets":{
-      "get": {
-        "description": "Returns pets based on ID",
-        "summary": "Find pets by ID",
-        "operationId": "getPetsById",
-        "produces": [
-          "application/json",
-          "text/html"
-        ],
-        "responses": {
-          "200": {
-            "description": "pet response",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Pet"
-              }
-            }
-          },
-          "default": {
-            "description": "error payload",
-            "schema": {
-              "$ref": "#/definitions/ErrorModel"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "description": "ID of pet to use",
-          "required": true,
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "collectionFormat": "csv"
-        }
-      ]
-    }}"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+"/pets":
+  get:
+    description: Returns pets based on ID
+    summary: Find pets by ID
+    operationId: getPetsById
+    produces:
+    - application/json
+    - text/html
+    responses:
+      '200':
+        description: pet response
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/Pet'
+      default:
+        description: error payload
+        schema:
+          $ref: '#/definitions/ErrorModel'
+  parameters:
+  - name: id
+    in: path
+    description: ID of pet to use
+    required: true
+    type: array
+    items:
+      type: string
+    collectionFormat: csv
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
     |> should equal
         [|{
@@ -157,62 +137,44 @@ let ``Path Item Object Example`` () =
 
 [<Test>]
 let ``Operation Object Example`` () =
-    """{
-      "tags": [
-        "pet"
-      ],
-      "summary": "Updates a pet in the store with form data",
-      "description": "",
-      "operationId": "updatePetWithForm",
-      "consumes": [
-        "application/x-www-form-urlencoded"
-      ],
-      "produces": [
-        "application/json",
-        "application/xml"
-      ],
-      "parameters": [
-        {
-          "name": "petId",
-          "in": "path",
-          "description": "ID of pet that needs to be updated",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "name": "name",
-          "in": "formData",
-          "description": "Updated name of the pet",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "name": "status",
-          "in": "formData",
-          "description": "Updated status of the pet",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Pet updated."
-        },
-        "405": {
-          "description": "Invalid input"
-        }
-      },
-      "security": [
-        {
-          "petstore_auth": [
-            "write:pets",
-            "read:pets"
-          ]
-        }
-      ]
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+tags:
+- pet
+summary: Updates a pet in the store with form data
+description: ""
+operationId: updatePetWithForm
+consumes:
+- application/x-www-form-urlencoded
+produces:
+- application/json
+- application/xml
+parameters:
+- name: petId
+  in: path
+  description: ID of pet that needs to be updated
+  required: true
+  type: string
+- name: name
+  in: formData
+  description: Updated name of the pet
+  required: false
+  type: string
+- name: status
+  in: formData
+  description: Updated status of the pet
+  required: false
+  type: string
+responses:
+  '200':
+    description: Pet updated.
+  '405':
+    description: Invalid input
+security:
+- petstore_auth:
+  - write:pets
+  - read:pets"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
     |> should equal
         {
@@ -262,17 +224,16 @@ let ``Operation Object Example`` () =
 
 [<Test>]
 let ``Parameter Object Examples: Body Parameters``() =
-    """{
-      "name": "user",
-      "in": "body",
-      "description": "user to add to the system",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/User"
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: user
+in: body
+description: user to add to the system
+required: true
+schema:
+  $ref: '#/definitions/User'
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
         {
@@ -287,20 +248,18 @@ let ``Parameter Object Examples: Body Parameters``() =
 
 [<Test>]
 let ``Parameter Object Examples: Body Parameters Array``() =
-    """{
-      "name": "user",
-      "in": "body",
-      "description": "user to add to the system",
-      "required": true,
-      "schema": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: user
+in: body
+description: user to add to the system
+required: true
+schema:
+  type: array
+  items:
+    type: string
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
         {
@@ -315,20 +274,19 @@ let ``Parameter Object Examples: Body Parameters Array``() =
 
 [<Test>]
 let ``Parameter Object Examples: Other Parameters``() =
-    """{
-      "name": "token",
-      "in": "header",
-      "description": "token to be passed as a header",
-      "required": true,
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "format": "int64"
-      },
-      "collectionFormat": "csv"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: token
+in: header
+description: token to be passed as a header
+required: true
+type: array
+items:
+  type: integer
+  format: int64
+collectionFormat: csv
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
         {
@@ -343,15 +301,15 @@ let ``Parameter Object Examples: Other Parameters``() =
 
 [<Test>]
 let ``Parameter Object Examples: Other Parameters - Path String``() =
-    """{
-      "name": "username",
-      "in": "path",
-      "description": "username to fetch",
-      "required": true,
-      "type": "string"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: username
+in: path
+description: username to fetch
+required: true
+type: string
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
         {
@@ -366,19 +324,18 @@ let ``Parameter Object Examples: Other Parameters - Path String``() =
 
 [<Test>]
 let ``Parameter Object Examples: Other Parameters - Array String Multi``() =
-    """{
-      "name": "id",
-      "in": "query",
-      "description": "ID of the object to fetch",
-      "required": false,
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "collectionFormat": "multi"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: id
+in: query
+description: ID of the object to fetch
+required: false
+type: array
+items:
+  type: string
+collectionFormat: multi
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
         {
@@ -393,15 +350,15 @@ let ``Parameter Object Examples: Other Parameters - Array String Multi``() =
 
 [<Test>]
 let ``Parameter Object Examples: Other Parameters - File``() =
-    """{
-      "name": "avatar",
-      "in": "formData",
-      "description": "The avatar of the user",
-      "required": true,
-      "type": "file"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: avatar
+in: formData
+description: The avatar of the user
+required: true
+type: file
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
         {
@@ -416,17 +373,15 @@ let ``Parameter Object Examples: Other Parameters - File``() =
 
 [<Test>]
 let ``Response Object Examples: Response of an array of a complex type`` () =
-    """{
-      "description": "A complex object array response",
-      "schema": {
-        "type": "array",
-        "items": {
-          "$ref": "#/definitions/VeryComplexType"
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+description: A complex object array response
+schema:
+  type: array
+  items:
+    $ref: '#/definitions/VeryComplexType'
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
@@ -438,14 +393,13 @@ let ``Response Object Examples: Response of an array of a complex type`` () =
 
 [<Test>]
 let ``Response Object Examples: Response with a string type`` () =
-    """{
-      "description": "A simple string response",
-      "schema": {
-        "type": "string"
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+description: A simple string response
+schema:
+  type: string
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
@@ -456,28 +410,23 @@ let ``Response Object Examples: Response with a string type`` () =
 
 [<Test>]
 let ``Response Object Examples: Response with headers`` () =
-    """{
-      "description": "A simple string response",
-      "schema": {
-        "type": "string"
-      },
-      "headers": {
-        "X-Rate-Limit-Limit": {
-          "description": "The number of allowed requests in the current period",
-          "type": "integer"
-        },
-        "X-Rate-Limit-Remaining": {
-          "description": "The number of remaining requests in the current period",
-          "type": "integer"
-        },
-        "X-Rate-Limit-Reset": {
-          "description": "The number of seconds left in the current period",
-          "type": "integer"
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+description: A simple string response
+schema:
+  type: string
+headers:
+  X-Rate-Limit-Limit:
+    description: The number of allowed requests in the current period
+    type: integer
+  X-Rate-Limit-Remaining:
+    description: The number of remaining requests in the current period
+    type: integer
+  X-Rate-Limit-Reset:
+    description: The number of seconds left in the current period
+    type: integer
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
@@ -488,11 +437,11 @@ let ``Response Object Examples: Response with headers`` () =
 
 [<Test>]
 let ``Response Object Examples: Response with no return value`` () =
-    """{
-      "description": "object created"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+description: object created
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
         {
@@ -504,12 +453,12 @@ let ``Response Object Examples: Response with no return value`` () =
 
 [<Test>]
 let ``Tag Object Example`` () =
-    """{
-        "name": "pet",
-        "description": "Pets operations"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+name: pet
+description: Pets operations
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseTagObject
     |> should equal
         ({
@@ -520,11 +469,11 @@ let ``Tag Object Example`` () =
 
 [<Test>]
 let ``Reference Object Example`` () =
-    """{
-        "$ref": "#/definitions/Pet"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+$ref: '#/definitions/Pet'
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Reference "#/definitions/Pet")
@@ -532,12 +481,12 @@ let ``Reference Object Example`` () =
 
 [<Test>]
 let ``Schema Object Examples: Primitive Sample`` () =
-    """{
-        "type": "string",
-        "format": "email"
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+type: string
+format: email
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         String
@@ -545,27 +494,22 @@ let ``Schema Object Examples: Primitive Sample`` () =
 
 [<Test>]
 let ``Schema Object Examples: Simple Model`` () =
-    """{
-      "type": "object",
-      "required": [
-        "name"
-      ],
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
-        "age": {
-          "type": "integer",
-          "format": "int32",
-          "minimum": 0
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+type: object
+required:
+- name
+properties:
+  name:
+    type: string
+  address:
+    $ref: '#/definitions/Address'
+  age:
+    type: integer
+    format: int32
+    minimum: 0
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Object
@@ -586,14 +530,13 @@ let ``Schema Object Examples: Simple Model`` () =
 
 [<Test>]
 let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping`` () =
-    """{
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+type: object
+additionalProperties:
+  type: string
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Dictionary String)
@@ -601,14 +544,13 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple
 
 [<Test>]
 let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping`` () =
-    """{
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/ComplexModel"
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+type: object
+additionalProperties:
+  $ref: '#/definitions/ComplexModel'
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Dictionary (Reference "#/definitions/ComplexModel"))
@@ -616,27 +558,22 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string
 
 [<Test>]
 let ``Schema Object Examples: Model with Example`` () =
-    """{
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "name"
-      ],
-      "example": {
-        "name": "Puma",
-        "id": 1
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+type: object
+properties:
+  id:
+    type: integer
+    format: int64
+  name:
+    type: string
+required:
+- name
+example:
+  name: Puma
+  id: 1
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Object
@@ -653,45 +590,31 @@ let ``Schema Object Examples: Model with Example`` () =
 
 [<Test>]
 let ``Schema Object Examples: Models with Composition`` () =
-    """{
-        "ErrorModel": {
-          "type": "object",
-          "required": [
-            "message",
-            "code"
-          ],
-          "properties": {
-            "message": {
-              "type": "string"
-            },
-            "code": {
-              "type": "integer",
-              "minimum": 100,
-              "maximum": 600
-            }
-          }
-        },
-        "ExtendedErrorModel": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/ErrorModel"
-            },
-            {
-              "type": "object",
-              "required": [
-                "rootCause"
-              ],
-              "properties": {
-                "rootCause": {
-                  "type": "string"
-                }
-              }
-            }
-          ]
-        }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+ErrorModel:
+  type: object
+  required:
+  - message
+  - code
+  properties:
+    message:
+      type: string
+    code:
+      type: integer
+      minimum: 100
+      maximum: 600
+ExtendedErrorModel:
+  allOf:
+  - $ref: '#/definitions/ErrorModel'
+  - type: object
+    required:
+    - rootCause
+    properties:
+      rootCause:
+        type: string
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
         [|
@@ -724,78 +647,53 @@ let ``Schema Object Examples: Models with Composition`` () =
 
 [<Test; Ignore>] // TODO : Not supported
 let ``Schema Object Examples: Models with Polymorphism Support`` () =
-    """{
-      "definitions": {
-        "Pet": {
-          "type": "object",
-          "discriminator": "petType",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "petType": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name",
-            "petType"
-          ]
-        },
-        "Cat": {
-          "description": "A representation of a cat",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Pet"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "huntingSkill": {
-                  "type": "string",
-                  "description": "The measured skill for hunting",
-                  "default": "lazy",
-                  "enum": [
-                    "clueless",
-                    "lazy",
-                    "adventurous",
-                    "aggressive"
-                  ]
-                }
-              },
-              "required": [
-                "huntingSkill"
-              ]
-            }
-          ]
-        },
-        "Dog": {
-          "description": "A representation of a dog",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Pet"
-            },
-            {
-              "type": "object",
-              "properties": {
-                "packSize": {
-                  "type": "integer",
-                  "format": "int32",
-                  "description": "the size of the pack the dog is from",
-                  "default": 0,
-                  "minimum": 0
-                }
-              },
-              "required": [
-                "packSize"
-              ]
-            }
-          ]
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+definitions:
+  Pet:
+    type: object
+    discriminator: petType
+    properties:
+      name:
+        type: string
+      petType:
+        type: string
+    required:
+    - name
+    - petType
+  Cat:
+    description: A representation of a cat
+    allOf:
+    - $ref: '#/definitions/Pet'
+    - type: object
+      properties:
+        huntingSkill:
+          type: string
+          description: The measured skill for hunting
+          default: lazy
+          enum:
+          - clueless
+          - lazy
+          - adventurous
+          - aggressive
+      required:
+      - huntingSkill
+  Dog:
+    description: A representation of a dog
+    allOf:
+    - $ref: '#/definitions/Pet'
+    - type: object
+      properties:
+        packSize:
+          type: integer
+          format: int32
+          description: the size of the pack the dog is from
+          default: 0
+          minimum: 0
+      required:
+      - packSize
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
         (Object
@@ -805,34 +703,26 @@ let ``Schema Object Examples: Models with Polymorphism Support`` () =
 
 [<Test>]
 let ``Definitions Object Example`` () =
-    """{
-      "Category": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "Tag": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+Category:
+  type: object
+  properties:
+    id:
+      type: integer
+      format: int64
+    name:
+      type: string
+Tag:
+  type: object
+  properties:
+    id:
+      type: integer
+      format: int64
+    name:
+      type: string
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
         [|
@@ -863,26 +753,24 @@ let ``Definitions Object Example`` () =
 
 [<Test>]
 let ``Parameters Definition Object Example`` () =
-    """{
-      "skipParam": {
-        "name": "skip",
-        "in": "query",
-        "description": "number of items to skip",
-        "required": true,
-        "type": "integer",
-        "format": "int32"
-      },
-      "limitParam": {
-        "name": "limit",
-        "in": "query",
-        "description": "max records to return",
-        "required": true,
-        "type": "integer",
-        "format": "int32"
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+skipParam:
+  name: skip
+  in: query
+  description: number of items to skip
+  required: true
+  type: integer
+  format: int32
+limitParam:
+  name: limit
+  in: query
+  description: max records to return
+  required: true
+  type: integer
+  format: int32
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseParametersDefinition
     |> should equal
         ([|
@@ -908,22 +796,18 @@ let ``Parameters Definition Object Example`` () =
 
 [<Test>]
 let ``Responses Definitions Object Example`` () =
-    """{
-      "NotFound": {
-        "description": "Entity not found."
-      },
-      "IllegalInput": {
-        "description": "Illegal input for operation."
-      },
-      "GeneralError": {
-        "description": "General Error",
-        "schema": {
-            "$ref": "#/definitions/GeneralError"
-        }
-      }
-    }"""
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
+    """
+NotFound:
+  description: Entity not found.
+IllegalInput:
+  description: Illegal input for operation.
+GeneralError:
+  description: General Error
+  schema:
+    $ref: '#/definitions/GeneralError'
+"""
+    |> YamlParser.parse
+    |> YamlNodeAdapter
     |> Parser.parseResponsesDefinition
     |> should equal
         ([|

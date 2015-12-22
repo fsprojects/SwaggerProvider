@@ -61,15 +61,15 @@ open SwaggerProvider.YamlParser
 type YamlNodeAdapter(value:Node) =
     inherit SchemaNode()
 
-    override this.AsBoolean() =
+    override __.AsBoolean() =
         match value with
-        | Scalar(Scalar.Bool(value)) -> value
-        | _ -> raise <| UnexpectedValueTypeException(this, "bool")
+        | Scalar(x) -> System.Boolean.Parse(x)
+        | _ -> raise <| UnexpectedValueTypeException(value, "bool")
 
-    override this.AsString() =
+    override __.AsString() =
         match value with
-        | Scalar(Scalar.String(s)) -> s
-        | _ -> raise <| UnexpectedValueTypeException(this, "string")
+        | Scalar(x) -> x
+        | _ -> raise <| UnexpectedValueTypeException(value, "string")
 
     override __.AsArray() =
         match value with

@@ -63,7 +63,11 @@ let ``Parse Json Schema`` url =
             printfn "Schema is unaccessible %s" url
             ""
     if not <| System.String.IsNullOrEmpty(json) then
-        let schema = json |> JsonValue.Parse |> JsonNodeAdapter |> Parsers.Parser.parseSwaggerObject
+        let schema =
+            json
+            |> JsonValue.Parse
+            |> JsonNodeAdapter
+            |> Parsers.Parser.parseSwaggerObject
         schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
 [<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
@@ -76,6 +80,9 @@ let ``Parse Yaml Schema`` url =
             printfn "Schema is unaccessible %s" url
             ""
     if not <| System.String.IsNullOrEmpty(yaml) then
-        let schema = yaml |> SwaggerProvider.YamlParser.parse
-        ()
-        //schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+        let schema =
+            yaml
+            |> SwaggerProvider.YamlParser.parse
+            |> YamlNodeAdapter
+            |> Parsers.Parser.parseSwaggerObject
+        schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
