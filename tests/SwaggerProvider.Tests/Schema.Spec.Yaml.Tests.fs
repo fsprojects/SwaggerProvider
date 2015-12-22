@@ -21,7 +21,7 @@ license:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 version: 1.0.1
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseInfoObject
     |> should equal
@@ -48,7 +48,7 @@ let ``Paths Object Example`` () =
           items:
             $ref: '#/definitions/pet'
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
     |> should equal
@@ -102,7 +102,7 @@ let ``Path Item Object Example`` () =
       type: string
     collectionFormat: csv
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
     |> should equal
@@ -173,7 +173,7 @@ security:
 - petstore_auth:
   - write:pets
   - read:pets"""
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
     |> should equal
@@ -232,7 +232,7 @@ required: true
 schema:
   $ref: '#/definitions/User'
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
@@ -258,7 +258,7 @@ schema:
   items:
     type: string
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
@@ -285,7 +285,7 @@ items:
   format: int64
 collectionFormat: csv
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
@@ -308,7 +308,7 @@ description: username to fetch
 required: true
 type: string
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
@@ -334,7 +334,7 @@ items:
   type: string
 collectionFormat: multi
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
@@ -357,7 +357,7 @@ description: The avatar of the user
 required: true
 type: file
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
     |> should equal
@@ -380,7 +380,7 @@ schema:
   items:
     $ref: '#/definitions/VeryComplexType'
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
@@ -398,7 +398,7 @@ description: A simple string response
 schema:
   type: string
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
@@ -425,7 +425,7 @@ headers:
     description: The number of seconds left in the current period
     type: integer
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
@@ -440,7 +440,7 @@ let ``Response Object Examples: Response with no return value`` () =
     """
 description: object created
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
     |> should equal
@@ -457,7 +457,7 @@ let ``Tag Object Example`` () =
 name: pet
 description: Pets operations
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseTagObject
     |> should equal
@@ -472,7 +472,7 @@ let ``Reference Object Example`` () =
     """
 $ref: '#/definitions/Pet'
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -485,7 +485,7 @@ let ``Schema Object Examples: Primitive Sample`` () =
 type: string
 format: email
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -508,7 +508,7 @@ properties:
     format: int32
     minimum: 0
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -535,7 +535,7 @@ type: object
 additionalProperties:
   type: string
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -549,7 +549,7 @@ type: object
 additionalProperties:
   $ref: '#/definitions/ComplexModel'
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -572,7 +572,7 @@ example:
   name: Puma
   id: 1
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -613,7 +613,7 @@ ExtendedErrorModel:
       rootCause:
         type: string
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
@@ -692,7 +692,7 @@ definitions:
       required:
       - packSize
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseSchemaObject Map.empty
     |> should equal
@@ -721,7 +721,7 @@ Tag:
     name:
       type: string
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
@@ -769,7 +769,7 @@ limitParam:
   type: integer
   format: int32
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParametersDefinition
     |> should equal
@@ -806,7 +806,7 @@ GeneralError:
   schema:
     $ref: '#/definitions/GeneralError'
 """
-    |> YamlParser.parse
+    |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponsesDefinition
     |> should equal

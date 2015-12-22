@@ -82,7 +82,7 @@ let ``Parse Yaml Schema`` url =
     if not <| System.String.IsNullOrEmpty(yaml) then
         let schema =
             yaml
-            |> SwaggerProvider.YamlParser.parse
+            |> SwaggerProvider.YamlParser.Parse
             |> YamlNodeAdapter
             |> Parsers.Parser.parseSwaggerObject
         schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)

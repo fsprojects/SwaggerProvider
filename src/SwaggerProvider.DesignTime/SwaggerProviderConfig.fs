@@ -52,10 +52,14 @@ module private SwaggerProviderConfig =
                                 context.WatchFile schemaPathRaw
                                 schemaPathRaw |> IO.File.ReadAllText
 
+                        let stringParser =
+                            if schemaData.Trim().StartsWith("{")
+                                then JsonValue.Parse >> JsonNodeAdapter >> (fun x -> x :> SchemaNode)
+                                else YamlParser.Parse >> YamlNodeAdapter >> (fun x -> x :> SchemaNode)
+
                         let schema =
                             schemaData
-                            |> JsonValue.Parse
-                            |> JsonNodeAdapter
+                            |> stringParser
                             |> Parser.parseSwaggerObject
 
                         // Create Swagger provider type
