@@ -16,7 +16,7 @@ Documentation
   <div class="span6">
     <div class="well well-small" id="nuget">
       The SwaggerProvider library can be <a href="https://nuget.org/packages/SwaggerProvider">installed from NuGet</a>:
-      <pre>PM> Install-Package SwaggerProvider -Pre</pre>
+      <pre>PM> Install-Package SwaggerProvider</pre>
     </div>
   </div>
   <div class="span1"></div>

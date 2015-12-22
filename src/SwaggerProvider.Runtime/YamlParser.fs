@@ -24,5 +24,10 @@ let Parse : (string -> Node) =
 
     let deserializer = new Deserializer();
     fun (text:string) ->
-        use reader = new StringReader(text)
-        deserializer.Deserialize(reader) |> loop
+        try
+            use reader = new StringReader(text)
+            deserializer.Deserialize(reader) |> loop
+        with
+        | :? YamlDotNet.Core.YamlException as e when e.InnerException <> null ->
+            raise e.InnerException // inner exceptions are much more informative
+        | _ -> reraise()

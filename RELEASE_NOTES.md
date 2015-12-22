@@ -1,3 +1,6 @@
+#### 0.3.0 - December 22 2015
+* Added support of schemes in YAML format
+
 #### 0.2.0 - December 13 2015
 * `AssemblyResolve` handler that resolve location of 3rd party dependencies
 * Added dependencies on `Newtonsoft.Json` NuGet package

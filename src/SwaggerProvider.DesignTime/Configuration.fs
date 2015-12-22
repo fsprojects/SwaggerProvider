@@ -20,14 +20,21 @@ let getSwaggerProviderRuntimeAssembly() =
 /// Finds directories relative to 'dirs' using the specified 'patterns'.
 /// Patterns is a string, such as "..\foo\*\bar" split by '\'. Standard
 /// .NET libraries do not support "*", so we have to do it ourselves..
-let rec searchDirectories patterns dirs =
+let rec searchDirectories (patterns:string list) dirs =
   match patterns with
   | [] -> dirs
-  | "*"::patterns ->
-      dirs |> List.collect (Directory.GetDirectories >> List.ofSeq)
+  | name::patterns when name.EndsWith("*") ->
+      let prefix = name.TrimEnd([|'*'|])
+      dirs
+      |> List.collect (fun dir ->
+           Directory.GetDirectories dir
+           |> Array.filter (fun x -> x.IndexOf(prefix, dir.Length) >= 0)
+           |> List.ofArray
+         )
       |> searchDirectories patterns
   | name::patterns ->
-      dirs |> List.map (fun d -> Path.Combine(d, name))
+      dirs
+      |> List.map (fun d -> Path.Combine(d, name))
       |> searchDirectories patterns
 
 /// Returns the real assembly location - when shadow copying is enabled, this
@@ -46,8 +53,8 @@ let getProbingLocations() =
     Logging.logf <| sprintf "Root %s" root
     let config = System.Configuration.ConfigurationManager.OpenExeConfiguration(root)
     let pattern = config.AppSettings.Settings.["ProbingLocations"]
-    Logging.logf <| sprintf "Pattern %s" pattern.Value
     if pattern <> null then
+      Logging.logf <| sprintf "Pattern %s" pattern.Value
       [ yield root
         let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
         for pat in pattern do
