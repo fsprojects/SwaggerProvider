@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>SwaggerSchemaParseException - SwaggerProvider</title>
+    <title>UnknownFieldValueException<'T> - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,11 +37,14 @@
 
 
 
-<h1>SwaggerSchemaParseException</h1>
+<h1>UnknownFieldValueException<'T></h1>
 <p>
   <span>Namespace: SwaggerProvider.Internal.Schema.Parsers</span><br />
 </p>
 <div class="xmldoc">
+<p>The <code>field</code> value is not specified in Swagger specification</p>
+
+
 </div>
   <h3>Constructors</h3>
   <table class="table table-bordered member-list">
@@ -52,15 +55,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '433', 433)" onmouseover="showTip(event, '433', 433)">
-            new(message)
+          <code onmouseout="hideTip(event, '435', 435)" onmouseover="showTip(event, '435', 435)">
+            new(obj, value, field, specLink)
           </code>
-          <div class="tip" id="433">
-            <strong>Signature:</strong> message:string -&gt; SwaggerSchemaParseException<br />
+          <div class="tip" id="435">
+            <strong>Signature:</strong> (obj:&#39;T * value:string * field:string * specLink:string) -&gt; UnknownFieldValueException&lt;&#39;T&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider.DesignTime/SchemaParserExceptions.fs#L6-6" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider.DesignTime/SchemaParserExceptions.fs#L16-16" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

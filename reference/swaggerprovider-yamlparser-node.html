@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
 
 
-    <title>SwaggerSchemaParseException - SwaggerProvider</title>
+    <title>Node - SwaggerProvider</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="Sergey Tihon" />
@@ -37,30 +37,67 @@
 
 
 
-<h1>SwaggerSchemaParseException</h1>
+<h1>Node</h1>
 <p>
-  <span>Namespace: SwaggerProvider.Internal.Schema.Parsers</span><br />
+  <span>Namespace: SwaggerProvider</span><br />
+  <span>Parent Module: <a href="swaggerprovider-yamlparser.html">YamlParser</a></span>
 </p>
 <div class="xmldoc">
 </div>
-  <h3>Constructors</h3>
+  <h3>Union Cases</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Union Case</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '433', 433)" onmouseover="showTip(event, '433', 433)">
-            new(message)
+          <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
+            List(Node list)
           </code>
-          <div class="tip" id="433">
-            <strong>Signature:</strong> message:string -&gt; SwaggerSchemaParseException<br />
+          <div class="tip" id="345">
+            <strong>Signature:</strong> Node list<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider.DesignTime/SchemaParserExceptions.fs#L6-6" class="github-link">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider.Runtime/YamlParser.fs#L9-9" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
+            Map((string * Node) list)
+          </code>
+          <div class="tip" id="346">
+            <strong>Signature:</strong> (string * Node) list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider.Runtime/YamlParser.fs#L10-10" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
+            Scalar(string)
+          </code>
+          <div class="tip" id="347">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/sergey-tihon/SwaggerProvider/tree/master/src/SwaggerProvider.Runtime/YamlParser.fs#L8-8" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
