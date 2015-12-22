@@ -27,8 +27,8 @@ module private ValueParser =
                 | _ -> None
             else None)
 
-open System
-open SharpYaml.Serialization
+open System.IO
+open YamlDotNet.Serialization
 open System.Collections.Generic
 
 type Node =
@@ -49,11 +49,12 @@ let parse : (string -> Node) =
             let value = if (scalar = null) then "" else scalar.ToString()
             Scalar (value)
 
-    let settings = SerializerSettings(EmitDefaultValues=true, EmitTags=false, SortKeyForMapping=false)
-    let serializer = Serializer(settings)
-    fun text ->
-        try serializer.Deserialize(fromText=text) |> loop
+    let deserializer = new Deserializer();
+    fun (text:string) ->
+        try
+            use reader = new StringReader(text)
+            deserializer.Deserialize(reader) |> loop
         with
-        | :? SharpYaml.YamlException as e when e.InnerException <> null ->
-            raise e.InnerException // inner exceptions are much more informative
+        //| :? SharpYaml.YamlException as e when e.InnerException <> null ->
+        //    raise e.InnerException // inner exceptions are much more informative
         | _ -> reraise()

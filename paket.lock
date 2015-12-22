@@ -2,20 +2,20 @@ NUGET
   remote: https://nuget.org/api/v2
   specs:
     Newtonsoft.Json (7.0.1)
-    SharpYaml (1.5.2)
+    YamlDotNet (3.7.0)
 GITHUB
   remote: fsharp/FSharp.Data
   specs:
-    src/CommonRuntime/IO.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/CommonRuntime/NameUtils.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/CommonRuntime/Pluralizer.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/CommonRuntime/StructuralTypes.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/CommonRuntime/TextConversions.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/Json/JsonConversions.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/Json/JsonExtensions.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/Json/JsonValue.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/Net/Http.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
-    src/Net/UriUtils.fs (7f9afca614e62ab6dc78d62bdfc415311dd0da5c)
+    src/CommonRuntime/IO.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/CommonRuntime/NameUtils.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/CommonRuntime/Pluralizer.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/CommonRuntime/StructuralTypes.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/CommonRuntime/TextConversions.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/Json/JsonConversions.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/Json/JsonExtensions.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/Json/JsonValue.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/Net/Http.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
+    src/Net/UriUtils.fs (7554f6dfc7707594a7492abe75ffca41e99c9127)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
     src/DebugProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
