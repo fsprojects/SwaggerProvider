@@ -1,3 +1,6 @@
+#### 0.3.2 - December 23 2015
+* Migration to .NET 4.5
+
 #### 0.3.1 - December 23 2015
 * Fixed docs and bug in `SwaggerProvider.fsx`
 

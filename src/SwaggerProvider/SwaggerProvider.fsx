@@ -1,7 +1,7 @@
 #nowarn "211"
 // Standard NuGet or Paket location
 #I "."
-#I "lib/net40"
+#I "lib/net45"
 
 // Standard NuGet locations packages
 #I "../Newtonsoft.Json.7.0.1/lib/net40"

@@ -20,8 +20,8 @@ summary
 description
     F# Type Provider for Swagger
 files
-	../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net40
-	SwaggerProvider.fsx ==> .
+    ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net45
+    SwaggerProvider.fsx ==> .
 dependencies
-	Newtonsoft.Json >= 7.0.1
-	YamlDotNet >= 3.7
+    Newtonsoft.Json >= 7.0.1
+    YamlDotNet >= 3.7

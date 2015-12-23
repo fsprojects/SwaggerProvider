@@ -1,5 +1,5 @@
 NUGET
-  remote: https://nuget.org/api/v2
+  remote: https://www.nuget.org/api/v2
   specs:
     Newtonsoft.Json (7.0.1)
     YamlDotNet (3.7.0)
@@ -26,7 +26,7 @@ GITHUB
     src/FSharp.Configuration/TypeProviders.Helper.fs (6d80ccd126cf72d6e9d706f8262fd90e0a41f5c4)
 GROUP Build
 NUGET
-  remote: https://nuget.org/api/v2
+  remote: https://www.nuget.org/api/v2
   specs:
     FAKE (4.11.0)
     FSharp.Compiler.Service (1.4.0.6)
@@ -51,7 +51,7 @@ GITHUB
       Octokit
 GROUP OWIN
 NUGET
-  remote: https://nuget.org/api/v2
+  remote: https://www.nuget.org/api/v2
   specs:
     Microsoft.AspNet.WebApi.Client (5.2.3)
       Microsoft.Net.Http (>= 2.2.22) - framework: portable-wp80+win+net45+wp81+wpa81
@@ -85,7 +85,7 @@ NUGET
 
 GROUP Test
 NUGET
-  remote: https://nuget.org/api/v2
+  remote: https://www.nuget.org/api/v2
   specs:
     FSharp.Data (2.2.5)
       Zlib.Portable (>= 1.10.0) - framework: portable-net40+sl50+wp80+win80
