@@ -3,11 +3,13 @@
 #I "."
 #I "lib/net40"
 
-// Standard NuGet locations for Newtonsoft.Json
+// Standard NuGet locations packages
 #I "../Newtonsoft.Json.7.0.1/lib/net40"
+#I "../YamlDotNet.3.7.0/lib/net35"
 
-// Standard Paket locations for Newtonsoft.Json
+// Standard Paket locations packages
 #I "../Newtonsoft.Json/lib/net40"
+#I "../YamlDotNet/lib/net35"
 
 // Try various folders that people might like
 #I "bin"
@@ -17,5 +19,6 @@
 
 // Reference SwaggerProvider and Newtonsoft.Json
 #r "Newtonsoft.Json.dll"
+#r "YamlDotNet.dll"
 #r "SwaggerProvider.dll"
 #r "SwaggerProvider.Runtime.dll"

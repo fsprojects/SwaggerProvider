@@ -1,3 +1,6 @@
+#### 0.3.1 - December 23 2015
+* Fixed docs and bug in `SwaggerProvider.fsx`
+
 #### 0.3.0 - December 22 2015
 * Added support of schemes in YAML format
 

@@ -3,8 +3,6 @@
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
 
-[<Literal>]
-let filePath = __SOURCE_DIRECTORY__ + "../../../tests/SwaggerProvider.Tests/Schemas/PetStore.Swagger.json"
 (**
 SwaggerProvider
 ======================
@@ -31,7 +29,7 @@ the optional argument Headers may also be used. Headers supplied here will be us
 
 *)
 
-#r "SwaggerProvider/SwaggerProvider.dll"
+#load @"packages/SwaggerProvider/SwaggerProvider.fsx"
 open SwaggerProvider
 
 type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">

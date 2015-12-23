@@ -10,17 +10,14 @@
 SwaggerProvider Tutorial
 ========================
 
-Based on the script file "SwaggerProvider/tests/SwaggerProvider.Tests/script.fsx".
-Change the paths to match your own directories, if you do not use the entire github repository.
-
 Start by loading the swagger provider.
 *)
 
-#r @"../../src/SwaggerProvider/bin/Release/SwaggerProvider.dll"
+#load @"packages/SwaggerProvider/SwaggerProvider.fsx"
 open SwaggerProvider
 
 [<Literal>]
-let path = __SOURCE_DIRECTORY__ + "/Schemas/PetStore.Swagger.json"
+let path = "http://petstore.swagger.io/v2/swagger.json"
 type PetStore = SwaggerProvider<path, "Content-Type=application/json">
 
 (**
