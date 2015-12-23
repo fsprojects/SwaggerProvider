@@ -356,7 +356,7 @@ Target "All" DoNothing
   ==> "ExecuteTests"
   ==> "StopServer"
   ==> "RunTests"
-  =?> ("GenerateReferenceDocs",isLocalBuild)
+  //=?> ("GenerateReferenceDocs",isLocalBuild)
   =?> ("GenerateDocs",isLocalBuild)
   ==> "All"
   =?> ("ReleaseDocs",isLocalBuild)
@@ -371,7 +371,7 @@ Target "All" DoNothing
 
 "CleanDocs"
   ==> "GenerateHelp"
-  ==> "GenerateReferenceDocs"
+  //==> "GenerateReferenceDocs"
   ==> "GenerateDocs"
 
 "CleanDocs"
