@@ -1,3 +1,7 @@
+#### 0.3.3 - January 18 2016
+* Fixed code generation for PetStore schema (Removed deprecated attributes from methods)
+* Updated JSON.NET version up to v8.0.2
+
 #### 0.3.2 - December 23 2015
 * Migration to .NET 4.5
 

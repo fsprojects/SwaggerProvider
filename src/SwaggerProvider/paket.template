@@ -12,7 +12,7 @@ licenseUrl
 requireLicenseAcceptance
     false
 copyright
-    Copyright 2015
+    Copyright 2016
 tags
     F# fsharp data typeprovider Swagger API REST
 summary
@@ -23,5 +23,5 @@ files
     ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net45
     SwaggerProvider.fsx ==> .
 dependencies
-    Newtonsoft.Json >= 7.0.1
+    Newtonsoft.Json >= 8.0.2
     YamlDotNet >= 3.7

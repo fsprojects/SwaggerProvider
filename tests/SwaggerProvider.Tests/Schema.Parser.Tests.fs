@@ -24,6 +24,32 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
         Description = "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters."
     }
 
+[<Test>]
+let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
+    let schema =
+        "Schemas/PetStore.Swagger.json"
+        |> File.ReadAllText
+        |> JsonValue.Parse
+        |> JsonNodeAdapter
+        |> Parser.parseSwaggerObject
+    schema.Definitions |> should haveLength 6
+
+    let schemaOnline =
+        "http://petstore.swagger.io/v2/swagger.json"
+        |> Http.RequestString
+        |> JsonValue.Parse
+        |> JsonNodeAdapter
+        |> Parser.parseSwaggerObject
+
+    schemaOnline.BasePath |> should equal schema.BasePath
+    schemaOnline.Host |> should equal schema.Host
+    schemaOnline.Info |> should equal schema.Info
+    schemaOnline.Schemes |> should equal schema.Schemes
+    schemaOnline.Tags |> should equal schema.Tags
+    schemaOnline.Definitions |> should equal schema.Definitions
+    schemaOnline.Paths |> should equal schema.Paths
+    schemaOnline |> should equal schema
+
 
 // Test that provider can parse real-word Swagger 2.0 schemas
 // https://github.com/APIs-guru/api-models/blob/master/API.md
