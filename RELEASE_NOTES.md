@@ -1,3 +1,6 @@
+#### 0.3.4 - January 20 2016
+* Fixed generation of obsolete provided methods - https://github.com/fsprojects/FSharp.TypeProviders.StarterPack/issues/70
+
 #### 0.3.3 - January 18 2016
 * Fixed code generation for PetStore schema (Removed deprecated attributes from methods)
 * Updated JSON.NET version up to v8.0.2

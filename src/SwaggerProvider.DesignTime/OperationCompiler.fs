@@ -46,8 +46,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         let m = ProvidedMethod(methodName, parameters, retTy, IsStaticMethod = true)
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary)
-        //if op.Deprecated
-        //    then m.AddObsoleteAttribute("Operation is deprecated", false)
+        if op.Deprecated
+            then m.AddObsoleteAttribute("Operation is deprecated", false)
 
         m.InvokeCode <- fun args ->
             let basePath =

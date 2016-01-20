@@ -18,9 +18,9 @@ GITHUB
     src/Net/UriUtils.fs (9b01f37126d5b2487dac5da7899bb2b1a5cb56ef)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
-    src/DebugProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
-    src/ProvidedTypes.fs (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
-    src/ProvidedTypes.fsi (f1234ba078dad7cbb674b1d1ab8b94f92f827911)
+    src/DebugProvidedTypes.fs (eb919461a3cfc5bd8a7569a7af723566b678e8fa)
+    src/ProvidedTypes.fs (eb919461a3cfc5bd8a7569a7af723566b678e8fa)
+    src/ProvidedTypes.fsi (eb919461a3cfc5bd8a7569a7af723566b678e8fa)
   remote: fsprojects/FSharp.Configuration
   specs:
     src/FSharp.Configuration/TypeProviders.Helper.fs (538b8d0198fb2424e541e3d976fffdc01fe7a198)
@@ -28,9 +28,9 @@ GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    FAKE (4.14.7)
+    FAKE (4.16.0)
     FSharp.Compiler.Service (1.4.2.3)
-    FSharp.Formatting (2.13.2)
+    FSharp.Formatting (2.13.4)
       FSharp.Compiler.Service (>= 1.4.2 < 1.5.0)
       FSharpVSPowerTools.Core (>= 2.2.0 < 2.3.0)
     FSharpVSPowerTools.Core (2.2.0)
@@ -47,7 +47,7 @@ NUGET
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (8ce381e8c486df770b9e8b0b4542d30dbf5262d6)
+    modules/Octokit/Octokit.fsx (627d68727518ef0c013d0dfbb0260aba84de98e1)
       Octokit
 GROUP OWIN
 NUGET
