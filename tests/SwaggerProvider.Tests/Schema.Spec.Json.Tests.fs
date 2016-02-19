@@ -722,7 +722,7 @@ let ``Schema Object Examples: Models with Composition`` () =
         |]
 
 
-[<Test; Ignore>] // TODO : Not supported
+[<Test; Ignore("Not supported")>]
 let ``Schema Object Examples: Models with Polymorphism Support`` () =
     """{
       "definitions": {

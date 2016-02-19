@@ -89,8 +89,8 @@ NUGET
   specs:
     FSharp.Data (2.2.5)
       Zlib.Portable (>= 1.10.0) - framework: portable-net40+sl50+wp80+win80
-    NUnit (2.6.4)
-    NUnit.Runners (2.6.4)
+    NUnit (3.0.1)
+    NUnit.Console (3.0.1)
     Zlib.Portable (1.11.0) - framework: portable-net40+sl50+wp80+win80
 GITHUB
   remote: fsprojects/FsUnit

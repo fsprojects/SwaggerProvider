@@ -7,6 +7,14 @@ open NUnit.Framework
 open FsUnit
 open System.IO
 
+[<SetUpFixture>]
+type SetUpCurrentDirectory() =
+    [<OneTimeSetUp>]
+    member __.OneTimeSetUp() =
+        let path = typeof<SetUpCurrentDirectory>.Assembly.Location
+        let dir = Path.GetDirectoryName(path)
+        System.Environment.CurrentDirectory <- dir
+
 [<Test>]
 let ``Schema parse of PetStore.Swagger.json sample`` () =
     let schema =
@@ -96,7 +104,7 @@ let ``Parse Json Schema`` url =
             |> Parsers.Parser.parseSwaggerObject
         if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json" then
             schema.Paths.Length |> should equal 0
-        else 
+        else
             schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
 [<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
@@ -116,5 +124,5 @@ let ``Parse Yaml Schema`` url =
             |> Parsers.Parser.parseSwaggerObject
         if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.yaml" then
             schema.Paths.Length |> should equal 0
-        else 
+        else
             schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
