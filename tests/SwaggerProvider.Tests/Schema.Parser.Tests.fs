@@ -94,7 +94,10 @@ let ``Parse Json Schema`` url =
             |> JsonValue.Parse
             |> JsonNodeAdapter
             |> Parsers.Parser.parseSwaggerObject
-        schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+        if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json" then
+            schema.Paths.Length |> should equal 0
+        else 
+            schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
 [<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
 let ``Parse Yaml Schema`` url =
@@ -111,4 +114,7 @@ let ``Parse Yaml Schema`` url =
             |> SwaggerProvider.YamlParser.Parse
             |> YamlNodeAdapter
             |> Parsers.Parser.parseSwaggerObject
-        schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+        if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.yaml" then
+            schema.Paths.Length |> should equal 0
+        else 
+            schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
