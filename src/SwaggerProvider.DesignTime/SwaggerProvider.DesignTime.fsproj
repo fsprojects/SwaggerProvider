@@ -52,8 +52,8 @@
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
       <Link>FSharp.TypeProviders.StarterPack\ProvidedTypes.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\DebugProvidedTypes.fs">
-      <Link>FSharp.TypeProviders.StarterPack\DebugProvidedTypes.fs</Link>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypesTesting.fs">
+      <Link>FSharp.TypeProviders.StarterPack\ProvidedTypesTesting.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
       <Link>FSharp.Data\Net\UriUtils.fs</Link>
