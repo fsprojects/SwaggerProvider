@@ -66,12 +66,23 @@ module private SwaggerProviderConfig =
                         let ty = ProvidedTypeDefinition(asm, NameSpace, typeName, Some typeof<obj>, IsErased = false)
                         ty.AddXmlDoc ("Swagger.io Provider for " + schema.Host)
 
+                        let defaultHost = schema.Host
+                        let hostProperty =
+                            ProvidedProperty(
+                                propertyName = "Host",
+                                propertyType = typeof<string>,
+                                IsStatic = true,
+                                GetterCode = (function _ ->
+                                    <@@ SwaggerProvider.Internal.RuntimeHelpers.getHost schemaPathRaw defaultHost @@>),
+                                SetterCode = (function args ->
+                                    <@@ SwaggerProvider.Internal.RuntimeHelpers.setHost schemaPathRaw (%%args.[0] : string) @@>))
+                        ty.AddMember hostProperty
 
                         let defCompiler = DefinitionCompiler(schema)
                         ty.AddMember <| defCompiler.Compile() // Add all definitions
 
                         let opCompiler = OperationCompiler(schema, defCompiler, headers)
-                        ty.AddMembers <| opCompiler.Compile() // Add all operations
+                        ty.AddMembers <| opCompiler.Compile(schemaPathRaw) // Add all operations
 
                         let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
                         let tempAsm = ProvidedAssembly tempAsmPath

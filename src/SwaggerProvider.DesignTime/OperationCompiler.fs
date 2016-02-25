@@ -21,7 +21,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             then op.Tags.[0] else "Root")
         |> Seq.toList
 
-    let compileOperation (tag:string) (op:OperationObject) =
+    let compileOperation (schemaId:string) (tag:string) (op:OperationObject) =
         let parameters =
             [let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
              for x in Array.append required optional ->
@@ -55,7 +55,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                     match schema.Schemes with
                     | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
                     | array -> array.[0]
-                scheme + "://" + schema.Host + schema.BasePath
+                let defaultHost = schema.Host
+                let basePath = schema.BasePath
+                <@  let host = SwaggerProvider.Internal.RuntimeHelpers.getHost schemaId defaultHost
+                    scheme + "://" + host + basePath @>
 
             // Fit headers into quotation
             let headers =
@@ -135,7 +138,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                     (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers)
 
 
-            let address = <@@ basePath + %%path @@>
+            let address = <@@ %basePath + (%%path :string ) @@>
             let restCall = op.Type.ToString()
 
             let customizeHttpRequest =
@@ -179,12 +182,12 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         m
 
     /// Compiles the operation.
-    member __.Compile() =
+    member __.Compile(schemaId) =
         operationGroups
         |> List.map (fun (tag, operations) ->
             let ty = ProvidedTypeDefinition(nicePascalName tag, Some typeof<obj>, IsErased = false)
             operations
-            |> Seq.map (compileOperation tag)
+            |> Seq.map (compileOperation schemaId tag)
             |> Seq.toList
             |> ty.AddMembers
             ty
