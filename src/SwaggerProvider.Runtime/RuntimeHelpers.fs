@@ -30,8 +30,17 @@ type private OptionConverter() =
         if value = null then FSharpValue.MakeUnion(cases.[0], [||])
         else FSharpValue.MakeUnion(cases.[1], [|value|])
 
-
 module RuntimeHelpers =
+    // Storage for Host values in runtime
+    let hostUrls = System.Collections.Generic.Dictionary<string,string>()
+    let getHost schemaId defaultHost =
+        match hostUrls.TryGetValue(schemaId) with
+        | true, value -> value
+        | _ -> defaultHost
+    let setHost schemaId value =
+        hostUrls.Remove(schemaId) |> ignore
+        hostUrls.Add(schemaId, value)
+
 
     let inline private toStrArray name values =
         values

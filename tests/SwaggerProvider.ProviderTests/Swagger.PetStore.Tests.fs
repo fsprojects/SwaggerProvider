@@ -10,6 +10,14 @@ type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "C
 let apiKey = "special-key"
 
 [<Test>]
+let ``Test provided Host property`` () =
+    PetStore.Host |> should equal "petstore.swagger.io"
+    PetStore.Host <- "test"
+    PetStore.Host |> should equal "test"
+    PetStore.Host <- "petstore.swagger.io"
+    PetStore.Host |> should equal "petstore.swagger.io"
+
+[<Test>]
 let ``instantiate provided objects`` () =
     let pet = PetStore.Definitions.Pet(Name = "foo")
     pet.Name |> should equal "foo"
