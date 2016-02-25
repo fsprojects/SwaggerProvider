@@ -1,3 +1,6 @@
+#### 0.3.5 - February 25 2016
+* Added ability to override Host property at runtime - https://github.com/sergey-tihon/SwaggerProvider/issues/15
+
 #### 0.3.4 - January 20 2016
 * Fixed generation of obsolete provided methods - https://github.com/fsprojects/FSharp.TypeProviders.StarterPack/issues/70
 
