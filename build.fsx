@@ -11,6 +11,7 @@ System.IO.Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
 #r @"packages/build/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.Git
+open Fake.Testing
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open System
@@ -140,11 +141,10 @@ Target "BuildTests" (fun _ ->
 
 Target "ExecuteTests" (fun _ ->
     !! testAssemblies
-    |> NUnit (fun p ->
+    |> NUnit3 (fun p ->
         { p with
-            DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+            Labels = LabelsLevel.All})
 )
 
 FinalTarget "StopServer" (fun _ ->

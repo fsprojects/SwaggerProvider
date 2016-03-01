@@ -7,6 +7,14 @@ open NUnit.Framework
 open FsUnit
 open System.IO
 
+[<SetUpFixture>]
+type SetUpCurrentDirectory() =
+    [<OneTimeSetUp>]
+    member __.OneTimeSetUp() =
+        let path = typeof<SetUpCurrentDirectory>.Assembly.Location
+        let dir = Path.GetDirectoryName(path)
+        System.Environment.CurrentDirectory <- dir
+
 [<Test>]
 let ``Schema parse of PetStore.Swagger.json sample`` () =
     let schema =
@@ -55,6 +63,9 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
 // https://github.com/APIs-guru/api-models/blob/master/API.md
 type ApisGuru = FSharp.Data.JsonProvider<"http://apis-guru.github.io/api-models/api/v1/list.json">
 
+let toTestCase (url:string) =
+    TestCaseData(url).SetName(sprintf "Parse schema %s" url)
+
 let getApisGuruSchemas propertyName =
     ApisGuru.GetSample().JsonValue.Properties()
     |> Array.choose (fun (name, obj)->
@@ -67,6 +78,7 @@ let getApisGuruSchemas propertyName =
        )
     |> Array.concat
     |> Array.map (fun x->x.AsString())
+    |> Array.map toTestCase
 
 let ApisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
 let ApisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
@@ -75,6 +87,7 @@ let ManualSchemaUrls =
     [|"http://netflix.github.io/genie/docs/rest/swagger.json"
       //"https://www.expedia.com/static/mobile/swaggerui/swagger.json" // This schema is incorrect
       "https://graphhopper.com/api/1/vrp/swagger.json"|]
+    |> Array.map toTestCase
 
 let SchemaUrls =
     Array.concat [ManualSchemaUrls; ApisGuruJsonSchemaUrls]
@@ -96,7 +109,7 @@ let ``Parse Json Schema`` url =
             |> Parsers.Parser.parseSwaggerObject
         if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json" then
             schema.Paths.Length |> should equal 0
-        else 
+        else
             schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
 [<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
@@ -116,5 +129,5 @@ let ``Parse Yaml Schema`` url =
             |> Parsers.Parser.parseSwaggerObject
         if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.yaml" then
             schema.Paths.Length |> should equal 0
-        else 
+        else
             schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)

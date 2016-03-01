@@ -186,3 +186,4 @@ docs/content/release-notes.md
 .fake/
 .vs/
 *.svclog
+TestResult.xml

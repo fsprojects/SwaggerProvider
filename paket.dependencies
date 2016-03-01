@@ -39,8 +39,8 @@ group Test
 
 	source https://nuget.org/api/v2
 
-	nuget NUnit ~> 2
-	nuget NUnit.Runners ~> 2
+	nuget NUnit
+	nuget NUnit.Console
 	nuget FSharp.Data
 
 	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnit.fs
