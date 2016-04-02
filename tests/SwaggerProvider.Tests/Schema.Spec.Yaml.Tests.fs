@@ -617,7 +617,7 @@ ExtendedErrorModel:
     |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
-        [|
+       ([|
             "#/definitions/ErrorModel",
             (Object
                 [|{ Name = "message"
@@ -642,7 +642,7 @@ ExtendedErrorModel:
                     Type = String
                     IsRequired = true
                     Description = "" }|])
-        |]
+        |] |> Map.ofArray)
 
 
 [<Test; Ignore("Not supported")>]
@@ -725,7 +725,7 @@ Tag:
     |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
-        [|
+       ([|
             "#/definitions/Category",
             (Object
                 [|{Name = "id"
@@ -748,7 +748,7 @@ Tag:
                    IsRequired = false
                    Description = ""}|]
             )
-        |]
+        |] |> Map.ofArray)
 
 
 [<Test>]

@@ -694,7 +694,7 @@ let ``Schema Object Examples: Models with Composition`` () =
     |> JsonNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
-        [|
+       ([|
             "#/definitions/ErrorModel",
             (Object
                 [|{ Name = "message"
@@ -719,7 +719,7 @@ let ``Schema Object Examples: Models with Composition`` () =
                     Type = String
                     IsRequired = true
                     Description = "" }|])
-        |]
+        |] |> Map.ofArray)
 
 
 [<Test; Ignore("Not supported")>]
@@ -835,7 +835,7 @@ let ``Definitions Object Example`` () =
     |> JsonNodeAdapter
     |> Parser.parseDefinitionsObject
     |> should equal
-        [|
+       ([|
             "#/definitions/Category",
             (Object
                 [|{Name = "id"
@@ -858,7 +858,7 @@ let ``Definitions Object Example`` () =
                    IsRequired = false
                    Description = ""}|]
             )
-        |]
+        |] |> Map.ofArray)
 
 
 [<Test>]
