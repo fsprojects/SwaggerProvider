@@ -75,8 +75,9 @@ module Parser =
                             // TODO: `items` may be an array, `additionalItems` may be filled
                     obj.TryGetProperty("type")
                     |> Option.bind (fun ty ->
-                        if ty.AsString() <> "array" then None
-                        else obj.TryGetProperty("items")
+                        match ty.AsStringArrayWithoutNull() with
+                        | [|"array"|] -> obj.TryGetProperty("items")
+                        | _ -> None
                        )
                     |> Option.map ((parseSchemaObject parsedTys) >> Array)
                 )
@@ -84,18 +85,18 @@ module Parser =
                      obj.TryGetProperty("type")
                      |> Option.bind (fun ty ->
                         let format = obj.GetStringSafe("format")
-                        match ty.AsString() with
-                        | "boolean" -> Some Boolean
-                        | "integer" when format = "int32" -> Some Int32
-                        | "integer" -> Some Int64
-                        | "number" when format = "float" -> Some Float
-                        | "number" when format = "int32" -> Some Int32
-                        | "number" when format = "int64" -> Some Int64
-                        | "number" -> Some Double
-                        | "string" when format = "date" -> Some Date
-                        | "string" when format = "date-time" -> Some DateTime
-                        | "string" -> Some String
-                        | "file" -> Some File
+                        match ty.AsStringArrayWithoutNull() with
+                        | [|"boolean"|] -> Some Boolean
+                        | [|"integer"|] when format = "int32" -> Some Int32
+                        | [|"integer"|] -> Some Int64
+                        | [|"number"|] when format = "float" -> Some Float
+                        | [|"number"|] when format = "int32" -> Some Int32
+                        | [|"number"|] when format = "int64" -> Some Int64
+                        | [|"number"|] -> Some Double
+                        | [|"string"|] when format = "date" -> Some Date
+                        | [|"string"|] when format = "date-time" -> Some DateTime
+                        | [|"string"|] -> Some String
+                        | [|"file"|] -> Some File
                         | _ -> None
                     )
                 )
@@ -119,7 +120,7 @@ module Parser =
                 )
                 (fun obj -> // Parse Object that represent Dictionary
                     match obj.TryGetProperty("type") with
-                    | Some(ty) when ty.AsString() = "object" ->
+                    | Some(ty) when ty.AsStringArrayWithoutNull() = [|"object"|] ->
                         obj.TryGetProperty("additionalProperties")
                         |> Option.map ((parseSchemaObject parsedTys) >> Dictionary)
                     | _ -> None
