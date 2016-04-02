@@ -1,3 +1,6 @@
+#### 0.3.6 - April 2 2016
+* Updated JSON.NET version up to v8.0.3
+
 #### 0.3.5 - February 25 2016
 * Added ability to override Host property at runtime - https://github.com/sergey-tihon/SwaggerProvider/issues/15
 
