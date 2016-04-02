@@ -8,6 +8,8 @@ module Parser =
     // Type that hold parsing context to resolve `$ref`s
     type ParserContext =
         {
+            /// An object to hold type definitions
+            Definitions: Map<string, SchemaObject>
             /// An object to hold parameters that can be used across operations
             Parameters: Map<string, ParameterObject>
             /// An object to hold responses that can be used across operations.
@@ -44,6 +46,7 @@ module Parser =
         /// Default empty context
         static member Empty =
             {
+                Definitions = Map.empty<_,_>
                 Parameters = Map.empty<_,_>
                 Responses = Map.empty<_,_>
                 ApplicableParameters = [||]
@@ -72,8 +75,9 @@ module Parser =
                             // TODO: `items` may be an array, `additionalItems` may be filled
                     obj.TryGetProperty("type")
                     |> Option.bind (fun ty ->
-                        if ty.AsString() <> "array" then None
-                        else obj.TryGetProperty("items")
+                        match ty.AsStringArrayWithoutNull() with
+                        | [|"array"|] -> obj.TryGetProperty("items")
+                        | _ -> None
                        )
                     |> Option.map ((parseSchemaObject parsedTys) >> Array)
                 )
@@ -81,18 +85,18 @@ module Parser =
                      obj.TryGetProperty("type")
                      |> Option.bind (fun ty ->
                         let format = obj.GetStringSafe("format")
-                        match ty.AsString() with
-                        | "boolean" -> Some Boolean
-                        | "integer" when format = "int32" -> Some Int32
-                        | "integer" -> Some Int64
-                        | "number" when format = "float" -> Some Float
-                        | "number" when format = "int32" -> Some Int32
-                        | "number" when format = "int64" -> Some Int64
-                        | "number" -> Some Double
-                        | "string" when format = "date" -> Some Date
-                        | "string" when format = "date-time" -> Some DateTime
-                        | "string" -> Some String
-                        | "file" -> Some File
+                        match ty.AsStringArrayWithoutNull() with
+                        | [|"boolean"|] -> Some Boolean
+                        | [|"integer"|] when format = "int32" -> Some Int32
+                        | [|"integer"|] -> Some Int64
+                        | [|"number"|] when format = "float" -> Some Float
+                        | [|"number"|] when format = "int32" -> Some Int32
+                        | [|"number"|] when format = "int64" -> Some Int64
+                        | [|"number"|] -> Some Double
+                        | [|"string"|] when format = "date" -> Some Date
+                        | [|"string"|] when format = "date-time" -> Some DateTime
+                        | [|"string"|] -> Some String
+                        | [|"file"|] -> Some File
                         | _ -> None
                     )
                 )
@@ -116,7 +120,7 @@ module Parser =
                 )
                 (fun obj -> // Parse Object that represent Dictionary
                     match obj.TryGetProperty("type") with
-                    | Some(ty) when ty.AsString() = "object" ->
+                    | Some(ty) when ty.AsStringArrayWithoutNull() = [|"object"|] ->
                         obj.TryGetProperty("additionalProperties")
                         |> Option.map ((parseSchemaObject parsedTys) >> Dictionary)
                     | _ -> None
@@ -225,7 +229,7 @@ module Parser =
                 Description = obj.GetRequiredField("description", spec).AsString()
                 Schema =
                     obj.TryGetProperty("schema")
-                    |> Option.map (parseSchemaObject Map.empty)
+                    |> Option.map (parseSchemaObject context.Definitions)
             }
 
     /// Parses the JsonValue as a Responses  Definition Object
@@ -328,7 +332,7 @@ module Parser =
         |> Array.concat
 
     /// Parse Definitions Object as a SchemaObject[]
-    let parseDefinitionsObject (obj:SchemaNode) : (string*SchemaObject)[] =
+    let parseDefinitionsObject (obj:SchemaNode) : Map<string,SchemaObject> =
         obj.Properties()
         |> Array.fold (fun tys (name, schemaObj) ->
             Map.add
@@ -336,7 +340,6 @@ module Parser =
                 (parseSchemaObject tys schemaObj)
                 tys
             ) Map.empty<_,_>
-        |> Map.toArray
 
     /// Parses the JsonValue as an InfoObject.
     let parseInfoObject (obj:SchemaNode) : InfoObject =
@@ -367,6 +370,10 @@ module Parser =
         let context =
             {
                 ParserContext.Empty with
+                    Definitions =
+                        match obj.TryGetProperty("definitions") with
+                        | None -> Map.empty<_,_>
+                        | Some(definitions) -> parseDefinitionsObject definitions
                     Parameters =
                         match obj.TryGetProperty("parameters") with
                         | None -> Map.empty<_,_>
@@ -390,8 +397,5 @@ module Parser =
             Paths =
                 obj.GetRequiredField("paths", spec)
                 |> (parsePathsObject context)
-            Definitions =
-                match obj.TryGetProperty("definitions") with
-                | None -> [||]
-                | Some(definitions) -> parseDefinitionsObject definitions
+            Definitions = context.Definitions |> Map.toArray
         }

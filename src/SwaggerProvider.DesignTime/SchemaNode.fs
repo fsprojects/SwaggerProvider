@@ -8,6 +8,8 @@ type SchemaNode() =
     abstract member AsString: unit -> string
     /// Get all elements of Node element. Returns an empty array if the value is not an array
     abstract member AsArray: unit -> SchemaNode[]
+    /// Get the string[] value of an element and exclude 'null' strings (assuming that value is string or string[])
+    abstract member AsStringArrayWithoutNull: unit -> string[]
 
     /// Get the map value of an element (assuming that value is a map)
     abstract member Properties : unit -> (string*SchemaNode)[]
@@ -46,6 +48,14 @@ type JsonNodeAdapter(value:JsonValue) =
         value.AsString()
     override __.AsArray() =
         value.AsArray() |> Array.map (fun x -> JsonNodeAdapter(x) :> SchemaNode)
+    override __.AsStringArrayWithoutNull() =
+        match value with
+        | JsonValue.String s -> [|s|]
+        | JsonValue.Array elements ->
+            elements
+            |> Array.map (fun x -> x.AsString())
+            |> Array.filter (fun x -> x <> "null")
+        | other -> failwithf "Value: '%A' cannot be converted to StringArray" other
 
     override __.Properties() =
         value.Properties |> Array.map (fun (a,b) -> a, JsonNodeAdapter(b) :> SchemaNode)
@@ -77,6 +87,16 @@ type YamlNodeAdapter(value:Node) =
             nodes |> List.map(fun x->YamlNodeAdapter(x) :> SchemaNode) |> Array.ofList
         | _ -> [||]
 
+    override __.AsStringArrayWithoutNull() =
+        match value with
+        | Scalar(x) -> [|x|]
+        | List(nodes) ->
+            nodes |> Array.ofList
+            |> Array.map(function
+                | Scalar (x) -> x
+                | x -> failwithf "'%A' cannot be converted to string" x)
+            |> Array.filter (fun x -> x <> "null")
+        | other -> failwithf "Value: '%A' cannot be converted to StringArray" other
 
     override __.Properties() =
         match value with
