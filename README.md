@@ -7,7 +7,7 @@
 
 This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 
-[![Travis build status](https://travis-ci.org/sergey-tihon/SwaggerProvider.svg)](https://travis-ci.org/sergey-tihon/SwaggerProvider)
+[![Travis build status](https://travis-ci.org/fsprojects/SwaggerProvider.svg)](https://travis-ci.org/fsprojects/SwaggerProvider)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/tcahkn4b1tayh39u?svg=true)](https://ci.appveyor.com/project/sergey-tihon/swaggerprovider)
 [![NuGet Status](http://img.shields.io/nuget/v/SwaggerProvider.svg?style=flat)](https://www.nuget.org/packages/SwaggerProvider/)
 
