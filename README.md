@@ -23,3 +23,5 @@ Also possible to [Create an ASP.NET API app in Azure App Service](https://azure.
 
 - [@sergey-tihon](https://github.com/sergey-tihon)
 
+The default maintainer account for projects under "fsprojects" is @fsprojectsgit - F# Community Project Incubation Space (repo management)
+
