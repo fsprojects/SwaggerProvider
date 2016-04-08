@@ -73,8 +73,13 @@
       <Link>Schemes/GitHub.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Schemes\Instagram.json">
+      <Link>Schemes/Instagram.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Swagger.PetStore.Tests.fs" />
     <Compile Include="Swagger.GitHub.Tests.fs" />
+    <Compile Include="Swagger.Instagram.Tests.fs" />
     <Compile Include="Swashbuckle.ReturnControllers.Tests.fs" />
     <Compile Include="Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="Swashbuckle.ResourceControllers.Tests.fs" />
