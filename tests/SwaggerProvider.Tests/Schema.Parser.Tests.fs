@@ -2,6 +2,7 @@
 
 open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
+open SwaggerProvider.Internal.Compilers
 open FSharp.Data
 open NUnit.Framework
 open FsUnit
@@ -92,42 +93,35 @@ let ManualSchemaUrls =
 let SchemaUrls =
     Array.concat [ManualSchemaUrls; ApisGuruJsonSchemaUrls]
 
-[<Test; TestCaseSource("SchemaUrls")>]
-let ``Parse Json Schema`` url =
-    let json =
+let SchemasWithZeroPathes =
+    [
+     "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json"
+     "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.yaml"
+    ] |> Set.ofList
+
+let parserTestBody formatParser (url:string) =
+    let schemaStr =
         try
-            Http.RequestString url
+            if url.StartsWith("http")
+            then Http.RequestString url
+            else File.ReadAllText url
         with
         | :? System.Net.WebException ->
             printfn "Schema is unaccessible %s" url
             ""
-    if not <| System.String.IsNullOrEmpty(json) then
-        let schema =
-            json
-            |> JsonValue.Parse
-            |> JsonNodeAdapter
-            |> Parsers.Parser.parseSwaggerObject
-        if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json" then
-            schema.Paths.Length |> should equal 0
-        else
-            schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+    if not <| System.String.IsNullOrEmpty(schemaStr) then
+        let schema = formatParser schemaStr
+                     |> Parsers.Parser.parseSwaggerObject
+
+        if Set.contains url SchemasWithZeroPathes
+        then schema.Paths.Length |> should equal 0
+        else schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+
+
+[<Test; TestCaseSource("SchemaUrls")>]
+let ``Parse Json Schema`` (url:string) =
+    parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url
 
 [<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
 let ``Parse Yaml Schema`` url =
-    let yaml =
-        try
-            Http.RequestString url
-        with
-        | :? System.Net.WebException ->
-            printfn "Schema is unaccessible %s" url
-            ""
-    if not <| System.String.IsNullOrEmpty(yaml) then
-        let schema =
-            yaml
-            |> SwaggerProvider.YamlParser.Parse
-            |> YamlNodeAdapter
-            |> Parsers.Parser.parseSwaggerObject
-        if url = "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.yaml" then
-            schema.Paths.Length |> should equal 0
-        else
-            schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+    parserTestBody (SwaggerProvider.YamlParser.Parse >> YamlNodeAdapter) url
