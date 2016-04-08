@@ -61,16 +61,17 @@ type DefinitionCompiler (schema:SwaggerObject) =
             else
                 let name =name.Substring("#/definitions/".Length);
                 let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
-                ty.AddMemberDelayed(fun () -> ProvidedConstructor([],
-                                               InvokeCode = fun args -> <@@ () @@>))
-                for p in properties do
-                    let pTy = compileSchemaObject null p.Type p.IsRequired
-                    let field = ProvidedField("_" + p.Name.ToLower(), pTy)
-                    ty.AddMember field
-                    let pPr = generateProperty p.Name pTy field
-                    if not <| String.IsNullOrWhiteSpace p.Description
-                        then pPr.AddXmlDoc p.Description
-                    ty.AddMember pPr
+                ty.AddMembersDelayed(fun () ->
+                    [ yield ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>) :> Reflection.MemberInfo
+                      for p in properties do
+                        let pTy = compileSchemaObject null p.Type p.IsRequired
+                        let field = ProvidedField("_" + p.Name.ToLower(), pTy)
+                        yield field :> _
+
+                        let pPr = generateProperty p.Name pTy field
+                        if not <| String.IsNullOrWhiteSpace p.Description
+                            then pPr.AddXmlDoc p.Description
+                        yield pPr :> _ ])
                 ty :> Type
         | Reference path, _ -> compileDefinition path
 
