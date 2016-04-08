@@ -117,6 +117,14 @@ let parserTestBody formatParser (url:string) =
         then schema.Paths.Length |> should equal 0
         else schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
+        //Number of generated types may be less than number of type definition in schema
+        //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
+        let defCompiler = DefinitionCompiler(schema)
+        ignore <| defCompiler.Compile()
+
+        let opCompiler = OperationCompiler(schema, defCompiler, [])
+        ignore <| opCompiler.Compile(url)
+
 
 [<Test; TestCaseSource("SchemaUrls")>]
 let ``Parse Json Schema`` (url:string) =
