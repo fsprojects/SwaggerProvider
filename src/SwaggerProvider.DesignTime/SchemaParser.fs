@@ -113,7 +113,7 @@ module Parser =
                         let properties =
                           properties.Properties()
                           |> Array.map (fun (name,obj) ->
-                              parseDefinitionProperty (name,obj, requiredProperties.Contains name))
+                              parseDefinitionProperty parsedTys (name, obj, requiredProperties.Contains name))
 
                         Some <| Object properties
                       )
@@ -162,10 +162,10 @@ module Parser =
 
 
     /// Parses DefinitionProperty
-    and parseDefinitionProperty (name, obj, required) : DefinitionProperty =
+    and parseDefinitionProperty parsedTys (name, obj, required) : DefinitionProperty =
         {
             Name = name;
-            Type = parseSchemaObject Map.empty obj
+            Type = parseSchemaObject parsedTys obj
             IsRequired = required
             Description = obj.GetStringSafe("description")
         }
