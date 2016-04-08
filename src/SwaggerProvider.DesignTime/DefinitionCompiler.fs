@@ -54,10 +54,10 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | Array eTy, _    -> (compileSchemaObject null eTy true).MakeArrayType()
         | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType([|typeof<string>; compileSchemaObject null eTy false|])
         | Object properties, _ ->
-            if name = null then
+            if isNull name then
                 if properties.Length = 0
                 then typeof<obj>
-                else failwith "This should not happened"
+                else failwithf "Swagger provider does not support anonymous types yet: %A" schemaObj
             else
                 let name =name.Substring("#/definitions/".Length);
                 let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
