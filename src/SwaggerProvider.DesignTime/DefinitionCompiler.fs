@@ -9,7 +9,17 @@ open System
 /// Object for compiling definitions.
 type DefinitionCompiler (schema:SwaggerObject) =
     let definitions = Map.ofSeq schema.Definitions
-    let compiledTys = System.Collections.Generic.Dictionary<_,_>()
+    let definitionTys = System.Collections.Generic.Dictionary<_,_>()
+
+    let providedTys = System.Collections.Generic.Dictionary<_,_>()
+    let uniqueName name suffix =
+        let rec findUniq prefix i =
+            let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
+            if not <| providedTys.ContainsKey newName
+            then newName else findUniq prefix (i+1)
+        let newName = findUniq (name+suffix) 0
+        providedTys.Add(newName, None)
+        newName
 
     let generateProperty name ty providedField =
         let propertyName = nicePascalName name
@@ -23,17 +33,17 @@ type DefinitionCompiler (schema:SwaggerObject) =
         property
 
     let rec compileDefinition (name:string) =
-        match compiledTys.TryGetValue name with
+        match definitionTys.TryGetValue name with
         | true, ty -> ty
         | false, _ ->
             match definitions.TryFind name with
             | Some(def) ->
                 let ty = compileSchemaObject name def false // ?? false
-                compiledTys.Add(name, ty)
+                definitionTys.Add(name, ty)
                 ty
             | None ->
-                let tys = compiledTys.Keys |> Seq.toArray
-                failwithf "Unknown definition '%s' in compiledTys %A" name tys
+                let tys = definitionTys.Keys |> Seq.toArray
+                failwithf "Unknown definition '%s' in definitionTys %A" name tys
     and compileSchemaObject name (schemaObj:SchemaObject) isRequired =
         match schemaObj, isRequired with
         | Boolean, true   -> typeof<bool>
@@ -51,20 +61,20 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | Date, false | DateTime, false  -> typeof<Option<DateTime>>
         | File, _         -> typeof<byte>.MakeArrayType(1)
         | Enum _, _       -> typeof<string> //TODO: find better type
-        | Array eTy, _    -> (compileSchemaObject null eTy true).MakeArrayType()
-        | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType([|typeof<string>; compileSchemaObject null eTy false|])
+        | Array eTy, _    -> (compileSchemaObject (uniqueName name "Item") eTy true).MakeArrayType()
+        | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType(
+                                [|typeof<string>; compileSchemaObject (uniqueName name "Item") eTy false|])
         | Object properties, _ ->
             if isNull name then
-                if properties.Length = 0
-                then typeof<obj>
-                else failwithf "Swagger provider does not support anonymous types yet: %A" schemaObj
+                if properties.Length = 0 then typeof<obj>
+                else failwithf "Swagger provider does not support anonymous types: %A" schemaObj
             else
-                let name =name.Substring("#/definitions/".Length);
+                let name = name.Replace("#/definitions/", "")
                 let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
                 ty.AddMembersDelayed(fun () ->
                     [ yield ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>) :> Reflection.MemberInfo
                       for p in properties do
-                        let pTy = compileSchemaObject null p.Type p.IsRequired
+                        let pTy = compileSchemaObject (uniqueName name p.Name) p.Type p.IsRequired
                         let field = ProvidedField("_" + p.Name.ToLower(), pTy)
                         yield field :> _
 
@@ -72,20 +82,28 @@ type DefinitionCompiler (schema:SwaggerObject) =
                         if not <| String.IsNullOrWhiteSpace p.Description
                             then pPr.AddXmlDoc p.Description
                         yield pPr :> _ ])
+                // Register every ProvidedTypeDefinition
+                match providedTys.TryGetValue name with
+                | true, Some(_)->
+                    failwithf "This should not happened! Type '%s' was already generated" name
+                | true, None -> providedTys.[name] <- Some(ty)
+                | false, _ ->   providedTys.Add(name,Some(ty))
                 ty :> Type
         | Reference path, _ -> compileDefinition path
 
-
-    /// Compiles the definition.
-    member __.Compile() =
-        let root = ProvidedTypeDefinition("Definitions", Some typeof<obj>, IsErased = false)
-        schema.Definitions
+    // Compiles the `definitions` part of the schema
+    do  schema.Definitions
         |> Seq.iter (fun (name,_) ->
             compileDefinition name |> ignore)
-        for pTy in compiledTys.Values do
-            root.AddMember pTy
+
+    /// Compiles the definition.
+    member __.GetProvidedTypes() =
+        let root = ProvidedTypeDefinition("Definitions", Some typeof<obj>, IsErased = false)
+        root.AddMembersDelayed (fun () ->
+            List.ofSeq providedTys.Values
+            |> List.choose (id))
         root
 
     /// Compiles the definition.
-    member __.CompileTy ty required =
-        compileSchemaObject null ty required
+    member __.CompileTy opName tyUseSuffix ty required =
+        compileSchemaObject (uniqueName opName tyUseSuffix) ty required

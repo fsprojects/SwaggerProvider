@@ -79,10 +79,9 @@ module private SwaggerProviderConfig =
                         ty.AddMember hostProperty
 
                         let defCompiler = DefinitionCompiler(schema)
-                        ty.AddMember <| defCompiler.Compile() // Add all definitions
-
                         let opCompiler = OperationCompiler(schema, defCompiler, headers)
                         ty.AddMembers <| opCompiler.Compile(schemaPathRaw) // Add all operations
+                        ty.AddMember  <| defCompiler.GetProvidedTypes() // Add all compiled types
 
                         let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
                         let tempAsm = ProvidedAssembly tempAsmPath

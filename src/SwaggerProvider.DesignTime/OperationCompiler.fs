@@ -22,10 +22,17 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         |> Seq.toList
 
     let compileOperation (schemaId:string) (tag:string) (op:OperationObject) =
+        let methodName =
+            let prefix = tag.TrimStart('/') + "_"
+            if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
+                then nicePascalName <| op.OperationId.Substring(prefix.Length)
+                else nicePascalName <| op.OperationId
+
         let parameters =
             [let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
              for x in Array.append required optional ->
-                ProvidedParameter(niceCamelName x.Name, defCompiler.CompileTy x.Type x.Required)]
+                let paramName = niceCamelName x.Name
+                ProvidedParameter(paramName, defCompiler.CompileTy methodName paramName x.Type x.Required)]
         let retTy =
             let okResponse = // BUG :  wrong selector
                 op.Responses |> Array.tryFind (fun (code, resp)->
@@ -34,14 +41,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             | Some (_,resp) ->
                 match resp.Schema with
                 | None -> typeof<unit>
-                | Some ty -> defCompiler.CompileTy ty true
+                | Some ty -> defCompiler.CompileTy methodName "Response" ty true
             | None -> typeof<unit>
-
-        let methodName =
-            let prefix = tag.TrimStart('/') + "_"
-            if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
-                then nicePascalName <| op.OperationId.Substring(prefix.Length)
-                else nicePascalName <| op.OperationId
 
         let m = ProvidedMethod(methodName, parameters, retTy, IsStaticMethod = true)
         if not <| String.IsNullOrEmpty(op.Summary)
