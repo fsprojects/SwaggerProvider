@@ -38,7 +38,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | false, _ ->
             match definitions.TryFind name with
             | Some(def) ->
-                let ty = compileSchemaObject name def false // ?? false
+                let tyName = name.Substring("#/definitions/".Length);
+                let ty = compileSchemaObject tyName def false // ?? false
                 definitionTys.Add(name, ty)
                 ty
             | None ->
@@ -69,7 +70,6 @@ type DefinitionCompiler (schema:SwaggerObject) =
                 if properties.Length = 0 then typeof<obj>
                 else failwithf "Swagger provider does not support anonymous types: %A" schemaObj
             else
-                let name = name.Replace("#/definitions/", "")
                 let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
                 ty.AddMembersDelayed(fun () ->
                     [ yield ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>) :> Reflection.MemberInfo
