@@ -1,3 +1,10 @@
+#### 0.4.0 - April 10, 2016
+- Added support of anonymous types generations - https://github.com/fsprojects/SwaggerProvider/pull/24
+- Added support of recursively dependent type definitions
+- Added support of `$refs` in DefinitionProperty - https://github.com/fsprojects/SwaggerProvider/issues/23
+- Added support of operations without `operationId`
+- Better XML docs
+
 #### 0.3.6 - April 2 2016
 * Updated JSON.NET version up to v8.0.3
 * Added support of model composition in path's response schema
