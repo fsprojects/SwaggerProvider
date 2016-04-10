@@ -183,6 +183,12 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             then op.Tags.[0] else "Root")
         |> List.map (fun (tag, operations) ->
             let ty = ProvidedTypeDefinition(nicePascalName tag, Some typeof<obj>, IsErased = false)
+
+            match schema.Tags |> Array.tryFind (fun x->x.Name = tag) with
+            | Some(tagDef) when not <| String.IsNullOrWhiteSpace(tagDef.Description) ->
+                ty.AddXmlDoc (tagDef.Description)
+            | _ -> ignore()
+
             operations
             |> List.map (compileOperation schemaId tag)
             |> ty.AddMembers
