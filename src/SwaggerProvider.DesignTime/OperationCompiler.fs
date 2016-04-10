@@ -195,17 +195,21 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 let newName = findUniq methodName 0
                 methodNames.Add newName |> ignore
                 newName
-            let pathToName (opPath:String) =
-                opPath.TrimStart('/')
-                      .Replace("{","")
-                      .Replace("}","")
-                      .Replace("/","_")
+            let pathToName opType (opPath:String) =
+                String.Join("_",
+                    [|
+                        yield opType.ToString()
+                        yield!
+                            opPath.Split('/')
+                            |> Array.filter (fun x ->
+                                not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
+                    |])
 
             operations
             |> List.map (fun op ->
                 let methodNameCandidate =
                     if String.IsNullOrWhiteSpace (op.OperationId)
-                    then pathToName op.Path
+                    then pathToName op.Type op.Path
                     else let prefix = tag.TrimStart('/') + "_"
                          if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
                             then op.OperationId.Substring(prefix.Length)
