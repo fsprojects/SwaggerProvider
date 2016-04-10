@@ -40,7 +40,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
             | Some(def) ->
                 let tyName = tyDefName.Substring("#/definitions/".Length);
                 let ty = compileSchemaObject tyName def false // ?? false
-                definitionTys.Add(tyDefName, ty)
+                if not <| definitions.ContainsKey tyDefName
+                    then definitionTys.Add(tyDefName, ty)
                 ty
             | None ->
                 let tys = definitionTys.Keys |> Seq.toArray
@@ -71,29 +72,30 @@ type DefinitionCompiler (schema:SwaggerObject) =
               if isNull tyName then
                 failwithf "Swagger provider does not support anonymous types: %A" schemaObj
               else
-                let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, IsErased = false)
                 // Register every ProvidedTypeDefinition
                 match providedTys.TryGetValue tyName with
-                | true, Some(_)->
-                    failwithf "This should not happened! Type '%s' was already generated" tyName
-                | true, None -> providedTys.[tyName] <- Some(ty)
-                | false, _ ->   providedTys.Add(tyName,Some(ty))
+                | true, Some(ty) -> ty :> Type
+                | isExist, _ ->
+                    let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, IsErased = false)
+                    if isExist
+                    then providedTys.[tyName] <- Some(ty)
+                    else providedTys.Add(tyName, Some(ty))
 
-                ty.AddMember <| ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>)
-                for p in properties do
-                    if String.IsNullOrEmpty(p.Name)
-                        then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
+                    ty.AddMember <| ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>)
+                    for p in properties do
+                        if String.IsNullOrEmpty(p.Name)
+                            then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
 
-                    let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
-                    let field = ProvidedField("_" + p.Name.ToLower(), pTy)
-                    ty.AddMember <| field
+                        let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
+                        let field = ProvidedField("_" + p.Name.ToLower(), pTy)
+                        ty.AddMember <| field
 
-                    let pPr = generateProperty p.Name pTy field
-                    if not <| String.IsNullOrWhiteSpace p.Description
-                        then pPr.AddXmlDoc p.Description
-                    ty.AddMember <| pPr
+                        let pPr = generateProperty p.Name pTy field
+                        if not <| String.IsNullOrWhiteSpace p.Description
+                            then pPr.AddXmlDoc p.Description
+                        ty.AddMember <| pPr
 
-                ty :> Type
+                    ty :> Type
         | Reference path, _ -> compileDefinition path
 
     // Compiles the `definitions` part of the schema
