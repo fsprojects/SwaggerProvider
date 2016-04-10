@@ -93,6 +93,12 @@ let ManualSchemaUrls =
 let SchemaUrls =
     Array.concat [ManualSchemaUrls; ApisGuruJsonSchemaUrls]
 
+let IgnoreList =
+    [
+     "https://apis-guru.github.io/api-models/sendgrid.com/3.0/swagger.json"
+     "https://apis-guru.github.io/api-models/sendgrid.com/3.0/swagger.yaml"
+    ] |> Set.ofList
+
 let SchemasWithZeroPathes =
     [
      "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json"
@@ -109,7 +115,8 @@ let parserTestBody formatParser (url:string) =
         | :? System.Net.WebException ->
             printfn "Schema is unaccessible %s" url
             ""
-    if not <| System.String.IsNullOrEmpty(schemaStr) then
+    if not <| System.String.IsNullOrEmpty(schemaStr) &&
+       not <| IgnoreList.Contains url then
         let schema = formatParser schemaStr
                      |> Parsers.Parser.parseSwaggerObject
 

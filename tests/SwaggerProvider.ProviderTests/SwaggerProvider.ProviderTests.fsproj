@@ -69,12 +69,12 @@
       <Paket>True</Paket>
       <Link>paket-files/FsUnit.fs</Link>
     </Compile>
-    <Content Include="Schemes\GitHub.json">
-      <Link>Schemes/GitHub.json</Link>
+    <Content Include="Schemas\GitHub.json">
+      <Link>Schemas/GitHub.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Schemes\Instagram.json">
-      <Link>Schemes/Instagram.json</Link>
+    <Content Include="Schemas\Instagram.json">
+      <Link>Schemas/Instagram.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Compile Include="Swagger.PetStore.Tests.fs" />
