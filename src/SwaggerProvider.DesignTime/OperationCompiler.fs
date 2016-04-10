@@ -14,12 +14,9 @@ open System.Text.RegularExpressions
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, headers : seq<string*string>) =
 
-    let compileOperation (schemaId:string) (tag:string) (op:OperationObject) =
-        let methodName =
-            let prefix = tag.TrimStart('/') + "_"
-            if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
-                then nicePascalName <| op.OperationId.Substring(prefix.Length)
-                else nicePascalName <| op.OperationId
+    let compileOperation (schemaId:string) (methodName:string) (op:OperationObject) =
+        if String.IsNullOrWhiteSpace methodName
+            then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
 
         let parameters =
             [let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
@@ -39,7 +36,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
 
         let m = ProvidedMethod(methodName, parameters, retTy, IsStaticMethod = true)
         if not <| String.IsNullOrEmpty(op.Summary)
-            then m.AddXmlDoc(op.Summary)
+            then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
         if op.Deprecated
             then m.AddObsoleteAttribute("Operation is deprecated", false)
 
@@ -189,8 +186,32 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 ty.AddXmlDoc (tagDef.Description)
             | _ -> ignore()
 
+            let methodNames = System.Collections.Generic.HashSet<_>()
+            let uniqueMethodName methodName =
+                let rec findUniq prefix i =
+                    let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
+                    if not <| methodNames.Contains newName
+                    then newName else findUniq prefix (i+1)
+                let newName = findUniq methodName 0
+                methodNames.Add newName |> ignore
+                newName
+            let pathToName (opPath:String) =
+                opPath.TrimStart('/')
+                      .Replace("{","")
+                      .Replace("}","")
+                      .Replace("/","_")
+
             operations
-            |> List.map (compileOperation schemaId tag)
+            |> List.map (fun op ->
+                let methodNameCandidate =
+                    if String.IsNullOrWhiteSpace (op.OperationId)
+                    then pathToName op.Path
+                    else let prefix = tag.TrimStart('/') + "_"
+                         if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
+                            then op.OperationId.Substring(prefix.Length)
+                            else op.OperationId
+                let methodName = uniqueMethodName <| nicePascalName methodNameCandidate
+                compileOperation schemaId methodName op)
             |> ty.AddMembers
             ty
         )
