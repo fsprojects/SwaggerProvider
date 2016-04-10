@@ -12,40 +12,40 @@ type DefinitionCompiler (schema:SwaggerObject) =
     let definitionTys = System.Collections.Generic.Dictionary<_,_>()
 
     let providedTys = System.Collections.Generic.Dictionary<_,_>()
-    let uniqueName name suffix =
+    let uniqueName namePref suffix =
         let rec findUniq prefix i =
             let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
             if not <| providedTys.ContainsKey newName
             then newName else findUniq prefix (i+1)
-        let newName = findUniq (name+suffix) 0
+        let newName = findUniq (namePref+suffix) 0
         providedTys.Add(newName, None)
         newName
 
-    let generateProperty name ty providedField =
-        let propertyName = nicePascalName name
+    let generateProperty propName ty providedField =
+        let propertyName = nicePascalName propName
         let property =
             ProvidedProperty(propertyName, ty,
                 GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
                 SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
-        if name <> propertyName then
+        if propName <> propertyName then
             property.AddCustomAttribute
-                <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute name
+                <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute propName
         property
 
-    let rec compileDefinition (name:string) =
-        match definitionTys.TryGetValue name with
+    let rec compileDefinition (tyDefName:string) =
+        match definitionTys.TryGetValue tyDefName with
         | true, ty -> ty
         | false, _ ->
-            match definitions.TryFind name with
+            match definitions.TryFind tyDefName with
             | Some(def) ->
-                let tyName = name.Substring("#/definitions/".Length);
+                let tyName = tyDefName.Substring("#/definitions/".Length);
                 let ty = compileSchemaObject tyName def false // ?? false
-                definitionTys.Add(name, ty)
+                definitionTys.Add(tyDefName, ty)
                 ty
             | None ->
                 let tys = definitionTys.Keys |> Seq.toArray
-                failwithf "Unknown definition '%s' in definitionTys %A" name tys
-    and compileSchemaObject name (schemaObj:SchemaObject) isRequired =
+                failwithf "Unknown definition '%s' in definitionTys %A" tyDefName tys
+    and compileSchemaObject tyName (schemaObj:SchemaObject) isRequired =
         match schemaObj, isRequired with
         | Boolean, true   -> typeof<bool>
         | Boolean, false  -> typeof<Option<bool>>
@@ -62,33 +62,37 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | Date, false | DateTime, false  -> typeof<Option<DateTime>>
         | File, _         -> typeof<byte>.MakeArrayType(1)
         | Enum _, _       -> typeof<string> //TODO: find better type
-        | Array eTy, _    -> (compileSchemaObject (uniqueName name "Item") eTy true).MakeArrayType()
+        | Array eTy, _    -> (compileSchemaObject (uniqueName tyName "Item") eTy true).MakeArrayType()
         | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType(
-                                [|typeof<string>; compileSchemaObject (uniqueName name "Item") eTy false|])
+                                [|typeof<string>; compileSchemaObject (uniqueName tyName "Item") eTy false|])
         | Object properties, _ ->
             if properties.Length = 0 then typeof<obj>
             else
-              if isNull name then
+              if isNull tyName then
                 failwithf "Swagger provider does not support anonymous types: %A" schemaObj
               else
-                let ty = ProvidedTypeDefinition(name, Some typeof<obj>, IsErased = false)
-                ty.AddMembersDelayed(fun () ->
-                    [ yield ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>) :> Reflection.MemberInfo
-                      for p in properties do
-                        let pTy = compileSchemaObject (uniqueName name p.Name) p.Type p.IsRequired
-                        let field = ProvidedField("_" + p.Name.ToLower(), pTy)
-                        yield field :> _
-
-                        let pPr = generateProperty p.Name pTy field
-                        if not <| String.IsNullOrWhiteSpace p.Description
-                            then pPr.AddXmlDoc p.Description
-                        yield pPr :> _ ])
+                let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, IsErased = false)
                 // Register every ProvidedTypeDefinition
-                match providedTys.TryGetValue name with
+                match providedTys.TryGetValue tyName with
                 | true, Some(_)->
-                    failwithf "This should not happened! Type '%s' was already generated" name
-                | true, None -> providedTys.[name] <- Some(ty)
-                | false, _ ->   providedTys.Add(name,Some(ty))
+                    failwithf "This should not happened! Type '%s' was already generated" tyName
+                | true, None -> providedTys.[tyName] <- Some(ty)
+                | false, _ ->   providedTys.Add(tyName,Some(ty))
+
+                ty.AddMember <| ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>)
+                for p in properties do
+                    if String.IsNullOrEmpty(p.Name)
+                        then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
+
+                    let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
+                    let field = ProvidedField("_" + p.Name.ToLower(), pTy)
+                    ty.AddMember <| field
+
+                    let pPr = generateProperty p.Name pTy field
+                    if not <| String.IsNullOrWhiteSpace p.Description
+                        then pPr.AddXmlDoc p.Description
+                    ty.AddMember <| pPr
+
                 ty :> Type
         | Reference path, _ -> compileDefinition path
 

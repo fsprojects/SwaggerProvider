@@ -14,13 +14,6 @@ open System.Text.RegularExpressions
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, headers : seq<string*string>) =
 
-    let operationGroups =
-        schema.Paths
-        |> Seq.groupBy (fun op->
-            if op.Tags.Length > 0
-            then op.Tags.[0] else "Root")
-        |> Seq.toList
-
     let compileOperation (schemaId:string) (tag:string) (op:OperationObject) =
         let methodName =
             let prefix = tag.TrimStart('/') + "_"
@@ -184,12 +177,14 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
 
     /// Compiles the operation.
     member __.Compile(schemaId) =
-        operationGroups
+        Array.toList schema.Paths
+        |> List.groupBy (fun op->
+            if op.Tags.Length > 0
+            then op.Tags.[0] else "Root")
         |> List.map (fun (tag, operations) ->
             let ty = ProvidedTypeDefinition(nicePascalName tag, Some typeof<obj>, IsErased = false)
             operations
-            |> Seq.map (compileOperation schemaId tag)
-            |> Seq.toList
+            |> List.map (compileOperation schemaId tag)
             |> ty.AddMembers
             ty
         )
