@@ -99,12 +99,6 @@ let IgnoreList =
      "https://apis-guru.github.io/api-models/sendgrid.com/3.0/swagger.yaml"
     ] |> Set.ofList
 
-let SchemasWithZeroPathes =
-    [
-     "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.json"
-     "https://apis-guru.github.io/api-models/googleapis.com/iam/v1alpha1/swagger.yaml"
-    ] |> Set.ofList
-
 let parserTestBody formatParser (url:string) =
     let schemaStr =
         try
@@ -120,15 +114,13 @@ let parserTestBody formatParser (url:string) =
         let schema = formatParser schemaStr
                      |> Parsers.Parser.parseSwaggerObject
 
-        if Set.contains url SchemasWithZeroPathes
-        then schema.Paths.Length |> should equal 0
-        else schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+        schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
 
         //Number of generated types may be less than number of type definition in schema
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
         let defCompiler = DefinitionCompiler(schema)
-        let opCompiler = OperationCompiler(schema, defCompiler, [])
-        ignore <| opCompiler.Compile(url)
+        let opCompiler = OperationCompiler(schema, defCompiler)
+        ignore <| opCompiler.CompilePaths()
         ignore <| defCompiler.GetProvidedTypes()
 
 
