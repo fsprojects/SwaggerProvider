@@ -2,14 +2,16 @@
 
 open System
 open SwaggerProvider.Internal.Schema
+open System.Collections.Generic
 
 module Parser =
+    let emptyDict = Dictionary<string,Lazy<SchemaObject>>()
 
     // Type that hold parsing context to resolve `$ref`s
     type ParserContext =
         {
             /// An object to hold type definitions
-            Definitions: Map<string, SchemaObject>
+            Definitions: Dictionary<string, Lazy<SchemaObject>>
             /// An object to hold parameters that can be used across operations
             Parameters: Map<string, ParameterObject>
             /// An object to hold responses that can be used across operations.
@@ -46,7 +48,7 @@ module Parser =
         /// Default empty context
         static member Empty =
             {
-                Definitions = Map.empty<_,_>
+                Definitions = emptyDict
                 Parameters = Map.empty<_,_>
                 Responses = Map.empty<_,_>
                 ApplicableParameters = [||]
@@ -59,7 +61,7 @@ module Parser =
 
     // TODO: ...
     /// Parses the JsonValue as a SchemaObject
-    let rec parseSchemaObject (parsedTys:Map<string,SchemaObject>) (obj:SchemaNode) : SchemaObject =
+    let rec parseSchemaObject (definitions:Dictionary<string,Lazy<SchemaObject>>) (obj:SchemaNode) : SchemaObject =
         let spec = "http://swagger.io/specification/#schemaObject"
         let parsers : (SchemaNode->Option<SchemaObject>)[] =
             [|
@@ -79,7 +81,7 @@ module Parser =
                         | [|"array"|] -> obj.TryGetProperty("items")
                         | _ -> None
                        )
-                    |> Option.map ((parseSchemaObject parsedTys) >> Array)
+                    |> Option.map ((parseSchemaObject definitions) >> Array)
                 )
                 (fun obj -> // Parse primitive types
                      obj.TryGetProperty("type")
@@ -113,7 +115,7 @@ module Parser =
                         let properties =
                           properties.Properties()
                           |> Array.map (fun (name,obj) ->
-                              parseDefinitionProperty parsedTys (name, obj, requiredProperties.Contains name))
+                              parseDefinitionProperty definitions (name, obj, requiredProperties.Contains name))
 
                         Some <| Object properties
                       )
@@ -122,7 +124,7 @@ module Parser =
                     match obj.TryGetProperty("type") with
                     | Some(ty) when ty.AsStringArrayWithoutNull() = [|"object"|] ->
                         obj.TryGetProperty("additionalProperties")
-                        |> Option.map ((parseSchemaObject parsedTys) >> Dictionary)
+                        |> Option.map ((parseSchemaObject definitions) >> SchemaObject.Dictionary)
                     | _ -> None
                 )
                 (fun obj -> // Models with Composition
@@ -130,16 +132,16 @@ module Parser =
                     | Some(allOf) ->
                         let props =
                             allOf.AsArray()
-                            |> Array.map (parseSchemaObject parsedTys)
+                            |> Array.map (parseSchemaObject definitions)
                             |> Array.map (function
                                 | Object props -> props
                                 | Reference path ->
-                                    match parsedTys.TryFind path with
-                                    | Some(obj) ->
-                                        match obj with
+                                    match definitions.TryGetValue path with
+                                    | true, lazeObj ->
+                                        match lazeObj.Value with
                                         | Object props -> props
                                         | _ -> failwithf "Could not compose %O" obj
-                                    | None -> failwithf "Reference to unknown type %s" path
+                                    | _ -> failwithf "Reference to unknown type %s" path
                                 | obj -> failwithf "Could not compose %O" obj)
                             |> Array.concat
                         Some <| Object props
@@ -195,8 +197,8 @@ module Parser =
                        | Some(x) -> x.AsBoolean() | None -> false
             Type =
                 match location with
-                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject Map.empty
-                | _    -> obj |> parseSchemaObject Map.empty // TODO: Restrict parser
+                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject emptyDict
+                | _    -> obj |> parseSchemaObject emptyDict // TODO: Restrict parser
                           // The `type` value MUST be one of "string", "number", "integer", "boolean", "array" or "file"
             CollectionFormat =
                 match location, obj.TryGetProperty("collectionFormat") with
@@ -332,14 +334,11 @@ module Parser =
         |> Array.concat
 
     /// Parse Definitions Object as a SchemaObject[]
-    let parseDefinitionsObject (obj:SchemaNode) : Map<string,SchemaObject> =
-        obj.Properties()
-        |> Array.fold (fun tys (name, schemaObj) ->
-            Map.add
-                ("#/definitions/"+name)
-                (parseSchemaObject tys schemaObj)
-                tys
-            ) Map.empty<_,_>
+    let parseDefinitionsObject (obj:SchemaNode) : Dictionary<string,Lazy<SchemaObject>> =
+        let defs = Dictionary<string,Lazy<SchemaObject>>()
+        obj.Properties() |> Array.iter (fun (name, schemaObj) ->
+            defs.Add("#/definitions/"+name, lazy(parseSchemaObject defs schemaObj)))
+        defs
 
     /// Parses the JsonValue as an InfoObject.
     let parseInfoObject (obj:SchemaNode) : InfoObject =
@@ -372,7 +371,7 @@ module Parser =
                 ParserContext.Empty with
                     Definitions =
                         match obj.TryGetProperty("definitions") with
-                        | None -> Map.empty<_,_>
+                        | None -> emptyDict
                         | Some(definitions) -> parseDefinitionsObject definitions
                     Parameters =
                         match obj.TryGetProperty("parameters") with
@@ -397,5 +396,9 @@ module Parser =
             Paths =
                 obj.GetRequiredField("paths", spec)
                 |> (parsePathsObject context)
-            Definitions = context.Definitions |> Map.toArray
+            Definitions =
+                context.Definitions
+                |> Seq.map (fun x -> x.Key, x.Value.Value)
+                |> Seq.sortBy (id)
+                |> Array.ofSeq
         }

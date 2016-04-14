@@ -4,7 +4,7 @@ open SwaggerProvider
 open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open NUnit.Framework
-open FsUnit
+open FsUnitTyped
 
 [<Test>]
 let ``Info Object Example`` () =
@@ -24,7 +24,7 @@ version: 1.0.1
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseInfoObject
-    |> should equal
+    |> shouldEqual
         {
             Title = "Swagger Sample App"
             Description = "This is a sample server Petstore server."
@@ -51,7 +51,7 @@ let ``Paths Object Example`` () =
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
-    |> should equal
+    |> shouldEqual
         [|{
             Path = "/pets"
             Type = Get
@@ -105,7 +105,7 @@ let ``Path Item Object Example`` () =
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
-    |> should equal
+    |> shouldEqual
         [|{
             Path = "/pets"
             Type = Get
@@ -176,7 +176,7 @@ security:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
-    |> should equal
+    |> shouldEqual
         {
             Path = "/"
             Type = Get
@@ -235,7 +235,7 @@ schema:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "user"
             In = Body
@@ -261,7 +261,7 @@ schema:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "user"
             In = Body
@@ -288,7 +288,7 @@ collectionFormat: csv
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "token"
             In = Header
@@ -311,7 +311,7 @@ type: string
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "username"
             In = Path
@@ -337,7 +337,7 @@ collectionFormat: multi
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "id"
             In = Query
@@ -360,7 +360,7 @@ type: file
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "avatar"
             In = FormData
@@ -383,7 +383,7 @@ schema:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "A complex object array response"
             Schema = Some <| Array (Reference "#/definitions/VeryComplexType")
@@ -401,7 +401,7 @@ schema:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "A simple string response"
             Schema = Some String
@@ -428,7 +428,7 @@ headers:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "A simple string response"
             Schema = Some String
@@ -443,7 +443,7 @@ description: object created
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "object created"
             Schema = None
@@ -460,7 +460,7 @@ description: Pets operations
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseTagObject
-    |> should equal
+    |> shouldEqual
         ({
             Name = "pet"
             Description = "Pets operations"
@@ -474,8 +474,8 @@ $ref: '#/definitions/Pet'
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Reference "#/definitions/Pet")
 
 
@@ -487,8 +487,8 @@ format: email
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         String
 
 
@@ -510,8 +510,8 @@ properties:
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Object
             [|{Name = "name"
                Type = String
@@ -537,8 +537,8 @@ additionalProperties:
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Dictionary String)
 
 
@@ -551,8 +551,8 @@ additionalProperties:
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Dictionary (Reference "#/definitions/ComplexModel"))
 
 
@@ -574,8 +574,8 @@ example:
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Object
             [|{Name = "id"
                Type = Int64
@@ -616,7 +616,9 @@ ExtendedErrorModel:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
-    |> should equal
+    |> Seq.map (fun x->x.Key, x.Value.Value)
+    |> Map.ofSeq
+    |> shouldEqual
        ([|
             "#/definitions/ErrorModel",
             (Object
@@ -694,8 +696,8 @@ definitions:
 """
     |> YamlParser.Parse
     |> YamlNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Object
             [||]
         )
@@ -724,7 +726,9 @@ Tag:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseDefinitionsObject
-    |> should equal
+    |> Seq.map (fun x->x.Key, x.Value.Value)
+    |> Map.ofSeq
+    |> shouldEqual
        ([|
             "#/definitions/Category",
             (Object
@@ -772,7 +776,7 @@ limitParam:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseParametersDefinition
-    |> should equal
+    |> shouldEqual
         ([|
             "#/parameters/skipParam",
             {
@@ -809,7 +813,7 @@ GeneralError:
     |> YamlParser.Parse
     |> YamlNodeAdapter
     |> Parser.parseResponsesDefinition
-    |> should equal
+    |> shouldEqual
         ([|
             "#/responses/NotFound",
             {

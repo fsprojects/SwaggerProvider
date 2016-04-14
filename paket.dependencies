@@ -43,4 +43,4 @@ group Test
 	nuget NUnit.Console
 	nuget FSharp.Data
 
-	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnit.fs
+	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnitTyped.fs

@@ -2,6 +2,7 @@
 
 open SwaggerProvider
 
-let [<Literal>] schema = __SOURCE_DIRECTORY__ + "/Schemas/Instagram.json"
-type Instagram = SwaggerProvider<schema>
+let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/Instagram.json"
+type Instagram = SwaggerProvider<Schema>
 
+let insta = Instagram()

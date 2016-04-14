@@ -12,9 +12,9 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, headers : seq<string*string>) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
-    let compileOperation (schemaId:string) (methodName:string) (op:OperationObject) =
+    let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
 
@@ -34,39 +34,51 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
                 | Some ty -> defCompiler.CompileTy methodName "Response" ty true
             | None -> typeof<unit>
 
-        let m = ProvidedMethod(methodName, parameters, retTy, IsStaticMethod = true)
+        let m = ProvidedMethod(methodName, parameters, retTy)
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
         if op.Deprecated
             then m.AddObsoleteAttribute("Operation is deprecated", false)
 
         m.InvokeCode <- fun args ->
+            let thisTy = typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
+            let this = Expr.Coerce(args.[0], thisTy)
+            let host = Expr.PropertyGet(this, thisTy.GetProperty("Host"))
+            let headers = Expr.PropertyGet(this, thisTy.GetProperty("Headers"))
+            let customizeHttpRequest = Expr.PropertyGet(this, thisTy.GetProperty("CustomizeHttpRequest"))
+
             let basePath =
                 let scheme =
                     match schema.Schemes with
                     | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
                     | array -> array.[0]
-                let defaultHost = schema.Host
                 let basePath = schema.BasePath
-                <@  let host = SwaggerProvider.Internal.RuntimeHelpers.getHost schemaId defaultHost
-                    scheme + "://" + host + basePath @>
+                <@  scheme + "://" + (%%host : string) + basePath @>
 
             // Fit headers into quotation
             let headers =
-                let headerPairs =
-                    seq {
-                        yield! headers
-                        if (headers |> Seq.exists (fun (h,_)->h="Content-Type") |> not) then
-                            if (op.Consumes |> Seq.exists (fun mt -> mt="application/json")) then
-                                yield "Content-Type","application/json"
-                    }
-                    |> List.ofSeq
-                    |> List.map (fun (h1,h2) -> Expr.NewTuple [Expr.Value(h1);Expr.Value(h2)])
-                Expr.NewArray (typeof<Tuple<string,string>>, headerPairs)
+                let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
+                <@@
+                    let headersArr = (%%headers:(string*string)[])
+                    let ctHeaderExist = headersArr |> Array.exists (fun (h,_)->h="Content-Type")
+                    if not(ctHeaderExist) && jsonConsumable
+                    then Array.append [|"Content-Type","application/json"|] headersArr
+                    else headersArr
+                @@>
+                //let headerPairs =
+                //    seq {
+                //        yield! headers
+                //        if (headers |> Seq.exists (fun (h,_)->h="Content-Type") |> not) then
+                //            if (op.Consumes |> Seq.exists (fun mt -> mt="application/json")) then
+                //                yield "Content-Type","application/json"
+                //    }
+                //    |> List.ofSeq
+                //    |> List.map (fun (h1,h2) -> Expr.NewTuple [Expr.Value(h1);Expr.Value(h2)])
+                //Expr.NewArray (typeof<Tuple<string,string>>, headerPairs)
 
             // Locates parameters matching the arguments
             let parameters =
-                args
+                List.tail args // skip `this` param
                 |> List.map (function
                     | ShapeVar sVar as expr ->
                         let param =
@@ -133,10 +145,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
             let restCall = op.Type.ToString()
 
             let customizeHttpRequest =
-                <@@ fun (request:Net.HttpWebRequest) ->
+                <@@ let customizeCall = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)
+                    fun (request:Net.HttpWebRequest) ->
                         if restCall = "Post"
                             then request.ContentLength <- 0L
-                        request @@>
+                        customizeCall request @@>
 
             // Make HTTP call
             let result =
@@ -173,49 +186,31 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, he
         m
 
     /// Compiles the operation.
-    member __.Compile(schemaId) =
-        Array.toList schema.Paths
-        |> List.groupBy (fun op->
-            if op.Tags.Length > 0
-            then op.Tags.[0] else "Root")
-        |> List.map (fun (tag, operations) ->
-            let ty = ProvidedTypeDefinition(nicePascalName tag, Some typeof<obj>, IsErased = false)
+    member __.CompilePaths(ignoreOperationId) =
+        let methodNames = System.Collections.Generic.HashSet<_>()
+        let uniqueMethodName methodName =
+            let rec findUniq prefix i =
+                let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
+                if not <| methodNames.Contains newName
+                then newName else findUniq prefix (i+1)
+            let newName = findUniq methodName 0
+            methodNames.Add newName |> ignore
+            newName
+        let pathToName opType (opPath:String) =
+            String.Join("_",
+                [|
+                    yield opType.ToString()
+                    yield!
+                        opPath.Split('/')
+                        |> Array.filter (fun x ->
+                            not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
+                |])
+        let getMethodNameCandidate (op:OperationObject) =
+            if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)
+            then pathToName op.Type op.Path
+            else op.OperationId
 
-            match schema.Tags |> Array.tryFind (fun x->x.Name = tag) with
-            | Some(tagDef) when not <| String.IsNullOrWhiteSpace(tagDef.Description) ->
-                ty.AddXmlDoc (tagDef.Description)
-            | _ -> ignore()
-
-            let methodNames = System.Collections.Generic.HashSet<_>()
-            let uniqueMethodName methodName =
-                let rec findUniq prefix i =
-                    let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
-                    if not <| methodNames.Contains newName
-                    then newName else findUniq prefix (i+1)
-                let newName = findUniq methodName 0
-                methodNames.Add newName |> ignore
-                newName
-            let pathToName opType (opPath:String) =
-                String.Join("_",
-                    [|
-                        yield opType.ToString()
-                        yield!
-                            opPath.Split('/')
-                            |> Array.filter (fun x ->
-                                not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
-                    |])
-
-            operations
-            |> List.map (fun op ->
-                let methodNameCandidate =
-                    if String.IsNullOrWhiteSpace (op.OperationId)
-                    then pathToName op.Type op.Path
-                    else let prefix = tag.TrimStart('/') + "_"
-                         if op.OperationId.StartsWith(prefix) // Beatify names for Swashbuckle generated schemas
-                            then op.OperationId.Substring(prefix.Length)
-                            else op.OperationId
-                let methodName = uniqueMethodName <| nicePascalName methodNameCandidate
-                compileOperation schemaId methodName op)
-            |> ty.AddMembers
-            ty
-        )
+        List.ofArray schema.Paths
+        |> List.map (fun op ->
+            let methodNameCandidate = nicePascalName <| getMethodNameCandidate op
+            compileOperation (uniqueMethodName methodNameCandidate) op)

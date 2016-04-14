@@ -1,30 +1,28 @@
 ﻿module SwashbuckleResourceControllersTests
 
 open NUnit.Framework
-open FsUnit
+open FsUnitTyped
 open System
 open SwashbuckleReturnControllersTests
 
-type Dict = WebAPI.ResourceStringString
-
 [<Test>]
 let ``ResourceStringString Add and get from resource dictionary`` () =
-    Dict.Put("lang", "F#")
+    api.PutApiResourceStringString("lang", "F#")
 
-    Dict.Get("lang")
-    |> should equal "F#"
+    api.GetApiResourceStringString("lang")
+    |> shouldEqual "F#"
 
 [<Test>]
 let ``ResourceStringString Update value in the resource dictionary`` () =
-    Dict.Put("name", "Sergey")
-    Dict.Get("name")
-    |> should equal "Sergey"
+    api.PutApiResourceStringString("name", "Sergey")
+    api.GetApiResourceStringString("name")
+    |> shouldEqual "Sergey"
 
-    Dict.Post("name", "Siarhei")
-    Dict.Get("name")
-    |> should equal "Siarhei"
+    api.PostApiResourceStringString("name", "Siarhei")
+    api.GetApiResourceStringString("name")
+    |> shouldEqual "Siarhei"
 
 [<Test>]
 let ``ResourceStringString Delete from the dictionary`` () =
-    Dict.Put("url", "http://localhost/")
-    Dict.Delete("url")
+    api.PutApiResourceStringString("url", "http://localhost/")
+    api.DeleteApiResourceStringString("url")

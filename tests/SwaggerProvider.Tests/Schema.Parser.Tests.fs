@@ -5,7 +5,7 @@ open SwaggerProvider.Internal.Schema.Parsers
 open SwaggerProvider.Internal.Compilers
 open FSharp.Data
 open NUnit.Framework
-open FsUnit
+open FsUnitTyped
 open System.IO
 
 [<SetUpFixture>]
@@ -24,10 +24,10 @@ let ``Schema parse of PetStore.Swagger.json sample`` () =
         |> JsonValue.Parse
         |> JsonNodeAdapter
         |> Parser.parseSwaggerObject
-    schema.Definitions |> should haveLength 6
+    schema.Definitions |> shouldHaveLength 6
 
     schema.Info
-    |> should equal {
+    |> shouldEqual {
         Title = "Swagger Petstore"
         Version = "1.0.0"
         Description = "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters."
@@ -41,7 +41,7 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
         |> JsonValue.Parse
         |> JsonNodeAdapter
         |> Parser.parseSwaggerObject
-    schema.Definitions |> should haveLength 6
+    schema.Definitions |> shouldHaveLength 6
 
     let schemaOnline =
         "http://petstore.swagger.io/v2/swagger.json"
@@ -50,14 +50,14 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
         |> JsonNodeAdapter
         |> Parser.parseSwaggerObject
 
-    schemaOnline.BasePath |> should equal schema.BasePath
-    schemaOnline.Host |> should equal schema.Host
-    schemaOnline.Info |> should equal schema.Info
-    schemaOnline.Schemes |> should equal schema.Schemes
-    schemaOnline.Tags |> should equal schema.Tags
-    schemaOnline.Definitions |> should equal schema.Definitions
-    schemaOnline.Paths |> should equal schema.Paths
-    schemaOnline |> should equal schema
+    schemaOnline.BasePath |> shouldEqual schema.BasePath
+    schemaOnline.Host |> shouldEqual schema.Host
+    schemaOnline.Info |> shouldEqual schema.Info
+    schemaOnline.Schemes |> shouldEqual schema.Schemes
+    schemaOnline.Tags |> shouldEqual schema.Tags
+    schemaOnline.Definitions |> shouldEqual schema.Definitions
+    schemaOnline.Paths |> shouldEqual schema.Paths
+    schemaOnline |> shouldEqual schema
 
 
 // Test that provider can parse real-word Swagger 2.0 schemas
@@ -114,13 +114,13 @@ let parserTestBody formatParser (url:string) =
         let schema = formatParser schemaStr
                      |> Parsers.Parser.parseSwaggerObject
 
-        schema.Paths.Length + schema.Definitions.Length |> should be (greaterThan 0)
+        schema.Paths.Length + schema.Definitions.Length |> shouldBeGreaterThan 0
 
         //Number of generated types may be less than number of type definition in schema
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
         let defCompiler = DefinitionCompiler(schema)
         let opCompiler = OperationCompiler(schema, defCompiler)
-        ignore <| opCompiler.CompilePaths()
+        ignore <| opCompiler.CompilePaths(false)
         ignore <| defCompiler.GetProvidedTypes()
 
 

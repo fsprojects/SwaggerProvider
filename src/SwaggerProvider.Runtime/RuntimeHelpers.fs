@@ -4,6 +4,12 @@ open System
 open Newtonsoft.Json
 open Microsoft.FSharp.Reflection
 
+type ProvidedSwaggerBaseType
+    (host:string, headers:(string*string)[], customizeHttpRequest: Net.HttpWebRequest -> Net.HttpWebRequest) =
+    member val Host = host with get, set
+    member val Headers = headers with get, set
+    member val CustomizeHttpRequest = customizeHttpRequest with get, set
+
 /// Serializer for serializing the F# option types.
 // https://github.com/eulerfx/JsonNet.FSharp
 type private OptionConverter() =
@@ -31,16 +37,6 @@ type private OptionConverter() =
         else FSharpValue.MakeUnion(cases.[1], [|value|])
 
 module RuntimeHelpers =
-    // Storage for Host values in runtime
-    let hostUrls = System.Collections.Generic.Dictionary<string,string>()
-    let getHost schemaId defaultHost =
-        match hostUrls.TryGetValue(schemaId) with
-        | true, value -> value
-        | _ -> defaultHost
-    let setHost schemaId value =
-        hostUrls.Remove(schemaId) |> ignore
-        hostUrls.Add(schemaId, value)
-
 
     let inline private toStrArray name values =
         values

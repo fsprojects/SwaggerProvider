@@ -3,7 +3,7 @@
 open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open NUnit.Framework
-open FsUnit
+open FsUnitTyped
 open FSharp.Data
 
 [<Test>]
@@ -26,7 +26,7 @@ let ``Info Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseInfoObject
-    |> should equal
+    |> shouldEqual
         {
             Title = "Swagger Sample App"
             Description = "This is a sample server Petstore server."
@@ -60,7 +60,7 @@ let ``Paths Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
-    |> should equal
+    |> shouldEqual
         [|{
             Path = "/pets"
             Type = Get
@@ -125,7 +125,7 @@ let ``Path Item Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parsePathsObject Parser.ParserContext.Empty
-    |> should equal
+    |> shouldEqual
         [|{
             Path = "/pets"
             Type = Get
@@ -214,7 +214,7 @@ let ``Operation Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
-    |> should equal
+    |> shouldEqual
         {
             Path = "/"
             Type = Get
@@ -274,7 +274,7 @@ let ``Parameter Object Examples: Body Parameters``() =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "user"
             In = Body
@@ -302,7 +302,7 @@ let ``Parameter Object Examples: Body Parameters Array``() =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "user"
             In = Body
@@ -330,7 +330,7 @@ let ``Parameter Object Examples: Other Parameters``() =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "token"
             In = Header
@@ -353,7 +353,7 @@ let ``Parameter Object Examples: Other Parameters - Path String``() =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "username"
             In = Path
@@ -380,7 +380,7 @@ let ``Parameter Object Examples: Other Parameters - Array String Multi``() =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "id"
             In = Query
@@ -403,7 +403,7 @@ let ``Parameter Object Examples: Other Parameters - File``() =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParameterObject
-    |> should equal
+    |> shouldEqual
         {
             Name = "avatar"
             In = FormData
@@ -428,7 +428,7 @@ let ``Response Object Examples: Response of an array of a complex type`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "A complex object array response"
             Schema = Some <| Array (Reference "#/definitions/VeryComplexType")
@@ -447,7 +447,7 @@ let ``Response Object Examples: Response with a string type`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "A simple string response"
             Schema = Some String
@@ -479,7 +479,7 @@ let ``Response Object Examples: Response with headers`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "A simple string response"
             Schema = Some String
@@ -494,7 +494,7 @@ let ``Response Object Examples: Response with no return value`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseResponseObject (Parser.ParserContext.Empty)
-    |> should equal
+    |> shouldEqual
         {
             Description = "object created"
             Schema = None
@@ -511,7 +511,7 @@ let ``Tag Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseTagObject
-    |> should equal
+    |> shouldEqual
         ({
             Name = "pet"
             Description = "Pets operations"
@@ -525,8 +525,8 @@ let ``Reference Object Example`` () =
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Reference "#/definitions/Pet")
 
 
@@ -538,8 +538,8 @@ let ``Schema Object Examples: Primitive Sample`` () =
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         String
 
 
@@ -566,8 +566,8 @@ let ``Schema Object Examples: Simple Model`` () =
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Object
             [|{Name = "name"
                Type = String
@@ -594,8 +594,8 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Dictionary String)
 
 
@@ -609,8 +609,8 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Dictionary (Reference "#/definitions/ComplexModel"))
 
 
@@ -637,8 +637,8 @@ let ``Schema Object Examples: Model with Example`` () =
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Object
             [|{Name = "id"
                Type = Int64
@@ -693,7 +693,9 @@ let ``Schema Object Examples: Models with Composition`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseDefinitionsObject
-    |> should equal
+    |> Seq.map (fun x -> x.Key, x.Value.Value)
+    |> Map.ofSeq
+    |> shouldEqual
        ([|
             "#/definitions/ErrorModel",
             (Object
@@ -796,8 +798,8 @@ let ``Schema Object Examples: Models with Polymorphism Support`` () =
     }"""
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual
         (Object
             [||]
         )
@@ -834,7 +836,9 @@ let ``Definitions Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseDefinitionsObject
-    |> should equal
+    |> Seq.map (fun x->x.Key, x.Value.Value)
+    |> Map.ofSeq
+    |> shouldEqual
        ([|
             "#/definitions/Category",
             (Object
@@ -884,7 +888,7 @@ let ``Parameters Definition Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseParametersDefinition
-    |> should equal
+    |> shouldEqual
         ([|
             "#/parameters/skipParam",
             {
@@ -925,7 +929,7 @@ let ``Responses Definitions Object Example`` () =
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseResponsesDefinition
-    |> should equal
+    |> shouldEqual
         ([|
             "#/responses/NotFound",
             {

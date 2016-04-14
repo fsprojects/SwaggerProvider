@@ -4,14 +4,14 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
-open FsUnit
+open FsUnitTyped
 
 let shouldBeEqualToTag (expected:TagObject) content =
     content
     |> JsonValue.Parse
     |> JsonNodeAdapter
     |> Parser.parseTagObject
-    |> should equal expected
+    |> shouldEqual expected
 
 [<Test>]
 let ``parse simple tag`` () =

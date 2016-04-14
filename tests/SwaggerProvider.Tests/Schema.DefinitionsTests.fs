@@ -4,14 +4,14 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open FSharp.Data
 open NUnit.Framework
-open FsUnit
+open FsUnitTyped
 
 let shouldBeEqual (expected:SchemaObject) content =
     content
     |> JsonValue.Parse
     |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Map.empty
-    |> should equal expected
+    |> Parser.parseSchemaObject Parser.emptyDict
+    |> shouldEqual expected
 
 [<Test>]
 let ``parse boolean`` () =

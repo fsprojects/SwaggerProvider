@@ -105,11 +105,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
 
     /// Compiles the definition.
     member __.GetProvidedTypes() =
-        let root = ProvidedTypeDefinition("Definitions", Some typeof<obj>, IsErased = false)
-        root.AddMembersDelayed (fun () ->
-            List.ofSeq providedTys.Values
-            |> List.choose (id))
-        root
+        List.ofSeq providedTys.Values
+        |> List.choose (id)
 
     /// Compiles the definition.
     member __.CompileTy opName tyUseSuffix ty required =

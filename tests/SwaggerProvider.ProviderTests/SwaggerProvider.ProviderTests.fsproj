@@ -65,9 +65,9 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <ItemGroup>
-    <Compile Include="..\..\paket-files\test\fsprojects\FsUnit\src\FsUnit.NUnit\FsUnit.fs">
+    <Compile Include="..\..\paket-files\test\fsprojects\FsUnit\src\FsUnit.NUnit\FsUnitTyped.fs">
       <Paket>True</Paket>
-      <Link>paket-files/FsUnit.fs</Link>
+      <Link>paket-files/FsUnitTyped.fs</Link>
     </Compile>
     <Content Include="Schemas\GitHub.json">
       <Link>Schemas/GitHub.json</Link>
