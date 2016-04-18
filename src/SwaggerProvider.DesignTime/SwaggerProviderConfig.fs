@@ -71,13 +71,11 @@ module private SwaggerProviderConfig =
 
                         let ctor =
                             ProvidedConstructor(
-                                [ProvidedParameter("host", typeof<string>, optionalValue = true) //schema.Host
-                                 ProvidedParameter("headers", typeof<(string*string)[]>, optionalValue = true)//Array.empty<string*string>
-                                 ProvidedParameter("customizeHttpRequest", typeof<Net.HttpWebRequest -> Net.HttpWebRequest>, optionalValue = true)], // id
+                                [ProvidedParameter("host", typeof<string>, optionalValue = schema.Host)],
                                 InvokeCode = fun args ->
                                     match args with
                                     | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
-                                    | this::_ -> Expr.Coerce(this, ty))//<@@ () @@>)
+                                    | _ -> <@@ () @@>)
                         ctor.BaseConstructorCall <-
                             let baseCtor = baseTy.Value.GetConstructors().[0]
                             fun args -> (baseCtor, args)

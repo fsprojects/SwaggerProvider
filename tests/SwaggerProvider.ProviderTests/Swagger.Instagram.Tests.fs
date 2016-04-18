@@ -5,4 +5,4 @@ open SwaggerProvider
 let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/Instagram.json"
 type Instagram = SwaggerProvider<Schema>
 
-let insta = Instagram()
+let insta = Instagram(Headers=[||], CustomizeHttpRequest=id)

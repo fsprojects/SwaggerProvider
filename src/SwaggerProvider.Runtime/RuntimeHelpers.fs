@@ -4,11 +4,10 @@ open System
 open Newtonsoft.Json
 open Microsoft.FSharp.Reflection
 
-type ProvidedSwaggerBaseType
-    (host:string, headers:(string*string)[], customizeHttpRequest: Net.HttpWebRequest -> Net.HttpWebRequest) =
+type ProvidedSwaggerBaseType (host:string) =
     member val Host = host with get, set
-    member val Headers = headers with get, set
-    member val CustomizeHttpRequest = customizeHttpRequest with get, set
+    member val Headers = Array.empty<string*string> with get, set
+    member val CustomizeHttpRequest = (id:Net.HttpWebRequest -> Net.HttpWebRequest) with get, set
 
 /// Serializer for serializing the F# option types.
 // https://github.com/eulerfx/JsonNet.FSharp
