@@ -1,6 +1,3 @@
-[![Issue Stats](http://issuestats.com/github/fsprojects/SwaggerProvider/badge/issue)](http://issuestats.com/github/fsprojects/SwaggerProvider)
-[![Issue Stats](http://issuestats.com/github/fsprojects/SwaggerProvider/badge/pr)](http://issuestats.com/github/fsprojects/SwaggerProvider)
-
 # SwaggerProvider [![NuGet Badge](https://buildstats.info/nuget/SwaggerProvider)](https://www.nuget.org/packages/SwaggerProvider)
 
 [![Join the chat at https://gitter.im/sergey-tihon/SwaggerProvider](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sergey-tihon/SwaggerProvider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
