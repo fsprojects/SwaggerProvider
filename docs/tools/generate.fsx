@@ -6,7 +6,7 @@
 // Web site location for the generated documentation
 let website = "/SwaggerProvider"
 
-let githubLink = "https://github.com/sergey-tihon/SwaggerProvider"
+let githubLink = "https://github.com/fsprojects/SwaggerProvider"
 
 // Specify more information about your project
 let info =
