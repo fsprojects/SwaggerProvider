@@ -1,3 +1,10 @@
+#### 0.5.0 - April 19, 2016
+- BREAKING CHANGE: Instance methods for provided operations with configurable `Host`, `Headers` and `modifiable web requests`
+- Configurable operation name (`IgnoreOperationId` parameter)
+- Support of unordered type definitions in schema (for Azure APIs)
+- Allow for custom headers per-request [#22](https://github.com/fsprojects/SwaggerProvider/issues/22)
+- Migration to `FsUnitTyped` + better testing
+
 #### 0.4.0 - April 10, 2016
 - Added support of anonymous types generations - https://github.com/fsprojects/SwaggerProvider/pull/24
 - Added support of recursively dependent type definitions

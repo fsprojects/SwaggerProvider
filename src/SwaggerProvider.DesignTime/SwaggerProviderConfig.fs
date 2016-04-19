@@ -68,6 +68,7 @@ module private SwaggerProviderConfig =
                         let baseTy = Some typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
                         let ty = ProvidedTypeDefinition(asm, NameSpace, typeName, baseTy, IsErased = false)
                         ty.AddXmlDoc ("Swagger.io Provider for " + schema.Host)
+                        ty.HideObjectMethods <- true
 
                         let ctor =
                             ProvidedConstructor(
