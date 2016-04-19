@@ -1,6 +1,6 @@
 # SwaggerProvider [![NuGet Badge](https://buildstats.info/nuget/SwaggerProvider)](https://www.nuget.org/packages/SwaggerProvider)
 
-[![Join the chat at https://gitter.im/sergey-tihon/SwaggerProvider](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sergey-tihon/SwaggerProvider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/fsprojects/SwaggerProvider](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fsprojects/SwaggerProvider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 

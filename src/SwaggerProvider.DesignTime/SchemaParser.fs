@@ -150,7 +150,7 @@ module Parser =
                 (fun obj -> // Models with Polymorphism Support
                     match obj.TryGetProperty("discriminator") with
                     | Some(discriminator) ->
-                        failwith "Models with Polymorphism Support is not supported yet. If you see this error plrease report it on GitHub (https://github.com/sergey-tihon/SwaggerProvider/issues) with schema example."
+                        failwith "Models with Polymorphism Support is not supported yet. If you see this error plrease report it on GitHub (https://github.com/fsprojects/SwaggerProvider/issues) with schema example."
                     | None -> None
                 )
             |]
