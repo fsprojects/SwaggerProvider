@@ -4,11 +4,11 @@ owners
 authors
     Sergey Tihon
 projectUrl
-    http://sergey-tihon.github.io/SwaggerProvider/
+    http://fsprojects.github.io/SwaggerProvider/
 iconUrl
-    https://raw.githubusercontent.com/sergey-tihon/SwaggerProvider/master/docs/files/img/logo.png
+    https://raw.githubusercontent.com/fsprojects/SwaggerProvider/master/docs/files/img/logo.png
 licenseUrl
-    http://github.com/sergey-tihon/SwaggerProvider/blob/master/LICENSE.txt
+    http://github.com/fsprojects/SwaggerProvider/blob/master/LICENSE.txt
 requireLicenseAcceptance
     false
 copyright
