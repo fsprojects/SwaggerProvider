@@ -1,0 +1,522 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "Tenant API"
+  },
+  "host": "",
+  "basePath": "5003",
+  "schemes": [
+    "localhost"
+  ],
+  "paths": {
+    "/claims": {
+      "get": {
+        "tags": [
+          "Claims"
+        ],
+        "operationId": "Claims_GetClaims",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/healthcheck": {
+      "get": {
+        "tags": [
+          "Healthcheck"
+        ],
+        "operationId": "Healthcheck_Check",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/tenants": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_GetTenants",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Collection[Tenant.Api.CrudModels.Tenant.GetModel]"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_CreateTenant",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Tenant.CreateModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Tenant.GetModel"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/tenants/{id}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_GetTenantById",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Tenant.GetModel"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_UpdateTenant",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenant",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Tenant.UpdateModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Tenant.GetModel"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_DeleteTenant",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/System.Object"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/tenants/{tenantId}/addresses": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_GetAddresses",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Collection[Tenant.Api.CrudModels.Address.GetModel]"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_CreateAddress",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "address",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Address.CreateModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Address.GetModel"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    },
+    "/tenants/{tenantId}/addresses/{addressId}": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "operationId": "Tenant_GetAddress",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tenant.Api.CrudModels.Address.GetModel"
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "oauth2": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Tenant.Api.CrudModels.Collection[Tenant.Api.CrudModels.Tenant.GetModel]": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tenant.Api.CrudModels.Tenant.GetModel"
+          }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tenant.Api.CrudModels.CrudLink"
+          }
+        }
+      }
+    },
+    "Tenant.Api.CrudModels.Tenant.GetModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tenant.Api.CrudModels.CrudLink"
+          }
+        }
+      }
+    },
+    "Tenant.Api.CrudModels.CrudLink": {
+      "type": "object",
+      "properties": {
+        "rel": {
+          "type": "string"
+        },
+        "href": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        }
+      }
+    },
+    "Tenant.Api.CrudModels.Tenant.CreateModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Tenant.Api.CrudModels.Tenant.UpdateModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "System.Object": {
+      "type": "object",
+      "properties": {}
+    },
+    "Tenant.Api.CrudModels.Address.CreateModel": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "zip": {
+          "type": "string"
+        }
+      }
+    },
+    "Tenant.Api.CrudModels.Address.GetModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "zip": {
+          "type": "string"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tenant.Api.CrudModels.CrudLink"
+          }
+        }
+      }
+    },
+    "Tenant.Api.CrudModels.Collection[Tenant.Api.CrudModels.Address.GetModel]": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tenant.Api.CrudModels.Address.GetModel"
+          }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tenant.Api.CrudModels.CrudLink"
+          }
+        }
+      }
+    }
+  }
+}

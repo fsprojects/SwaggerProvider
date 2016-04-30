@@ -1,3 +1,6 @@
+#### 0.5.1 - April 30, 2016
+- FIXED: Collisions in provided type names [#27](https://github.com/fsprojects/SwaggerProvider/issues/27)
+
 #### 0.5.0 - April 19, 2016
 - BREAKING CHANGE: Instance methods for provided operations with configurable `Host`, `Headers` and `modifiable web requests`
 - Configurable operation name (`IgnoreOperationId` parameter)

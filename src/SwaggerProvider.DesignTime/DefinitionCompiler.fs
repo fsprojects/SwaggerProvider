@@ -38,7 +38,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | false, _ ->
             match definitions.TryFind tyDefName with
             | Some(def) ->
-                let tyName = tyDefName.Substring("#/definitions/".Length);
+                let tyName = tyDefName.Substring("#/definitions/".Length).Replace(".","")
                 let ty = compileSchemaObject tyName def false // ?? false
                 if not <| definitions.ContainsKey tyDefName
                     then definitionTys.Add(tyDefName, ty)

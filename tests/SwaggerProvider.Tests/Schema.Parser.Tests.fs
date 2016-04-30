@@ -90,8 +90,13 @@ let ManualSchemaUrls =
       "https://graphhopper.com/api/1/vrp/swagger.json"|]
     |> Array.map toTestCase
 
+let SchemasFromTPTests =
+    let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
+    Directory.GetFiles(folder)
+    |> Array.map toTestCase
+
 let SchemaUrls =
-    Array.concat [ManualSchemaUrls; ApisGuruJsonSchemaUrls]
+    Array.concat [SchemasFromTPTests; ManualSchemaUrls; ApisGuruJsonSchemaUrls]
 
 let IgnoreList =
     [
