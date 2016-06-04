@@ -43,7 +43,13 @@ module Parser =
                 let ref = refObj.AsString()
                 match this.Responses.TryFind(ref) with
                 | Some(response) -> response
-                | None -> raise <| UnknownSwaggerReferenceException(ref))
+                | None ->
+                    match this.Definitions.TryGetValue(ref) with
+                    | true, def -> // Slightly strange use of `ref` from response to `definitions` rather than to `responses`
+                        let schema = def.Value
+                        {Description=""; Schema=Some(schema)} // TODO: extract description from definition object
+                    | _ ->
+                        raise <| UnknownSwaggerReferenceException(ref))
 
         /// Default empty context
         static member Empty =

@@ -6,31 +6,31 @@ NUGET
 GITHUB
   remote: fsharp/FSharp.Data
   specs:
-    src/CommonRuntime/IO.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/CommonRuntime/NameUtils.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/CommonRuntime/Pluralizer.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/CommonRuntime/StructuralTypes.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/CommonRuntime/TextConversions.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/Json/JsonConversions.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/Json/JsonExtensions.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/Json/JsonValue.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/Net/Http.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
-    src/Net/UriUtils.fs (2716e5a3c47ddca64f746cfd7b2c0b1f3248717f)
+    src/CommonRuntime/IO.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/CommonRuntime/NameUtils.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/CommonRuntime/Pluralizer.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/CommonRuntime/StructuralTypes.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/CommonRuntime/TextConversions.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/Json/JsonConversions.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/Json/JsonExtensions.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/Json/JsonValue.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/Net/Http.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
+    src/Net/UriUtils.fs (63bc6f812abdd653e534ed9c66def8af742365d4)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
   specs:
-    src/ProvidedTypes.fs (efc98fd681d2b4247b015d33e3ad5ff87bd16240)
-    src/ProvidedTypes.fsi (efc98fd681d2b4247b015d33e3ad5ff87bd16240)
-    src/ProvidedTypesTesting.fs (efc98fd681d2b4247b015d33e3ad5ff87bd16240)
+    src/ProvidedTypes.fs (1ec57f583718953ac0e8e6a7023a37217e148f0a)
+    src/ProvidedTypes.fsi (1ec57f583718953ac0e8e6a7023a37217e148f0a)
+    src/ProvidedTypesTesting.fs (1ec57f583718953ac0e8e6a7023a37217e148f0a)
   remote: fsprojects/FSharp.Configuration
   specs:
-    src/FSharp.Configuration/TypeProviders.Helper.fs (763182e36f2dbd30e99743eb595019efda1b7697)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (9bb41bf9218c0b41a41436fded84debe792a6cdf)
 GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    FAKE (4.25.5)
+    FAKE (4.28)
     FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Formatting (2.14.2)
+    FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
     FSharpVSPowerTools.Core (2.3)
@@ -47,7 +47,7 @@ NUGET
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (26cd2e6430a3ada972fa37a5a65606b2f7f427e3)
+    modules/Octokit/Octokit.fsx (60acb2f035cb39f2bd40a6c58a4de10d915da248)
       Octokit
 GROUP OWIN
 NUGET
@@ -87,8 +87,8 @@ GROUP Test
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    FSharp.Data (2.2.5)
-      Zlib.Portable (>= 1.10) - framework: portable-net40+sl50+wp80+win80
+    FSharp.Data (2.3)
+      Zlib.Portable (>= 1.11) - framework: portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
     NUnit (3.2.1)
     NUnit.Console (3.2.1)
       NUnit.ConsoleRunner (3.2.1)
@@ -101,8 +101,8 @@ NUGET
     NUnit.Extension.NUnitV2Driver (3.2.1)
     NUnit.Extension.NUnitV2ResultWriter (3.2.1)
     NUnit.Extension.VSProjectLoader (3.2.1)
-    Zlib.Portable (1.11) - framework: portable-net40+sl50+wp80+win80
+    Zlib.Portable (1.11) - framework: portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
 GITHUB
   remote: fsprojects/FsUnit
   specs:
-    src/FsUnit.NUnit/FsUnitTyped.fs (43086ca8981c7642c1067ad5e9de80caf73ba4ec)
+    src/FsUnit.NUnit/FsUnitTyped.fs (a56aa15e019b044574b50b95ad14c8815a22716a)
