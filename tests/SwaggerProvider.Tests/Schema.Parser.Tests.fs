@@ -62,7 +62,7 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
 
 // Test that provider can parse real-word Swagger 2.0 schemas
 // https://github.com/APIs-guru/api-models/blob/master/API.md
-type ApisGuru = FSharp.Data.JsonProvider<"http://api.apis.guru/v2/list.json">
+type ApisGuru = FSharp.Data.JsonProvider<"https://api.apis.guru/v2/list.json">
 
 let toTestCase (url:string) =
     TestCaseData(url).SetName(sprintf "Parse schema %s" url)
