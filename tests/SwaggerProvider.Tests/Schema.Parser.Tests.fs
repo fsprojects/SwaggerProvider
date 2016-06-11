@@ -63,18 +63,20 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
 // Test that provider can parse real-word Swagger 2.0 schemas
 // https://github.com/APIs-guru/api-models/blob/master/API.md
 type ApisGuru = FSharp.Data.JsonProvider<"APIs.guru.list.sample.json">
-
-//Accept all ssl certificates regardless of validation
-System.Net.ServicePointManager.ServerCertificateValidationCallback
-    <- fun _ _ _ _ -> true
+let ApisGuruList = lazy (
+    //Accept all ssl certificates regardless of validation
+    System.Net.ServicePointManager.ServerCertificateValidationCallback
+        <- fun _ _ _ _ -> true
+    ApisGuru
+        .Load("https://api.apis.guru/v2/list.json")
+        .JsonValue.Properties()
+  )
 
 let toTestCase (url:string) =
     TestCaseData(url).SetName(sprintf "Parse schema %s" url)
 
 let getApisGuruSchemas propertyName =
-    ApisGuru
-        .Load("https://api.apis.guru/v2/list.json")
-        .JsonValue.Properties()
+    ApisGuruList.Value
     |> Array.choose (fun (name, obj)->
         obj.TryGetProperty("versions")
         |> Option.bind (fun v->
