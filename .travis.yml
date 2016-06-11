@@ -2,8 +2,8 @@ language: csharp
 
 sudo: false  # use the new container-based Travis infrastructure 
 
-install:
-  - mozroots --import --quiet
+before_install:
+  - mozroots --import --sync
 
 script: 
   - chmod u+x ./build.sh
