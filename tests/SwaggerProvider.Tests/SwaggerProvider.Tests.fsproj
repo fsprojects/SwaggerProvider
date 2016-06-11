@@ -79,6 +79,9 @@
     <Compile Include="Schema.Parser.Tests.fs" />
     <None Include="paket.references" />
     <Content Include="App.config" />
+    <None Include="APIs.guru.list.sample.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
