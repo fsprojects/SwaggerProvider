@@ -43,7 +43,7 @@ group Test
 	nuget FSharp.Data
 
 	source http://ci.appveyor.com/nuget/nunit
-	nuget NUnit prerelease
-	nuget NUnit.Console prerelease
+	nuget NUnit 3.3.0-CI-2857-issue-1593
+	nuget NUnit.Console 3.3.0-CI-2857-issue-1593
 
 	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnitTyped.fs
