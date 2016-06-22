@@ -143,6 +143,7 @@ Target "ExecuteTests" (fun _ ->
     !! testAssemblies
     |> NUnit3 (fun p ->
         { p with
+            Domain = NUnit3DomainModel.SingleDomainModel
             TimeOut = TimeSpan.FromMinutes 20.
             Labels = LabelsLevel.All})
 )
