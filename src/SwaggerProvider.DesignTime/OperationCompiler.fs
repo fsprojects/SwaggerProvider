@@ -25,8 +25,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 ProvidedParameter(paramName, defCompiler.CompileTy methodName paramName x.Type x.Required)]
         let retTy =
             let okResponse = // BUG :  wrong selector
-                op.Responses |> Array.tryFind (fun (code, resp)->
-                    (code.IsSome && code.Value = 200) || code.IsNone)
+                op.Responses |> Array.tryFind (fun (code, resp) ->
+                    (code.IsSome && (code.Value = 200 || code.Value = 201)) || code.IsNone)
             match okResponse with
             | Some (_,resp) ->
                 match resp.Schema with
