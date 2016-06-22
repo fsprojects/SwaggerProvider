@@ -70,18 +70,21 @@ FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Data (2.3.1)
-    NUnit (3.2.1)
-    NUnit.Console (3.2.1)
-      NUnit.ConsoleRunner (3.2.1)
-      NUnit.Extension.NUnitProjectLoader (3.2.1)
-      NUnit.Extension.NUnitV2Driver (3.2.1)
-      NUnit.Extension.NUnitV2ResultWriter (3.2.1)
-      NUnit.Extension.VSProjectLoader (3.2.1)
-    NUnit.ConsoleRunner (3.2.1)
-    NUnit.Extension.NUnitProjectLoader (3.2.1)
-    NUnit.Extension.NUnitV2Driver (3.2.1)
-    NUnit.Extension.NUnitV2ResultWriter (3.2.1)
-    NUnit.Extension.VSProjectLoader (3.2.1)
+  remote: http://ci.appveyor.com/nuget/nunit
+    NUnit (3.4.0-CI-2776-PR-1562)
+    NUnit.Console (3.4.0-CI-2776-PR-1562)
+      NUnit.ConsoleRunner (3.4.0-CI-2776-PR-1562)
+      NUnit.Extension.NUnitProjectLoader (3.4.0-CI-2776-PR-1562)
+      NUnit.Extension.NUnitV2Driver (3.4.0-CI-2776-PR-1562)
+      NUnit.Extension.NUnitV2ResultWriter (3.4.0-CI-2776-PR-1562)
+      NUnit.Extension.TeamCityEventListener (3.4.0-CI-2776-PR-1562)
+      NUnit.Extension.VSProjectLoader (3.4.0-CI-2776-PR-1562)
+    NUnit.ConsoleRunner (3.4.0-CI-2776-PR-1562)
+    NUnit.Extension.NUnitProjectLoader (3.4.0-CI-2776-PR-1562)
+    NUnit.Extension.NUnitV2Driver (3.4.0-CI-2776-PR-1562)
+    NUnit.Extension.NUnitV2ResultWriter (3.4.0-CI-2776-PR-1562)
+    NUnit.Extension.TeamCityEventListener (3.4.0-CI-2776-PR-1562)
+    NUnit.Extension.VSProjectLoader (3.4.0-CI-2776-PR-1562)
 GITHUB
   remote: fsprojects/FsUnit
     src/FsUnit.NUnit/FsUnitTyped.fs (a56aa15e019b044574b50b95ad14c8815a22716a)

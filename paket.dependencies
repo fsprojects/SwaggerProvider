@@ -38,10 +38,12 @@ group OWIN
 
 group Test
 	framework: net45
-	source https://nuget.org/api/v2
 
-	nuget NUnit
-	nuget NUnit.Console
+	source https://nuget.org/api/v2
 	nuget FSharp.Data
+
+	source http://ci.appveyor.com/nuget/nunit
+	nuget NUnit prerelease
+	nuget NUnit.Console prerelease
 
 	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnitTyped.fs
