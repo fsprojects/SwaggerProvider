@@ -1,3 +1,6 @@
+#### 0.5.2 - June 23, 2016
+- FIXED: 201 status codes should be used as a return type for operations [#34](https://github.com/fsprojects/SwaggerProvider/issues/34)
+
 #### 0.5.1 - April 30, 2016
 - FIXED: Collisions in provided type names [#27](https://github.com/fsprojects/SwaggerProvider/issues/27)
 
