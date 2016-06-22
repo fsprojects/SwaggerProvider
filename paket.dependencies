@@ -19,7 +19,7 @@ github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesTesting.fs
 github fsprojects/FSharp.Configuration src/FSharp.Configuration/TypeProviders.Helper.fs
 
 group Build
-
+	framework: net45
 	source https://nuget.org/api/v2
 
 	nuget FAKE
@@ -29,14 +29,15 @@ group Build
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group OWIN
-
+	framework: net45
 	source https://nuget.org/api/v2
 
 	nuget Microsoft.AspNet.WebApi.OwinSelfHost
 	nuget Swashbuckle.Core
+	nuget FSharp.Core
 
 group Test
-
+	framework: net45
 	source https://nuget.org/api/v2
 
 	nuget NUnit

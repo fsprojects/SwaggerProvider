@@ -21,6 +21,7 @@ GITHUB
   remote: fsprojects/FSharp.Configuration
     src/FSharp.Configuration/TypeProviders.Helper.fs (0b53246539b38a86d815529bb047b3752d951546)
 GROUP Build
+FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     FAKE (4.29.2)
@@ -30,25 +31,19 @@ NUGET
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
-    Microsoft.Bcl (1.1.10) - framework: net10, net11, net20, net30, net35, net40, net40-full
-      Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: net10, net11, net20, net30, net35, net40, net40-full
-    Microsoft.Net.Http (2.2.29) - framework: net10, net11, net20, net30, net35, net40, net40-full
-      Microsoft.Bcl (>= 1.1.10)
-      Microsoft.Bcl.Build (>= 1.0.14)
     Octokit (0.20)
-      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (c063bf415dac7f7d4df4c37fe76badce76cae3c3)
       Octokit
 GROUP OWIN
+FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
+    FSharp.Core (4.0.0.1)
     Microsoft.AspNet.WebApi.Client (5.2.3)
-      Microsoft.Net.Http (>= 2.2.22) - framework: portable-wp80+win+net45+wp81+wpa81
-      Newtonsoft.Json (>= 6.0.4) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
+      Newtonsoft.Json (>= 6.0.4)
     Microsoft.AspNet.WebApi.Core (5.2.3)
       Microsoft.AspNet.WebApi.Client (>= 5.2.3)
     Microsoft.AspNet.WebApi.Owin (5.2.3)
@@ -59,28 +54,22 @@ NUGET
       Microsoft.AspNet.WebApi.Owin (>= 5.2.3 < 5.3)
       Microsoft.Owin.Host.HttpListener (>= 2.0.2)
       Microsoft.Owin.Hosting (>= 2.0.2)
-    Microsoft.Bcl (1.1.10) - framework: portable-wp80+win+net45+wp81+wpa81
-      Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: portable-wp80+win+net45+wp81+wpa81
-    Microsoft.Net.Http (2.2.29) - framework: portable-wp80+win+net45+wp81+wpa81
-      Microsoft.Bcl (>= 1.1.10)
-      Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Owin (3.0.1)
       Owin (>= 1.0)
     Microsoft.Owin.Host.HttpListener (3.0.1)
     Microsoft.Owin.Hosting (3.0.1)
       Microsoft.Owin (>= 3.0.1)
       Owin (>= 1.0)
-    Newtonsoft.Json (8.0.3) - framework: >= net45, portable-wp80+win+net45+wp81+wpa81
+    Newtonsoft.Json (8.0.3)
     Owin (1.0)
     Swashbuckle.Core (5.3.2)
       Microsoft.AspNet.WebApi.Core (>= 4.0.20710)
 
 GROUP Test
+FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Data (2.3.1)
-      Zlib.Portable (>= 1.11) - framework: portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
     NUnit (3.2.1)
     NUnit.Console (3.2.1)
       NUnit.ConsoleRunner (3.2.1)
@@ -93,7 +82,6 @@ NUGET
     NUnit.Extension.NUnitV2Driver (3.2.1)
     NUnit.Extension.NUnitV2ResultWriter (3.2.1)
     NUnit.Extension.VSProjectLoader (3.2.1)
-    Zlib.Portable (1.11) - framework: portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
 GITHUB
   remote: fsprojects/FsUnit
     src/FsUnit.NUnit/FsUnitTyped.fs (a56aa15e019b044574b50b95ad14c8815a22716a)
