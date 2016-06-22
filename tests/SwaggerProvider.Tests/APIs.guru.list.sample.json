@@ -1,0 +1,96 @@
+{
+  "apis.guru": {
+    "added": "2015-11-26T17:52:26.000Z",
+    "preferred": "2.0",
+    "versions": {
+      "2.0": {
+        "added": "2015-11-26T17:52:26.000Z",
+        "externalDocs": {
+          "url": "https://github.com/APIs-guru/api-models/blob/master/API.md"
+        },
+        "info": {
+          "contact": {
+            "email": "founders@apis.guru",
+            "name": "APIs.guru",
+            "url": "http://APIs.guru"
+          },
+          "description": "Wikipedia for Web APIs. Repository of API specs in OpenAPI(fka Swagger) 2.0 format.",
+          "license": {
+            "name": "CC0 1.0",
+            "url": "https://github.com/APIs-guru/api-models#licenses"
+          },
+          "title": "APIs.guru",
+          "version": "2.0",
+          "x-APIs.guru-categories": [
+            "open_data",
+            "developer_tools"
+          ],
+          "x-logo": {
+            "url": "https://api.apis.guru/v2/cache/logo/https_apis.guru_branding_logo_vertical.svg"
+          },
+          "x-origin": {
+            "format": "swagger",
+            "url": "https://api.apis.guru/v2/swagger.json",
+            "version": "2.0"
+          },
+          "x-preferred": true,
+          "x-providerName": "apis.guru",
+          "x-tags": [
+            "API",
+            "Catalog",
+            "Directory",
+            "REST",
+            "Swagger",
+            "OpenAPI"
+          ]
+        },
+        "swaggerUrl": "https://api.apis.guru/v2/specs/apis.guru/2.0/swagger.json",
+        "swaggerYamlUrl": "https://api.apis.guru/v2/specs/apis.guru/2.0/swagger.yaml",
+        "updated": "2016-06-06T21:23:03.000Z"
+      }
+    }
+  },
+  "apitransformer.com": {
+    "added": "2016-04-14T12:48:50.000Z",
+    "preferred": "1.0",
+    "versions": {
+      "1.0": {
+        "added": "2016-04-14T12:48:50.000Z",
+        "externalDocs": {
+          "description": "API Transformer Website",
+          "url": "https://apitransformer.com/"
+        },
+        "info": {
+          "contact": {
+            "email": "transform@apimatic.io",
+            "name": "API Transformer",
+            "url": "https://apitransformer.com/"
+          },
+          "description": "Transform API Descriptions from/to various formats",
+          "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+          },
+          "termsOfService": "https://apitransformer.com/",
+          "title": "APIMATIC API Transformer",
+          "version": "1.0",
+          "x-logo": {
+            "backgroundColor": "#18bbee",
+            "url": "https://api.apis.guru/v2/cache/logo/https_apitransformer.com_img_transformer.png"
+          },
+          "x-origin": {
+            "format": "swagger",
+            "url": "https://raw.githubusercontent.com/Mermade/open_api_specifications/master/APIMATIC%20API%20Transformer/swagger.json",
+            "version": "2.0"
+          },
+          "x-preferred": true,
+          "x-providerName": "apitransformer.com",
+          "x-unofficialSpec": true
+        },
+        "swaggerUrl": "https://api.apis.guru/v2/specs/apitransformer.com/1.0/swagger.json",
+        "swaggerYamlUrl": "https://api.apis.guru/v2/specs/apitransformer.com/1.0/swagger.yaml",
+        "updated": "2016-04-27T21:08:56.000Z"
+      }
+    }
+  }
+}

@@ -62,13 +62,21 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
 
 // Test that provider can parse real-word Swagger 2.0 schemas
 // https://github.com/APIs-guru/api-models/blob/master/API.md
-type ApisGuru = FSharp.Data.JsonProvider<"http://apis-guru.github.io/api-models/api/v1/list.json">
+type ApisGuru = FSharp.Data.JsonProvider<"APIs.guru.list.sample.json">
+//Accept all ssl certificates regardless of validation
+System.Net.ServicePointManager.ServerCertificateValidationCallback
+    <- fun _ _ _ _ -> true
+let ApisGuruList = lazy (
+    ApisGuru
+        .Load("https://d1n7uhp9cctu2f.cloudfront.net/v2/list.json")
+        .JsonValue.Properties()
+  )
 
 let toTestCase (url:string) =
     TestCaseData(url).SetName(sprintf "Parse schema %s" url)
 
 let getApisGuruSchemas propertyName =
-    ApisGuru.GetSample().JsonValue.Properties()
+    ApisGuruList.Value
     |> Array.choose (fun (name, obj)->
         obj.TryGetProperty("versions")
         |> Option.bind (fun v->
@@ -100,8 +108,8 @@ let SchemaUrls =
 
 let IgnoreList =
     [
-     "https://apis-guru.github.io/api-models/sendgrid.com/3.0/swagger.json"
-     "https://apis-guru.github.io/api-models/sendgrid.com/3.0/swagger.yaml"
+     "https://d1n7uhp9cctu2f.cloudfront.net/v2/specs/sendgrid.com/3.0/swagger.json"
+     "https://d1n7uhp9cctu2f.cloudfront.net/v2/specs/sendgrid.com/3.0/swagger.yaml"
     ] |> Set.ofList
 
 let parserTestBody formatParser (url:string) =
