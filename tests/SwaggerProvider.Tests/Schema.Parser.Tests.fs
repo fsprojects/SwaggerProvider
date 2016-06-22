@@ -68,7 +68,7 @@ System.Net.ServicePointManager.ServerCertificateValidationCallback
     <- fun _ _ _ _ -> true
 let ApisGuruList = lazy (
     ApisGuru
-        .Load("https://api.apis.guru/v2/list.json")
+        .Load("https://d1n7uhp9cctu2f.cloudfront.net/v2/list.json")
         .JsonValue.Properties()
   )
 
@@ -108,8 +108,8 @@ let SchemaUrls =
 
 let IgnoreList =
     [
-     "https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.json"
-     "https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.yaml"
+     "https://d1n7uhp9cctu2f.cloudfront.net/v2/specs/sendgrid.com/3.0/swagger.json"
+     "https://d1n7uhp9cctu2f.cloudfront.net/v2/specs/sendgrid.com/3.0/swagger.yaml"
     ] |> Set.ofList
 
 let parserTestBody formatParser (url:string) =
