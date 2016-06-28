@@ -1,3 +1,6 @@
+#### 0.5.3 - June 28, 2016
+- Supported Newtonsoft.Json v9.0.1
+
 #### 0.5.2 - June 23, 2016
 - FIXED: 201 status codes should be used as a return type for operations [#34](https://github.com/fsprojects/SwaggerProvider/issues/34)
 
