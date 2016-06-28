@@ -76,7 +76,6 @@
     <Compile Include="Schema.Spec.Yaml.Tests.fs" />
     <Compile Include="Schema.DefinitionsTests.fs" />
     <Compile Include="Schema.PathsTests.fs" />
-    <None Include="APIs.guru.list.sample.json" />
     <Compile Include="APIs.guru.fs" />
     <Compile Include="Schema.Parser.Tests.fs" />
     <None Include="paket.references" />

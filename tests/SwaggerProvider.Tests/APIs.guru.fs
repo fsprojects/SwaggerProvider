@@ -1,17 +1,13 @@
 ﻿module APIsGuru
 open FSharp.Data
-open System.IO
 
 // Test that provider can parse real-word Swagger 2.0 schemes
 // https://github.com/APIs-guru/api-models/blob/master/API.md
 
-let [<Literal>] private SampleJson = __SOURCE_DIRECTORY__ + "/APIs.guru.list.sample.json"
-type ApisGuru = FSharp.Data.JsonProvider<SampleJson>
-
 let private apisGuruList = lazy (
-    ApisGuru
+    JsonValue
         .Load("https://api.apis.guru/v2/list.json")
-        .JsonValue.Properties()
+        .Properties()
   )
 
 let private getApisGuruSchemas propertyName =
@@ -24,7 +20,8 @@ let private getApisGuruSchemas propertyName =
             |> Some)
        )
     |> Array.concat
-    |> Array.map (fun x->x.AsString())
+    |> Array.map (fun x->
+        FSharp.Data.JsonExtensions.AsString(x))
 
 let private apisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
 let private apisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
