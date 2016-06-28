@@ -7,8 +7,9 @@ open FsUnitTyped
 
 let referencedAssemblies =
     let rootDir =  __SOURCE_DIRECTORY__ + "/../../bin/SwaggerProvider/"
-    ["SwaggerProvider.dll";
-     "SwaggerProvider.Runtime.dll"]
+    ["SwaggerProvider.Runtime.dll"
+     "SwaggerProvider.DesignTime.dll"
+     "SwaggerProvider.dll";]
     |> List.map (fun x->
         ["-r"; Path.Combine(rootDir, x)])
     |> List.concat
@@ -27,7 +28,6 @@ let ``Compile TP`` url =
     let fs = Path.ChangeExtension(tempFile, ".fs")
     let dll = Path.ChangeExtension(tempFile, ".dll")
 
-
     File.WriteAllText(fs, sprintf """
     module TestModule
     open SwaggerProvider
@@ -40,6 +40,10 @@ let ``Compile TP`` url =
            (["fsc.exe"; "-o"; dll; "-a"; fs] @ referencedAssemblies))
 
     for error in errors do
-        printfn "%s" (error.ToString())
+        eprintfn "%s" (error.ToString())
+
+    [tempFile; fs; dll]
+    |> List.filter File.Exists
+    |> List.iter File.Delete
 
     exitCode |> shouldEqual 0
