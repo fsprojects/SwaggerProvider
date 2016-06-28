@@ -1,9 +1,9 @@
 ﻿module APIsGuruFSC
 
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
+open System
 open System.IO
 open NUnit.Framework
-open FsUnitTyped
 
 let referencedAssemblies =
     let rootDir =  __SOURCE_DIRECTORY__ + "/../../bin/SwaggerProvider/"
@@ -39,11 +39,10 @@ let ``Compile TP`` url =
         scs.Compile(Array.ofList
            (["fsc.exe"; "-o"; dll; "-a"; fs] @ referencedAssemblies))
 
-    for error in errors do
-        eprintfn "%s" (error.ToString())
-
     [tempFile; fs; dll]
     |> List.filter File.Exists
     |> List.iter File.Delete
 
-    exitCode |> shouldEqual 0
+    if exitCode <> 0 then
+        failwithf "Compilation error:\n%s"
+            (String.Join("\n", errors |> Array.map(fun x->x.ToString()) ))
