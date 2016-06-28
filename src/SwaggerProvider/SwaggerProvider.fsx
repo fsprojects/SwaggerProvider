@@ -4,11 +4,11 @@
 #I "lib/net45"
 
 // Standard NuGet locations packages
-#I "../Newtonsoft.Json.7.0.1/lib/net40"
-#I "../YamlDotNet.3.7.0/lib/net35"
+#I "../Newtonsoft.Json.9.0.1/lib/net45"
+#I "../YamlDotNet.3.9.0/lib/net35"
 
 // Standard Paket locations packages
-#I "../Newtonsoft.Json/lib/net40"
+#I "../Newtonsoft.Json/lib/net45"
 #I "../YamlDotNet/lib/net35"
 
 // Try various folders that people might like
