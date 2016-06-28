@@ -59,51 +59,6 @@ let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
     schemaOnline.Paths |> shouldEqual schema.Paths
     schemaOnline |> shouldEqual schema
 
-
-// Test that provider can parse real-word Swagger 2.0 schemas
-// https://github.com/APIs-guru/api-models/blob/master/API.md
-type ApisGuru = FSharp.Data.JsonProvider<"https://api.apis.guru/v2/list.json">
-
-let toTestCase (url:string) =
-    TestCaseData(url).SetName(sprintf "Parse schema %s" url)
-
-let getApisGuruSchemas propertyName =
-    ApisGuru.GetSample().JsonValue.Properties()
-    |> Array.choose (fun (name, obj)->
-        obj.TryGetProperty("versions")
-        |> Option.bind (fun v->
-            v.Properties()
-            |> Array.choose (fun (_,x)-> x.TryGetProperty(propertyName))
-            |> Some
-        )
-       )
-    |> Array.concat
-    |> Array.map (fun x->x.AsString())
-    |> Array.map toTestCase
-
-let ApisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
-let ApisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
-
-let ManualSchemaUrls =
-    [|"http://netflix.github.io/genie/docs/rest/swagger.json"
-      //"https://www.expedia.com/static/mobile/swaggerui/swagger.json" // This schema is incorrect
-      "https://graphhopper.com/api/1/vrp/swagger.json"|]
-    |> Array.map toTestCase
-
-let SchemasFromTPTests =
-    let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
-    Directory.GetFiles(folder)
-    |> Array.map toTestCase
-
-let SchemaUrls =
-    Array.concat [SchemasFromTPTests; ManualSchemaUrls; ApisGuruJsonSchemaUrls]
-
-let IgnoreList =
-    [
-     "https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.json"
-     "https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.yaml"
-    ] |> Set.ofList
-
 let parserTestBody formatParser (url:string) =
     let schemaStr =
         try
@@ -114,8 +69,7 @@ let parserTestBody formatParser (url:string) =
         | :? System.Net.WebException ->
             printfn "Schema is unaccessible %s" url
             ""
-    if not <| System.String.IsNullOrEmpty(schemaStr) &&
-       not <| IgnoreList.Contains url then
+    if not <| System.String.IsNullOrEmpty(schemaStr) then
         let schema = formatParser schemaStr
                      |> Parsers.Parser.parseSwaggerObject
 
@@ -129,10 +83,21 @@ let parserTestBody formatParser (url:string) =
         ignore <| defCompiler.GetProvidedTypes()
 
 
-[<Test; TestCaseSource("SchemaUrls")>]
+let toTestCase (url:string) =
+    TestCaseData(url).SetName(sprintf "Parse schema %s" url)
+
+let private schemasFromTPTests =
+    let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
+    Directory.GetFiles(folder)
+let JsonSchemasSource = 
+    Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas]
+    |> Array.map toTestCase
+
+[<Test; TestCaseSource("JsonSchemasSource")>]
 let ``Parse Json Schema`` (url:string) =
     parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url
 
-[<Test; TestCaseSource("ApisGuruYamlSchemaUrls")>]
+let YamlSchemasSource = APIsGuru.YamlSchemas |> Array.map toTestCase
+[<Test; TestCaseSource("YamlSchemasSource")>]
 let ``Parse Yaml Schema`` url =
     parserTestBody (SwaggerProvider.YamlParser.Parse >> YamlNodeAdapter) url

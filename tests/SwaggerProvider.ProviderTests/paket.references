@@ -1,3 +1,5 @@
 group Test
     NUnit
+    FSharp.Data
+    FSharp.Compiler.Service
     File:FsUnitTyped.fs

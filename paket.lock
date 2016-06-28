@@ -70,6 +70,7 @@ GROUP Test
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
+    FSharp.Compiler.Service (3.0)
     FSharp.Data (2.3.1)
     NUnit (3.4)
     NUnit.Console (3.4)
@@ -87,4 +88,4 @@ NUGET
     NUnit.Extension.VSProjectLoader (3.4)
 GITHUB
   remote: fsprojects/FsUnit
-    src/FsUnit.NUnit/FsUnitTyped.fs (a56aa15e019b044574b50b95ad14c8815a22716a)
+    src/FsUnit.NUnit/FsUnitTyped.fs (fdff2ee3af2478b79f094b0d065658d665aec83a)
