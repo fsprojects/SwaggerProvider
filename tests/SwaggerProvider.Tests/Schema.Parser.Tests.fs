@@ -100,8 +100,8 @@ let SchemaUrls =
 
 let IgnoreList =
     [
-     "https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.json"
-     "https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.yaml"
+     //"https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.json"
+     //"https://api.apis.guru/v2/specs/sendgrid.com/3.0/swagger.yaml"
     ] |> Set.ofList
 
 let parserTestBody formatParser (url:string) =
