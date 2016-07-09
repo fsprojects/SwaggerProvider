@@ -5,16 +5,16 @@ NUGET
     YamlDotNet (3.9)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/CommonRuntime/NameUtils.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/CommonRuntime/Pluralizer.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/CommonRuntime/StructuralTypes.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/CommonRuntime/TextConversions.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/Json/JsonConversions.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/Json/JsonExtensions.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/Json/JsonValue.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/Net/Http.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
-    src/Net/UriUtils.fs (e60322d4cf4a59cc30563b7b8974e09af544b7d7)
+    src/CommonRuntime/IO.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/CommonRuntime/NameUtils.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/CommonRuntime/Pluralizer.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/CommonRuntime/StructuralTypes.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/CommonRuntime/TextConversions.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/Json/JsonConversions.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/Json/JsonExtensions.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/Json/JsonValue.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/Net/Http.fs (45ca385efcb302929c4a66def596259fe61a095b)
+    src/Net/UriUtils.fs (45ca385efcb302929c4a66def596259fe61a095b)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
     src/ProvidedTypes.fs (dfbca9b83fb70067e85abddcb8b89332aae4c28d)
     src/ProvidedTypes.fsi (dfbca9b83fb70067e85abddcb8b89332aae4c28d)
@@ -36,8 +36,8 @@ NUGET
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (c063bf415dac7f7d4df4c37fe76badce76cae3c3)
-      Octokit
+    modules/Octokit/Octokit.fsx (c56456abac6b744c3bb95b217687db19fd19b367)
+      Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
 NUGET
@@ -61,7 +61,7 @@ NUGET
     Microsoft.Owin.Hosting (3.0.1)
       Microsoft.Owin (>= 3.0.1)
       Owin (>= 1.0)
-    Newtonsoft.Json (8.0.3)
+    Newtonsoft.Json (9.0.1)
     Owin (1.0)
     Swashbuckle.Core (5.3.2)
       Microsoft.AspNet.WebApi.Core (>= 4.0.20710)
@@ -70,22 +70,22 @@ GROUP Test
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Compiler.Service (3.0)
+    FSharp.Compiler.Service (5.0)
     FSharp.Data (2.3.1)
-    NUnit (3.4)
-    NUnit.Console (3.4)
-      NUnit.ConsoleRunner (3.4)
-      NUnit.Extension.NUnitProjectLoader (3.4)
-      NUnit.Extension.NUnitV2Driver (3.4)
-      NUnit.Extension.NUnitV2ResultWriter (3.4)
-      NUnit.Extension.TeamCityEventListener (1.0)
-      NUnit.Extension.VSProjectLoader (3.4)
-    NUnit.ConsoleRunner (3.4)
-    NUnit.Extension.NUnitProjectLoader (3.4)
-    NUnit.Extension.NUnitV2Driver (3.4)
-    NUnit.Extension.NUnitV2ResultWriter (3.4)
-    NUnit.Extension.TeamCityEventListener (1.0)
-    NUnit.Extension.VSProjectLoader (3.4)
+    NUnit (3.4.1)
+    NUnit.Console (3.4.1)
+      NUnit.ConsoleRunner (>= 3.4.1)
+      NUnit.Extension.NUnitProjectLoader (>= 3.4.1)
+      NUnit.Extension.NUnitV2Driver (>= 3.4.1)
+      NUnit.Extension.NUnitV2ResultWriter (>= 3.4.1)
+      NUnit.Extension.TeamCityEventListener (>= 1.0.1)
+      NUnit.Extension.VSProjectLoader (>= 3.4.1)
+    NUnit.ConsoleRunner (3.4.1)
+    NUnit.Extension.NUnitProjectLoader (3.4.1)
+    NUnit.Extension.NUnitV2Driver (3.4.1)
+    NUnit.Extension.NUnitV2ResultWriter (3.4.1)
+    NUnit.Extension.TeamCityEventListener (1.0.1)
+    NUnit.Extension.VSProjectLoader (3.4.1)
 GITHUB
   remote: fsprojects/FsUnit
     src/FsUnit.NUnit/FsUnitTyped.fs (fdff2ee3af2478b79f094b0d065658d665aec83a)

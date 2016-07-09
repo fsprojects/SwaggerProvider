@@ -146,9 +146,9 @@ module Parser =
                                     | true, lazeObj ->
                                         match lazeObj.Value with
                                         | Object props -> props
-                                        | _ -> failwithf "Could not compose %O" obj
+                                        | _ -> failwithf "Could not compose %A" obj
                                     | _ -> failwithf "Reference to unknown type %s" path
-                                | obj -> failwithf "Could not compose %O" obj)
+                                | obj -> failwithf "Could not compose %A" obj)
                             |> Array.concat
                         Some <| Object props
                     | None -> None
