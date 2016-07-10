@@ -22,7 +22,7 @@ let toTestCase (url:string) =
 let JsonSchemasSource = APIsGuru.JsonSchemas |> Array.map toTestCase
 
 
-[<Test; TestCaseSource("JsonSchemasSource")>]
+[<Test; TestCaseSource("JsonSchemasSource"); Category("Integration")>]
 let ``Compile TP`` url =
     let tempFile = Path.GetTempFileName()
     let fs = Path.ChangeExtension(tempFile, ".fs")

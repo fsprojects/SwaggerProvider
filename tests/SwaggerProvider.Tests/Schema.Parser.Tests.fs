@@ -93,11 +93,11 @@ let JsonSchemasSource =
     Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas]
     |> Array.map toTestCase
 
-[<Test; TestCaseSource("JsonSchemasSource")>]
+[<Test; TestCaseSource("JsonSchemasSource"); Category("Integration")>]
 let ``Parse Json Schema`` (url:string) =
     parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url
 
 let YamlSchemasSource = APIsGuru.YamlSchemas |> Array.map toTestCase
-[<Test; TestCaseSource("YamlSchemasSource")>]
+[<Test; TestCaseSource("YamlSchemasSource"); Category("Integration")>]
 let ``Parse Yaml Schema`` url =
     parserTestBody (SwaggerProvider.YamlParser.Parse >> YamlNodeAdapter) url

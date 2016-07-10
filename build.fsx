@@ -139,11 +139,20 @@ Target "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-Target "ExecuteTests" (fun _ ->
+Target "ExecuteUnitTests" (fun _ ->
     !! testAssemblies
     |> NUnit3 (fun p ->
         { p with
-            //Domain = NUnit3DomainModel.NoDomainModel
+            Where = "cat != Integration"
+            TimeOut = TimeSpan.FromMinutes 20.
+            Labels = LabelsLevel.All})
+)
+
+Target "ExecuteIntegrationTests" (fun _ ->
+    !! testAssemblies
+    |> NUnit3 (fun p ->
+        { p with
+            Where = "cat == Integration"
             TimeOut = TimeSpan.FromMinutes 20.
             Labels = LabelsLevel.All})
 )
@@ -354,7 +363,8 @@ Target "All" DoNothing
   ==> "CopyBinaries"
   ==> "StartServer"
   ==> "BuildTests"
-  ==> "ExecuteTests"
+  ==> "ExecuteUnitTests"
+  =?> ("ExecuteIntegrationTests", not <| (hasBuildParam "skipTests"))
   ==> "StopServer"
   ==> "RunTests"
   //=?> ("GenerateReferenceDocs",isLocalBuild)
