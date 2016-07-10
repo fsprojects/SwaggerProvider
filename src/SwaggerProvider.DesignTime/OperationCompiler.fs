@@ -2,6 +2,7 @@
 
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
+open SwaggerProvider.Internal
 open SwaggerProvider.Internal.Schema
 
 open System
@@ -187,15 +188,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
     /// Compiles the operation.
     member __.CompilePaths(ignoreOperationId) =
-        let methodNames = System.Collections.Generic.HashSet<_>()
-        let uniqueMethodName methodName =
-            let rec findUniq prefix i =
-                let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
-                if not <| methodNames.Contains newName
-                then newName else findUniq prefix (i+1)
-            let newName = findUniq methodName 0
-            methodNames.Add newName |> ignore
-            newName
+        let methodNameScope = UniqueNameGenerator()
         let pathToName opType (opPath:String) =
             String.Join("_",
                 [|
@@ -213,4 +206,4 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
         List.ofArray schema.Paths
         |> List.map (fun op ->
             let methodNameCandidate = nicePascalName <| getMethodNameCandidate op
-            compileOperation (uniqueMethodName methodNameCandidate) op)
+            compileOperation (methodNameScope.MakeUnique methodNameCandidate) op)

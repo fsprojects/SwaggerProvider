@@ -2,6 +2,7 @@
 
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
+open SwaggerProvider.Internal
 open SwaggerProvider.Internal.Schema
 open Microsoft.FSharp.Quotations
 open System
@@ -82,15 +83,19 @@ type DefinitionCompiler (schema:SwaggerObject) =
                     else providedTys.Add(tyName, Some(ty))
 
                     ty.AddMember <| ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>)
+                    let propsNameScope = UniqueNameGenerator()
                     for p in properties do
                         if String.IsNullOrEmpty(p.Name)
                             then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
 
+                        let pName = propsNameScope.MakeUnique p.Name
+
                         let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
-                        let field = ProvidedField("_" + p.Name.ToLower(), pTy)
+                        let field = ProvidedField("_" + pName.ToLower(), pTy)
                         ty.AddMember <| field
 
-                        let pPr = generateProperty p.Name pTy field
+                        let pPr = generateProperty pName pTy field
+                        //TODO: if p.Name<>pName then we have to add attribute for serializer
                         if not <| String.IsNullOrWhiteSpace p.Description
                             then pPr.AddXmlDoc p.Description
                         ty.AddMember <| pPr

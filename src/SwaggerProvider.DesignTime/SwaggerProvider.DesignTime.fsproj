@@ -88,6 +88,7 @@
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
+    <Compile Include="Utils.fs" />
     <Compile Include="Schema.fs" />
     <Compile Include="SchemaParserExceptions.fs" />
     <Compile Include="SchemaNode.fs" />
