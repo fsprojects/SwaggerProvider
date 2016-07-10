@@ -22,16 +22,17 @@ type DefinitionCompiler (schema:SwaggerObject) =
         providedTys.Add(newName, None)
         newName
 
-    let generateProperty propName ty providedField =
-        let propertyName = nicePascalName propName
-        let property =
+    let generateProperty propName ty (scope:UniqueNameGenerator) =
+        let propertyName = scope.MakeUnique <| nicePascalName propName
+        let providedField = ProvidedField("_" + propertyName.ToLower(), ty)
+        let providedProperty =
             ProvidedProperty(propertyName, ty,
                 GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
                 SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
         if propName <> propertyName then
-            property.AddCustomAttribute
+            providedProperty.AddCustomAttribute
                 <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute propName
-        property
+        providedField, providedProperty
 
     let rec compileDefinition (tyDefName:string) =
         match definitionTys.TryGetValue tyDefName with
@@ -88,17 +89,13 @@ type DefinitionCompiler (schema:SwaggerObject) =
                         if String.IsNullOrEmpty(p.Name)
                             then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
 
-                        let pName = propsNameScope.MakeUnique p.Name
-
                         let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
-                        let field = ProvidedField("_" + pName.ToLower(), pTy)
-                        ty.AddMember <| field
-
-                        let pPr = generateProperty pName pTy field
-                        //TODO: if p.Name<>pName then we have to add attribute for serializer
+                        let (pField, pProp) = generateProperty p.Name pTy propsNameScope
                         if not <| String.IsNullOrWhiteSpace p.Description
-                            then pPr.AddXmlDoc p.Description
-                        ty.AddMember <| pPr
+                            then pProp.AddXmlDoc p.Description
+
+                        ty.AddMember <| pField
+                        ty.AddMember <| pProp
 
                     ty :> Type
         | Reference path, _ -> compileDefinition path

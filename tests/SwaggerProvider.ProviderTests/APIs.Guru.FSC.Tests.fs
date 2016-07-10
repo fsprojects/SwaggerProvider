@@ -1,4 +1,4 @@
-﻿module APIsGuruFSC
+﻿module APIsGuruFSCS
 
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open System
