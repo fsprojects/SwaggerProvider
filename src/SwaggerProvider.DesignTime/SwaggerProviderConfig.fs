@@ -23,14 +23,18 @@ module private SwaggerProviderConfig =
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
               ProvidedStaticParameter("Headers", typeof<string>,"")
-              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)]
+              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+              ProvidedStaticParameter("UseAsync", typeof<bool>, false)
+              ProvidedStaticParameter("UseTask", typeof<bool>, false) ]
 
         //TODO: Add use operationID flag
         swaggerProvider.AddXmlDoc
             """<summary>Statically typed Swagger provider.</summary>
                <param name='Schema'>Url or Path to Swagger schema file.</param>
-               <param name='Headers'>Headers that will be used to access the schema.</param>
-               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>"""
+               <param name='Headers'>Headers that will be used to access the schema. Headers should be `|`-delimited and separate the key and value with `=`. Example: Content-Type=application/json|Accept=application/json </param>
+               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
+               <param name='UseAsync'>If true, the generated operations will be Async\<T\> instead of just T. Default value `false`. Cannot be combined with `UseTask`.</param>
+               <param name='UseTask'>If true, the generated operations will be Task\<T\> instead of just T. Default value `false`. Cannot be combined with `UseAsync`.</param>"""
 
         let cache = new MemoryCache("SwaggerProvider")
         context.AddDisposable cache
@@ -41,6 +45,13 @@ module private SwaggerProviderConfig =
                     let value = lazy (
                         let schemaPathRaw = args.[0] :?> string
                         let ignoreOperationId = args.[2] :?> bool
+                        let useAsync = args.[3] :?> bool
+                        let useTask = args.[4] :?> bool
+                        let compileType = 
+                            match useAsync, useTask with
+                            | true, _ -> Asynchronous
+                            | false, true -> Task
+                            | _, _ -> Synchronous
 
                         let schemaData =
                             match schemaPathRaw.StartsWith("http", true, null) with
@@ -92,7 +103,7 @@ module private SwaggerProviderConfig =
 
                         let defCompiler = DefinitionCompiler(schema)
                         let opCompiler = OperationCompiler(schema, defCompiler)
-                        ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all operations
+                        ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId, compileType) // Add all operations
                         ty.AddMembers <| defCompiler.GetProvidedTypes() // Add all compiled types
 
                         let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
