@@ -50,3 +50,8 @@ type UpdateObjectPointClassController () =
     inherit UpdateController<Types.PointClass>
         (fun p -> Types.PointClass(p.Y, p.X))
 
+type UpdateObjectFileDescriptionClassController () =
+    inherit ApiController()
+
+    member this.Get ([<FromUri>]x) = Types.FileDescription("1.txt", x)
+    member this.Post (x:Types.FileDescription) = x

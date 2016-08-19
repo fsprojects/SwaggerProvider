@@ -66,8 +66,7 @@ module RuntimeHelpers =
 
     let toQueryParams (name:string) (obj:obj) =
         match obj with
-        | :? array<byte> as xs ->
-            [name, System.Convert.ToBase64String(xs)]
+        | :? array<byte> as xs -> xs |> toStrArray name
         | :? array<bool> as xs -> xs |> toStrArray name
         | :? array<int32> as xs -> xs |> toStrArray name
         | :? array<int64> as xs -> xs |> toStrArray name

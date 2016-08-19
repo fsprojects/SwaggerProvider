@@ -151,3 +151,16 @@ let ``Update Object Point POST Test`` () =
     let point = api.PostApiUpdateObjectPointClass(p)
     point.X |> shouldEqual (Some 2)
     point.Y |> shouldEqual (Some 1)
+
+[<Test>]
+let ``Send and Receive object with byte[]`` () =
+    let x = WebAPI.FileDescription(Name="2.txt", Bytes=[|42uy|])
+    let y = api.PostApiUpdateObjectFileDescriptionClass(x)
+    x.Name |> shouldEqual y.Name
+    x.Bytes|> shouldEqual y.Bytes
+
+[<Test>]
+let ``Send byte[] in query`` () =
+    let bytes = [|42uy;24uy|]
+    let y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
+    y.Bytes |> shouldEqual bytes
