@@ -1,3 +1,6 @@
+#### 0.5.4 - August 19, 2016
+- FIXED: SwaggerProvider and byte array [#46](https://github.com/fsprojects/SwaggerProvider/issues/46)
+
 #### 0.5.3 - July 10, 2016
 - Supported Newtonsoft.Json v9.0.1
 - FIXED: props and fields name collision during quotes compilation [#38](https://github.com/fsprojects/SwaggerProvider/pull/38)
