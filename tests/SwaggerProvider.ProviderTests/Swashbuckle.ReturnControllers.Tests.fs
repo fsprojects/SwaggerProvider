@@ -151,3 +151,16 @@ let ``Return Object Point POST Test`` () =
     let point = api.PostApiReturnObjectPointClass()
     point.X |> shouldEqual (Some(0))
     point.Y |> shouldEqual (Some(0))
+
+
+[<Test>]
+let ``Retrun FileDescription GET Test`` () =
+    let file = api.GetApiReturnFileDescription()
+    file.Name |> shouldEqual "1.txt"
+    file.Bytes |> shouldEqual [|1uy;2uy;3uy|]
+
+[<Test>]
+let ``Retrun FileDescription POST Test`` () =
+    let file = api.PostApiReturnFileDescription()
+    file.Name |> shouldEqual "1.txt"
+    file.Bytes |> shouldEqual [|1uy;2uy;3uy|]

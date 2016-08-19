@@ -103,6 +103,7 @@ module Parser =
                         | [|"number"|] -> Some Double
                         | [|"string"|] when format = "date" -> Some Date
                         | [|"string"|] when format = "date-time" -> Some DateTime
+                        | [|"string"|] when format = "byte" -> Some <| Array Byte
                         | [|"string"|] -> Some String
                         | [|"file"|] -> Some File
                         | _ -> None

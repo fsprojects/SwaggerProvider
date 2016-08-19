@@ -19,7 +19,7 @@ type private OptionConverter() =
 
     override x.WriteJson(writer, value, serializer) =
         let value =
-            if value = null then null
+            if isNull value then null
             else
                 let _,fields = FSharpValue.GetUnionFields(value, value.GetType())
                 fields.[0]
@@ -32,8 +32,20 @@ type private OptionConverter() =
             else innerType
         let value = serializer.Deserialize(reader, innerType)
         let cases = FSharpType.GetUnionCases(t)
-        if value = null then FSharpValue.MakeUnion(cases.[0], [||])
+        if isNull value then FSharpValue.MakeUnion(cases.[0], [||])
         else FSharpValue.MakeUnion(cases.[1], [|value|])
+
+type private ByteArrayConverter() =
+    inherit JsonConverter()
+    override __.CanConvert(t) = t = typeof<byte[]>
+    override __.WriteJson(writer, value, serializer) =
+        let bytes = value :?> byte[]
+        let str = System.Convert.ToBase64String(bytes)
+        serializer.Serialize(writer, str)
+    override __.ReadJson(reader, t, existingValue, serializer) =
+        let value = serializer.Deserialize(reader, typeof<string>) :?> string
+        System.Convert.FromBase64String(value) :> obj
+
 
 module RuntimeHelpers =
 
@@ -54,6 +66,8 @@ module RuntimeHelpers =
 
     let toQueryParams (name:string) (obj:obj) =
         match obj with
+        | :? array<byte> as xs ->
+            [name, System.Convert.ToBase64String(xs)]
         | :? array<bool> as xs -> xs |> toStrArray name
         | :? array<int32> as xs -> xs |> toStrArray name
         | :? array<int64> as xs -> xs |> toStrArray name
@@ -86,11 +100,13 @@ module RuntimeHelpers =
     let serialize =
         let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
         settings.Converters.Add(new OptionConverter () :> JsonConverter)
+        settings.Converters.Add(new ByteArrayConverter () :> JsonConverter)
         fun (value:obj) ->
             JsonConvert.SerializeObject(value, settings)
 
     let deserialize =
         let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
         settings.Converters.Add(new OptionConverter () :> JsonConverter)
+        settings.Converters.Add(new ByteArrayConverter () :> JsonConverter)
         fun value (retTy:Type) ->
             JsonConvert.DeserializeObject(value, retTy, settings)

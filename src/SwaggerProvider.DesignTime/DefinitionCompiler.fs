@@ -52,6 +52,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
         match schemaObj, isRequired with
         | Boolean, true   -> typeof<bool>
         | Boolean, false  -> typeof<Option<bool>>
+        | Byte, true      -> typeof<byte>
+        | Byte, false     -> typeof<Option<byte>>
         | Int32, true     -> typeof<int32>
         | Int32, false    -> typeof<Option<int32>>
         | Int64, true     -> typeof<int64>

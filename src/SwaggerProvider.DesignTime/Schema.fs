@@ -7,6 +7,8 @@ namespace SwaggerProvider.Internal.Schema
 type SchemaObject =
     /// Boolean.
     | Boolean
+    /// Byte - we need this to support byte[] transfered as base64 encoded string
+    | Byte
     /// Integer (signed 32 bits).
     | Int32
     /// Long (signed 64 bits).
@@ -38,6 +40,7 @@ type SchemaObject =
         match this with
         | Object _     -> "Object"
         | Boolean      -> "Boolean"
+        | Byte         -> "Byte"
         | Int32        -> "Int32"
         | Int64        -> "Int64"
         | Float        -> "Float"

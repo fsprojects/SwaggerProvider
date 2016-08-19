@@ -48,3 +48,6 @@ type ReturnSeqIntController () =
 
 type ReturnObjectPointClassController () =
     inherit ReturnController<Types.PointClass>(Types.PointClass(0,0))
+
+type ReturnFileDescriptionController () =
+    inherit ReturnController<Types.FileDescription>(Types.FileDescription("1.txt",[|1uy;2uy;3uy|]))
