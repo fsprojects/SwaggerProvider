@@ -1,3 +1,6 @@
+#### 0.5.5 - August 20, 2016
+- Allow to configure protocol together with host name [#41](https://github.com/fsprojects/SwaggerProvider/issues/41)
+
 #### 0.5.4 - August 19, 2016
 - FIXED: SwaggerProvider and byte array [#46](https://github.com/fsprojects/SwaggerProvider/issues/46)
 
