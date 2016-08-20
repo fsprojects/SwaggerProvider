@@ -49,12 +49,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             let customizeHttpRequest = Expr.PropertyGet(this, thisTy.GetProperty("CustomizeHttpRequest"))
 
             let basePath =
-                let scheme =
-                    match schema.Schemes with
-                    | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
-                    | array -> array.[0]
                 let basePath = schema.BasePath
-                <@  scheme + "://" + (%%host : string) + basePath @>
+                <@  (%%host : string) + basePath @>
 
             // Fit headers into quotation
             let headers =

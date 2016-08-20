@@ -12,11 +12,11 @@ let apiKey = "special-key"
 
 [<Test>]
 let ``Test provided Host property`` () =
-    store.Host |> shouldEqual "petstore.swagger.io"
-    store.Host <- "test"
-    store.Host |> shouldEqual "test"
-    store.Host <- "petstore.swagger.io"
-    store.Host |> shouldEqual "petstore.swagger.io"
+    store.Host |> shouldEqual "http://petstore.swagger.io"
+    store.Host <- "https://petstore.swagger.io"
+    store.Host |> shouldEqual "https://petstore.swagger.io"
+    store.Host <- "http://petstore.swagger.io"
+    store.Host |> shouldEqual "http://petstore.swagger.io"
 
 [<Test>]
 let ``instantiate provided objects`` () =
