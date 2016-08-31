@@ -54,7 +54,10 @@ module private SwaggerProviderConfig =
                                         then Some (pair.[0],pair.[1])
                                         else None
                                     )
-                                Http.RequestString(schemaPathRaw, headers=headers)
+                                Http.RequestString(schemaPathRaw, headers=headers,
+                                    customizeHttpRequest = fun req ->
+                                        req.Credentials <- System.Net.CredentialCache.DefaultNetworkCredentials
+                                        req)
                             | false ->
                                 context.WatchFile schemaPathRaw
                                 schemaPathRaw |> IO.File.ReadAllText
