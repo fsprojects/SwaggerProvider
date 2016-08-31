@@ -1,3 +1,6 @@
+#### 0.5.6 - August 31, 2016
+- Added NTLM auth for schema request [#50](https://github.com/fsprojects/SwaggerProvider/issues/50)
+
 #### 0.5.5 - August 20, 2016
 - Allow to configure protocol together with host name [#41](https://github.com/fsprojects/SwaggerProvider/issues/41)
 
