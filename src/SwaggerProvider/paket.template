@@ -24,4 +24,4 @@ files
     SwaggerProvider.fsx ==> .
 dependencies
     Newtonsoft.Json >= 9.0.1
-    YamlDotNet >= 3.9
+    YamlDotNet >= 4.0
