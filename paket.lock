@@ -2,41 +2,41 @@ FRAMEWORK: >= NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     Newtonsoft.Json (9.0.1)
-    YamlDotNet (3.9)
+    YamlDotNet (4.0)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/CommonRuntime/NameUtils.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/CommonRuntime/Pluralizer.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/CommonRuntime/StructuralTypes.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/CommonRuntime/TextConversions.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/Json/JsonConversions.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/Json/JsonExtensions.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/Json/JsonValue.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/Net/Http.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
-    src/Net/UriUtils.fs (bed5c86942abcd065076dd7054bc747854fb5e3d)
+    src/CommonRuntime/IO.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/CommonRuntime/NameUtils.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/CommonRuntime/Pluralizer.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/CommonRuntime/StructuralTypes.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/CommonRuntime/TextConversions.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/Json/JsonConversions.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/Json/JsonExtensions.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/Json/JsonValue.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/Net/Http.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/Net/UriUtils.fs (538137111c848572c4cc485bd971414718bfd2d3)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/ProvidedTypes.fs (8f647a4cde71bdeda10e7f5b534ec3c879601570)
-    src/ProvidedTypes.fsi (8f647a4cde71bdeda10e7f5b534ec3c879601570)
-    src/ProvidedTypesTesting.fs (8f647a4cde71bdeda10e7f5b534ec3c879601570)
+    src/ProvidedTypes.fs (dbbfb58d1238bf21c84c455451501c7f31ae95e1)
+    src/ProvidedTypes.fsi (dbbfb58d1238bf21c84c455451501c7f31ae95e1)
+    src/ProvidedTypesTesting.fs (dbbfb58d1238bf21c84c455451501c7f31ae95e1)
   remote: fsprojects/FSharp.Configuration
-    src/FSharp.Configuration/TypeProviders.Helper.fs (0b53246539b38a86d815529bb047b3752d951546)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (e7d7bce7439ada291703fe85806ce00d1a898f2d)
 GROUP Build
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.37.2)
+    FAKE (4.39.1)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
-    Octokit (0.21.1)
+    Octokit (0.22)
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (cd7849e12cf4a6619863671828ed1b0418e90d7f)
+    modules/Octokit/Octokit.fsx (73589a85a5e30a2c78d61efccdd3446a99483142)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
