@@ -5,27 +5,27 @@ NUGET
     YamlDotNet (4.0)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/CommonRuntime/NameUtils.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/CommonRuntime/Pluralizer.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/CommonRuntime/StructuralTypes.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/CommonRuntime/TextConversions.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/Json/JsonConversions.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/Json/JsonExtensions.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/Json/JsonValue.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/Net/Http.fs (538137111c848572c4cc485bd971414718bfd2d3)
-    src/Net/UriUtils.fs (538137111c848572c4cc485bd971414718bfd2d3)
+    src/CommonRuntime/IO.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/CommonRuntime/NameUtils.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/CommonRuntime/Pluralizer.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/CommonRuntime/StructuralTypes.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/CommonRuntime/TextConversions.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/Json/JsonConversions.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/Json/JsonExtensions.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/Json/JsonValue.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/Net/Http.fs (89d1902db65fec669375069db1c8987e88e16b54)
+    src/Net/UriUtils.fs (89d1902db65fec669375069db1c8987e88e16b54)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/ProvidedTypes.fs (dbbfb58d1238bf21c84c455451501c7f31ae95e1)
-    src/ProvidedTypes.fsi (dbbfb58d1238bf21c84c455451501c7f31ae95e1)
-    src/ProvidedTypesTesting.fs (dbbfb58d1238bf21c84c455451501c7f31ae95e1)
+    src/ProvidedTypes.fs (c50ace31d335b7bcb83b102d2cfd0ce2007ed681)
+    src/ProvidedTypes.fsi (c50ace31d335b7bcb83b102d2cfd0ce2007ed681)
+    src/ProvidedTypesTesting.fs (c50ace31d335b7bcb83b102d2cfd0ce2007ed681)
   remote: fsprojects/FSharp.Configuration
     src/FSharp.Configuration/TypeProviders.Helper.fs (e7d7bce7439ada291703fe85806ce00d1a898f2d)
 GROUP Build
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.39.1)
+    FAKE (4.40.1)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
@@ -36,7 +36,7 @@ NUGET
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (73589a85a5e30a2c78d61efccdd3446a99483142)
+    modules/Octokit/Octokit.fsx (d071e770b2edfe6c9c7242003b2939ad9d0e33a5)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
@@ -74,7 +74,7 @@ NUGET
       System.Collections.Immutable (>= 1.2)
       System.Reflection.Metadata (>= 1.4.1-beta-24227-04)
     FSharp.Data (2.3.2)
-    NUnit (3.4.1)
+    NUnit (3.5)
     NUnit.Console (3.4.1)
       NUnit.ConsoleRunner (>= 3.4.1)
       NUnit.Extension.NUnitProjectLoader (>= 3.4.1)
