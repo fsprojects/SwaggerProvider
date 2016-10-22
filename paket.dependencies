@@ -24,8 +24,9 @@ group Build
 	source https://nuget.org/api/v2
 
 	nuget FAKE
+	nuget Suave
+	nuget DotLiquid
 	nuget FSharp.Formatting
-	nuget SourceLink.Fake
 
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 

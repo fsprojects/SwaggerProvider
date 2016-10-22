@@ -25,18 +25,21 @@ GROUP Build
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.40.1)
+    DotLiquid (2.0.55)
+    FAKE (4.41.8)
     FSharp.Compiler.Service (2.0.0.6)
+    FSharp.Core (4.0.0.1)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
-    Octokit (0.22)
-    SourceLink.Fake (1.1)
+    Octokit (0.23)
+    Suave (1.1.3)
+      FSharp.Core (>= 3.1.2.5)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (d071e770b2edfe6c9c7242003b2939ad9d0e33a5)
+    modules/Octokit/Octokit.fsx (4e4428bfe931a5f720e32f9d69289d25eb16d467)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
@@ -70,27 +73,27 @@ GROUP Test
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Compiler.Service (6.0.2)
+    FSharp.Compiler.Service (8.0)
       System.Collections.Immutable (>= 1.2)
       System.Reflection.Metadata (>= 1.4.1-beta-24227-04)
     FSharp.Data (2.3.2)
     NUnit (3.5)
-    NUnit.Console (3.4.1)
-      NUnit.ConsoleRunner (>= 3.4.1)
-      NUnit.Extension.NUnitProjectLoader (>= 3.4.1)
-      NUnit.Extension.NUnitV2Driver (>= 3.4.1)
-      NUnit.Extension.NUnitV2ResultWriter (>= 3.4.1)
-      NUnit.Extension.TeamCityEventListener (>= 1.0.1)
-      NUnit.Extension.VSProjectLoader (>= 3.4.1)
-    NUnit.ConsoleRunner (3.4.1)
-    NUnit.Extension.NUnitProjectLoader (3.4.1)
-    NUnit.Extension.NUnitV2Driver (3.4.1)
-    NUnit.Extension.NUnitV2ResultWriter (3.4.1)
-    NUnit.Extension.TeamCityEventListener (1.0.1)
-    NUnit.Extension.VSProjectLoader (3.4.1)
+    NUnit.Console (3.5)
+      NUnit.ConsoleRunner (>= 3.5)
+      NUnit.Extension.NUnitProjectLoader (>= 3.5)
+      NUnit.Extension.NUnitV2Driver (>= 3.5)
+      NUnit.Extension.NUnitV2ResultWriter (>= 3.5)
+      NUnit.Extension.TeamCityEventListener (>= 1.0.2)
+      NUnit.Extension.VSProjectLoader (>= 3.5)
+    NUnit.ConsoleRunner (3.5)
+    NUnit.Extension.NUnitProjectLoader (3.5)
+    NUnit.Extension.NUnitV2Driver (3.5)
+    NUnit.Extension.NUnitV2ResultWriter (3.5)
+    NUnit.Extension.TeamCityEventListener (1.0.2)
+    NUnit.Extension.VSProjectLoader (3.5)
     System.Collections.Immutable (1.2)
-    System.Reflection.Metadata (1.4.1-beta-24227-04)
+    System.Reflection.Metadata (1.4.1-beta-24430-01)
       System.Collections.Immutable (>= 1.2)
 GITHUB
   remote: fsprojects/FsUnit
-    src/FsUnit.NUnit/FsUnitTyped.fs (28c993616bf5c433343ed22b21c8d8ddf8a86b74)
+    src/FsUnit.NUnit/FsUnitTyped.fs (0f3e39157b43efc71ca7ad6516e7a1f4e9ee0285)
