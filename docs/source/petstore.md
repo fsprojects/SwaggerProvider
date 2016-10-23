@@ -21,7 +21,7 @@ When you use TP you can specify following parameters
 | `Headers` | Headers that will be used to access the schema |
 | `IgnoreOperationId` | `IgnoreOperationId` tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false` |
 
-### Generate constructor
+### Generated constructor
 
 SwaggerProvider generates `.ctor` that have to be used to create instance of
 generated type for communication with server. Following parameter may specified
