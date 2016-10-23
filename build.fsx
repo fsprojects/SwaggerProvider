@@ -179,76 +179,50 @@ Target "PublishNuget" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
-let generateHelp' fail debug =
-    let args =
-        if debug then ["--define:HELP"]
-        else ["--define:RELEASE"; "--define:HELP"]
-    if executeFSIWithArgs "docs/tools" "generate.fsx" args [] then
-        traceImportant "Help generated"
-    else
-        if fail then
-            failwith "generating help documentation failed"
-        else
-            traceImportant "generating help documentation failed"
+module Fake =
+    let fakePath = "packages" </> "build" </> "FAKE" </> "tools" </> "FAKE.exe"
+    let fakeStartInfo script workingDirectory args fsiargs environmentVars =
+        (fun (info: System.Diagnostics.ProcessStartInfo) ->
+            info.FileName <- System.IO.Path.GetFullPath fakePath
+            info.Arguments <- sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
+            info.WorkingDirectory <- workingDirectory
+            let setVar k v = info.EnvironmentVariables.[k] <- v
+            for (k, v) in environmentVars do setVar k v
+            setVar "MSBuild" msBuildExe
+            setVar "GIT" Git.CommandHelper.gitPath
+            setVar "FSI" fsiPath)
 
-let generateHelp fail =
-    generateHelp' fail false
+    /// Run the given buildscript with FAKE.exe
+    let executeFAKEWithOutput workingDirectory script fsiargs envArgs =
+        let exitCode =
+            ExecProcessWithLambdas
+                (fakeStartInfo script workingDirectory "" fsiargs envArgs)
+                TimeSpan.MaxValue false ignore ignore
+        System.Threading.Thread.Sleep 1000
+        exitCode
 
-Target "GenerateHelp" (fun _ ->
-    DeleteFile "docs/content/release-notes.md"
-    CopyFile "docs/content/" "RELEASE_NOTES.md"
-    Rename "docs/content/release-notes.md" "docs/content/RELEASE_NOTES.md"
-
-    DeleteFile "docs/content/license.md"
-    CopyFile "docs/content/" "LICENSE.txt"
-    Rename "docs/content/license.md" "docs/content/LICENSE.txt"
-
-    generateHelp true
+Target "BrowseDocs" (fun _ ->
+    let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "BrowseDocs"]
+    if exit <> 0 then failwith "Browsing documentation failed"
 )
 
-Target "GenerateHelpDebug" (fun _ ->
-    DeleteFile "docs/content/release-notes.md"
-    CopyFile "docs/content/" "RELEASE_NOTES.md"
-    Rename "docs/content/release-notes.md" "docs/content/RELEASE_NOTES.md"
-
-    DeleteFile "docs/content/license.md"
-    CopyFile "docs/content/" "LICENSE.txt"
-    Rename "docs/content/license.md" "docs/content/LICENSE.txt"
-
-    generateHelp' true true
+Target "GenerateDocs" (fun _ ->
+    let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "GenerateDocs"]
+    if exit <> 0 then failwith "Generating documentation failed"
 )
 
-Target "KeepRunning" (fun _ ->
-    use watcher = new FileSystemWatcher(DirectoryInfo("docs/content").FullName,"*.*")
-    watcher.EnableRaisingEvents <- true
-    watcher.Changed.Add(fun e -> generateHelp false)
-    watcher.Created.Add(fun e -> generateHelp false)
-    watcher.Renamed.Add(fun e -> generateHelp false)
-    watcher.Deleted.Add(fun e -> generateHelp false)
-
-    traceImportant "Waiting for help edits. Press any key to stop."
-
-    System.Console.ReadKey() |> ignore
-
-    watcher.EnableRaisingEvents <- false
-    watcher.Dispose()
+Target "PublishDocs" (fun _ ->
+    let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "PublishDocs"]
+    if exit <> 0 then failwith "Publishing documentation failed"
 )
 
-Target "GenerateDocs" DoNothing
+Target "PublishStaticPages" (fun _ ->
+    let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "PublishStaticPages"]
+    if exit <> 0 then failwith "Publishing documentation failed"
+)
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
-
-Target "ReleaseDocs" (fun _ ->
-    let tempDocsDir = "temp/gh-pages"
-    CleanDir tempDocsDir
-    Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
-
-    CopyRecursive "docs/output" tempDocsDir true |> tracefn "%A"
-    StageAll tempDocsDir
-    Git.Commit.Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
-    Branches.push tempDocsDir
-)
 
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
@@ -288,26 +262,8 @@ Target "All" DoNothing
   ==> "RunTests"
   =?> ("GenerateDocs",isLocalBuild)
   ==> "All"
-  =?> ("ReleaseDocs",isLocalBuild)
-
-"All"
   ==> "NuGet"
   ==> "BuildPackage"
-
-"CleanDocs"
-  ==> "GenerateHelp"
-  ==> "GenerateDocs"
-
-"CleanDocs"
-  ==> "GenerateHelpDebug"
-
-"GenerateHelp"
-  ==> "KeepRunning"
-
-"ReleaseDocs"
-  ==> "Release"
-
-"BuildPackage"
   ==> "PublishNuget"
   ==> "Release"
 
