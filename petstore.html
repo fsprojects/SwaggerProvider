@@ -122,7 +122,7 @@
 
 <h3><a name="Generated-constructor" class="anchor" href="#Generated-constructor">Generated constructor</a></h3>
 <p>SwaggerProvider generates <code>.ctor</code> that have to be used to create instance of
-generated type for communication with server. Following parameter may specified</p>
+generated type for communication with a server. The following parameter may be specified</p>
 <table>
 <thead>
 <tr class="header">
@@ -133,16 +133,16 @@ generated type for communication with server. Following parameter may specified<
 <tbody>
 <tr class="odd">
 <td><p><code>host</code></p></td>
-<td><p>Server Url, if you want call server that differ from one specified in the schema</p></td>
+<td><p>Server Url, if you want call server that differs from one specified in the schema</p></td>
 </tr>
 <tr class="even">
 <td><p><code>CustomizeHttpRequest</code></p></td>
-<td><p>Function that is called for each <code>System.Net.HttpWebRequest</code> created by Type Provider. Here you can apply any transformation to the request (add credentials, Headers, cookies and etc.)</p></td>
+<td><p>Function that is called for each <code>System.Net.HttpWebRequest</code> created by Type Provider. Here you can apply any transformation to the request (add credentials, headers, cookies and etc.)</p></td>
 </tr>
 </tbody>
 </table>
 
-<p><a href="http://stackoverflow.com/questions/37566751/what-should-i-do-to-prevent-a-401-unauthorised-when-using-the-swagger-type-provi/37628857#37628857">Read more about available configuration option.</a></p>
+<p><a href="http://stackoverflow.com/questions/37566751/what-should-i-do-to-prevent-a-401-unauthorised-when-using-the-swagger-type-provi/37628857#37628857">Read more about available configuration options.</a></p>
 <h3><a name="Usage-sample" class="anchor" href="#Usage-sample">Usage sample</a></h3>
 <p>Instantiate the types provided by the SwaggerProvider.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
