@@ -25,8 +25,8 @@ GROUP Build
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    DotLiquid (2.0.55)
-    FAKE (4.45.3)
+    DotLiquid (2.0.63)
+    FAKE (4.47)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.0.0.1)
     FSharp.Formatting (2.14.4)
@@ -39,7 +39,7 @@ NUGET
       FSharp.Core (>= 3.1.2.5)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (3121e610f04d4c9839f44326ab4ca02e28eb15a2)
+    modules/Octokit/Octokit.fsx (42a23a24b5d300644cbf8d8020d415f0111c053b)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
