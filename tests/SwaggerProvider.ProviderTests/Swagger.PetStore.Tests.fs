@@ -2,48 +2,49 @@
 
 open SwaggerProvider
 open FSharp.Data
-open NUnit.Framework
-open FsUnitTyped
+open Expecto
 
 type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type=application/json">
 let store = PetStore()
 
 let apiKey = "special-key"
 
-[<Test>]
-let ``Test provided Host property`` () =
-    store.Host |> shouldEqual "http://petstore.swagger.io"
-    store.Host <- "https://petstore.swagger.io"
-    store.Host |> shouldEqual "https://petstore.swagger.io"
-    store.Host <- "http://petstore.swagger.io"
-    store.Host |> shouldEqual "http://petstore.swagger.io"
 
-[<Test>]
-let ``instantiate provided objects`` () =
-    let pet = PetStore.Pet(Name = "foo")
-    pet.Name |> shouldEqual "foo"
-    pet.Name <- "bar"
-    pet.Name |> shouldEqual "bar"
+[<Tests>]
+let petStoreTests =
+  testList "All/TP PetStore Tests" [
 
-[<Test>]
-let ``call provided methods`` () =
-    try
-        store.DeletePet(1337L, apiKey)
-    with
-    | exn -> ()
+    testCase "Test provided Host property" <| fun _ ->
+        Expect.equal store.Host "http://petstore.swagger.io" "value from schema"
+        store.Host <- "https://petstore.swagger.io"
+        Expect.equal store.Host "https://petstore.swagger.io" "Modified value"
+        store.Host <- "http://petstore.swagger.io"
+        Expect.equal store.Host "http://petstore.swagger.io" "original value"
 
-    let tag = PetStore.Tag (Name = "foobar")
-    let pet = PetStore.Pet (Name = "foo", Id = Some 1337L, Status = "available")
+    testCase "instantiate provided objects" <| fun _ ->
+        let pet = PetStore.Pet(Name = "foo")
+        Expect.equal pet.Name "foo" "access initial value"
+        pet.Name <- "bar"
+        Expect.equal pet.Name "bar" "access modified value"
 
-    try
-        store.AddPet(pet)
-    with
-    | exn -> Assert.Fail ("Adding pet failed with message: " + exn.Message)
+    testCase "call provided methods" <| fun _ ->
+        try
+            store.DeletePet(1337L, apiKey)
+        with
+        | exn -> ()
 
-    let pet2 = store.GetPetById(1337L)
-    pet.Name        |> shouldEqual pet2.Name
-    pet.Id          |> shouldEqual pet.Id
-    pet.Category    |> shouldEqual pet2.Category
-    pet.Status      |> shouldEqual pet2.Status
-    pet             |> shouldNotEqual pet2
+        let tag = PetStore.Tag (Name = "foobar")
+        let pet = PetStore.Pet (Name = "foo", Id = Some 1337L, Status = "available")
 
+        try
+            store.AddPet(pet)
+        with
+        | exn -> failwithf "Adding pet failed with message: %s" exn.Message
+
+        let pet2 = store.GetPetById(1337L)
+        Expect.equal pet.Name     pet2.Name     "same Name"
+        Expect.equal pet.Id       pet.Id        "same Id"
+        Expect.equal pet.Category pet2.Category "same Category"
+        Expect.equal pet.Status   pet2.Status   "same Status"
+        Expect.notEqual pet pet2 "different objects"
+  ]

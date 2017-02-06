@@ -3,7 +3,7 @@
 open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open System
 open System.IO
-open NUnit.Framework
+open Expecto
 
 let referencedAssemblies =
     let rootDir =  __SOURCE_DIRECTORY__ + "/../../bin/SwaggerProvider/"
@@ -16,14 +16,7 @@ let referencedAssemblies =
 
 let scs = SimpleSourceCodeServices()
 
-
-let toTestCase (url:string) =
-    TestCaseData(url).SetName(sprintf "Compile schema %s" url)
-let JsonSchemasSource = APIsGuru.JsonSchemas |> Array.map toTestCase
-
-
-[<Test; TestCaseSource("JsonSchemasSource"); Category("Integration")>]
-let ``Compile TP`` url =
+let compileTP url =
     let tempFile = Path.GetTempFileName()
     let fs = Path.ChangeExtension(tempFile, ".fs")
     let dll = Path.ChangeExtension(tempFile, ".dll")
@@ -46,3 +39,14 @@ let ``Compile TP`` url =
     if exitCode <> 0 then
         failwithf "Compilation error:\n%s"
             (String.Join("\n", errors |> Array.map(fun x->x.ToString()) ))
+
+
+[<Tests>]
+let compilerTests =
+    List.ofArray  APIsGuru.JsonSchemas
+    |> List.map (fun url ->
+        testCase
+            (sprintf "Compile schema %s" url)
+            (fun _ -> compileTP url)
+       )
+    |> testList "Integration/Compile TP"

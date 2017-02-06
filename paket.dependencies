@@ -44,8 +44,6 @@ group Test
 	source https://nuget.org/api/v2
 	nuget FSharp.Data
 	nuget FSharp.Compiler.Service
+	nuget FSharp.Core  redirects: force
 
-	nuget NUnit
-	nuget NUnit.Console
-
-	github fsprojects/FsUnit src/FsUnit.NUnit/FsUnitTyped.fs
+	nuget Expecto

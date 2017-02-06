@@ -1,28 +1,32 @@
 ﻿module SwashbuckleResourceControllersTests
 
-open NUnit.Framework
-open FsUnitTyped
+open Expecto
 open System
 open SwashbuckleReturnControllersTests
 
-[<Test>]
-let ``ResourceStringString Add and get from resource dictionary`` () =
-    api.PutApiResourceStringString("lang", "F#")
+let shouldEqual expected actual =
+    Expect.equal actual expected "return value"
 
-    api.GetApiResourceStringString("lang")
-    |> shouldEqual "F#"
+[<Tests>]
+let resourceControllersTests =
+  testList "All/Swashbuckle.ResourceControllers.Tests" [
 
-[<Test>]
-let ``ResourceStringString Update value in the resource dictionary`` () =
-    api.PutApiResourceStringString("name", "Sergey")
-    api.GetApiResourceStringString("name")
-    |> shouldEqual "Sergey"
+    testCase "ResourceStringString Add and get from resource dictionary" <| fun _ ->
+        api.PutApiResourceStringString("lang", "F#")
 
-    api.PostApiResourceStringString("name", "Siarhei")
-    api.GetApiResourceStringString("name")
-    |> shouldEqual "Siarhei"
+        api.GetApiResourceStringString("lang")
+        |> shouldEqual "F#"
 
-[<Test>]
-let ``ResourceStringString Delete from the dictionary`` () =
-    api.PutApiResourceStringString("url", "http://localhost/")
-    api.DeleteApiResourceStringString("url")
+    testCase "ResourceStringString Update value in the resource dictionary" <| fun _ ->
+        api.PutApiResourceStringString("name", "Sergey")
+        api.GetApiResourceStringString("name")
+        |> shouldEqual "Sergey"
+
+        api.PostApiResourceStringString("name", "Siarhei")
+        api.GetApiResourceStringString("name")
+        |> shouldEqual "Siarhei"
+
+    testCase "ResourceStringString Delete from the dictionary" <| fun _ ->
+        api.PutApiResourceStringString("url", "http://localhost/")
+        api.DeleteApiResourceStringString("url")
+  ]

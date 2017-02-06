@@ -4,60 +4,65 @@ open SwaggerProvider.Internal.Schema
 open SwaggerProvider.Internal.Schema.Parsers
 open SwaggerProvider.Internal.Compilers
 open FSharp.Data
-open NUnit.Framework
-open FsUnitTyped
+open Expecto
 open System.IO
 
-[<SetUpFixture>]
-type SetUpCurrentDirectory() =
-    [<OneTimeSetUp>]
-    member __.OneTimeSetUp() =
-        let path = typeof<SetUpCurrentDirectory>.Assembly.Location
-        let dir = Path.GetDirectoryName(path)
-        System.Environment.CurrentDirectory <- dir
+type ThisAssemblyPointer() = class end
+let root =
+    typeof<ThisAssemblyPointer>.Assembly.Location
+    |> Path.GetDirectoryName
 
-[<Test>]
-let ``Schema parse of PetStore.Swagger.json sample`` () =
-    let schema =
-        "Schemas/PetStore.Swagger.json"
-        |> File.ReadAllText
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSwaggerObject
-    schema.Definitions |> shouldHaveLength 6
+let (!) b = Path.Combine(root,b)
 
-    schema.Info
-    |> shouldEqual {
-        Title = "Swagger Petstore"
-        Version = "1.0.0"
-        Description = "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters."
-    }
+[<Tests>]
+let petStoreTests =
+  testList "All/Schema PetStore" [
+    testCase "Schema parse of PetStore.Swagger.json sample (offline)" <| fun _ ->
+        let schema =
+            !"Schemas/PetStore.Swagger.json"
+            |> File.ReadAllText
+            |> JsonValue.Parse
+            |> JsonNodeAdapter
+            |> Parser.parseSwaggerObject
+        Expect.equal
+            (schema.Definitions.Length)
+            6 "only 6 objects in PetStore"
 
-[<Test>]
-let ``Schema parse of PetStore.Swagger.json sample (online)`` () =
-    let schema =
-        "Schemas/PetStore.Swagger.json"
-        |> File.ReadAllText
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSwaggerObject
-    schema.Definitions |> shouldHaveLength 6
+        let expectedInfo =
+            {
+                Title = "Swagger Petstore"
+                Version = "1.0.0"
+                Description = "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters."
+            }
+        Expect.equal (schema.Info) expectedInfo "PetStore schema info"
 
-    let schemaOnline =
-        "http://petstore.swagger.io/v2/swagger.json"
-        |> Http.RequestString
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSwaggerObject
+    testCase "Schema parse of PetStore.Swagger.json sample (online)" <| fun _ ->
+        let schema =
+            !"Schemas/PetStore.Swagger.json"
+            |> File.ReadAllText
+            |> JsonValue.Parse
+            |> JsonNodeAdapter
+            |> Parser.parseSwaggerObject
+        Expect.equal
+            (schema.Definitions.Length)
+            6 "only 6 objects in PetStore"
 
-    schemaOnline.BasePath |> shouldEqual schema.BasePath
-    schemaOnline.Host |> shouldEqual schema.Host
-    schemaOnline.Info |> shouldEqual schema.Info
-    schemaOnline.Schemes |> shouldEqual schema.Schemes
-    schemaOnline.Tags |> shouldEqual schema.Tags
-    schemaOnline.Definitions |> shouldEqual schema.Definitions
-    schemaOnline.Paths |> shouldEqual schema.Paths
-    schemaOnline |> shouldEqual schema
+        let schemaOnline =
+            "http://petstore.swagger.io/v2/swagger.json"
+            |> Http.RequestString
+            |> JsonValue.Parse
+            |> JsonNodeAdapter
+            |> Parser.parseSwaggerObject
+
+        Expect.equal schemaOnline.BasePath schema.BasePath "same BasePath"
+        Expect.equal schemaOnline.Host schema.Host "same Host"
+        Expect.equal schemaOnline.Info schema.Info "same Info"
+        Expect.equal schemaOnline.Schemes schema.Schemes "same allowed schemes"
+        Expect.equal schemaOnline.Tags schema.Tags "same tags"
+        Expect.equal schemaOnline.Definitions schema.Definitions "same object definitions"
+        Expect.equal schemaOnline.Paths schema.Paths "same paths"
+        Expect.equal schemaOnline schema "same schema objects"
+  ]
 
 let parserTestBody formatParser (url:string) =
     let schemaStr =
@@ -73,7 +78,9 @@ let parserTestBody formatParser (url:string) =
         let schema = formatParser schemaStr
                      |> Parsers.Parser.parseSwaggerObject
 
-        schema.Paths.Length + schema.Definitions.Length |> shouldBeGreaterThan 0
+        Expect.isGreaterThan
+            (schema.Paths.Length + schema.Definitions.Length)
+            0 "schema should provide type or operation definitions"
 
         //Number of generated types may be less than number of type definition in schema
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
@@ -83,21 +90,30 @@ let parserTestBody formatParser (url:string) =
         ignore <| defCompiler.GetProvidedTypes()
 
 
-let toTestCase (url:string) =
-    TestCaseData(url).SetName(sprintf "Parse schema %s" url)
-
 let private schemasFromTPTests =
     let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
     Directory.GetFiles(folder)
-let JsonSchemasSource = 
-    Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas]
-    |> Array.map toTestCase
+let JsonSchemasSource =
+    Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas] |> List.ofArray
+let YamlSchemasSource =
+    APIsGuru.YamlSchemas |> List.ofArray
 
-[<Test; TestCaseSource("JsonSchemasSource"); Category("Integration")>]
-let ``Parse Json Schema`` (url:string) =
-    parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url
+[<Tests>]
+let parseJsonSchemaTests =
+    JsonSchemasSource
+    |> List.map (fun url ->
+        testCase
+            (sprintf "Parse schema %s" url)
+            (fun _ -> parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url)
+       )
+    |> testList "Integration/Schema Json Schemas"
 
-let YamlSchemasSource = APIsGuru.YamlSchemas |> Array.map toTestCase
-[<Test; TestCaseSource("YamlSchemasSource"); Category("Integration")>]
-let ``Parse Yaml Schema`` url =
-    parserTestBody (SwaggerProvider.YamlParser.Parse >> YamlNodeAdapter) url
+[<Tests>]
+let parseYamlSchemaTests =
+    YamlSchemasSource
+    |> List.map (fun url ->
+        testCase
+            (sprintf "Parse schema %s" url)
+            (fun _ -> parserTestBody (YamlParser.Parse >> YamlNodeAdapter) url)
+       )
+    |> testList "Integration/Schema Yaml Schemas"

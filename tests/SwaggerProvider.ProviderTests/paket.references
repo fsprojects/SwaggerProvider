@@ -1,5 +1,5 @@
 group Test
-    NUnit
+    Expecto
     FSharp.Data
     FSharp.Compiler.Service
-    File:FsUnitTyped.fs
+    FSharp.Core

@@ -11,7 +11,7 @@ System.IO.Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
 #r @"packages/build/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.Git
-open Fake.Testing
+open Fake.Testing.Expecto
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open System
@@ -49,7 +49,7 @@ let tags = "F# sharp data typeprovider Swagger API REST"
 let solutionFile  = "SwaggerProvider.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
+let testAssemblies = "tests/**/bin/Release/*Tests*.exe"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -134,22 +134,22 @@ Target "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-Target "ExecuteUnitTests" (fun _ ->
+Target "RunUnitTests" (fun _ ->
     !! testAssemblies
-    |> NUnit3 (fun p ->
+    |> Expecto (fun p ->
         { p with
-            Where = "cat != Integration"
-            TimeOut = TimeSpan.FromMinutes 20.
-            Labels = LabelsLevel.All})
+            Parallel = false
+            Filter = "All/" } )
+    |> ignore
 )
 
-Target "ExecuteIntegrationTests" (fun _ ->
+Target "RunIntegrationTests" (fun _ ->
     !! testAssemblies
-    |> NUnit3 (fun p ->
+    |> Expecto (fun p ->
         { p with
-            Where = "cat == Integration"
-            TimeOut = TimeSpan.FromMinutes 20.
-            Labels = LabelsLevel.All})
+            Parallel = false
+            Filter = "Integration/" } )
+    |> ignore
 )
 
 FinalTarget "StopServer" (fun _ ->
@@ -256,8 +256,8 @@ Target "All" DoNothing
   ==> "CopyBinaries"
   ==> "StartServer"
   ==> "BuildTests"
-  ==> "ExecuteUnitTests"
-  =?> ("ExecuteIntegrationTests", not <| (hasBuildParam "skipTests"))
+  ==> "RunUnitTests"
+  =?> ("RunIntegrationTests", not <| (hasBuildParam "skipTests"))
   ==> "StopServer"
   ==> "RunTests"
   =?> ("GenerateDocs",isLocalBuild)
