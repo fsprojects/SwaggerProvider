@@ -36,7 +36,7 @@ group OWIN
 
 	nuget Microsoft.AspNet.WebApi.OwinSelfHost
 	nuget Swashbuckle.Core
-	nuget FSharp.Core
+	nuget FSharp.Core ~> 4.0.0 redirects: force
 
 group Test
 	framework: net45
@@ -44,6 +44,6 @@ group Test
 	source https://nuget.org/api/v2
 	nuget FSharp.Data
 	nuget FSharp.Compiler.Service
-	nuget FSharp.Core  redirects: force
+	nuget FSharp.Core ~> 4.0.0 redirects: force
 
 	nuget Expecto
