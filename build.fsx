@@ -123,6 +123,7 @@ Target "Build" (fun _ ->
 Target "StartServer" (fun _ ->
     ProcessHelper.StartProcess (fun prInfo ->
         prInfo.FileName <- "tests/Swashbuckle.OWIN.Server/bin/Release/Swashbuckle.OWIN.Server.exe")
+    System.Threading.Thread.Sleep(2000)
 )
 
 Target "BuildTests" (fun _ ->
