@@ -35,8 +35,12 @@ let main argv =
         Console.ReadLine() |> ignore
         System.Diagnostics.Process.Start(swaggerUiUrl) |> ignore
 
-        printf  "\nPress Enter key to stop"
-        Console.ReadLine() |> ignore
+        let rec exitLoop () =
+            printf  "\nPlease enter 'q' to exit:"
+            match (Console.ReadLine()) with
+            | "q" | "Q" -> ()
+            | _ -> exitLoop()
+        exitLoop()
     with
     | e ->
         printfn "Exception %A" e
