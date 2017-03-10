@@ -35,12 +35,15 @@ let main argv =
         Console.ReadLine() |> ignore
         System.Diagnostics.Process.Start(swaggerUiUrl) |> ignore
 
-        let rec exitLoop () =
-            printf  "\nPlease enter 'q' to exit:"
+        let rec exitLoop n =
+            printf  "\nPlease enter 'q' to exit (%d):" n
             match (Console.ReadLine()) with
             | "q" | "Q" -> ()
-            | _ -> exitLoop()
-        exitLoop()
+            | _ ->
+                printfn "Sleep (%d) 5000" n
+                System.Threading.Thread.Sleep(5000)
+                exitLoop (n+1)
+        exitLoop 0
     with
     | e ->
         printfn "Exception %A" e
