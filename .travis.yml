@@ -1,5 +1,9 @@
 language: csharp
 
+os:
+  - linux
+  - osx
+
 sudo: false  # use the new container-based Travis infrastructure 
 
 script: 
