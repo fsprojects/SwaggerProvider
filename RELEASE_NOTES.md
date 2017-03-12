@@ -1,3 +1,6 @@
+#### 0.5.7 - March 12, 2017
+- Improved URL construction [#66](https://github.com/fsprojects/SwaggerProvider/pull/66)
+
 #### 0.5.6 - August 31, 2016
 - Added NTLM auth for schema request [#50](https://github.com/fsprojects/SwaggerProvider/issues/50)
 
@@ -71,7 +74,7 @@
 * Fixed bugs in query builder logic
 * Added support of nice names for provided parameters
 * Added support of JSON serialization for properties with nice names
-* Auto Content-Type:application/json header to POST queries when it is supported 
+* Auto Content-Type:application/json header to POST queries when it is supported
 * Fixed bug in float compilation
 * Added communication tests for data transferring to the server
 

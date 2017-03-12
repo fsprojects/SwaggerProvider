@@ -265,7 +265,7 @@ Target "All" DoNothing
   ==> "All"
   ==> "NuGet"
   ==> "BuildPackage"
-  ==> "PublishNuget"
+  //==> "PublishNuget"
   ==> "Release"
 
 RunTargetOrDefault "BuildPackage"
