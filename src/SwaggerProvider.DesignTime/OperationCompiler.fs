@@ -50,7 +50,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
             let basePath =
                 let basePath = schema.BasePath
-                <@  (%%host : string) + basePath @>
+                <@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl (%%host : string) basePath @>
 
             // Fit headers into quotation
             let headers =
@@ -138,7 +138,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                     (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers)
 
 
-            let address = <@@ %basePath + (%%path :string ) @@>
+            let address = <@@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl %basePath (%%path :string ) @@>
             let restCall = op.Type.ToString()
 
             let customizeHttpRequest =

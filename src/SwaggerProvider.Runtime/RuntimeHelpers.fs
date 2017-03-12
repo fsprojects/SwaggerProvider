@@ -109,3 +109,6 @@ module RuntimeHelpers =
         settings.Converters.Add(new ByteArrayConverter () :> JsonConverter)
         fun value (retTy:Type) ->
             JsonConvert.DeserializeObject(value, retTy, settings)
+
+    let combineUrl (urlA:string) (urlB:string) =
+        sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
