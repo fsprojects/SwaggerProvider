@@ -5,7 +5,7 @@
 
 // Standard NuGet locations packages
 #I "../Newtonsoft.Json.9.0.1/lib/net45"
-#I "../YamlDotNet.3.9.0/lib/net35"
+#I "../YamlDotNet.4.1.0/lib/net35"
 
 // Standard Paket locations packages
 #I "../Newtonsoft.Json/lib/net45"
