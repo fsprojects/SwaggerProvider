@@ -39,10 +39,8 @@ let private ignoreList =
      "https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.yaml"
 
      // Following schemas require additional investigation and fixes
-     "https://api.apis.guru/v2/specs/clarify.io/1.2.3/swagger.json" // Stack overflow
-     "https://api.apis.guru/v2/specs/clarify.io/1.2.3/swagger.yaml" // Stack overflow
-     "https://api.apis.guru/v2/specs/clarify.io/1.2.7/swagger.json" // System.ArgumentNullException: key
-     "https://api.apis.guru/v2/specs/clarify.io/1.2.7/swagger.yaml" // System.ArgumentNullException: key
+     "https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.json" // Stack overflow
+     "https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.yaml" // Stack overflow
     ] |> Set.ofList
 let private skipIgnored = ignoreList.Contains >> not
 
