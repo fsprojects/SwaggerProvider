@@ -8,7 +8,6 @@ open Expecto
 let referencedAssemblies =
     let rootDir =  __SOURCE_DIRECTORY__ + "/../../bin/SwaggerProvider/"
     ["SwaggerProvider.Runtime.dll"
-     "SwaggerProvider.DesignTime.dll"
      "SwaggerProvider.dll";]
     |> List.map (fun x->
         ["-r"; Path.Combine(rootDir, x)])
