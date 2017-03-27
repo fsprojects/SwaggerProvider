@@ -22,6 +22,12 @@ type DefinitionCompiler (schema:SwaggerObject) =
         providedTys.Add(newName, None)
         newName
 
+    let getPropertyNameAttribute name =
+        { new System.Reflection.CustomAttributeData() with
+            member __.Constructor =  typeof<Newtonsoft.Json.JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
+            member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> System.Collections.Generic.IList<_>
+            member __.NamedArguments = [||] :> System.Collections.Generic.IList<_> }
+
     let generateProperty propName ty (scope:UniqueNameGenerator) =
         let propertyName = scope.MakeUnique <| nicePascalName propName
         let providedField = ProvidedField("_" + propertyName.ToLower(), ty)
@@ -31,7 +37,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
                 SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
         if propName <> propertyName then
             providedProperty.AddCustomAttribute
-                <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute propName
+                <| getPropertyNameAttribute propName
         providedField, providedProperty
 
     let rec compileDefinition (tyDefName:string) =

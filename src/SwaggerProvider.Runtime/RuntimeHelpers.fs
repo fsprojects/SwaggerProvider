@@ -1,6 +1,7 @@
 ﻿namespace SwaggerProvider.Internal
 
 open System
+open System.Reflection
 open Newtonsoft.Json
 open Microsoft.FSharp.Reflection
 
@@ -14,25 +15,32 @@ type ProvidedSwaggerBaseType (host:string) =
 type private OptionConverter() =
     inherit JsonConverter()
 
-    override x.CanConvert(t) =
-        t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<option<_>>
+    override x.CanConvert(ty) =
+        let tyi = ty.GetTypeInfo()
+        tyi.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<option<_>>
 
     override x.WriteJson(writer, value, serializer) =
         let value =
-            if isNull value then null
+            if value = null then null
             else
                 let _,fields = FSharpValue.GetUnionFields(value, value.GetType())
                 fields.[0]
         serializer.Serialize(writer, value)
 
-    override x.ReadJson(reader, t, existingValue, serializer) =
-        let innerType = t.GetGenericArguments().[0]
+    override x.ReadJson(reader, ty, existingValue, serializer) =
+        let tyi = ty.GetTypeInfo()
         let innerType =
-            if innerType.IsValueType then (typedefof<Nullable<_>>).MakeGenericType([|innerType|])
+            let args = if tyi.IsGenericTypeDefinition
+                       then tyi.GenericTypeParameters
+                       else tyi.GenericTypeArguments
+            args.[0]
+        let innerType =
+            let inTyi = innerType.GetTypeInfo()
+            if inTyi.IsValueType then (typedefof<Nullable<_>>).MakeGenericType([|innerType|])
             else innerType
         let value = serializer.Deserialize(reader, innerType)
-        let cases = FSharpType.GetUnionCases(t)
-        if isNull value then FSharpValue.MakeUnion(cases.[0], [||])
+        let cases = FSharpType.GetUnionCases(ty)
+        if value = null then FSharpValue.MakeUnion(cases.[0], [||])
         else FSharpValue.MakeUnion(cases.[1], [|value|])
 
 type private ByteArrayConverter() =
@@ -89,12 +97,6 @@ module RuntimeHelpers =
         | :? Option<string> as x -> x |> toStrOpt name
         | :? Option<System.DateTime> as x -> x |> toStrOpt name
         | _ -> [name, obj.ToString()]
-
-    let getPropertyNameAttribute name =
-        { new Reflection.CustomAttributeData() with
-            member __.Constructor =  typeof<Newtonsoft.Json.JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
-            member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> System.Collections.Generic.IList<_>
-            member __.NamedArguments = [||] :> System.Collections.Generic.IList<_> }
 
     let serialize =
         let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)

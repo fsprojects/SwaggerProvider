@@ -1,7 +1,7 @@
 source https://nuget.org/api/v2
-framework: >= net45
 
-nuget Newtonsoft.Json >= 9.0.1
+nuget Newtonsoft.Json >= 10.0.1
+nuget FSharp.Core ~> 3.1.2
 nuget YamlDotNet
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
