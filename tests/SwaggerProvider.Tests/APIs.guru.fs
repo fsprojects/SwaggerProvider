@@ -35,12 +35,12 @@ let private schemaUrls =
     Array.concat [manualSchemaUrls; apisGuruJsonSchemaUrls]
 
 let private ignoreList =
-    ["https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.json"
+    ["https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.json" // tricky `allOf` using DateTime
      "https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.yaml"
 
      // Following schemas require additional investigation and fixes
-     "https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.json" // Stack overflow
-     "https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.yaml" // Stack overflow
+     //"https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.json" // Stack overflow
+     //"https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.yaml"
     ] |> Set.ofList
 let private skipIgnored = ignoreList.Contains >> not
 
