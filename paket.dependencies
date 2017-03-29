@@ -40,8 +40,8 @@ group OWIN
 
 group Test
 	framework: net45
-
 	source https://nuget.org/api/v2
+
 	nuget FSharp.Data
 	nuget FSharp.Compiler.Service
 	nuget FSharp.Core redirects: force

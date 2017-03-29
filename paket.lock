@@ -331,7 +331,7 @@ FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     DotLiquid (2.0.64)
-    FAKE (4.57.2)
+    FAKE (4.57.4)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.1.2)
       System.ValueTuple (>= 4.3)
@@ -346,7 +346,7 @@ NUGET
     System.ValueTuple (4.3)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (5d6f1623e4a60a1eb972e0e655e1e57991b26f71)
+    modules/Octokit/Octokit.fsx (8a0082b3cea5849e1ba1fbdb014f4197aa62d09a)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
@@ -387,7 +387,7 @@ NUGET
       Argu (>= 3.2)
       FSharp.Core (>= 3.1.2.5)
       Mono.Cecil (>= 0.9.6.4)
-    FSharp.Compiler.Service (11.0.9)
+    FSharp.Compiler.Service (11.0.10)
       System.Collections.Immutable (>= 1.2)
       System.Reflection.Metadata (>= 1.4.1-beta-24227-04)
     FSharp.Core (4.1.2) - redirects: force
