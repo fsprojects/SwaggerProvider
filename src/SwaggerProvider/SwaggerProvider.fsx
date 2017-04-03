@@ -18,5 +18,5 @@
 // Reference SwaggerProvider and Newtonsoft.Json
 #r "Newtonsoft.Json.dll"
 #r "YamlDotNet.dll"
-#r "SwaggerProvider.dll"
 #r "SwaggerProvider.Runtime.dll"
+#r "SwaggerProvider.dll"

@@ -1,4 +1,5 @@
-type project
+type file
+id SwaggerProvider
 owners
     Sergey Tihon
 authors
