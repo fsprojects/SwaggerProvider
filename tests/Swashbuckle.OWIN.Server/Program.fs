@@ -31,9 +31,9 @@ let main argv =
         printfn "Swagger UI is running on %s" swaggerUiUrl
         printfn "Swagger Json Schema is available on %s/swagger/docs/v1" hostAddress
 
-        printf  "\nPress Enter to open Swagger UI"
-        Console.ReadLine() |> ignore
-        System.Diagnostics.Process.Start(swaggerUiUrl) |> ignore
+        //printf  "\nPress Enter to open Swagger UI"
+        //Console.ReadLine() |> ignore
+        //System.Diagnostics.Process.Start(swaggerUiUrl) |> ignore
 
         let rec exitLoop n =
             printf  "\nPlease enter 'q' to exit (%d):" n
@@ -43,7 +43,8 @@ let main argv =
                 printfn "Sleep (%d) 5000" n
                 System.Threading.Thread.Sleep(5000)
                 exitLoop (n+1)
-        exitLoop 0
+        //exitLoop 0
+        System.Threading.Thread.Sleep(60*60*1000)
     with
     | e ->
         printfn "Exception %A" e

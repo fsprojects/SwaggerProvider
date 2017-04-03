@@ -1,3 +1,6 @@
+#### 0.6.0-alpha1 - March 27, 2017
+- Target Profile259 profile (Xamarin support)
+
 #### 0.5.7 - March 12, 2017
 - Improved URL construction [#66](https://github.com/fsprojects/SwaggerProvider/pull/66)
 

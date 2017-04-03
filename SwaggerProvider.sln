@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.Runtime", "src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj", "{AD0B2860-9373-4BD9-906D-6D19F2F7DEE9}"
 EndProject

@@ -1,4 +1,5 @@
-type project
+type file
+id SwaggerProvider
 owners
     Sergey Tihon
 authors
@@ -20,8 +21,11 @@ summary
 description
     F# Type Provider for Swagger
 files
-    ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net45
+    ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib
+    ../../bin/SwaggerProvider/YamlDotNet.* ==> lib
     SwaggerProvider.fsx ==> .
 dependencies
-    Newtonsoft.Json >= 9.0.1
-    YamlDotNet >= 4.1
+    Newtonsoft.Json >= 10.0.1
+references
+    SwaggerProvider.dll
+    SwaggerProvider.Runtime.dll

@@ -62,6 +62,29 @@ let petStoreTests =
         Expect.equal schemaOnline.Definitions schema.Definitions "same object definitions"
         Expect.equal schemaOnline.Paths schema.Paths "same paths"
         Expect.equal schemaOnline schema "same schema objects"
+
+    testCase "Schema parse of clarify.io.1.3.0.json sample (offline)" <| fun _ ->
+        let schema =
+            !"Schemas/clarify.io.1.3.0.json"
+            |> File.ReadAllText
+            |> JsonValue.Parse
+            |> JsonNodeAdapter
+            |> Parser.parseSwaggerObject
+        Expect.equal
+            (schema.Definitions.Length)
+            21 "schema should have definitions of 21 objects"
+
+    ptestCase "Schema parse of rebilly.com.2.1.json sample (offline)" <| fun _ ->
+        let schema =
+            !"Schemas/rebilly.com.2.1.json"
+            |> File.ReadAllText
+            |> JsonValue.Parse
+            |> JsonNodeAdapter
+            |> Parser.parseSwaggerObject
+        Expect.equal
+            (schema.Definitions.Length)
+            6 "only 6 objects in PetStore"
+
   ]
 
 let parserTestBody formatParser (url:string) =

@@ -6,13 +6,17 @@ open System.IO
 open Expecto
 
 let referencedAssemblies =
-    let rootDir =  __SOURCE_DIRECTORY__ + "/../../bin/SwaggerProvider/"
-    ["SwaggerProvider.Runtime.dll"
-     "SwaggerProvider.DesignTime.dll"
-     "SwaggerProvider.dll";]
-    |> List.map (fun x->
-        ["-r"; Path.Combine(rootDir, x)])
-    |> List.concat
+    let buildTarget name =
+        Path.Combine(__SOURCE_DIRECTORY__, "../../bin/SwaggerProvider/", name)
+    [
+        Path.Combine(__SOURCE_DIRECTORY__, "../../packages/test/FSharp.Core/lib/net45/FSharp.Core.dll")
+        buildTarget "SwaggerProvider.Runtime.dll"
+        buildTarget "SwaggerProvider.dll"
+    ]
+    |> List.collect (fun path ->
+        if not <| File.Exists(path)
+            then failwithf "File not found '%s'" path
+        ["-r"; path])
 
 let scs = SimpleSourceCodeServices()
 
@@ -30,7 +34,9 @@ let compileTP url =
 
     let errors, exitCode =
         scs.Compile(Array.ofList
-           (["fsc.exe"; "-o"; dll; "-a"; fs] @ referencedAssemblies))
+           (["fsc.exe"; "--noframework";
+             "-o"; dll; "-a"; fs
+            ] @ referencedAssemblies))
 
     [tempFile; fs; dll]
     |> List.filter File.Exists
