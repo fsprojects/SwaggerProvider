@@ -2,6 +2,7 @@ source https://nuget.org/api/v2
 framework: >= net45
 
 nuget Newtonsoft.Json >= 9.0.1
+nuget FSharp.Core ~> 4.0.0
 nuget YamlDotNet
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
@@ -36,7 +37,7 @@ group OWIN
 
 	nuget Microsoft.AspNet.WebApi.OwinSelfHost
 	nuget Swashbuckle.Core
-	nuget FSharp.Core ~> 4.0.0 redirects: force
+	nuget FSharp.Core redirects: force
 
 group Test
 	framework: net45
@@ -44,6 +45,6 @@ group Test
 	source https://nuget.org/api/v2
 	nuget FSharp.Data
 	nuget FSharp.Compiler.Service
-	nuget FSharp.Core ~> 4.0.0 redirects: force
+	nuget FSharp.Core redirects: force
 
 	nuget Expecto

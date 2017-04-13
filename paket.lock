@@ -1,34 +1,35 @@
 FRAMEWORK: >= NET45
 NUGET
   remote: https://www.nuget.org/api/v2
+    FSharp.Core (4.0.0.1)
     Newtonsoft.Json (9.0.1)
     YamlDotNet (4.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/CommonRuntime/NameUtils.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/CommonRuntime/Pluralizer.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/CommonRuntime/StructuralTypes.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/CommonRuntime/TextConversions.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/Json/JsonConversions.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/Json/JsonExtensions.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/Json/JsonValue.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/Net/Http.fs (1608eee2235784205b870979d9f7aa88d09f506b)
-    src/Net/UriUtils.fs (1608eee2235784205b870979d9f7aa88d09f506b)
+    src/CommonRuntime/IO.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/CommonRuntime/NameUtils.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/CommonRuntime/Pluralizer.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/CommonRuntime/StructuralTypes.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/CommonRuntime/TextConversions.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/Json/JsonConversions.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/Json/JsonExtensions.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/Json/JsonValue.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/Net/Http.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/Net/UriUtils.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
     src/ProvidedTypes.fs (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
     src/ProvidedTypes.fsi (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
     src/ProvidedTypesTesting.fs (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
   remote: fsprojects/FSharp.Configuration
-    src/FSharp.Configuration/TypeProviders.Helper.fs (bc5ec3a8537a79f81ddc9f90eccdc37e383535ad)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (5bbc32fbb9337f53c79a76c83bc8d30d9bd784ec)
 GROUP Build
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     DotLiquid (2.0.64)
-    FAKE (4.56)
+    FAKE (4.58.6)
     FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Core (4.1.0.2)
+    FSharp.Core (4.1.2)
       System.ValueTuple (>= 4.3)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
@@ -36,18 +37,19 @@ NUGET
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
     Octokit (0.24)
-    Suave (2.0.5)
+    Suave (2.1)
       FSharp.Core (>= 4.0.0.1)
     System.ValueTuple (4.3)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (0cca21da332895437de5785210610bd055a77ac2)
+    modules/Octokit/Octokit.fsx (dad2dec00064233e9742b458d96fe64708f3be8a)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Core (4.0.0.1) - redirects: force
+    FSharp.Core (4.1.2) - redirects: force
+      System.ValueTuple (>= 4.3)
     Microsoft.AspNet.WebApi.Client (5.2.3)
       Newtonsoft.Json (>= 6.0.4)
     Microsoft.AspNet.WebApi.Core (5.2.3)
@@ -60,32 +62,35 @@ NUGET
       Microsoft.AspNet.WebApi.Owin (>= 5.2.3 < 5.3)
       Microsoft.Owin.Host.HttpListener (>= 2.0.2)
       Microsoft.Owin.Hosting (>= 2.0.2)
-    Microsoft.Owin (3.0.1)
+    Microsoft.Owin (3.1)
       Owin (>= 1.0)
-    Microsoft.Owin.Host.HttpListener (3.0.1)
-    Microsoft.Owin.Hosting (3.0.1)
-      Microsoft.Owin (>= 3.0.1)
+    Microsoft.Owin.Host.HttpListener (3.1)
+    Microsoft.Owin.Hosting (3.1)
+      Microsoft.Owin (>= 3.1)
       Owin (>= 1.0)
-    Newtonsoft.Json (9.0.1)
+    Newtonsoft.Json (10.0.2)
     Owin (1.0)
     Swashbuckle.Core (5.5.3)
       Microsoft.AspNet.WebApi.Core (>= 4.0.20710)
+    System.ValueTuple (4.3) - redirects: force
 
 GROUP Test
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     Argu (3.7)
-    Expecto (4.1)
-      Argu (>= 3.2)
+    Expecto (4.1.1)
+      Argu (>= 3.7)
       FSharp.Core (>= 3.1.2.5)
       Mono.Cecil (>= 0.9.6.4)
-    FSharp.Compiler.Service (11.0.6)
-      System.Collections.Immutable (>= 1.2)
-      System.Reflection.Metadata (>= 1.4.1-beta-24227-04)
-    FSharp.Core (4.0.0.1) - redirects: force
-    FSharp.Data (2.3.2)
+    FSharp.Compiler.Service (12.0.5)
+      System.Collections.Immutable (>= 1.3.1)
+      System.Reflection.Metadata (>= 1.4.2)
+    FSharp.Core (4.1.2) - redirects: force
+      System.ValueTuple (>= 4.3)
+    FSharp.Data (2.3.3)
     Mono.Cecil (0.9.6.4)
     System.Collections.Immutable (1.3.1)
     System.Reflection.Metadata (1.4.2)
       System.Collections.Immutable (>= 1.3.1)
+    System.ValueTuple (4.3) - redirects: force
