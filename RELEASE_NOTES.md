@@ -1,4 +1,5 @@
-#### 0.6.0 - April 14, 2017
+#### 0.6.0 - April 13, 2017
+* Supported `allOf` composition with `properties` definition in the same SchemaObject - https://github.com/fsprojects/SwaggerProvider/issues/72
 * No runtime dependency on YamlDotNet
 * NuGet dependency on FSharp.Core
 
