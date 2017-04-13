@@ -39,8 +39,8 @@ let private ignoreList =
      "https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.yaml"
 
      // Following schemas require additional investigation and fixes
-     "https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.json" // StackOverflowException during FCS compilation
-     "https://api.apis.guru/v2/specs/clarify.io/1.3.0/swagger.yaml"
+     "https://api.apis.guru/v2/specs/clarify.io/1.3.3/swagger.json" // StackOverflowException during FCS compilation
+     "https://api.apis.guru/v2/specs/clarify.io/1.3.3/swagger.yaml"
     ] |> Set.ofList
 let private skipIgnored = ignoreList.Contains >> not
 
