@@ -1,1 +1,14 @@
+File: ProvidedTypes.fsi
+File: ProvidedTypes.fs
+File: ProvidedTypesTesting.fs
+File: UriUtils.fs
+File: Http.fs
+File: IO.fs
+File: TextConversions.fs
+File: Pluralizer.fs
+File: NameUtils.fs
+File: JsonValue.fs
+File: JsonConversions.fs
+File: JsonExtensions.fs
+File: TypeProviders.Helper.fs
 FSharp.Core
