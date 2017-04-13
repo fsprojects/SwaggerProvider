@@ -35,9 +35,7 @@ let private schemaUrls =
     Array.concat [manualSchemaUrls; apisGuruJsonSchemaUrls]
 
 let private ignoreList =
-    ["https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.json" // tricky `allOf` using DateTime
-     "https://api.apis.guru/v2/specs/rebilly.com/2.1/swagger.yaml"
-
+    [
      // Following schemas require additional investigation and fixes
      "https://api.apis.guru/v2/specs/clarify.io/1.3.3/swagger.json" // StackOverflowException during FCS compilation
      "https://api.apis.guru/v2/specs/clarify.io/1.3.3/swagger.yaml"
