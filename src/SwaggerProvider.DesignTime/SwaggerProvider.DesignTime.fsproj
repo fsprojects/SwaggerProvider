@@ -44,43 +44,56 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fsi">
-      <Link>FSharp.TypeProviders.StarterPack\ProvidedTypes.fsi</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/ProvidedTypes.fsi</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
-      <Link>FSharp.TypeProviders.StarterPack\ProvidedTypes.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypesTesting.fs">
-      <Link>FSharp.TypeProviders.StarterPack\ProvidedTypesTesting.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/ProvidedTypesTesting.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
-      <Link>FSharp.Data\Net\UriUtils.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/UriUtils.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\Http.fs">
-      <Link>FSharp.Data\Net\Http.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/Http.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\IO.fs">
-      <Link>FSharp.Data\CommonRuntime\IO.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/IO.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextConversions.fs">
-      <Link>FSharp.Data\CommonRuntime\TextConversions.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/TextConversions.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
-      <Link>FSharp.Data\CommonRuntime\Pluralizer.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/Pluralizer.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\NameUtils.fs">
-      <Link>FSharp.Data\CommonRuntime\NameUtils.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/NameUtils.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonValue.fs">
-      <Link>FSharp.Data\Json\JsonValue.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/JsonValue.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonConversions.fs">
-      <Link>FSharp.Data\Json\JsonConversions.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/JsonConversions.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonExtensions.fs">
-      <Link>FSharp.Data\Json\JsonExtensions.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/JsonExtensions.fs</Link>
     </Compile>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.Configuration\src\FSharp.Configuration\TypeProviders.Helper.fs">
-      <Link>FSharp.Configuration\TypeProviders.Helper.fs</Link>
+      <Paket>True</Paket>
+      <Link>paket-files/TypeProviders.Helper.fs</Link>
     </Compile>
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
