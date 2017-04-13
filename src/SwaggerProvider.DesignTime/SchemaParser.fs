@@ -69,105 +69,105 @@ module Parser =
     /// Parses the JsonValue as a SchemaObject
     let rec parseSchemaObject (definitions:Dictionary<string,Lazy<SchemaObject>>) (obj:SchemaNode) : SchemaObject =
         let spec = "http://swagger.io/specification/#schemaObject"
-        let parsers : (SchemaNode->Option<SchemaObject>)[] =
-            [|
-                (fun obj -> // Parse `enum` - http://json-schema.org/latest/json-schema-validation.html#anchor76
-                    obj.TryGetProperty("enum")
-                    |> Option.map (fun enum -> Enum (enum.AsArray() |> Array.map (fun x->x.AsString())))
-                )
-                (fun obj -> // Parse `$refs`
-                    obj.TryGetProperty("$ref")
-                    |> Option.map (fun ref -> Reference (ref.AsString()) )
-                )
-                (fun obj -> // Parse Arrays - http://json-schema.org/latest/json-schema-validation.html#anchor36
-                            // TODO: `items` may be an array, `additionalItems` may be filled
-                    obj.TryGetProperty("type")
-                    |> Option.bind (fun ty ->
-                        match ty.AsStringArrayWithoutNull() with
-                        | [|"array"|] -> obj.TryGetProperty("items")
-                        | _ -> None
-                       )
-                    |> Option.map ((parseSchemaObject definitions) >> Array)
-                )
-                (fun obj -> // Parse primitive types
-                     obj.TryGetProperty("type")
-                     |> Option.bind (fun ty ->
-                        let format = obj.GetStringSafe("format")
-                        match ty.AsStringArrayWithoutNull() with
-                        | [|"boolean"|] -> Some Boolean
-                        | [|"integer"|] when format = "int32" -> Some Int32
-                        | [|"integer"|] -> Some Int64
-                        | [|"number"|] when format = "float" -> Some Float
-                        | [|"number"|] when format = "int32" -> Some Int32
-                        | [|"number"|] when format = "int64" -> Some Int64
-                        | [|"number"|] -> Some Double
-                        | [|"string"|] when format = "date" -> Some Date
-                        | [|"string"|] when format = "date-time" -> Some DateTime
-                        | [|"string"|] when format = "byte" -> Some <| Array Byte
-                        | [|"string"|] -> Some String
-                        | [|"file"|] -> Some File
-                        | _ -> None
-                    )
-                )
-                (fun obj -> // TODO: Parse Objects
-                    obj.TryGetProperty("properties")
-                    |> Option.bind (fun properties ->
-                        let requiredProperties =
-                          match obj.TryGetProperty("required") with
-                          | None -> Set.empty<_>
-                          | Some(req) ->
-                              req.AsArray()
-                              |> Array.map (fun x-> x.AsString())
-                              |> Set.ofArray
-                        let properties =
-                          properties.Properties()
-                          |> Array.map (fun (name,obj) ->
-                              parseDefinitionProperty definitions (name, obj, requiredProperties.Contains name))
 
-                        Some <| Object properties
-                      )
-                )
-                (fun obj -> // Parse Object that represent Dictionary
-                    match obj.TryGetProperty("type") with
-                    | Some(ty) when ty.AsStringArrayWithoutNull() = [|"object"|] ->
-                        obj.TryGetProperty("additionalProperties")
-                        |> Option.map ((parseSchemaObject definitions) >> SchemaObject.Dictionary)
-                    | _ -> None
-                )
-                (fun obj -> // Models with Composition
-                    match obj.TryGetProperty("allOf") with
-                    | Some(allOf) ->
-                        let props =
-                            allOf.AsArray()
-                            |> Array.map (parseSchemaObject definitions)
-                            |> Array.map (function
+        let (|IsEnum|_|) (obj:SchemaNode) =
+            // Parse `enum` - http://json-schema.org/latest/json-schema-validation.html#anchor76
+            obj.TryGetProperty("enum")
+            |> Option.map (fun cases -> cases.AsArray() |> Array.map (fun x->x.AsString()))
+        let (|IsRef|_|) (obj:SchemaNode) =
+            obj.TryGetProperty("$ref") // Parse `$refs`
+            |> Option.map (fun ref -> ref.AsString())
+        let (|IsArray|_|) (obj:SchemaNode) =
+            // Parse Arrays - http://json-schema.org/latest/json-schema-validation.html#anchor36
+            // TODO: `items` may be an array, `additionalItems` may be filled
+            obj.TryGetProperty("type")
+            |> Option.bind (fun ty ->
+                match ty.AsStringArrayWithoutNull() with
+                | [|"array"|] -> obj.TryGetProperty("items")
+                | _ -> None
+               )
+            |> Option.map (parseSchemaObject definitions)
+        let (|IsPrimitive|_|) (obj:SchemaNode) =
+            // Parse primitive types
+            obj.TryGetProperty("type")
+            |> Option.bind (fun ty ->
+                let format = obj.GetStringSafe("format")
+                match ty.AsStringArrayWithoutNull() with
+                | [|"boolean"|] -> Some Boolean
+                | [|"integer"|] when format = "int32" -> Some Int32
+                | [|"integer"|] -> Some Int64
+                | [|"number"|] when format = "float" -> Some Float
+                | [|"number"|] when format = "int32" -> Some Int32
+                | [|"number"|] when format = "int64" -> Some Int64
+                | [|"number"|] -> Some Double
+                | [|"string"|] when format = "date" -> Some Date
+                | [|"string"|] when format = "date-time" -> Some DateTime
+                | [|"string"|] when format = "byte" -> Some <| Array Byte
+                | [|"string"|] -> Some String
+                | [|"file"|] -> Some File
+                | _ -> None
+            )
+        let (|IsObject|_|) (obj:SchemaNode) =
+            // TODO: Parse Objects
+            obj.TryGetProperty("properties")
+            |> Option.map (fun properties ->
+                let requiredProperties =
+                    match obj.TryGetProperty("required") with
+                    | None -> Set.empty<_>
+                    | Some(req) ->
+                        req.AsArray()
+                        |> Array.map (fun x-> x.AsString())
+                        |> Set.ofArray
+                let properties =
+                    properties.Properties()
+                    |> Array.map (fun (name,obj) ->
+                        parseDefinitionProperty definitions (name, obj, requiredProperties.Contains name))
+
+                properties
+               )
+        let (|IsDict|_|) (obj:SchemaNode) =
+            // Parse Object that represent Dictionary
+            match obj.TryGetProperty("type") with
+            | Some(ty) when ty.AsStringArrayWithoutNull() = [|"object"|] ->
+                obj.TryGetProperty("additionalProperties")
+                |> Option.map (parseSchemaObject definitions)
+            | _ -> None
+        let (|IsComposition|_|) (obj:SchemaNode) =
+            // Models with Composition
+            match obj.TryGetProperty("allOf") with
+            | Some(allOf) ->
+                let props =
+                    allOf.AsArray()
+                    |> Array.map (parseSchemaObject definitions)
+                    |> Array.map (function
+                        | Object props -> props
+                        | Reference path ->
+                            match definitions.TryGetValue path with
+                            | true, lazeObj ->
+                                match lazeObj.Value with
                                 | Object props -> props
-                                | Reference path ->
-                                    match definitions.TryGetValue path with
-                                    | true, lazeObj ->
-                                        match lazeObj.Value with
-                                        | Object props -> props
-                                        | _ -> failwithf "Could not compose %A" obj
-                                    | _ -> failwithf "Reference to unknown type %s" path
-                                | obj -> failwithf "Could not compose %A" obj)
-                            |> Array.concat
-                        Some <| Object props
-                    | None -> None
-                )
-                (fun obj -> // Models with Polymorphism Support
-                    match obj.TryGetProperty("discriminator") with
-                    | Some(discriminator) ->
-                        failwith "Models with Polymorphism Support is not supported yet. If you see this error plrease report it on GitHub (https://github.com/fsprojects/SwaggerProvider/issues) with schema example."
-                    | None -> None
-                )
-            |]
+                                | _ -> failwithf "Could not compose %A" obj
+                            | _ -> failwithf "Reference to unknown type %s" path
+                        | obj -> failwithf "Could not compose %A" obj)
+                    |> Array.concat
+                Some props
+            | None -> None
+        let (|IsPolymorphism|_|) (obj:SchemaNode) =
+            // Models with Polymorphism Support
+            obj.TryGetProperty("discriminator")
 
-        let result = Array.tryPick (fun f -> f obj) parsers
-        match result with
-        | Some(schemaObj) -> schemaObj
-        | None -> Object [||] // Default type when parsers could not determine the type based ob schema.
-                              // Example of schema : {}
-                  //failwithf "Unable to parse SchemaObject: %A" obj
+        match obj with
+        | IsEnum cases     -> Enum cases
+        | IsRef ref        -> Reference ref
+        | IsArray itemTy   -> Array itemTy
+        | IsPrimitive ty   -> ty
+        | IsObject props   -> Object props
+        | IsDict itemTy    -> SchemaObject.Dictionary itemTy
+        | IsComposition props -> Object props
+        | IsPolymorphism _ ->
+            failwith "Models with Polymorphism Support is not supported yet. If you see this error please report it on GitHub (https://github.com/fsprojects/SwaggerProvider/issues) with schema example."
+        | _ -> Object [||] // Default type when parsers could not determine the type based ob schema.
+                           // Example of schema : {}
 
 
     /// Parses DefinitionProperty
