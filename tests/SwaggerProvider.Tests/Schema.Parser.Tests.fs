@@ -14,16 +14,19 @@ let root =
 
 let (!) b = Path.Combine(root,b)
 
+let parseJson =
+    JsonValue.Parse
+    >> JsonNodeAdapter
+    >> Parser.parseSwaggerObject
+
 [<Tests>]
 let petStoreTests =
-  testList "All/Schema PetStore" [
+  testList "All/Schema" [
     testCase "Schema parse of PetStore.Swagger.json sample (offline)" <| fun _ ->
         let schema =
             !"Schemas/PetStore.Swagger.json"
             |> File.ReadAllText
-            |> JsonValue.Parse
-            |> JsonNodeAdapter
-            |> Parser.parseSwaggerObject
+            |> parseJson
         Expect.equal
             (schema.Definitions.Length)
             6 "only 6 objects in PetStore"
@@ -40,9 +43,7 @@ let petStoreTests =
         let schema =
             !"Schemas/PetStore.Swagger.json"
             |> File.ReadAllText
-            |> JsonValue.Parse
-            |> JsonNodeAdapter
-            |> Parser.parseSwaggerObject
+            |> parseJson
         Expect.equal
             (schema.Definitions.Length)
             6 "only 6 objects in PetStore"
@@ -50,9 +51,7 @@ let petStoreTests =
         let schemaOnline =
             "http://petstore.swagger.io/v2/swagger.json"
             |> Http.RequestString
-            |> JsonValue.Parse
-            |> JsonNodeAdapter
-            |> Parser.parseSwaggerObject
+            |> parseJson
 
         Expect.equal schemaOnline.BasePath schema.BasePath "same BasePath"
         Expect.equal schemaOnline.Host schema.Host "same Host"
@@ -62,6 +61,20 @@ let petStoreTests =
         Expect.equal schemaOnline.Definitions schema.Definitions "same object definitions"
         Expect.equal schemaOnline.Paths schema.Paths "same paths"
         Expect.equal schemaOnline schema "same schema objects"
+
+    testCase "Ensure that parser is able to compose defined and composed properties" <| fun _ ->
+        let schema =
+            !"Schemas/azure-arm-storage.json"
+            |> File.ReadAllText
+            |> parseJson
+        let (_, obj) =
+            schema.Definitions
+            |> Array.find (fun (id, _) -> id = "#/definitions/StorageAccount")
+        match obj with
+        | Object props ->
+            let nameExist = props |> Seq.exists (fun x-> x.Name ="name")
+            Expect.isTrue nameExist "`Name` property does not found."
+        | _ -> failtestf "Expected Object but received %A" obj
   ]
 
 let parserTestBody formatParser (url:string) =
