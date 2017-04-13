@@ -87,10 +87,6 @@ module Parser =
                 | _ -> None
                )
             |> Option.map (parseSchemaObject definitions)
-        let (|IsAllOf|_|) (obj:SchemaNode) =
-            // Identify composition element 'allOf'
-            obj.TryGetProperty("allOf")
-            |> Option.map (fun x -> x.AsArray())
         let (|IsPrimitive|_|) (obj:SchemaNode) =
             // Parse primitive types
             obj.TryGetProperty("type")
@@ -136,6 +132,10 @@ module Parser =
                 obj.TryGetProperty("additionalProperties")
                 |> Option.map (parseSchemaObject definitions)
             | _ -> None
+        let (|IsAllOf|_|) (obj:SchemaNode) =
+            // Identify composition element 'allOf'
+            obj.TryGetProperty("allOf")
+            |> Option.map (fun x -> x.AsArray())
         let (|IsComposition|_|) (obj:SchemaNode) =
             // Models with Object Composition
             match obj with
@@ -164,6 +164,20 @@ module Parser =
                 else None // One of elements is not an Object and we cannot Compose
 
             | _ -> None
+        let (|IsWrapper|_|) (obj:SchemaNode) =
+            // Support for obj that wrap another obj / primitive
+            // Sample https://github.com/APIs-guru/openapi-directory/issues/98
+            match obj with
+            | IsAllOf allOf when allOf.Length = 1 ->
+                parseSchemaObject definitions allOf.[0]
+                |> function
+                    | Reference path ->
+                        match definitions.TryGetValue path with
+                        | true, lazeObj ->
+                            Some <| lazeObj.Value
+                        | _ -> failwithf "Reference to unknown type %s" path
+                    | _ -> None
+            | _ -> None
         let (|IsPolymorphism|_|) (obj:SchemaNode) =
             // Models with Polymorphism Support
             obj.TryGetProperty("discriminator")
@@ -178,6 +192,7 @@ module Parser =
             Object <| Array.append compProps objProps
         | IsObject props   -> Object props
         | IsComposition props -> Object props
+        | IsWrapper ty -> ty
         | IsPolymorphism _ ->
             failwith "Models with Polymorphism Support is not supported yet. If you see this error please report it on GitHub (https://github.com/fsprojects/SwaggerProvider/issues) with schema example."
         | _ -> Object [||] // Default type when parsers could not determine the type based ob schema.
