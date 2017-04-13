@@ -87,6 +87,10 @@ module Parser =
                 | _ -> None
                )
             |> Option.map (parseSchemaObject definitions)
+        let (|IsAllOf|_|) (obj:SchemaNode) =
+            // Identify composition element 'allOf'
+            obj.TryGetProperty("allOf")
+            |> Option.map (fun x -> x.AsArray())
         let (|IsPrimitive|_|) (obj:SchemaNode) =
             // Parse primitive types
             obj.TryGetProperty("type")
@@ -133,25 +137,33 @@ module Parser =
                 |> Option.map (parseSchemaObject definitions)
             | _ -> None
         let (|IsComposition|_|) (obj:SchemaNode) =
-            // Models with Composition
-            match obj.TryGetProperty("allOf") with
-            | Some(allOf) ->
-                let props =
-                    allOf.AsArray()
+            // Models with Object Composition
+            match obj with
+            | IsAllOf allOf ->
+                let components =
+                    allOf
                     |> Array.map (parseSchemaObject definitions)
                     |> Array.map (function
-                        | Object props -> props
+                        | Object props -> Some props
                         | Reference path ->
                             match definitions.TryGetValue path with
                             | true, lazeObj ->
                                 match lazeObj.Value with
-                                | Object props -> props
-                                | _ -> failwithf "Could not compose %A" obj
+                                | Object props -> Some props
+                                | _ -> None
                             | _ -> failwithf "Reference to unknown type %s" path
-                        | obj -> failwithf "Could not compose %A" obj)
+                        | obj -> None
+                       )
+
+                if components |> Array.forall (Option.isSome)
+                then
+                    components
+                    |> Array.choose id
                     |> Array.concat
-                Some props
-            | None -> None
+                    |> Some
+                else None // One of elements is not an Object and we cannot Compose
+
+            | _ -> None
         let (|IsPolymorphism|_|) (obj:SchemaNode) =
             // Models with Polymorphism Support
             obj.TryGetProperty("discriminator")
