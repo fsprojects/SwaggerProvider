@@ -1,3 +1,7 @@
+#### 0.6.1 - April 15, 2017
+* `ToString` is overridden for each generated type [#52](https://github.com/fsprojects/SwaggerProvider/issues/52)
+* Removed reference from `Swagger.Runtime.dll` to `YamlDotNet.dll`
+
 #### 0.6.0 - April 13, 2017
 * Supported `allOf` composition with `properties` definition in the same SchemaObject - https://github.com/fsprojects/SwaggerProvider/issues/72
 * Supported wrappers around primitive types - https://github.com/APIs-guru/openapi-directory/issues/98

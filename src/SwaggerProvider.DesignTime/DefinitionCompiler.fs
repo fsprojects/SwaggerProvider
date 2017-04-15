@@ -6,6 +6,7 @@ open SwaggerProvider.Internal
 open SwaggerProvider.Internal.Schema
 open Microsoft.FSharp.Quotations
 open System
+open System.Reflection
 
 /// Object for compiling definitions.
 type DefinitionCompiler (schema:SwaggerObject) =
@@ -85,19 +86,69 @@ type DefinitionCompiler (schema:SwaggerObject) =
                     then providedTys.[tyName] <- Some(ty)
                     else providedTys.Add(tyName, Some(ty))
 
+                    // Add default constructor
                     ty.AddMember <| ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>)
-                    let propsNameScope = UniqueNameGenerator()
-                    for p in properties do
-                        if String.IsNullOrEmpty(p.Name)
-                            then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
 
-                        let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
-                        let (pField, pProp) = generateProperty p.Name pTy propsNameScope
-                        if not <| String.IsNullOrWhiteSpace p.Description
-                            then pProp.AddXmlDoc p.Description
+                    // Generate fields and properties
+                    let members =
+                        let propsNameScope = UniqueNameGenerator()
+                        properties
+                        |> Array.map (fun p ->
+                            if String.IsNullOrEmpty(p.Name)
+                                then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
 
-                        ty.AddMember <| pField
-                        ty.AddMember <| pProp
+                            let pTy = compileSchemaObject (uniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired
+                            let (pField, pProp) = generateProperty p.Name pTy propsNameScope
+                            if not <| String.IsNullOrWhiteSpace p.Description
+                                then pProp.AddXmlDoc p.Description
+                            pField, pProp
+                        )
+
+                    // Add fields and properties to type
+                    ty.AddMembers <|
+                        (members |> Array.collect (fun (f,p) -> [|f :> MemberInfo; p:> MemberInfo|]) |> List.ofArray)
+
+                    // Override `.ToString()`
+                    let toStr = ProvidedMethod("ToString", [], typeof<string>, IsStaticMethod = false)
+                    toStr.InvokeCode <- fun args ->
+                        let this = args.[0]
+                        let (pNames, pValues) =
+                            members
+                            |> Array.map (fun (pField, pProp) ->
+                                let pValObj = Expr.FieldGet(this, pField)
+                                pProp.Name, Expr.Coerce(pValObj, typeof<obj>)
+                               )
+                            |> Array.unzip
+                        let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
+                        <@@
+                            let values = (%%pValuesArr : array<obj>)
+                            let rec formatValue (v:obj) =
+                                if v = null then "null"
+                                else
+                                    let vTy = v.GetType()
+                                    if vTy = typeof<string>
+                                    then String.Format("\"{0}\"",v)
+                                    elif vTy.IsArray
+                                    then
+                                        let elements =
+                                            seq {
+                                                for x in (v :?> System.Collections.IEnumerable) do
+                                                    yield formatValue x
+                                            } |> Seq.toArray
+                                        String.Format("[{0}]", String.Join("; ", elements))
+                                    else v.ToString()
+
+                            let strs = values |> Array.mapi (fun i v ->
+                                String.Format("{0}={1}",pNames.[i], formatValue v))
+                            String.Format("{{{0}}}", String.Join("; ",strs))
+                        @@>
+                    toStr.SetMethodAttrs(
+                        MethodAttributes.Public
+                        ||| MethodAttributes.Virtual)
+
+                    let objToStr = (typeof<obj>).GetMethod("ToString",[||])
+                    ty.DefineMethodOverride(toStr, objToStr)
+                    ty.AddMember <| toStr
 
                     ty :> Type
         | Reference path, _ -> compileDefinition path

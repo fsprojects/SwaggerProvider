@@ -24,8 +24,10 @@ let petStoreTests =
     testCase "instantiate provided objects" <| fun _ ->
         let pet = PetStore.Pet(Name = "foo")
         Expect.equal pet.Name "foo" "access initial value"
+        Expect.stringContains (pet.ToString()) "foo" "ToString"
         pet.Name <- "bar"
         Expect.equal pet.Name "bar" "access modified value"
+        Expect.stringContains (pet.ToString()) "bar" "ToString"
 
     testCase "call provided methods" <| fun _ ->
         try
@@ -34,7 +36,9 @@ let petStoreTests =
         | exn -> ()
 
         let tag = PetStore.Tag (Name = "foobar")
+        Expect.stringContains (tag.ToString()) "foobar" "ToString"
         let pet = PetStore.Pet (Name = "foo", Id = Some 1337L, Status = "available")
+        Expect.stringContains (pet.ToString()) "1337" "ToString"
 
         try
             store.AddPet(pet)
