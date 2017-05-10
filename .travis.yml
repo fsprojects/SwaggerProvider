@@ -7,8 +7,8 @@ os:
 mono:
   - latest
   - beta
-  - alpha
-  - nightly
+#  - alpha
+#  - nightly
 
 sudo: false  # use the new container-based Travis infrastructure
 
