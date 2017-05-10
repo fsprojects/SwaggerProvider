@@ -6,12 +6,9 @@ os:
 
 mono:
   - latest
+  - beta
+  - alpha
   - nightly
-
-matrix:
-  allow_failures:
-#    - os: osx
-    - mono: nightly
 
 sudo: false  # use the new container-based Travis infrastructure
 
