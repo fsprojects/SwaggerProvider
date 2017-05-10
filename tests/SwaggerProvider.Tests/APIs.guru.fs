@@ -6,9 +6,10 @@ open FSharp.Data
 
 let private apisGuruList = lazy (
     printfn "Loading APIs.Guru list ..."
-    JsonValue
-        .Load("https://api.apis.guru/v2/list.json")
-        .Properties()
+    use client = new System.Net.WebClient()
+    let list = client.DownloadString("https://api.apis.guru/v2/list.json")
+    JsonValue.Parse(list)
+             .Properties()
   )
 
 let private getApisGuruSchemas propertyName =
