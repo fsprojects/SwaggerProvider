@@ -2,11 +2,16 @@ language: csharp
 
 os:
   - linux
-  - osx
+#  - osx
+
+mono:
+  - latest
+  - nightly
 
 matrix:
   allow_failures:
-    - os: osx
+#    - os: osx
+    - mono: nightly
 
 sudo: false  # use the new container-based Travis infrastructure
 
