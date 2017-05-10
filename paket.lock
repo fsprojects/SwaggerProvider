@@ -6,22 +6,23 @@ NUGET
     YamlDotNet (4.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/CommonRuntime/NameUtils.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/CommonRuntime/Pluralizer.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/CommonRuntime/StructuralTypes.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/CommonRuntime/TextConversions.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/Json/JsonConversions.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/Json/JsonExtensions.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/Json/JsonValue.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/Net/Http.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
-    src/Net/UriUtils.fs (9478bacc7f151c4f8bd74a37dfc625ae610e5a35)
+    src/CommonRuntime/IO.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/CommonRuntime/NameUtils.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/CommonRuntime/Pluralizer.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/CommonRuntime/StructuralTypes.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/CommonRuntime/TextConversions.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/Json/JsonConversions.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/Json/JsonExtensions.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/Json/JsonValue.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/Net/Http.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/Net/UriUtils.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/ProvidedTypes.fs (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
     src/ProvidedTypes.fsi (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
     src/ProvidedTypesTesting.fs (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
+  remote: nosami/FSharp.TypeProviders.StarterPack
+    src/ProvidedTypes.fs (4d23b8a18543da24f76f5e0188b17c59dd0857e5)
   remote: fsprojects/FSharp.Configuration
-    src/FSharp.Configuration/TypeProviders.Helper.fs (5bbc32fbb9337f53c79a76c83bc8d30d9bd784ec)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (66cb83d6a5f01744f1a7d1e8aed7d736d9898b21)
 GROUP Build
 FRAMEWORK: NET45
 NUGET

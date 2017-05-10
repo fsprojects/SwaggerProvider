@@ -16,7 +16,7 @@ github fsharp/FSharp.Data src/Json/JsonValue.fs
 github fsharp/FSharp.Data src/Json/JsonConversions.fs
 github fsharp/FSharp.Data src/Json/JsonExtensions.fs
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
+github nosami/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesTesting.fs
 github fsprojects/FSharp.Configuration src/FSharp.Configuration/TypeProviders.Helper.fs
 
