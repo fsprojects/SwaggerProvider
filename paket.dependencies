@@ -32,7 +32,7 @@ group Build
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group OWIN
-	framework: net45
+	framework: net461
 	source https://nuget.org/api/v2
 
 	nuget Microsoft.AspNet.WebApi.OwinSelfHost
@@ -40,7 +40,7 @@ group OWIN
 	nuget FSharp.Core redirects: force
 
 group Test
-	framework: net45
+	framework: net461
 
 	source https://nuget.org/api/v2
 	nuget FSharp.Data

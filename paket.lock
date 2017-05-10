@@ -46,7 +46,7 @@ GITHUB
     modules/Octokit/Octokit.fsx (5df6bb2d94cbe28a476fd23e79e411dca6678c4c)
       Octokit (>= 0.20)
 GROUP OWIN
-FRAMEWORK: NET45
+FRAMEWORK: NET461
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.1.17) - redirects: force
@@ -76,7 +76,7 @@ NUGET
     System.ValueTuple (4.3.1) - redirects: force
 
 GROUP Test
-FRAMEWORK: NET45
+FRAMEWORK: NET461
 NUGET
   remote: https://www.nuget.org/api/v2
     Argu (3.7)
