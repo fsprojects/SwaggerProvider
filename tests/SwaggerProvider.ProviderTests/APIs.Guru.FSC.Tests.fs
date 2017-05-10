@@ -18,7 +18,7 @@ let referencedAssemblies =
             then failwithf "File not found '%s'" path
         ["-r"; path])
 
-let scs = SimpleSourceCodeServices()
+let scs = lazy(SimpleSourceCodeServices())
 
 let compileTP url =
     let tempFile = Path.GetTempFileName()
@@ -33,7 +33,7 @@ let compileTP url =
     """ url)
 
     let errors, exitCode =
-        scs.Compile(Array.ofList
+        scs.Value.Compile(Array.ofList
            (["fsc.exe"; "--noframework";
              "-o"; dll; "-a"; fs
             ] @ referencedAssemblies))
