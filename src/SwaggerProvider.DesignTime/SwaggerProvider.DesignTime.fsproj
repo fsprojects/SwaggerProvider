@@ -47,7 +47,7 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fsi</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\nosami\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs">
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>

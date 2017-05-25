@@ -3,7 +3,7 @@ NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.0.0.1)
     Newtonsoft.Json (9.0.1)
-    YamlDotNet (4.1)
+    YamlDotNet (4.2.1)
 GITHUB
   remote: fsharp/FSharp.Data
     src/CommonRuntime/IO.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
@@ -17,18 +17,17 @@ GITHUB
     src/Net/Http.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
     src/Net/UriUtils.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/ProvidedTypes.fsi (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
-    src/ProvidedTypesTesting.fs (45f4d8780b3213ef61ba4fccc716cd495565c1a4)
-  remote: nosami/FSharp.TypeProviders.StarterPack
-    src/ProvidedTypes.fs (4d23b8a18543da24f76f5e0188b17c59dd0857e5)
+    src/ProvidedTypes.fs (1dab4f94411500794342f61f877feab772e5a754)
+    src/ProvidedTypes.fsi (1dab4f94411500794342f61f877feab772e5a754)
+    src/ProvidedTypesTesting.fs (1dab4f94411500794342f61f877feab772e5a754)
   remote: fsprojects/FSharp.Configuration
-    src/FSharp.Configuration/TypeProviders.Helper.fs (66cb83d6a5f01744f1a7d1e8aed7d736d9898b21)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (8cfd8656ef70661f58b4de42289f6df6e0704df3)
 GROUP Build
 FRAMEWORK: NET45
 NUGET
   remote: https://www.nuget.org/api/v2
     DotLiquid (2.0.96)
-    FAKE (4.61.1)
+    FAKE (4.61.2)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.1.17)
       System.ValueTuple (>= 4.3)
@@ -43,7 +42,7 @@ NUGET
     System.ValueTuple (4.3.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (5df6bb2d94cbe28a476fd23e79e411dca6678c4c)
+    modules/Octokit/Octokit.fsx (1ada6a9c84aada940bd7e6a7b63c0dc62e2fa56e)
       Octokit (>= 0.20)
 GROUP OWIN
 FRAMEWORK: NET461
