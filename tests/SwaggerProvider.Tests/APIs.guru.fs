@@ -46,18 +46,14 @@ let private skipIgnored (url:string) =
     |> List.exists (url.StartsWith)
     |> not
 
-let rnd = Random(int(DateTime.Now.Ticks))
-let shrinkOnMonoTo size arr =
+let private rnd = Random(int(DateTime.Now.Ticks))
+let private shrinkOnMonoTo size arr =
     if isNull <| Type.GetType ("Mono.Runtime")
     then arr
     else Array.init size (fun _ -> arr.[rnd.Next(size)])
 
+let private filter = Array.filter skipIgnored >> shrinkOnMonoTo 150
 
-let JsonSchemas =
-    schemaUrls
-    |> Array.filter skipIgnored
-    |> shrinkOnMonoTo 200
-let YamlSchemas =
-    apisGuruYamlSchemaUrls
-    |> Array.filter skipIgnored
-    |> shrinkOnMonoTo 200
+let JsonSchemas = filter schemaUrls
+let YamlSchemas = filter apisGuruYamlSchemaUrls
+
