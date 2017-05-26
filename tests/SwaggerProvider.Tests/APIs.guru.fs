@@ -1,5 +1,6 @@
 ﻿module APIsGuru
 open FSharp.Data
+open System
 
 // Test that provider can parse real-word Swagger 2.0 schemes
 // https://github.com/APIs-guru/api-models/blob/master/API.md
@@ -35,13 +36,28 @@ let private manualSchemaUrls =
 let private schemaUrls =
     Array.concat [manualSchemaUrls; apisGuruJsonSchemaUrls]
 
-let private ignoreList =
+let private ignoredPrefList =
     [
      // Following schemas require additional investigation and fixes
-     "https://api.apis.guru/v2/specs/clarify.io/1.3.6/swagger.json" // StackOverflowException during FCS compilation
-     "https://api.apis.guru/v2/specs/clarify.io/1.3.6/swagger.yaml"
-    ] |> Set.ofList
-let private skipIgnored = ignoreList.Contains >> not
+     "https://api.apis.guru/v2/specs/clarify.io/" // StackOverflowException during FCS compilation
+    ]
+let private skipIgnored (url:string) =
+    ignoredPrefList
+    |> List.exists (url.StartsWith)
+    |> not
 
-let JsonSchemas = Array.filter skipIgnored schemaUrls
-let YamlSchemas = Array.filter skipIgnored apisGuruYamlSchemaUrls
+let rnd = Random(int(DateTime.Now.Ticks))
+let shrinkOnMonoTo size arr =
+    if isNull <| Type.GetType ("Mono.Runtime")
+    then arr
+    else Array.init size (fun _ -> arr.[rnd.Next(size)])
+
+
+let JsonSchemas =
+    schemaUrls
+    |> Array.filter skipIgnored
+    |> shrinkOnMonoTo 200
+let YamlSchemas =
+    apisGuruYamlSchemaUrls
+    |> Array.filter skipIgnored
+    |> shrinkOnMonoTo 200
