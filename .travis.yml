@@ -6,7 +6,7 @@ os:
 
 mono:
   - latest
-  - beta
+#  - beta
 #  - alpha
 #  - nightly
 

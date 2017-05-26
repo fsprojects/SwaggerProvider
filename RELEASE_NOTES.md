@@ -1,3 +1,6 @@
+#### 0.7.0 - May 26, 2017
+* Supported Mono 5.0.1.1
+
 #### 0.6.1 - April 15, 2017
 * `ToString` is overridden for each generated type [#52](https://github.com/fsprojects/SwaggerProvider/issues/52)
 * Removed reference from `Swagger.Runtime.dll` to `YamlDotNet.dll`

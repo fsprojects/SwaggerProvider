@@ -1,5 +1,7 @@
 type file
 id SwaggerProvider
+title
+    Swagger Provider
 owners
     Sergey Tihon
 authors
