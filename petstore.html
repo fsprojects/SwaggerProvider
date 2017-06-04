@@ -107,7 +107,7 @@
 <tbody>
 <tr class="odd">
 <td><p><code>Schema</code></p></td>
-<td><p>Url or Path to Swagger schema file</p></td>
+<td><p>Url or Path to Swagger schema file. By default relative file paths will based off the IDE execution directory. <code>__SOURCE_DIRECTORY__</code> can be used to make the path relative to the location of the source file. For example <code>let [&lt;Literal&gt;]schema = __SOURCE_DIRECTORY__ + "./../APIDefs/swagger.json"</code>will navigate up one directory and down into APIDefs.</p></td>
 </tr>
 <tr class="even">
 <td><p><code>Headers</code></p></td>
