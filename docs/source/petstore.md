@@ -17,7 +17,7 @@ When you use TP you can specify following parameters
 
 | Parameter | Description |
 |-----------|-------------|
-| `Schema` | Url or Path to Swagger schema file |
+| `Schema` | Url or Path to Swagger schema file. By default relative file paths will based off the IDE execution directory. `__SOURCE_DIRECTORY__` can be used to make the path relative to the location of the source file. For example `let [<Literal>]schema = __SOURCE_DIRECTORY__ + "./../APIDefs/swagger.json"`will navigate up one directory and down into APIDefs.|
 | `Headers` | Headers that will be used to access the schema |
 | `IgnoreOperationId` | `IgnoreOperationId` tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false` |
 
