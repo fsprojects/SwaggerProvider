@@ -74,7 +74,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | Object properties, _ ->
             if properties.Length = 0 then typeof<obj>
             else
-              if isNull tyName then
+              if tyName = null then
                 failwithf "Swagger provider does not support anonymous types: %A" schemaObj
               else
                 // Register every ProvidedTypeDefinition
