@@ -31,16 +31,16 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                     let paramDefaultValue = defCompiler.GetDefaultValue x.Type
                     ProvidedParameter(paramName, paramType, false, paramDefaultValue)
             ]
-        let retTy =
+        let retTy, isReturnFile =
             let okResponse = // BUG :  wrong selector
                 op.Responses |> Array.tryFind (fun (code, resp) ->
                     (code.IsSome && (code.Value = 200 || code.Value = 201)) || code.IsNone)
             match okResponse with
             | Some (_,resp) ->
                 match resp.Schema with
-                | None -> typeof<unit>
-                | Some ty -> defCompiler.CompileTy methodName "Response" ty true
-            | None -> typeof<unit>
+                | None -> typeof<unit>, false
+                | Some ty -> defCompiler.CompileTy methodName "Response" ty true, ty = File
+            | None -> typeof<unit>, false
 
         let m = ProvidedMethod(methodName, parameters, retTy)
         if not <| String.IsNullOrEmpty(op.Summary)
@@ -128,21 +128,22 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 <@@ Array.append (%%head : (string*string) []) ([|name, (%%exp : string)|]) @@>
 
             // Partitions arguments based on their locations
-            let (path, payload, queries, heads) =
+            let (path, payload, queries, heads, fileFormKey) =
                 let mPath = op.Path
                 parameters
                 |> List.fold (
-                    fun (path, load, quer, head) (param : ParameterObject, exp) ->
+                    fun (path, load, quer, head, fileFormKey) (param : ParameterObject, exp) ->
                         let name = param.Name
                         let value = coerceString param.Type param.CollectionFormat exp
                         match param.In with
-                        | Path   -> (replacePathTemplate path name value, load, quer, head)
-                        | FormData
-                        | Body   -> (path, addPayload load param exp, quer, head)
-                        | Query  -> (path, load, addQuery quer name exp, head)
-                        | Header -> (path, load, quer, addHeader head name value)
+                        | Path   -> (replacePathTemplate path name value, load, quer, head, fileFormKey)
+                        // swagger doesn't support file in the body, so formdata is the only time we have to check on send
+                        | FormData -> (path, addPayload load param exp, quer, head, if param.Type = File then Some param.Name else fileFormKey)
+                        | Body   -> (path, addPayload load param exp, quer, head, fileFormKey) 
+                        | Query  -> (path, load, addQuery quer name exp, head, fileFormKey)
+                        | Header -> (path, load, quer, addHeader head name value, fileFormKey)
                     )
-                    (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers)
+                    (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers, None)
 
 
             let address = <@@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl %basePath (%%path :string ) @@>
@@ -157,21 +158,30 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
             // Make HTTP call
             let result =
-                match payload with
-                | None ->
+                match payload, fileFormKey with
+                | None, _ ->
                     <@@ Http.RequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
                             query = (%%queries : (string * string) list),
                             customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
-                | Some (FormData, b) ->
+                | Some (FormData, b), Some key  ->
+                    <@@ 
+                        let fileName, fileStream = (%%b : string * IO.Stream)
+                        Http.RequestString(%%address,
+                            httpMethod = restCall,
+                            body = HttpRequestBody.Multipart(string (Guid.NewGuid()), [key, fileName, fileStream]),
+                            headers = (%%heads : array<string*string>),
+                            query = (%%queries : (string * string) list),
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>                              
+                | Some (FormData, b), None ->
                     <@@ Http.RequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
                             body = HttpRequestBody.FormValues (%%b : seq<string * string>),
                             query = (%%queries : (string * string) list),
                             customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
-                | Some (Body, b)     ->
+                | Some (Body, b), _ ->
                     <@@ let body = SwaggerProvider.Internal.RuntimeHelpers.serialize (%%b : obj)
                         Http.RequestString(%%address,
                             httpMethod = restCall,
@@ -180,7 +190,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                             query = (%%queries : (string * string) list),
                             customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))
                     @@>
-                | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
+                | Some (x, _), _ -> failwith ("Payload should not be able to have type: " + string x)
 
             // Return deserialized object
             let value = <@@ SwaggerProvider.Internal.RuntimeHelpers.deserialize

@@ -66,7 +66,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | String, _       -> typeof<string>
         | Date, true  | DateTime, true   -> typeof<DateTime>
         | Date, false | DateTime, false  -> typeof<Option<DateTime>>
-        | File, _         -> typeof<byte>.MakeArrayType(1)
+        | File, _         -> typeof<Tuple<string, IO.Stream>>
         | Enum _, _       -> typeof<string> //TODO: find better type
         | Array eTy, _    -> (compileSchemaObject (uniqueName tyName "Item") eTy true).MakeArrayType()
         | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType(
@@ -155,8 +155,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
 
     // Compiles the `definitions` part of the schema
     do  schema.Definitions
-        |> Seq.iter (fun (name,_) ->
-            compileDefinition name |> ignore)
+        |> Seq.iter (fst >> compileDefinition >> ignore)
 
     /// Compiles the definition.
     member __.GetProvidedTypes() =
