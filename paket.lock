@@ -14,8 +14,9 @@ GITHUB
     src/Json/JsonConversions.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
     src/Json/JsonExtensions.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
     src/Json/JsonValue.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/Net/Http.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
     src/Net/UriUtils.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
+  remote: baronfel/FSharp.Data
+    src/Net/Http.fs (1cb6137d5cc10a0c633858b2e0dbc340c5ed4736)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
     src/ProvidedTypes.fs (1dab4f94411500794342f61f877feab772e5a754)
     src/ProvidedTypes.fsi (1dab4f94411500794342f61f877feab772e5a754)

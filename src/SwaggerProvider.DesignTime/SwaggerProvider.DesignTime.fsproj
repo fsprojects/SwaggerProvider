@@ -59,7 +59,7 @@
       <Paket>True</Paket>
       <Link>paket-files/UriUtils.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\Http.fs">
+    <Compile Include="..\..\paket-files\baronfel\FSharp.Data\src\Net\Http.fs">
       <Paket>True</Paket>
       <Link>paket-files/Http.fs</Link>
     </Compile>
