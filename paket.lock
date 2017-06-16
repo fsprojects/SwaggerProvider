@@ -1,8 +1,8 @@
-FRAMEWORK: >= NET45
+RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.0.0.1)
-    Newtonsoft.Json (9.0.1)
+    Newtonsoft.Json (10.0.2)
     YamlDotNet (4.2.1)
 GITHUB
   remote: fsharp/FSharp.Data
@@ -21,16 +21,15 @@ GITHUB
     src/ProvidedTypes.fsi (1dab4f94411500794342f61f877feab772e5a754)
     src/ProvidedTypesTesting.fs (1dab4f94411500794342f61f877feab772e5a754)
   remote: fsprojects/FSharp.Configuration
-    src/FSharp.Configuration/TypeProviders.Helper.fs (8cfd8656ef70661f58b4de42289f6df6e0704df3)
+    src/FSharp.Configuration/TypeProviders.Helper.fs (2bd57b3043efc44d1f9b74f9942159a3853291d1)
 GROUP Build
-FRAMEWORK: NET45
+RESTRICTION: == net45
 NUGET
   remote: https://www.nuget.org/api/v2
-    DotLiquid (2.0.96)
-    FAKE (4.61.2)
+    DotLiquid (2.0.135)
+    FAKE (4.61.3)
     FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Core (4.1.17)
-      System.ValueTuple (>= 4.3)
+    FSharp.Core (4.2.1)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
@@ -39,17 +38,15 @@ NUGET
     Octokit (0.24)
     Suave (2.1)
       FSharp.Core (>= 4.0.0.1)
-    System.ValueTuple (4.3.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (1ada6a9c84aada940bd7e6a7b63c0dc62e2fa56e)
+    modules/Octokit/Octokit.fsx (15e1b741f4ae9fbaad640a65231dfcec28ce6ddd)
       Octokit (>= 0.20)
 GROUP OWIN
-FRAMEWORK: NET461
+RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Core (4.1.17) - redirects: force
-      System.ValueTuple (>= 4.3)
+    FSharp.Core (4.2.1) - redirects: force
     Microsoft.AspNet.WebApi.Client (5.2.3)
       Newtonsoft.Json (>= 6.0.4)
     Microsoft.AspNet.WebApi.Core (5.2.3)
@@ -72,10 +69,9 @@ NUGET
     Owin (1.0)
     Swashbuckle.Core (5.5.3)
       Microsoft.AspNet.WebApi.Core (>= 4.0.20710)
-    System.ValueTuple (4.3.1) - redirects: force
 
 GROUP Test
-FRAMEWORK: NET461
+RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
     Argu (3.7)
@@ -86,11 +82,9 @@ NUGET
     FSharp.Compiler.Service (12.0.8)
       System.Collections.Immutable (>= 1.3.1)
       System.Reflection.Metadata (>= 1.4.2)
-    FSharp.Core (4.1.17) - redirects: force
-      System.ValueTuple (>= 4.3)
+    FSharp.Core (4.2.1) - redirects: force
     FSharp.Data (2.3.3)
     Mono.Cecil (0.9.6.4)
     System.Collections.Immutable (1.3.1)
     System.Reflection.Metadata (1.4.2)
       System.Collections.Immutable (>= 1.3.1)
-    System.ValueTuple (4.3.1) - redirects: force

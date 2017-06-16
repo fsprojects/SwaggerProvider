@@ -1,3 +1,6 @@
+#### 0.7.1 - June 1, 2017
+- Newtonsoft.Json v10.0.2
+
 #### 0.7.0 - May 26, 2017
 * Supported Mono 5.0.1.1
 
