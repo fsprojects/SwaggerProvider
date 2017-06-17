@@ -36,7 +36,7 @@ NUGET
     FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
     Octokit (0.24)
-    Suave (2.1)
+    Suave (2.1.1)
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
@@ -75,16 +75,16 @@ RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
     Argu (3.7)
-    Expecto (4.2.1)
+    Expecto (5.0)
       Argu (>= 3.7)
       FSharp.Core (>= 4.1.12)
-      Mono.Cecil (>= 0.9.6.4)
+      Mono.Cecil (>= 0.10.0-beta5)
     FSharp.Compiler.Service (12.0.8)
       System.Collections.Immutable (>= 1.3.1)
       System.Reflection.Metadata (>= 1.4.2)
     FSharp.Core (4.2.1) - redirects: force
     FSharp.Data (2.3.3)
-    Mono.Cecil (0.9.6.4)
+    Mono.Cecil (0.10.0-beta6)
     System.Collections.Immutable (1.3.1)
     System.Reflection.Metadata (1.4.2)
       System.Collections.Immutable (>= 1.3.1)
