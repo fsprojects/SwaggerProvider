@@ -18,7 +18,7 @@ let referencedAssemblies =
             then failwithf "File not found '%s'" path
         ["-r"; path])
 
-let scs = lazy(SimpleSourceCodeServices())
+let scs = new System.Threading.ThreadLocal<_>(fun () -> SimpleSourceCodeServices())
 
 let compileTP url =
     let tempFile = Path.GetTempFileName()
