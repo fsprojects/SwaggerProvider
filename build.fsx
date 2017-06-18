@@ -139,7 +139,6 @@ Target "RunUnitTests" (fun _ ->
     !! testAssemblies
     |> Expecto (fun p ->
         { p with
-            Parallel = true
             Filter = "All/" } )
     |> ignore
 )
@@ -148,7 +147,6 @@ Target "RunIntegrationTests" (fun _ ->
     !! testAssemblies
     |> Expecto (fun p ->
         { p with
-            Parallel = true
             Filter = "Integration/" } )
     |> ignore
 )

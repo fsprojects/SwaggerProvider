@@ -129,4 +129,4 @@ let parseYamlSchemaTests =
             (sprintf "Parse schema %s" url)
             (fun _ -> parserTestBody (YamlParser.Parse >> YamlNodeAdapter) url)
        )
-    |> testList "All/Schema Yaml Schemas"
+    |> testList "Integration/Schema Yaml Schemas"
