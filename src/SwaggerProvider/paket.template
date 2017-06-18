@@ -28,4 +28,4 @@ files
     SwaggerProvider.fsx ==> .
 dependencies
     FSharp.Core >= 4.0.0
-    Newtonsoft.Json >= 10.0.2
+    Newtonsoft.Json >= 10.0.0
