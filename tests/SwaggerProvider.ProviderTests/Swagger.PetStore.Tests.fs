@@ -3,10 +3,13 @@
 open SwaggerProvider
 open FSharp.Data
 open Expecto
+let [<Literal>] petstore = "http://petstore.swagger.io/v2/swagger.json"
+let [<Literal>] json = "Content-Type=application/json"
+type PetStore = SwaggerProvider<petstore, json>
+type PetStoreAsync = SwaggerProvider<petstore, json, UseTask = true>
 
-type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type=application/json">
 let store = PetStore()
-
+let asyncStore = PetStoreAsync()
 let apiKey = "special-key"
 
 

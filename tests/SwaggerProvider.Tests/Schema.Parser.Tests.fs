@@ -77,7 +77,7 @@ let petStoreTests =
         | _ -> failtestf "Expected Object but received %A" obj
   ]
 
-let parserTestBody formatParser (url:string) =
+let parseSchema formatParser (url:string) = 
     let schemaStr =
         try
             if url.StartsWith("http")
@@ -87,9 +87,12 @@ let parserTestBody formatParser (url:string) =
         | :? System.Net.WebException ->
             printfn "Schema is unaccessible %s" url
             ""
-    if not <| System.String.IsNullOrEmpty(schemaStr) then
-        let schema = formatParser schemaStr
-                     |> Parsers.Parser.parseSwaggerObject
+    if not <| System.String.IsNullOrEmpty(schemaStr) 
+    then formatParser schemaStr |> Parsers.Parser.parseSwaggerObject
+    else failwithf "could not read schema from %s" url
+
+let parserTestBody formatParser (url:string) =
+        let schema = parseSchema formatParser url
 
         Expect.isGreaterThan
             (schema.Paths.Length + schema.Definitions.Length)
@@ -99,13 +102,18 @@ let parserTestBody formatParser (url:string) =
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
         let defCompiler = DefinitionCompiler(schema)
         let opCompiler = OperationCompiler(schema, defCompiler)
-        ignore <| opCompiler.CompilePaths(false)
+        ignore <| opCompiler.CompilePaths(false, CompiledOperationType.Synchronous)
         ignore <| defCompiler.GetProvidedTypes()
-
+        
+let generateOpsAndDeps opType schema = 
+    let defCompiler = DefinitionCompiler(schema)
+    let opCompiler = OperationCompiler(schema, defCompiler)
+    opCompiler.CompilePaths(false, opType), defCompiler.GetProvidedTypes()
 
 let private schemasFromTPTests =
     let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
     Directory.GetFiles(folder)
+
 let JsonSchemasSource =
     Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas] |> List.ofArray
 let YamlSchemasSource =
@@ -130,3 +138,31 @@ let parseYamlSchemaTests =
             (fun _ -> parserTestBody (YamlParser.Parse >> YamlNodeAdapter) url)
        )
     |> testList "All/Schema Yaml Schemas"
+
+[<Tests>]
+let asyncTests = 
+    JsonSchemasSource
+    |> List.take 10
+    |> List.map (fun url -> 
+        testCase url (fun _ -> 
+            let ops, _ = parseSchema (JsonValue.Parse >> JsonNodeAdapter) url |> generateOpsAndDeps CompiledOperationType.Asynchronous
+            let isAsync (meth : ProviderImplementation.ProvidedTypes.ProvidedMethod) = meth.ReturnType.IsConstructedGenericType && meth.ReturnType.GetGenericTypeDefinition() = typeof<Async<_>>.GetGenericTypeDefinition()
+            Expect.isTrue (ops |> List.forall isAsync) "all generated methods should return Async<'t>"
+        )
+    )
+    |> testList "Async actions"
+
+[<Tests>]
+let taskTests = 
+    JsonSchemasSource
+    |> List.take 10
+    |> List.map (fun url -> 
+        testCase url (fun _ -> 
+            let ops, _ = parseSchema (JsonValue.Parse >> JsonNodeAdapter) url |> generateOpsAndDeps CompiledOperationType.Task
+            let isTask (meth : ProviderImplementation.ProvidedTypes.ProvidedMethod) = meth.ReturnType.IsConstructedGenericType && meth.ReturnType.GetGenericTypeDefinition() = typeof<System.Threading.Tasks.Task<_>>.GetGenericTypeDefinition()
+            Expect.isTrue (ops |> List.forall isTask) "all generated methods should return Task<'t>"
+            )
+        )
+    |> testList "task actions"
+
+    
