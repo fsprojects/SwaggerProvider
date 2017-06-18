@@ -52,7 +52,7 @@ let private shrinkOnMonoTo size arr =
     then arr
     else Array.init size (fun _ -> arr.[rnd.Next(size)])
 
-let private filter = Array.filter skipIgnored >> shrinkOnMonoTo 150
+let private filter = Array.filter skipIgnored >> shrinkOnMonoTo 100
 
 let JsonSchemas = filter schemaUrls
 let YamlSchemas = filter apisGuruYamlSchemaUrls
