@@ -56,4 +56,4 @@ let compilerTests =
             (fun _ -> compileTP url)
        )
     |> testList "Integration/Compile TP"
-    //|> testSequenced
+    |> testSequenced
