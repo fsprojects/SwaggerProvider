@@ -6,16 +6,16 @@ NUGET
     YamlDotNet (4.2.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/CommonRuntime/NameUtils.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/CommonRuntime/Pluralizer.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/CommonRuntime/StructuralTypes.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/CommonRuntime/TextConversions.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/Json/JsonConversions.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/Json/JsonExtensions.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/Json/JsonValue.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/Net/Http.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
-    src/Net/UriUtils.fs (b55bf1e69dc77e45a9ca2cea1ff19848c3a76276)
+    src/CommonRuntime/IO.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/CommonRuntime/NameUtils.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/CommonRuntime/Pluralizer.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/CommonRuntime/StructuralTypes.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/CommonRuntime/TextConversions.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/Json/JsonConversions.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/Json/JsonExtensions.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/Json/JsonValue.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/Net/Http.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
+    src/Net/UriUtils.fs (ee4f12e275e77fcaa13990be2602aa75398955bd)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
     src/ProvidedTypes.fs (1dab4f94411500794342f61f877feab772e5a754)
     src/ProvidedTypes.fsi (1dab4f94411500794342f61f877feab772e5a754)
@@ -27,7 +27,7 @@ RESTRICTION: == net45
 NUGET
   remote: https://www.nuget.org/api/v2
     DotLiquid (2.0.145)
-    FAKE (4.61.3)
+    FAKE (4.62.1)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.2.1)
     FSharp.Formatting (2.14.4)
@@ -40,7 +40,7 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (15e1b741f4ae9fbaad640a65231dfcec28ce6ddd)
+    modules/Octokit/Octokit.fsx (b5933798c1944051bf358a460fcdc8ffbd678dfc)
       Octokit (>= 0.20)
 GROUP OWIN
 RESTRICTION: == net461
@@ -79,7 +79,7 @@ NUGET
       Argu (>= 3.7)
       FSharp.Core (>= 4.1.12)
       Mono.Cecil (>= 0.10.0-beta5)
-    FSharp.Compiler.Service (12.0.8)
+    FSharp.Compiler.Service (13.0)
       System.Collections.Immutable (>= 1.3.1)
       System.Reflection.Metadata (>= 1.4.2)
     FSharp.Core (4.2.1) - redirects: force
