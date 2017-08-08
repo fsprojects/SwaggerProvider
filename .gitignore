@@ -183,6 +183,7 @@ paket-files
 docs/content/license.md
 docs/content/release-notes.md
 .fake/
+.idea/
 .vs/
 *.svclog
 TestResult.xml

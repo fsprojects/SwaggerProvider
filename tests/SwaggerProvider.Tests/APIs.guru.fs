@@ -31,7 +31,7 @@ let private apisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
 
 let private manualSchemaUrls =
     [|//"https://www.expedia.com/static/mobile/swaggerui/swagger.json" // This schema is incorrect
-      "https://graphhopper.com/api/1/vrp/swagger.json"|]
+    |]
 
 let private schemaUrls =
     Array.concat [manualSchemaUrls; apisGuruJsonSchemaUrls]
