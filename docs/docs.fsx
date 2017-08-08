@@ -5,7 +5,7 @@
 #load "../packages/build/FSharp.Formatting/FSharp.Formatting.fsx"
 #I "../packages/build/FAKE/tools/"
 #I "../packages/build/Suave/lib/net40"
-#I "../packages/build/DotLiquid/lib/NET451"
+#I "../packages/build/DotLiquid/lib/net45"
 #r "FakeLib.dll"
 #r "Suave.dll"
 #r "DotLiquid.dll"

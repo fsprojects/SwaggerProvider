@@ -20,10 +20,17 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
 
         let parameters =
-            [let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
-             for x in Array.append required optional ->
+            [
+             let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
+             let parameters = Array.append required optional
+             for x in parameters ->
                 let paramName = niceCamelName x.Name
-                ProvidedParameter(paramName, defCompiler.CompileTy methodName paramName x.Type x.Required)]
+                let paramType = defCompiler.CompileTy methodName paramName x.Type x.Required
+                if x.Required then ProvidedParameter(paramName, paramType)
+                else 
+                    let paramDefaultValue = defCompiler.GetDefaultValue x.Type
+                    ProvidedParameter(paramName, paramType, false, paramDefaultValue)
+            ]
         let retTy =
             let okResponse = // BUG :  wrong selector
                 op.Responses |> Array.tryFind (fun (code, resp) ->

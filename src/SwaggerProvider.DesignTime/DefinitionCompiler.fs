@@ -166,3 +166,19 @@ type DefinitionCompiler (schema:SwaggerObject) =
     /// Compiles the definition.
     member __.CompileTy opName tyUseSuffix ty required =
         compileSchemaObject (uniqueName opName tyUseSuffix) ty required
+
+    /// Default value for parameters
+    member __.GetDefaultValue schemaObj =
+        match schemaObj with
+        | Boolean
+        | Byte | Int32 | Int64
+        | Float| Double 
+        | Date | DateTime
+           -> box <| None
+        | String | Enum _
+           -> box <| Unchecked.defaultof<string>
+        | File | Array _ 
+        | Dictionary _ | Object _
+        | Reference _
+           -> null
+

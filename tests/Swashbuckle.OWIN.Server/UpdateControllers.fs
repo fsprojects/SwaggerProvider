@@ -2,6 +2,7 @@
 
 open System
 open System.Web.Http
+open System.Runtime.InteropServices
 
 type UpdateController<'T>(f:'T->'T) =
     inherit ApiController()
@@ -55,3 +56,10 @@ type UpdateObjectFileDescriptionClassController () =
 
     member this.Get ([<FromUri>]x) = Types.FileDescription("1.txt", x)
     member this.Post (x:Types.FileDescription) = x
+
+
+type UpdateWithOptionalIntController() =
+    inherit ApiController()
+
+    member this.Get ([<FromUri>]x, [<FromUri; Optional; DefaultParameterValue(1)>]y:int) =
+        x+y

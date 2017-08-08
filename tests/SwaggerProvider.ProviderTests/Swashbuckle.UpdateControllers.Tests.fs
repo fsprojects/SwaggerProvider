@@ -140,4 +140,11 @@ let returnControllersTests =
         let bytes = [|42uy;24uy|]
         let y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
         y.Bytes |> shouldEqual bytes
+
+    testCase "Use Optional param Int" <| fun _ ->
+        api.GetApiUpdateWithOptionalInt(1)
+        |> shouldEqual 2
+
+        api.GetApiUpdateWithOptionalInt(1, Some(2))
+        |> shouldEqual 3
   ]
