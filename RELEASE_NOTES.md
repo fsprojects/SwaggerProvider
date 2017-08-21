@@ -1,3 +1,6 @@
+#### 0.8.1 - August 21, 2017
+* Removed caching and dependency on FSharp.Configuration context [#84](https://github.com/fsprojects/SwaggerProvider/issues/84)
+
 #### 0.8.0 - August 8, 2017
 * Better support for optional parameters [#82](https://github.com/fsprojects/SwaggerProvider/issues/82)
 
