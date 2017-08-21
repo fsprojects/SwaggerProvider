@@ -3,7 +3,6 @@
 open System
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
-open FSharp.Configuration.Helper
 
 /// The Swagger Type Provider.
 [<TypeProvider>]
@@ -18,9 +17,8 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
       AppDomain.CurrentDomain.add_AssemblyResolve(fun source args ->
         SwaggerProvider.Internal.Configuration.resolveReferencedAssembly args.Name)
 
-    let context = new Context(this, cfg)
     do
         this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
         this.AddNamespace(
             SwaggerProviderConfig.NameSpace,
-            [SwaggerProviderConfig.typedSwaggerProvider context cfg.RuntimeAssembly])
+            [SwaggerProviderConfig.typedSwaggerProvider cfg.RuntimeAssembly])

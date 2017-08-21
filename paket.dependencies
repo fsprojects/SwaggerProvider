@@ -18,7 +18,6 @@ github fsharp/FSharp.Data src/Json/JsonExtensions.fs
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
 github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesTesting.fs
-github fsprojects/FSharp.Configuration src/FSharp.Configuration/TypeProviders.Helper.fs
 
 group Build
 	framework: net45

@@ -10,6 +10,5 @@ File: NameUtils.fs
 File: JsonValue.fs
 File: JsonConversions.fs
 File: JsonExtensions.fs
-File: TypeProviders.Helper.fs
 FSharp.Core
 YamlDotNet
