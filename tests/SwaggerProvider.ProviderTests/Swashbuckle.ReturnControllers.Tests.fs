@@ -10,6 +10,7 @@ let api = WebAPI()
 let shouldEqual expected actual =
     Expect.equal actual expected "return value"
 
+
 [<Tests>]
 let returnControllersTests =
   testList "All/Swashbuckle.ReturnControllers.Tests" [
