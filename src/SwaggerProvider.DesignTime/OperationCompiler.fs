@@ -11,6 +11,12 @@ open FSharp.Data
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
+open System.IO
+
+type BodyType =
+| BodyForm of Expr<(string*string) seq>
+| BodyObject of Expr<obj>
+| BodyMultipart of Expr<(string*string*Stream) seq>
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
@@ -39,7 +45,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             | Some (_,resp) ->
                 match resp.Schema with
                 | None -> typeof<unit>, false
-                | Some ty -> defCompiler.CompileTy methodName "Response" ty true, ty = File
+                | Some ty when ty = SchemaObject.File -> 
+                    typeof<IO.Stream>, true
+                | Some ty ->
+                    defCompiler.CompileTy methodName "Response" ty true, false
             | None -> typeof<unit>, false
 
         let m = ProvidedMethod(methodName, parameters, retTy)
@@ -62,13 +71,13 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             // Fit headers into quotation
             let headers =
                 let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
-                <@@
+                <@
                     let headersArr = (%%headers:(string*string)[])
                     let ctHeaderExist = headersArr |> Array.exists (fun (h,_)->h="Content-Type")
                     if not(ctHeaderExist) && jsonConsumable
                     then Array.append [|"Content-Type","application/json"|] headersArr
                     else headersArr
-                @@>
+                @>
                 //let headerPairs =
                 //    seq {
                 //        yield! headers
@@ -99,102 +108,124 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 let obj = Expr.Coerce(exp, typeof<obj>)
                 <@ (%%obj : obj).ToString() @>
 
-            let rec corceQueryString name expr =
+            let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
                 <@ let o = (%%obj : obj)
                    SwaggerProvider.Internal.RuntimeHelpers.toQueryParams name o @>
 
-            let replacePathTemplate path name (exp : Expr) =
-                let template = "{" + name + "}"
-                <@@ Regex.Replace(%%path, template, string (%%exp : string)) @@>
+            let replacePathTemplate path name (exp: Expr<string>) =
+                let template = sprintf "{%s}" name
+                <@ Regex.Replace(%path, template, %exp) @>
 
+            let createStream (stringData: string) = 
+                stringData |> Text.Encoding.UTF8.GetBytes |> MemoryStream :> Stream
+                
             let addPayload load (param : ParameterObject) (exp : Expr) =
                 let name = param.Name
-                let var = coerceString param.Type param.CollectionFormat exp
+                // delay the string coercion so that if it's a stream we don't tostring it.
+                let var () = coerceString param.Type param.CollectionFormat exp
                 match load with
-                | Some (FormData, b) -> Some (FormData, <@@ Seq.append %%b [name, (%var : string)] @@>)
-                | None               -> match param.In with
-                                        | Body -> Some (Body, Expr.Coerce (exp, typeof<obj>))
-                                        | _    -> Some (FormData, <@@ (seq [name, (%var : string)]) @@>)
+                | Some (BodyForm f) -> 
+                    Some (BodyForm <@ Seq.append %f [name, %var()] @>)
+                | Some (BodyForm f) when param.Type = SchemaObject.File -> 
+                    // have to convert existing form items to streams when we hit a file so that multipart upload can occur
+                    let prevs = <@ %f |> Seq.map (fun (k,v) -> k, k, createStream(v)) @>
+                    let wrapper = Expr.Coerce (exp, typeof<FileWrapper>) |> Expr.Cast<FileWrapper>
+                    Some (BodyMultipart <@ Seq.append %prevs [name, (%wrapper).fileName, (%wrapper).data] @>)
+                | Some (BodyMultipart f) -> 
+                    Some (BodyMultipart <@ Seq.append %f [name, name, createStream(%var())] @>)
+                | None when param.Type = SchemaObject.File ->
+                    let wrapper = Expr.Coerce (exp, typeof<FileWrapper>) |> Expr.Cast<FileWrapper>
+                    Some(BodyMultipart <@ Seq.singleton (name, (%wrapper).fileName, (%wrapper).data) @>)
+                | None               ->
+                    match param.In with
+                    | Body -> 
+                        Some (BodyObject (Expr.Coerce (exp, typeof<obj>) |> Expr.Cast<obj>))
+                    | _    -> 
+                        Some (BodyForm <@ (seq [name, (%var() : string)]) @>)
                 | _                  -> failwith ("Can only contain one payload")
 
             let addQuery quer name (exp : Expr) =
-                let listValues = corceQueryString name exp
-                <@@ List.append
-                        (%%quer : (string*string) list)
-                        (%listValues : (string*string) list) @@>
+                let listValues = coerceQueryString name exp
+                <@ List.append %quer %listValues @>
 
-            let addHeader head name (exp : Expr) =
-                <@@ Array.append (%%head : (string*string) []) ([|name, (%%exp : string)|]) @@>
+            let addHeader head name (exp : Expr<string>) =
+                <@ Array.append %head ([| name, %exp |]) @>
 
             // Partitions arguments based on their locations
-            let (path, payload, queries, heads, fileFormKey) =
+            let (path, payload, queries: Expr<(string*string) list>, heads) =
                 let mPath = op.Path
                 parameters
                 |> List.fold (
-                    fun (path, load, quer, head, fileFormKey) (param : ParameterObject, exp) ->
+                    fun (path, load, quer, head) (param : ParameterObject, exp) ->
                         let name = param.Name
                         let value = coerceString param.Type param.CollectionFormat exp
                         match param.In with
-                        | Path   -> (replacePathTemplate path name value, load, quer, head, fileFormKey)
+                        | Path   -> (replacePathTemplate path name value, load, quer, head)
                         // swagger doesn't support file in the body, so formdata is the only time we have to check on send
-                        | FormData -> (path, addPayload load param exp, quer, head, if param.Type = File then Some param.Name else fileFormKey)
-                        | Body   -> (path, addPayload load param exp, quer, head, fileFormKey) 
-                        | Query  -> (path, load, addQuery quer name exp, head, fileFormKey)
-                        | Header -> (path, load, quer, addHeader head name value, fileFormKey)
+                        | FormData -> (path, addPayload load param exp, quer, head)
+                        | Body   -> (path, addPayload load param exp, quer, head) 
+                        | Query  -> (path, load, addQuery quer name exp, head)
+                        | Header -> (path, load, quer, addHeader head name value)
                     )
-                    (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers, None)
+                    (<@ mPath @>, None, <@ ([] : (string*string) list)  @>, headers)
 
 
-            let address = <@@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl %basePath (%%path :string ) @@>
+            let address = <@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl %basePath %path @>
             let restCall = op.Type.ToString()
 
             let customizeHttpRequest =
-                <@@ let customizeCall = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)
-                    fun (request:Net.HttpWebRequest) ->
+                <@ let customizeCall = %%customizeHttpRequest
+                   fun (request:Net.HttpWebRequest) ->
                         if restCall = "Post"
                             then request.ContentLength <- 0L
-                        customizeCall request @@>
-
+                        customizeCall request @>
+            
             // Make HTTP call
             let result =
-                match payload, fileFormKey with
-                | None, _ ->
-                    <@@ Http.RequestString(%%address,
+                match payload with
+                | None ->
+                    <@ Http.RequestStream(%address,
                             httpMethod = restCall,
-                            headers = (%%heads : array<string*string>),
-                            query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
-                | Some (FormData, b), Some key  ->
-                    <@@ 
-                        let fileName, fileStream = (%%b : string * IO.Stream)
-                        Http.RequestString(%%address,
+                            headers = %heads,
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>
+                | Some (BodyMultipart parts) ->
+                    <@ Http.RequestStream(%address,
                             httpMethod = restCall,
-                            body = HttpRequestBody.Multipart(string (Guid.NewGuid()), [key, fileName, fileStream]),
-                            headers = (%%heads : array<string*string>),
-                            query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>                              
-                | Some (FormData, b), None ->
-                    <@@ Http.RequestString(%%address,
+                            body = HttpRequestBody.Multipart(string (Guid.NewGuid()), %parts),
+                            headers = %heads,
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>                              
+                | Some (BodyForm formData) ->
+                    <@ Http.RequestStream(%address,
                             httpMethod = restCall,
-                            headers = (%%heads : array<string*string>),
-                            body = HttpRequestBody.FormValues (%%b : seq<string * string>),
-                            query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
-                | Some (Body, b), _ ->
-                    <@@ let body = SwaggerProvider.Internal.RuntimeHelpers.serialize (%%b : obj)
-                        Http.RequestString(%%address,
+                            headers = %heads,
+                            body = HttpRequestBody.FormValues %formData,
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>
+                | Some (BodyObject b) ->
+                    <@  let body = SwaggerProvider.Internal.RuntimeHelpers.serialize %b
+                        Http.RequestStream(%address,
                             httpMethod = restCall,
-                            headers = (%%heads : array<string*string>),
+                            headers = %heads,
                             body = HttpRequestBody.TextRequest body,
-                            query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))
-                    @@>
-                | Some (x, _), _ -> failwith ("Payload should not be able to have type: " + string x)
-
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>
             // Return deserialized object
-            let value = <@@ SwaggerProvider.Internal.RuntimeHelpers.deserialize
-                                (%%result : string) retTy @@>
+
+            let value = 
+                <@@ 
+                    let stream = (%result).ResponseStream
+                    if isReturnFile 
+                    then box stream 
+                    else 
+                        let reader = new StreamReader(stream)
+                        let body = reader.ReadToEnd()
+                        let ret = box <| SwaggerProvider.Internal.RuntimeHelpers.deserialize body retTy
+                        reader.Close()
+                        stream.Close()
+                        ret @@>
             Expr.Coerce(value, retTy)
 
         m

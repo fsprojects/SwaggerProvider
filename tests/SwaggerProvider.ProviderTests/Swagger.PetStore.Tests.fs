@@ -3,6 +3,9 @@
 open SwaggerProvider
 open FSharp.Data
 open Expecto
+open SwaggerProvider.Internal.Compilers
+open System.IO
+open System
 
 type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type=application/json">
 let store = PetStore()
@@ -51,4 +54,11 @@ let petStoreTests =
         Expect.equal pet.Category pet2.Category "same Category"
         Expect.equal pet.Status   pet2.Status   "same Status"
         Expect.notEqual pet pet2 "different objects"
+    
+    testCase "file Upload" <| fun _ ->
+        try
+            let result = store.UploadFile(6L, "thing", new FileWrapper("thing.jpg", new MemoryStream(Text.Encoding.UTF8.GetBytes("hello!"))))
+            printfn "%A" result
+        with
+        | exn -> ()
   ]

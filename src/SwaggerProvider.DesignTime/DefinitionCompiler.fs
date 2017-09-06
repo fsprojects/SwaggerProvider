@@ -8,6 +8,10 @@ open Microsoft.FSharp.Quotations
 open System
 open System.Reflection
 
+type FileWrapper(fileName: string, data: IO.Stream) =
+    member __.fileName = fileName
+    member __.data = data
+
 /// Object for compiling definitions.
 type DefinitionCompiler (schema:SwaggerObject) =
     let definitions = Map.ofSeq schema.Definitions
@@ -66,7 +70,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | String, _       -> typeof<string>
         | Date, true  | DateTime, true   -> typeof<DateTime>
         | Date, false | DateTime, false  -> typeof<Option<DateTime>>
-        | File, _         -> typeof<Tuple<string, IO.Stream>>
+        | File, _         -> typeof<FileWrapper> // contentType * fileStream
         | Enum _, _       -> typeof<string> //TODO: find better type
         | Array eTy, _    -> (compileSchemaObject (uniqueName tyName "Item") eTy true).MakeArrayType()
         | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType(
