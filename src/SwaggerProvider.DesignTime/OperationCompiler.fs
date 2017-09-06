@@ -162,9 +162,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                         let value = coerceString param.Type param.CollectionFormat exp
                         match param.In with
                         | Path   -> (replacePathTemplate path name value, load, quer, head)
-                        // swagger doesn't support file in the body, so formdata is the only time we have to check on send
-                        | FormData -> (path, addPayload load param exp, quer, head)
-                        | Body   -> (path, addPayload load param exp, quer, head) 
+                        | FormData | Body -> (path, addPayload load param exp, quer, head)
                         | Query  -> (path, load, addQuery quer name exp, head)
                         | Header -> (path, load, quer, addHeader head name value)
                     )
