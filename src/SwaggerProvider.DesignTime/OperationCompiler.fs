@@ -16,7 +16,7 @@ open System.IO
 type BodyType =
 | BodyForm of Expr<(string*string) seq>
 | BodyObject of Expr<obj>
-| BodyMultipart of Expr<(string*string*Stream) seq>
+| BodyMultipart of Expr<MultipartItem seq>
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
@@ -129,14 +129,14 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                     Some (BodyForm <@ Seq.append %f [name, %var()] @>)
                 | Some (BodyForm f) when param.Type = SchemaObject.File ->
                     // have to convert existing form items to streams when we hit a file so that multipart upload can occur
-                    let prevs = <@ %f |> Seq.map (fun (k,v) -> k, k, createStream(v)) @>
+                    let prevs = <@ %f |> Seq.map (fun (k,v) -> MultipartItem(k, k, createStream(v))) @>
                     let wrapper = Expr.Coerce (exp, typeof<FileWrapper>) |> Expr.Cast<FileWrapper>
-                    Some (BodyMultipart <@ Seq.append %prevs [name, (%wrapper).fileName, (%wrapper).data] @>)
+                    Some (BodyMultipart <@ Seq.append %prevs [ MultipartItem(name, (%wrapper).fileName, (%wrapper).data) ] @>)
                 | Some (BodyMultipart f) ->
-                    Some (BodyMultipart <@ Seq.append %f [name, name, createStream(%var())] @>)
+                    Some (BodyMultipart <@ Seq.append %f [ MultipartItem(name, name, createStream(%var())) ] @>)
                 | None when param.Type = SchemaObject.File ->
                     let wrapper = Expr.Coerce (exp, typeof<FileWrapper>) |> Expr.Cast<FileWrapper>
-                    Some(BodyMultipart <@ Seq.singleton (name, (%wrapper).fileName, (%wrapper).data) @>)
+                    Some(BodyMultipart <@ Seq.singleton (MultipartItem(name, (%wrapper).fileName, (%wrapper).data)) @>)
                 | None               ->
                     match param.In with
                     | Body ->
