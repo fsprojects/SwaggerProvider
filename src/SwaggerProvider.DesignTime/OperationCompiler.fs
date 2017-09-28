@@ -33,7 +33,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 let paramName = niceCamelName x.Name
                 let paramType = defCompiler.CompileTy methodName paramName x.Type x.Required
                 if x.Required then ProvidedParameter(paramName, paramType)
-                else 
+                else
                     let paramDefaultValue = defCompiler.GetDefaultValue x.Type
                     ProvidedParameter(paramName, paramType, false, paramDefaultValue)
             ]
@@ -45,7 +45,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             | Some (_,resp) ->
                 match resp.Schema with
                 | None -> typeof<unit>, false
-                | Some ty when ty = SchemaObject.File -> 
+                | Some ty when ty = SchemaObject.File ->
                     typeof<IO.Stream>, true
                 | Some ty ->
                     defCompiler.CompileTy methodName "Response" ty true, false
@@ -117,31 +117,31 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 let template = sprintf "{%s}" name
                 <@ Regex.Replace(%path, template, %exp) @>
 
-            let createStream (stringData: string) = 
+            let createStream (stringData: string) =
                 stringData |> Text.Encoding.UTF8.GetBytes |> MemoryStream :> Stream
-                
+
             let addPayload load (param : ParameterObject) (exp : Expr) =
                 let name = param.Name
                 // delay the string coercion so that if it's a stream we don't tostring it.
                 let var () = coerceString param.Type param.CollectionFormat exp
                 match load with
-                | Some (BodyForm f) -> 
+                | Some (BodyForm f) ->
                     Some (BodyForm <@ Seq.append %f [name, %var()] @>)
-                | Some (BodyForm f) when param.Type = SchemaObject.File -> 
+                | Some (BodyForm f) when param.Type = SchemaObject.File ->
                     // have to convert existing form items to streams when we hit a file so that multipart upload can occur
                     let prevs = <@ %f |> Seq.map (fun (k,v) -> k, k, createStream(v)) @>
                     let wrapper = Expr.Coerce (exp, typeof<FileWrapper>) |> Expr.Cast<FileWrapper>
                     Some (BodyMultipart <@ Seq.append %prevs [name, (%wrapper).fileName, (%wrapper).data] @>)
-                | Some (BodyMultipart f) -> 
+                | Some (BodyMultipart f) ->
                     Some (BodyMultipart <@ Seq.append %f [name, name, createStream(%var())] @>)
                 | None when param.Type = SchemaObject.File ->
                     let wrapper = Expr.Coerce (exp, typeof<FileWrapper>) |> Expr.Cast<FileWrapper>
                     Some(BodyMultipart <@ Seq.singleton (name, (%wrapper).fileName, (%wrapper).data) @>)
                 | None               ->
                     match param.In with
-                    | Body -> 
+                    | Body ->
                         Some (BodyObject (Expr.Coerce (exp, typeof<obj>) |> Expr.Cast<obj>))
-                    | _    -> 
+                    | _    ->
                         Some (BodyForm <@ (seq [name, (%var() : string)]) @>)
                 | _                  -> failwith ("Can only contain one payload")
 
@@ -178,7 +178,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                         if restCall = "Post"
                             then request.ContentLength <- 0L
                         customizeCall request @>
-            
+
             // Make HTTP call
             let result =
                 match payload with
@@ -194,7 +194,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                             body = HttpRequestBody.Multipart(string (Guid.NewGuid()), %parts),
                             headers = %heads,
                             query = %queries,
-                            customizeHttpRequest = %customizeHttpRequest) @>                              
+                            customizeHttpRequest = %customizeHttpRequest) @>
                 | Some (BodyForm formData) ->
                     <@ Http.RequestStream(%address,
                             httpMethod = restCall,
@@ -212,12 +212,12 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                             customizeHttpRequest = %customizeHttpRequest) @>
             // Return deserialized object
 
-            let value = 
-                <@@ 
+            let value =
+                <@@
                     let stream = (%result).ResponseStream
-                    if isReturnFile 
-                    then box stream 
-                    else 
+                    if isReturnFile
+                    then box stream
+                    else
                         let reader = new StreamReader(stream)
                         let body = reader.ReadToEnd()
                         let ret = box <| SwaggerProvider.Internal.RuntimeHelpers.deserialize body retTy

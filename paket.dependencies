@@ -7,7 +7,7 @@ nuget FSharp.Core ~> 4.0.0
 nuget YamlDotNet
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
-github baronfel/FSharp.Data:multipart_form_data src/Net/Http.fs
+github fsharp/FSharp.Data src/Net/Http.fs
 github fsharp/FSharp.Data src/CommonRuntime/IO.fs
 github fsharp/FSharp.Data src/CommonRuntime/TextConversions.fs
 github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
