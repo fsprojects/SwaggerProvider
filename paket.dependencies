@@ -1,5 +1,6 @@
 source https://nuget.org/api/v2
 framework: >= net45
+redirects: on
 
 nuget Newtonsoft.Json >= 9.0.1
 nuget FSharp.Core ~> 4.0.0

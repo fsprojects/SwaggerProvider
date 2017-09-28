@@ -1,3 +1,4 @@
+REDIRECTS: ON
 RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
@@ -6,20 +7,20 @@ NUGET
     YamlDotNet (4.2.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/CommonRuntime/NameUtils.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/CommonRuntime/Pluralizer.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/CommonRuntime/StructuralTypes.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/CommonRuntime/TextConversions.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/Json/JsonConversions.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/Json/JsonExtensions.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/Json/JsonValue.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/Net/Http.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
-    src/Net/UriUtils.fs (503ed03c0ab56dcd4938946d898df886a7c5a79c)
+    src/CommonRuntime/IO.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/CommonRuntime/NameUtils.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/CommonRuntime/Pluralizer.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/CommonRuntime/StructuralTypes.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/CommonRuntime/TextConversions.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/Json/JsonConversions.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/Json/JsonExtensions.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/Json/JsonValue.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/Net/Http.fs (4c99395411e923afc82d010fd89190dd43c60a79)
+    src/Net/UriUtils.fs (4c99395411e923afc82d010fd89190dd43c60a79)
   remote: fsprojects/FSharp.TypeProviders.StarterPack
-    src/ProvidedTypes.fs (1dab4f94411500794342f61f877feab772e5a754)
-    src/ProvidedTypes.fsi (1dab4f94411500794342f61f877feab772e5a754)
-    src/ProvidedTypesTesting.fs (1dab4f94411500794342f61f877feab772e5a754)
+    src/ProvidedTypes.fs (c372debaa7ef4febfe16d98dec765d74640bbe82)
+    src/ProvidedTypes.fsi (c372debaa7ef4febfe16d98dec765d74640bbe82)
+    src/ProvidedTypesTesting.fs (c372debaa7ef4febfe16d98dec765d74640bbe82)
 GROUP Build
 RESTRICTION: == net45
 NUGET
