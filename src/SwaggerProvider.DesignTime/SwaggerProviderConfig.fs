@@ -86,8 +86,7 @@ module private SwaggerProviderConfig =
                 ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all operations
                 ty.AddMembers <| defCompiler.GetProvidedTypes() // Add all compiled types
 
-                let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
-                let tempAsm = ProvidedAssembly(tempAsmPath, ctx)
+                let tempAsm = ProvidedAssembly(ctx)
                 tempAsm.AddTypes [ty]
 
                 ty

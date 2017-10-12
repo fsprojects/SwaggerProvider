@@ -137,11 +137,8 @@
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
-        <Reference Include="System.Xml.Linq">
-          <Paket>True</Paket>
-        </Reference>
         <Reference Include="FSharp.Data">
-          <HintPath>..\..\packages\test\FSharp.Data\lib\net40\FSharp.Data.dll</HintPath>
+          <HintPath>..\..\packages\test\FSharp.Data\lib\net45\FSharp.Data.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
