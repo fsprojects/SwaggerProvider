@@ -17,8 +17,12 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
       AppDomain.CurrentDomain.add_AssemblyResolve(fun source args ->
         SwaggerProvider.Internal.Configuration.resolveReferencedAssembly args.Name)
 
+    
+
     do
         this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
+        let ctx = ProvidedTypesContext.Create cfg
+        
         this.AddNamespace(
             SwaggerProviderConfig.NameSpace,
-            [SwaggerProviderConfig.typedSwaggerProvider cfg.RuntimeAssembly])
+            [SwaggerProviderConfig.typedSwaggerProvider cfg.RuntimeAssembly ctx])

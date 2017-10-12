@@ -77,56 +77,56 @@ let petStoreTests =
         | _ -> failtestf "Expected Object but received %A" obj
   ]
 
-let parserTestBody formatParser (url:string) =
-    let schemaStr =
-        try
-            if url.StartsWith("http")
-            then Http.RequestString url
-            else File.ReadAllText url
-        with
-        | :? System.Net.WebException ->
-            printfn "Schema is unaccessible %s" url
-            ""
-    if not <| System.String.IsNullOrEmpty(schemaStr) then
-        let schema = formatParser schemaStr
-                     |> Parsers.Parser.parseSwaggerObject
+// let parserTestBody formatParser (url:string) =
+//     let schemaStr =
+//         try
+//             if url.StartsWith("http")
+//             then Http.RequestString url
+//             else File.ReadAllText url
+//         with
+//         | :? System.Net.WebException ->
+//             printfn "Schema is unaccessible %s" url
+//             ""
+//     if not <| System.String.IsNullOrEmpty(schemaStr) then
+//         let schema = formatParser schemaStr
+//                      |> Parsers.Parser.parseSwaggerObject
 
-        Expect.isGreaterThan
-            (schema.Paths.Length + schema.Definitions.Length)
-            0 "schema should provide type or operation definitions"
+//         Expect.isGreaterThan
+//             (schema.Paths.Length + schema.Definitions.Length)
+//             0 "schema should provide type or operation definitions"
 
-        //Number of generated types may be less than number of type definition in schema
-        //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
-        let defCompiler = DefinitionCompiler(schema)
-        let opCompiler = OperationCompiler(schema, defCompiler)
-        ignore <| opCompiler.CompilePaths(false)
-        ignore <| defCompiler.GetProvidedTypes()
+//         //Number of generated types may be less than number of type definition in schema
+//         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
+//         let defCompiler = DefinitionCompiler(context, schema)
+//         let opCompiler = OperationCompiler(context, schema, defCompiler)
+//         ignore <| opCompiler.CompilePaths(false)
+//         ignore <| defCompiler.GetProvidedTypes()
 
 
-let private schemasFromTPTests =
-    let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
-    Directory.GetFiles(folder)
-let JsonSchemasSource =
-    Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas] |> List.ofArray
-let YamlSchemasSource =
-    APIsGuru.YamlSchemas |> List.ofArray
+// let private schemasFromTPTests =
+//     let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
+//     Directory.GetFiles(folder)
+// let JsonSchemasSource =
+//     Array.concat [schemasFromTPTests; APIsGuru.JsonSchemas] |> List.ofArray
+// let YamlSchemasSource =
+//     APIsGuru.YamlSchemas |> List.ofArray
 
-[<Tests>]
-let parseJsonSchemaTests =
-    JsonSchemasSource
-    |> List.map (fun url ->
-        testCase
-            (sprintf "Parse schema %s" url)
-            (fun _ -> parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url)
-       )
-    |> testList "Integration/Schema Json Schemas"
+// [<Tests>]
+// let parseJsonSchemaTests =
+//     JsonSchemasSource
+//     |> List.map (fun url ->
+//         testCase
+//             (sprintf "Parse schema %s" url)
+//             (fun _ -> parserTestBody (JsonValue.Parse >> JsonNodeAdapter) url)
+//        )
+//     |> testList "Integration/Schema Json Schemas"
 
-[<Tests>]
-let parseYamlSchemaTests =
-    YamlSchemasSource
-    |> List.map (fun url ->
-        testCase
-            (sprintf "Parse schema %s" url)
-            (fun _ -> parserTestBody (YamlParser.Parse >> YamlNodeAdapter) url)
-       )
-    |> testList "Integration/Schema Yaml Schemas"
+// [<Tests>]
+// let parseYamlSchemaTests =
+//     YamlSchemasSource
+//     |> List.map (fun url ->
+//         testCase
+//             (sprintf "Parse schema %s" url)
+//             (fun _ -> parserTestBody (YamlParser.Parse >> YamlNodeAdapter) url)
+//        )
+//     |> testList "Integration/Schema Yaml Schemas"

@@ -14,15 +14,14 @@ open SwaggerProvider.Internal.Compilers
 module private SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
 
-    let internal typedSwaggerProvider runtimeAssemlby =
-        let asm = Assembly.LoadFrom runtimeAssemlby
-
-        let swaggerProvider = ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, IsErased = false)
+    let internal typedSwaggerProvider asmLocation (ctx : ProvidedTypesContext) =
+        let asm = Assembly.LoadFrom asmLocation
+        let swaggerProvider = ctx.ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, isErased = false)
 
         let staticParams =
-            [ ProvidedStaticParameter("Schema", typeof<string>)
-              ProvidedStaticParameter("Headers", typeof<string>,"")
-              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)]
+            [ ctx.ProvidedStaticParameter("Schema", typeof<string>)
+              ctx.ProvidedStaticParameter("Headers", typeof<string>,"")
+              ctx.ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)]
 
         //TODO: Add use operationID flag
         swaggerProvider.AddXmlDoc
@@ -63,19 +62,17 @@ module private SwaggerProviderConfig =
 
                 // Create Swagger provider type
                 let baseTy = Some typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
-                let ty = ProvidedTypeDefinition(asm, NameSpace, typeName, baseTy, IsErased = false)
+                let ty = ctx.ProvidedTypeDefinition(asm, NameSpace, typeName, baseTy, isErased = false, hideObjectMethods = true)
                 ty.AddXmlDoc ("Swagger.io Provider for " + schema.Host)
-                ty.HideObjectMethods <- true
 
                 let protocol =
                     match schema.Schemes with
                     | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
                     | array -> array.[0]
                 let ctor =
-                    ProvidedConstructor(
-                        [ProvidedParameter("host", typeof<string>,
-                            optionalValue = sprintf "%s://%s" protocol schema.Host)],
-                        InvokeCode = fun args ->
+                    ctx.ProvidedConstructor(
+                        [ctx.ProvidedParameter("host", typeof<string>, optionalValue = sprintf "%s://%s" protocol schema.Host)],
+                        invokeCode = fun args ->
                             match args with
                             | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
                             | _ -> <@@ () @@>)
@@ -84,13 +81,13 @@ module private SwaggerProviderConfig =
                     fun args -> (baseCtor, args)
                 ty.AddMember ctor
 
-                let defCompiler = DefinitionCompiler(schema)
-                let opCompiler = OperationCompiler(schema, defCompiler)
+                let defCompiler = DefinitionCompiler(ctx, schema)
+                let opCompiler = OperationCompiler(ctx, schema, defCompiler)
                 ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all operations
                 ty.AddMembers <| defCompiler.GetProvidedTypes() // Add all compiled types
 
                 let tempAsmPath = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
-                let tempAsm = ProvidedAssembly tempAsmPath
+                let tempAsm = ProvidedAssembly(tempAsmPath, ctx)
                 tempAsm.AddTypes [ty]
 
                 ty

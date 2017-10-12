@@ -13,7 +13,7 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
+type OperationCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
@@ -26,10 +26,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
              for x in parameters ->
                 let paramName = niceCamelName x.Name
                 let paramType = defCompiler.CompileTy methodName paramName x.Type x.Required
-                if x.Required then ProvidedParameter(paramName, paramType)
+                if x.Required then ctx.ProvidedParameter(paramName, paramType)
                 else 
                     let paramDefaultValue = defCompiler.GetDefaultValue x.Type
-                    ProvidedParameter(paramName, paramType, false, paramDefaultValue)
+                    ctx.ProvidedParameter(paramName, paramType, false, paramDefaultValue)
             ]
         let retTy =
             let okResponse = // BUG :  wrong selector
@@ -42,13 +42,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 | Some ty -> defCompiler.CompileTy methodName "Response" ty true
             | None -> typeof<unit>
 
-        let m = ProvidedMethod(methodName, parameters, retTy)
-        if not <| String.IsNullOrEmpty(op.Summary)
-            then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
-        if op.Deprecated
-            then m.AddObsoleteAttribute("Operation is deprecated", false)
-
-        m.InvokeCode <- fun args ->
+        let m = ctx.ProvidedMethod(methodName, parameters, retTy, invokeCode = fun args ->
             let thisTy = typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy)
             let host = Expr.PropertyGet(this, thisTy.GetProperty("Host"))
@@ -90,7 +84,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                             |> Array.find (fun x -> niceCamelName x.Name = sVar.Name) // ???
                         param, expr
                     | _  ->
-                        failwithf "Function '%s' does not support functions as arguments." m.Name
+                        failwithf "Function '%s' does not support functions as arguments." methodName
                     )
 
 
@@ -186,7 +180,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             let value = <@@ SwaggerProvider.Internal.RuntimeHelpers.deserialize
                                 (%%result : string) retTy @@>
             Expr.Coerce(value, retTy)
-
+        )
+        if not <| String.IsNullOrEmpty(op.Summary)
+            then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
+        if op.Deprecated
+            then m.AddObsoleteAttribute("Operation is deprecated", false)
         m
 
     /// Compiles the operation.

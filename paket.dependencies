@@ -15,9 +15,9 @@ github fsharp/FSharp.Data src/CommonRuntime/StructuralTypes.fs
 github fsharp/FSharp.Data src/Json/JsonValue.fs
 github fsharp/FSharp.Data src/Json/JsonConversions.fs
 github fsharp/FSharp.Data src/Json/JsonExtensions.fs
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
-github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesTesting.fs
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
+github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypesTesting.fs
 
 group Build
 	framework: net45

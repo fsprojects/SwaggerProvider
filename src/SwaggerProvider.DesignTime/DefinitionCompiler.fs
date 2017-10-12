@@ -9,7 +9,7 @@ open System
 open System.Reflection
 
 /// Object for compiling definitions.
-type DefinitionCompiler (schema:SwaggerObject) =
+type DefinitionCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject) =
     let definitions = Map.ofSeq schema.Definitions
     let definitionTys = System.Collections.Generic.Dictionary<_,_>()
 
@@ -25,11 +25,11 @@ type DefinitionCompiler (schema:SwaggerObject) =
 
     let generateProperty propName ty (scope:UniqueNameGenerator) =
         let propertyName = scope.MakeUnique <| nicePascalName propName
-        let providedField = ProvidedField("_" + propertyName.ToLower(), ty)
+        let providedField = ctx.ProvidedField("_" + propertyName.ToLower(), ty)
         let providedProperty =
-            ProvidedProperty(propertyName, ty,
-                GetterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
-                SetterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
+            ctx.ProvidedProperty(propertyName, ty,
+                getterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
+                setterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
         if propName <> propertyName then
             providedProperty.AddCustomAttribute
                 <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute propName
@@ -81,13 +81,13 @@ type DefinitionCompiler (schema:SwaggerObject) =
                 match providedTys.TryGetValue tyName with
                 | true, Some(ty) -> ty :> Type
                 | isExist, _ ->
-                    let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, IsErased = false)
+                    let ty = ctx.ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                     if isExist
                     then providedTys.[tyName] <- Some(ty)
                     else providedTys.Add(tyName, Some(ty))
 
                     // Add default constructor
-                    ty.AddMember <| ProvidedConstructor([], InvokeCode = fun _ -> <@@ () @@>)
+                    ty.AddMember <| ctx.ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
                     // Generate fields and properties
                     let members =
@@ -109,42 +109,41 @@ type DefinitionCompiler (schema:SwaggerObject) =
                         (members |> Array.collect (fun (f,p) -> [|f :> MemberInfo; p:> MemberInfo|]) |> List.ofArray)
 
                     // Override `.ToString()`
-                    let toStr = ProvidedMethod("ToString", [], typeof<string>, IsStaticMethod = false)
-                    toStr.InvokeCode <- fun args ->
-                        let this = args.[0]
-                        let (pNames, pValues) =
-                            members
-                            |> Array.map (fun (pField, pProp) ->
-                                let pValObj = Expr.FieldGet(this, pField)
-                                pProp.Name, Expr.Coerce(pValObj, typeof<obj>)
-                               )
-                            |> Array.unzip
-                        let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
-                        <@@
-                            let values = (%%pValuesArr : array<obj>)
-                            let rec formatValue (v:obj) =
-                                if v = null then "null"
-                                else
-                                    let vTy = v.GetType()
-                                    if vTy = typeof<string>
-                                    then String.Format("\"{0}\"",v)
-                                    elif vTy.IsArray
-                                    then
-                                        let elements =
-                                            seq {
-                                                for x in (v :?> System.Collections.IEnumerable) do
-                                                    yield formatValue x
-                                            } |> Seq.toArray
-                                        String.Format("[{0}]", String.Join("; ", elements))
-                                    else v.ToString()
+                    let toStr = 
+                        ctx.ProvidedMethod("ToString", [], typeof<string>, isStatic = false, 
+                            invokeCode = fun args ->
+                                let this = args.[0]
+                                let (pNames, pValues) =
+                                    members
+                                    |> Array.map (fun (pField, pProp) ->
+                                        let pValObj = Expr.FieldGet(this, pField)
+                                        pProp.Name, Expr.Coerce(pValObj, typeof<obj>)
+                                       )
+                                    |> Array.unzip
+                                let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
+                                <@@
+                                    let values = (%%pValuesArr : array<obj>)
+                                    let rec formatValue (v:obj) =
+                                        if v = null then "null"
+                                        else
+                                            let vTy = v.GetType()
+                                            if vTy = typeof<string>
+                                            then String.Format("\"{0}\"",v)
+                                            elif vTy.IsArray
+                                            then
+                                                let elements =
+                                                    seq {
+                                                        for x in (v :?> System.Collections.IEnumerable) do
+                                                            yield formatValue x
+                                                    } |> Seq.toArray
+                                                String.Format("[{0}]", String.Join("; ", elements))
+                                            else v.ToString()
 
-                            let strs = values |> Array.mapi (fun i v ->
-                                String.Format("{0}={1}",pNames.[i], formatValue v))
-                            String.Format("{{{0}}}", String.Join("; ",strs))
-                        @@>
-                    toStr.SetMethodAttrs(
-                        MethodAttributes.Public
-                        ||| MethodAttributes.Virtual)
+                                    let strs = values |> Array.mapi (fun i v ->
+                                        String.Format("{0}={1}",pNames.[i], formatValue v))
+                                    String.Format("{{{0}}}", String.Join("; ",strs))
+                                @@>)
+                    toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
 
                     let objToStr = (typeof<obj>).GetMethod("ToString",[||])
                     ty.DefineMethodOverride(toStr, objToStr)
