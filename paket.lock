@@ -6,20 +6,20 @@ NUGET
     YamlDotNet (4.2.2)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/CommonRuntime/NameUtils.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/CommonRuntime/Pluralizer.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/CommonRuntime/StructuralTypes.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/CommonRuntime/TextConversions.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/Json/JsonConversions.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/Json/JsonExtensions.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/Json/JsonValue.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/Net/Http.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
-    src/Net/UriUtils.fs (1ac5f39e7297ef386e39d68f6f73859c25867fae)
+    src/CommonRuntime/IO.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/CommonRuntime/NameUtils.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/CommonRuntime/Pluralizer.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/CommonRuntime/StructuralTypes.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/CommonRuntime/TextConversions.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/Json/JsonConversions.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/Json/JsonExtensions.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/Json/JsonValue.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/Net/Http.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/Net/UriUtils.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (80c3a371485e3d8db4f5ad19dd1e3705341493de)
-    src/ProvidedTypes.fsi (80c3a371485e3d8db4f5ad19dd1e3705341493de)
-    src/ProvidedTypesTesting.fs (80c3a371485e3d8db4f5ad19dd1e3705341493de)
+    src/ProvidedTypes.fs (e0436b11faed9e7938b3c90d874a535f94311b87)
+    src/ProvidedTypes.fsi (e0436b11faed9e7938b3c90d874a535f94311b87)
+    src/ProvidedTypesTesting.fs (e0436b11faed9e7938b3c90d874a535f94311b87)
 GROUP Build
 RESTRICTION: == net45
 NUGET
