@@ -7,7 +7,7 @@ open Microsoft.FSharp.Core.CompilerServices
 /// The Swagger Type Provider.
 [<TypeProvider>]
 type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces()
+    inherit TypeProviderForNamespaces(cfg)
 
     static do
       // When SwaggerProvider is installed via NuGet/Paket, the Newtonsoft.Json assembly and
@@ -21,8 +21,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
 
     do
         this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
-        let ctx = ProvidedTypesContext.Create cfg
         
         this.AddNamespace(
             SwaggerProviderConfig.NameSpace,
-            [SwaggerProviderConfig.typedSwaggerProvider cfg.RuntimeAssembly ctx])
+            [SwaggerProviderConfig.typedSwaggerProvider this.TargetContext cfg.RuntimeAssembly])

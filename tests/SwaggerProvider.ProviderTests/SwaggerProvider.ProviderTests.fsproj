@@ -77,7 +77,7 @@
       <Link>Schemas/i0027.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Compile Include="Swagger.PetStore.Tests.fs" />
+   <Compile Include="Swagger.PetStore.Tests.fs" />
     <Compile Include="Swagger.GitHub.Tests.fs" />
     <Compile Include="Swagger.Instagram.Tests.fs" />
     <Compile Include="Swagger.i0027.Tests.fs" />

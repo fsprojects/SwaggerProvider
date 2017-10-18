@@ -13,7 +13,7 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 
 /// Object for compiling operations.
-type OperationCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject, defCompiler:DefinitionCompiler) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
@@ -26,10 +26,10 @@ type OperationCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject, defComp
              for x in parameters ->
                 let paramName = niceCamelName x.Name
                 let paramType = defCompiler.CompileTy methodName paramName x.Type x.Required
-                if x.Required then ctx.ProvidedParameter(paramName, paramType)
+                if x.Required then ProvidedParameter(paramName, paramType)
                 else 
                     let paramDefaultValue = defCompiler.GetDefaultValue x.Type
-                    ctx.ProvidedParameter(paramName, paramType, false, paramDefaultValue)
+                    ProvidedParameter(paramName, paramType, false, paramDefaultValue)
             ]
         let retTy =
             let okResponse = // BUG :  wrong selector
@@ -42,7 +42,7 @@ type OperationCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject, defComp
                 | Some ty -> defCompiler.CompileTy methodName "Response" ty true
             | None -> typeof<unit>
 
-        let m = ctx.ProvidedMethod(methodName, parameters, retTy, invokeCode = fun args ->
+        let m = ProvidedMethod(methodName, parameters, retTy, invokeCode = fun args ->
             let thisTy = typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy)
             let host = Expr.PropertyGet(this, thisTy.GetProperty("Host"))

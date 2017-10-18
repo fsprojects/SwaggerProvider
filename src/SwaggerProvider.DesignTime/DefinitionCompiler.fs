@@ -9,7 +9,7 @@ open System
 open System.Reflection
 
 /// Object for compiling definitions.
-type DefinitionCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject) =
+type DefinitionCompiler (schema:SwaggerObject) =
     let definitions = Map.ofSeq schema.Definitions
     let definitionTys = System.Collections.Generic.Dictionary<_,_>()
 
@@ -25,9 +25,9 @@ type DefinitionCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject) =
 
     let generateProperty propName ty (scope:UniqueNameGenerator) =
         let propertyName = scope.MakeUnique <| nicePascalName propName
-        let providedField = ctx.ProvidedField("_" + propertyName.ToLower(), ty)
+        let providedField = ProvidedField("_" + propertyName.ToLower(), ty)
         let providedProperty =
-            ctx.ProvidedProperty(propertyName, ty,
+            ProvidedProperty(propertyName, ty,
                 getterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
                 setterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
         if propName <> propertyName then
@@ -81,13 +81,13 @@ type DefinitionCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject) =
                 match providedTys.TryGetValue tyName with
                 | true, Some(ty) -> ty :> Type
                 | isExist, _ ->
-                    let ty = ctx.ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
+                    let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                     if isExist
                     then providedTys.[tyName] <- Some(ty)
                     else providedTys.Add(tyName, Some(ty))
 
                     // Add default constructor
-                    ty.AddMember <| ctx.ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
+                    ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
                     // Generate fields and properties
                     let members =
@@ -110,7 +110,7 @@ type DefinitionCompiler (ctx: ProvidedTypesContext, schema:SwaggerObject) =
 
                     // Override `.ToString()`
                     let toStr = 
-                        ctx.ProvidedMethod("ToString", [], typeof<string>, isStatic = false, 
+                        ProvidedMethod("ToString", [], typeof<string>, isStatic = false, 
                             invokeCode = fun args ->
                                 let this = args.[0]
                                 let (pNames, pValues) =

@@ -1,6 +1,6 @@
 ﻿module APIsGuruFSCS
 
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
+open Microsoft.FSharp.Compiler.SourceCodeServices
 open System
 open System.IO
 open Expecto
@@ -18,7 +18,7 @@ let referencedAssemblies =
             then failwithf "File not found '%s'" path
         ["-r"; path])
 
-let scs = new System.Threading.ThreadLocal<_>(fun () -> SimpleSourceCodeServices())
+let scs = new System.Threading.ThreadLocal<_>(fun () -> FSharpChecker.Create())
 
 let compileTP url =
     let tempFile = Path.GetTempFileName()
@@ -37,6 +37,7 @@ let compileTP url =
            (["fsc.exe"; "--noframework";
              "-o"; dll; "-a"; fs
             ] @ referencedAssemblies))
+        |> Async.RunSynchronously
 
     [tempFile; fs; dll]
     |> List.filter File.Exists
