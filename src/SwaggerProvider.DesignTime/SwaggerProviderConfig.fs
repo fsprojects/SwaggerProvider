@@ -34,7 +34,7 @@ module private SwaggerProviderConfig =
         swaggerProvider.DefineStaticParameters(
             parameters=staticParams,
             instantiationFunction = (fun typeName args ->
-                let tempAsm = ProvidedAssembly(ctx)
+                let tempAsm = ProvidedAssembly()
                 let schemaPathRaw = args.[0] :?> string
                 let ignoreOperationId = args.[2] :?> bool
 

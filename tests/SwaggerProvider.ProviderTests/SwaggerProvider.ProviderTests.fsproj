@@ -10,6 +10,7 @@
     <RootNamespace>SwaggerProvider.Tests</RootNamespace>
     <AssemblyName>SwaggerProvider.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>SwaggerProvider.Tests</Name>
     <TargetFrameworkProfile />

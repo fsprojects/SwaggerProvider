@@ -1,6 +1,7 @@
 ﻿namespace SwaggerProvider.Internal.Compilers
 
 open ProviderImplementation.ProvidedTypes
+open ProviderImplementation.ProvidedTypes.UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
 open SwaggerProvider.Internal
 open SwaggerProvider.Internal.Schema
@@ -28,8 +29,8 @@ type DefinitionCompiler (schema:SwaggerObject) =
         let providedField = ProvidedField("_" + propertyName.ToLower(), ty)
         let providedProperty =
             ProvidedProperty(propertyName, ty,
-                getterCode = (fun [this] -> Expr.FieldGet (this, providedField)),
-                setterCode = (fun [this;v] -> Expr.FieldSet(this, providedField, v)))
+                getterCode = (fun [this] -> Expr.FieldGetUnchecked (this, providedField)),
+                setterCode = (fun [this;v] -> Expr.FieldSetUnchecked(this, providedField, v)))
         if propName <> propertyName then
             providedProperty.AddCustomAttribute
                 <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute propName
@@ -69,8 +70,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
         | File, _         -> typeof<byte>.MakeArrayType(1)
         | Enum _, _       -> typeof<string> //TODO: find better type
         | Array eTy, _    -> (compileSchemaObject (uniqueName tyName "Item") eTy true).MakeArrayType()
-        | Dictionary eTy,_-> typedefof<Map<string, obj>>.MakeGenericType(
-                                [|typeof<string>; compileSchemaObject (uniqueName tyName "Item") eTy false|])
+        | Dictionary eTy,_-> ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [typeof<string>; compileSchemaObject (uniqueName tyName "Item") eTy false])
         | Object properties, _ ->
             if properties.Length = 0 then typeof<obj>
             else

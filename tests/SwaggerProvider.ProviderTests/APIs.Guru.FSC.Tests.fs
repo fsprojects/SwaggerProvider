@@ -4,14 +4,18 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open System
 open System.IO
 open Expecto
+open ProviderImplementation.ProvidedTypesTesting
 
 let referencedAssemblies =
     let buildTarget name =
         Path.Combine(__SOURCE_DIRECTORY__, "../../bin/SwaggerProvider/", name)
     [
-        Path.Combine(__SOURCE_DIRECTORY__, "../../packages/test/FSharp.Core/lib/net45/FSharp.Core.dll")
-        buildTarget "SwaggerProvider.Runtime.dll"
-        buildTarget "SwaggerProvider.dll"
+        yield typeof<System.Int32>.Assembly.Location
+        yield typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
+        yield typeof<FSharp.Data.Http>.Assembly.Location
+        yield typeof<System.Net.CookieContainer>.Assembly.Location
+        yield buildTarget "SwaggerProvider.Runtime.dll"
+        yield buildTarget "SwaggerProvider.dll"
     ]
     |> List.collect (fun path ->
         if not <| File.Exists(path)

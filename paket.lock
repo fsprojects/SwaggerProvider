@@ -17,14 +17,14 @@ GITHUB
     src/Net/Http.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
     src/Net/UriUtils.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (3683d813e77c73b1bc69ca5483843b2bb2306a5a)
-    src/ProvidedTypes.fsi (3683d813e77c73b1bc69ca5483843b2bb2306a5a)
-    src/ProvidedTypesTesting.fs (3683d813e77c73b1bc69ca5483843b2bb2306a5a)
+    src/ProvidedTypes.fs (27232ac95fa6f91f136e01b23f38dda34d0f3dc4)
+    src/ProvidedTypes.fsi (27232ac95fa6f91f136e01b23f38dda34d0f3dc4)
+    src/ProvidedTypesTesting.fs (27232ac95fa6f91f136e01b23f38dda34d0f3dc4)
 GROUP Build
 RESTRICTION: == net45
 NUGET
   remote: https://www.nuget.org/api/v2
-    DotLiquid (2.0.194)
+    DotLiquid (2.0.200)
     FAKE (4.63.2)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.2.3)
