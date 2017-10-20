@@ -39,7 +39,7 @@ let private schemaUrls =
 let private ignoredPrefList =
     [
      // Following schemas require additional investigation and fixes
-     "https://api.apis.guru/v2/specs/clarify.io/" // StackOverflowException during FCS compilation
+     //"https://api.apis.guru/v2/specs/clarify.io/" // StackOverflowException during FCS compilation
     ]
 let private skipIgnored (url:string) =
     ignoredPrefList
