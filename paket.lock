@@ -6,16 +6,16 @@ NUGET
     YamlDotNet (4.2.2)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/CommonRuntime/NameUtils.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/CommonRuntime/Pluralizer.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/CommonRuntime/StructuralTypes.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/CommonRuntime/TextConversions.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/Json/JsonConversions.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/Json/JsonExtensions.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/Json/JsonValue.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/Net/Http.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
-    src/Net/UriUtils.fs (d12f4e9b9d2cd2f8f01bd39503003831487aa578)
+    src/CommonRuntime/IO.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/CommonRuntime/NameUtils.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/CommonRuntime/Pluralizer.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/CommonRuntime/StructuralTypes.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/CommonRuntime/TextConversions.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/Json/JsonConversions.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/Json/JsonExtensions.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/Json/JsonValue.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/Net/Http.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
+    src/Net/UriUtils.fs (781b8e65d1ad689360bb598d73b3feb9859f44fc)
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (27232ac95fa6f91f136e01b23f38dda34d0f3dc4)
     src/ProvidedTypes.fsi (27232ac95fa6f91f136e01b23f38dda34d0f3dc4)
@@ -38,7 +38,7 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (ddf45441759a2a7bc528b3b4c6f9a1edc7bd9f55)
+    modules/Octokit/Octokit.fsx (838f43e1e6ac18014b2515799fe7fa0e23186fbc)
       Octokit (>= 0.20)
 GROUP OWIN
 RESTRICTION: == net461
