@@ -47,10 +47,11 @@ let private skipIgnored (url:string) =
     |> not
 
 let private rnd = Random(int(DateTime.Now.Ticks))
+let shrink size (arr:'a[]) = 
+    Array.init size (fun _ -> arr.[rnd.Next(size)])
 let private shrinkOnMonoTo size arr =
     if isNull <| Type.GetType ("Mono.Runtime")
-    then arr
-    else Array.init size (fun _ -> arr.[rnd.Next(size)])
+    then arr else arr |> shrink size
 
 let private filter = Array.filter skipIgnored >> shrinkOnMonoTo 80
 

@@ -20,7 +20,7 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypesTesting.fs
 
 group Build
-	framework: net45
+	framework: net461
 	source https://nuget.org/api/v2
 
 	nuget FAKE

@@ -78,7 +78,7 @@
       <Link>Schemas/i0027.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-   <Compile Include="Swagger.PetStore.Tests.fs" />
+    <Compile Include="Swagger.PetStore.Tests.fs" />
     <Compile Include="Swagger.GitHub.Tests.fs" />
     <Compile Include="Swagger.Instagram.Tests.fs" />
     <Compile Include="Swagger.i0027.Tests.fs" />
@@ -97,6 +97,9 @@
     <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FakeLib">
+      <HintPath>..\..\packages\build\FAKE\tools\FakeLib.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="SwaggerProvider">
       <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.dll</HintPath>

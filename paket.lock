@@ -21,7 +21,7 @@ GITHUB
     src/ProvidedTypes.fsi (cd6dcfad94840ec63b15d9298c56893c8a5cfa8e)
     src/ProvidedTypesTesting.fs (cd6dcfad94840ec63b15d9298c56893c8a5cfa8e)
 GROUP Build
-RESTRICTION: == net45
+RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
     DotLiquid (2.0.200)
