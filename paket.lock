@@ -6,20 +6,20 @@ NUGET
     YamlDotNet (4.2.2)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/CommonRuntime/NameUtils.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/CommonRuntime/Pluralizer.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/CommonRuntime/StructuralTypes.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/CommonRuntime/TextConversions.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/Json/JsonConversions.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/Json/JsonExtensions.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/Json/JsonValue.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/Net/Http.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
-    src/Net/UriUtils.fs (90e8dc8c3ffddd3b3279193e202d87d2f6c6db2e)
+    src/CommonRuntime/IO.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/CommonRuntime/NameUtils.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/CommonRuntime/Pluralizer.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/CommonRuntime/StructuralTypes.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/CommonRuntime/TextConversions.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/Json/JsonConversions.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/Json/JsonExtensions.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/Json/JsonValue.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/Net/Http.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/Net/UriUtils.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (cd6dcfad94840ec63b15d9298c56893c8a5cfa8e)
-    src/ProvidedTypes.fsi (cd6dcfad94840ec63b15d9298c56893c8a5cfa8e)
-    src/ProvidedTypesTesting.fs (cd6dcfad94840ec63b15d9298c56893c8a5cfa8e)
+    src/ProvidedTypes.fs (e75f056b5a675d04445649d872aa020439a6442a)
+    src/ProvidedTypes.fsi (e75f056b5a675d04445649d872aa020439a6442a)
+    src/ProvidedTypesTesting.fs (e75f056b5a675d04445649d872aa020439a6442a)
 GROUP Build
 RESTRICTION: == net461
 NUGET
