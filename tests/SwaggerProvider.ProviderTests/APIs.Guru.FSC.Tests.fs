@@ -63,18 +63,9 @@ let compileTP fs dll =
         failwithf "Compilation error:\n%s"
             (String.Join("\n", errors |> Array.map(fun x->x.ToString()) ))
 
-let focusedUrlPrefixes =
-    [
-        "https://api.apis.guru/v2/specs/oxforddictionaries.com/"
-        "https://api.apis.guru/v2/specs/azure.com/arm-iothub/"
-        "https://api.apis.guru/v2/specs/googleapis.com/compute/"
-    ]
-
 [<Tests>]
 let compilerTests =
     List.ofArray  APIsGuru.JsonSchemas
-    // Uncommend next line to run  integration tests only on `focusedUrlPrefixes` schemas
-    //|> List.filter (fun url -> focusedUrlPrefixes |> Seq.exists url.StartsWith)
     |> List.map (fun url ->
         testCase
             (sprintf "Compile schema %s" url)

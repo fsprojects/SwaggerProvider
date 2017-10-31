@@ -17,9 +17,9 @@ GITHUB
     src/Net/Http.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
     src/Net/UriUtils.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (e75f056b5a675d04445649d872aa020439a6442a)
-    src/ProvidedTypes.fsi (e75f056b5a675d04445649d872aa020439a6442a)
-    src/ProvidedTypesTesting.fs (e75f056b5a675d04445649d872aa020439a6442a)
+    src/ProvidedTypes.fs (35b5f0b0e1c9f58ce5e970971a329c99975be2c0)
+    src/ProvidedTypes.fsi (35b5f0b0e1c9f58ce5e970971a329c99975be2c0)
+    src/ProvidedTypesTesting.fs (35b5f0b0e1c9f58ce5e970971a329c99975be2c0)
 GROUP Build
 RESTRICTION: == net461
 NUGET
@@ -38,7 +38,7 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (838f43e1e6ac18014b2515799fe7fa0e23186fbc)
+    modules/Octokit/Octokit.fsx (0341a2e614eb2a7f34607cec914eb0ed83ce9add)
       Octokit (>= 0.20)
 GROUP OWIN
 RESTRICTION: == net461
