@@ -17,9 +17,9 @@ GITHUB
     src/Net/Http.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
     src/Net/UriUtils.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (35b5f0b0e1c9f58ce5e970971a329c99975be2c0)
-    src/ProvidedTypes.fsi (35b5f0b0e1c9f58ce5e970971a329c99975be2c0)
-    src/ProvidedTypesTesting.fs (35b5f0b0e1c9f58ce5e970971a329c99975be2c0)
+    src/ProvidedTypes.fs (1cdb510f445feaffbaf78ef3248f895363ae752d)
+    src/ProvidedTypes.fsi (1cdb510f445feaffbaf78ef3248f895363ae752d)
+    src/ProvidedTypesTesting.fs (1cdb510f445feaffbaf78ef3248f895363ae752d)
 GROUP Build
 RESTRICTION: == net461
 NUGET
