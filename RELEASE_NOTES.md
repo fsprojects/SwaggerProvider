@@ -1,3 +1,6 @@
+#### 0.9.0 - November 17, 2017
+* Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
+
 #### 0.8.1 - August 21, 2017
 * Removed caching and dependency on FSharp.Configuration context [#84](https://github.com/fsprojects/SwaggerProvider/issues/84)
 
