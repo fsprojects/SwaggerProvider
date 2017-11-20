@@ -1,10 +1,80 @@
-﻿namespace SwaggerProvider.Internal.Schema.Parsers
+﻿namespace Swagger.Parser
 
 open System
-open SwaggerProvider.Internal.Schema
+open Swagger.Parser.Schema
 open System.Collections.Generic
 
-module Parser =
+module Exceptions = 
+
+    type SwaggerSchemaParseException(message) =
+        inherit Exception(message)
+
+    /// Schema object does not contain the `field` that is Required in Swagger specification.
+    type FieldNotFoundException<'T>(obj:'T, field:string, specLink:string) =
+        inherit SwaggerSchemaParseException(
+            sprintf "Object MUST contain field `%s` (See %s for more details).\nObject:%A"
+                field specLink obj)
+
+    /// The `field` value is not specified in Swagger specification
+    type UnknownFieldValueException<'T>(obj:'T, value:string, field:string, specLink:string) =
+        inherit SwaggerSchemaParseException(
+            sprintf "Value `%s` is not allowed for field `%s`(See %s for more details).\nObject:%A"
+                value field specLink obj)
+
+    /// The `value` has unexpected type
+    type UnexpectedValueTypeException<'T>(obj:'T, ty:string) =
+        inherit SwaggerSchemaParseException(
+            sprintf "Expected `%s` type, but received `%A`"
+                ty obj)
+
+    /// Unsupported Swagger version
+    type UnsupportedSwaggerVersionException(version) =
+        inherit SwaggerSchemaParseException(
+            sprintf "SwaggerProviders does not Swagger Specification %s"
+                version)
+
+    /// Unknown reference
+    type UnknownSwaggerReferenceException(ref:string) =
+        inherit SwaggerSchemaParseException(
+            sprintf "SwaggerProvider could not resolve `$ref`: %s" ref)
+
+[<AbstractClass>]
+type SchemaNode() =
+    /// Get the boolean value of an element (assuming that value is a boolean)
+    abstract member AsBoolean: unit -> bool
+    /// Get the string value of an element (assuming that value is a string)
+    abstract member AsString: unit -> string
+    /// Get all elements of Node element. Returns an empty array if the value is not an array
+    abstract member AsArray: unit -> SchemaNode[]
+    /// Get the string[] value of an element and exclude 'null' strings (assuming that value is string or string[])
+    abstract member AsStringArrayWithoutNull: unit -> string[]
+
+    /// Get the map value of an element (assuming that value is a map)
+    abstract member Properties : unit -> (string*SchemaNode)[]
+    /// Try get property values from the map by property name
+    abstract member TryGetProperty: string -> SchemaNode option
+
+    /// Get field that is `Required` in Swagger specification
+    member this.GetRequiredField (fieldName, spec) =
+        match this.TryGetProperty(fieldName) with
+        | Some(value) -> value
+        | None -> raise <| Exceptions.FieldNotFoundException(this, fieldName, spec)
+
+    /// Gets the string value of the property if it exists. Empty string otherwise.
+    member this.GetStringSafe(propertyName) =
+        match this.TryGetProperty(propertyName) with
+        | Some(value) -> value.AsString()
+        | None -> ""
+
+    /// Gets the string array for the property if it exists. Empty array otherwise.
+    member this.GetStringArraySafe(propertyName) =
+        match this.TryGetProperty(propertyName) with
+        | Some(value) -> value.AsArray() |> Array.map (fun x->x.AsString())
+        | None -> [||]
+
+module Parsers =
+    open Exceptions
+
     let emptyDict = Dictionary<string,Lazy<SchemaObject>>()
 
     // Type that hold parsing context to resolve `$ref`s
@@ -362,12 +432,11 @@ module Parser =
 
         obj.Properties()
         |> Array.filter(fun (path,_) -> not <| isSwaggerSchemaExtensionName path)
-        |> Array.map (fun (path, pathItemObj) ->
+        |> Array.collect (fun (path, pathItemObj) ->
             let newContext = updateContext pathItemObj
             pathItemObj.Properties()
             |> Array.choose (parsePathItemObject newContext path)
            )
-        |> Array.concat
 
     /// Parse the SchemaNode as a SchemaObject[]
     let parseDefinitionsObject (obj:SchemaNode) : Dictionary<string,Lazy<SchemaObject>> =

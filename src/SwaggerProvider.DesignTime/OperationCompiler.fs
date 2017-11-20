@@ -2,8 +2,8 @@
 
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
+open Swagger.Parser.Schema
 open SwaggerProvider.Internal
-open SwaggerProvider.Internal.Schema
 
 open System
 open FSharp.Data

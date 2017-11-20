@@ -1,15 +1,13 @@
 module SwaggerProvider.DefinitionsTests
 
-open SwaggerProvider.Internal.Schema
-open SwaggerProvider.Internal.Schema.Parsers
-open FSharp.Data
+open Swagger.Parser.Schema
+open Swagger.Parser
 open Expecto
 
 let shouldBeEqual (expected:SchemaObject) content =
     content
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
-    |> Parser.parseSchemaObject Parser.emptyDict
+    |> SwaggerParser.parseJson
+    |> Parsers.parseSchemaObject Parsers.emptyDict
     |> fun actual ->
         Expect.equal actual expected "type definition parse"
 

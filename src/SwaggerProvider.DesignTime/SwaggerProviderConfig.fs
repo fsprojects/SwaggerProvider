@@ -8,8 +8,7 @@ open Microsoft.FSharp.Quotations
 open System
 open System.Runtime.Caching
 open FSharp.Data
-open SwaggerProvider.Internal.Schema
-open SwaggerProvider.Internal.Schema.Parsers
+open Swagger.Parser
 open SwaggerProvider.Internal.Compilers
 
 module private SwaggerProviderConfig =
@@ -57,10 +56,7 @@ module private SwaggerProviderConfig =
                     | false ->
                         schemaPathRaw |> IO.File.ReadAllText
 
-                let schema =
-                    if schemaData.Trim().StartsWith("{")
-                    then JsonValue.Parse  schemaData |> JsonNodeAdapter |> Parser.parseSwaggerObject
-                    else YamlParser.Parse schemaData |> YamlNodeAdapter |> Parser.parseSwaggerObject
+                let schema = SwaggerParser.parseSchema schemaData
 
                 // Create Swagger provider type
                 let baseTy = Some typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>

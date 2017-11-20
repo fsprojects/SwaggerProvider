@@ -51,10 +51,6 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypesTesting.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/ProvidedTypesTesting.fs</Link>
-    </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
       <Paket>True</Paket>
       <Link>paket-files/UriUtils.fs</Link>
@@ -79,27 +75,10 @@
       <Paket>True</Paket>
       <Link>paket-files/NameUtils.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonValue.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/JsonValue.fs</Link>
-    </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonConversions.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/JsonConversions.fs</Link>
-    </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Json\JsonExtensions.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/JsonExtensions.fs</Link>
-    </Compile>
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
-    <Compile Include="YamlParser.fs" />
     <Compile Include="Utils.fs" />
-    <Compile Include="Schema.fs" />
-    <Compile Include="SchemaParserExceptions.fs" />
-    <Compile Include="SchemaNode.fs" />
-    <Compile Include="SchemaParser.fs" />
     <Compile Include="DefinitionCompiler.fs" />
     <Compile Include="OperationCompiler.fs" />
     <Compile Include="SwaggerProviderConfig.fs" />
@@ -142,17 +121,6 @@
       <ItemGroup>
         <Reference Include="FSharp.Core">
           <HintPath>..\..\packages\FSharp.Core\lib\net40\FSharp.Core.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7' Or $(TargetFrameworkVersion) == 'v4.7.1')">
-      <ItemGroup>
-        <Reference Include="YamlDotNet">
-          <HintPath>..\..\packages\YamlDotNet\lib\net35\YamlDotNet.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

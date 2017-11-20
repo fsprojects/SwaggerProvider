@@ -1,6 +1,4 @@
-/// Internal schema used to parse json objects to internal swagger objects.
-namespace SwaggerProvider.Internal.Schema
-
+namespace Swagger.Parser.Schema
 
 /// A data type produced or consumed by operations.
 /// http://swagger.io/specification/#schemaObject

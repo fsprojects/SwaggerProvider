@@ -1,7 +1,7 @@
 ﻿module Schema.Spec.Json.Tests
 
-open SwaggerProvider.Internal.Schema
-open SwaggerProvider.Internal.Schema.Parsers
+open Swagger.Parser.Schema
+open Swagger.Parser
 open Expecto
 open FSharp.Data
 
@@ -24,9 +24,8 @@ let jsonSpecTests =
             },
             "version": "1.0.1"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseInfoObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseInfoObject
         |> fun actual ->
             let expected =
                 {
@@ -58,9 +57,8 @@ let jsonSpecTests =
             }
             }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parsePathsObject Parser.ParserContext.Empty
+        |> SwaggerParser.parseJson
+        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
         |> fun actual ->
             let expected =
                 [|{
@@ -123,9 +121,8 @@ let jsonSpecTests =
             }
           ]
         }}"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parsePathsObject Parser.ParserContext.Empty
+        |> SwaggerParser.parseJson
+        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
         |> fun actual ->
             let expected =
                 [|{
@@ -212,9 +209,8 @@ let jsonSpecTests =
             }
           ]
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
+        |> SwaggerParser.parseJson
+        |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
         |> fun actual ->
             let expected =
                 {
@@ -272,9 +268,8 @@ let jsonSpecTests =
             "$ref": "#/definitions/User"
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -300,9 +295,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -328,9 +322,8 @@ let jsonSpecTests =
           },
           "collectionFormat": "csv"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -351,9 +344,8 @@ let jsonSpecTests =
           "required": true,
           "type": "string"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -378,9 +370,8 @@ let jsonSpecTests =
           },
           "collectionFormat": "multi"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -401,9 +392,8 @@ let jsonSpecTests =
           "required": true,
           "type": "file"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -426,9 +416,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseJson
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -445,9 +434,8 @@ let jsonSpecTests =
             "type": "string"
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseJson
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -478,9 +466,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseJson
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -493,9 +480,8 @@ let jsonSpecTests =
         """{
             "description": "object created"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseJson
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -509,9 +495,8 @@ let jsonSpecTests =
             "name": "pet",
             "description": "Pets operations"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseTagObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseTagObject
         |> fun actual ->
             let expected =
                 ({
@@ -525,9 +510,8 @@ let jsonSpecTests =
         """{
             "$ref": "#/definitions/Pet"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Reference "#/definitions/Pet")
@@ -539,9 +523,8 @@ let jsonSpecTests =
             "type": "string",
             "format": "email"
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             Expect.equal actual String "string object"
 
@@ -565,9 +548,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Object
@@ -593,9 +575,8 @@ let jsonSpecTests =
             "type": "string"
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             Expect.equal actual (Dictionary String) "parse string Dict object"
 
@@ -606,9 +587,8 @@ let jsonSpecTests =
             "$ref": "#/definitions/ComplexModel"
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Dictionary (Reference "#/definitions/ComplexModel"))
@@ -634,9 +614,8 @@ let jsonSpecTests =
             "id": 1
             }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 [|{ Name = "id"
@@ -688,9 +667,8 @@ let jsonSpecTests =
               ]
             }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseDefinitionsObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseDefinitionsObject
         |> Seq.map (fun x -> x.Key, x.Value.Value)
         |> Map.ofSeq
         |> fun actual ->
@@ -794,9 +772,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseJson
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Object
@@ -832,9 +809,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseDefinitionsObject
+        |> SwaggerParser.parseJson
+        |> Parsers.parseDefinitionsObject
         |> Seq.map (fun x->x.Key, x.Value.Value)
         |> Map.ofSeq
         |> fun actual ->
@@ -885,9 +861,8 @@ let jsonSpecTests =
             "format": "int32"
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseParametersDefinition
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParametersDefinition
         |> fun actual ->
             let expected =
                 ([|
@@ -927,9 +902,8 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> JsonValue.Parse
-        |> JsonNodeAdapter
-        |> Parser.parseResponsesDefinition
+        |> SwaggerParser.parseJson
+        |> Parsers.parseResponsesDefinition
         |> fun actual ->
             let expected =
                 ([|

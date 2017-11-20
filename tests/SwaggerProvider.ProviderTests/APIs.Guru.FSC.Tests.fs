@@ -4,7 +4,6 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open System
 open System.IO
 open Expecto
-open ProviderImplementation.ProvidedTypesTesting
 open Fake
 
 let assembliesList =

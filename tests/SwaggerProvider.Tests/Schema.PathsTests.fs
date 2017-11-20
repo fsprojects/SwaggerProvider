@@ -1,15 +1,13 @@
 ﻿module SwaggerProvider.PathsTests
 
-open SwaggerProvider.Internal.Schema
-open SwaggerProvider.Internal.Schema.Parsers
-open FSharp.Data
+open Swagger.Parser.Schema
+open Swagger.Parser
 open Expecto
 
 let shouldBeEqualToTag (expected:TagObject) content =
     content
-    |> JsonValue.Parse
-    |> JsonNodeAdapter
-    |> Parser.parseTagObject
+    |> SwaggerParser.parseJson
+    |> Parsers.parseTagObject
     |> fun actual ->
         Expect.equal actual expected "parse tags"
 

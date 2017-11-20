@@ -24,8 +24,8 @@ description
     F# Type Provider for Swagger
 files
     ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net45
-    ../../bin/SwaggerProvider/YamlDotNet.* ==> lib/net45
     SwaggerProvider.fsx ==> .
 dependencies
     FSharp.Core >= 4.0.0
     Newtonsoft.Json >= 10.0.0
+    YamlDotNet ~> 4.2.2

@@ -3,8 +3,8 @@
 open ProviderImplementation.ProvidedTypes
 open ProviderImplementation.ProvidedTypes.UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
+open Swagger.Parser.Schema
 open SwaggerProvider.Internal
-open SwaggerProvider.Internal.Schema
 open Microsoft.FSharp.Quotations
 open System
 open System.Reflection

@@ -1,8 +1,8 @@
 ﻿module Schema.Spec.Yaml.Tests
 
 open SwaggerProvider
-open SwaggerProvider.Internal.Schema
-open SwaggerProvider.Internal.Schema.Parsers
+open Swagger.Parser.Schema
+open Swagger.Parser
 open Expecto
 
 [<Tests>]
@@ -22,9 +22,8 @@ license:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 version: 1.0.1
         """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseInfoObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseInfoObject
         |> fun actual ->
             let expected =
                 {
@@ -50,9 +49,8 @@ version: 1.0.1
           items:
             $ref: '#/definitions/pet'
         """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parsePathsObject Parser.ParserContext.Empty
+        |> SwaggerParser.parseYaml
+        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
         |> fun actual ->
             let expected =
                 [|{
@@ -105,9 +103,8 @@ version: 1.0.1
       type: string
     collectionFormat: csv
         """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parsePathsObject Parser.ParserContext.Empty
+        |> SwaggerParser.parseYaml
+        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
         |> fun actual ->
             let expected =
                 [|{
@@ -177,9 +174,8 @@ security:
 - petstore_auth:
   - write:pets
   - read:pets"""
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseOperationObject Parser.ParserContext.Empty "/" Get
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
         |> fun actual ->
             let expected =
                 {
@@ -237,9 +233,8 @@ required: true
 schema:
   $ref: '#/definitions/User'
         """
-            |> YamlParser.Parse
-            |> YamlNodeAdapter
-            |> Parser.parseParameterObject
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParameterObject
             |> fun actual ->
                 let expected =
                     {
@@ -264,9 +259,8 @@ schema:
   items:
     type: string
         """
-            |> YamlParser.Parse
-            |> YamlNodeAdapter
-            |> Parser.parseParameterObject
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParameterObject
             |> fun actual ->
                 let expected =
                     {
@@ -291,9 +285,8 @@ items:
   format: int64
 collectionFormat: csv
         """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -314,9 +307,8 @@ description: username to fetch
 required: true
 type: string
         """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -341,9 +333,8 @@ items:
   type: string
 collectionFormat: multi
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -364,9 +355,8 @@ description: The avatar of the user
 required: true
 type: file
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseParameterObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseParameterObject
         |> fun actual ->
             let expected =
                 {
@@ -387,9 +377,8 @@ schema:
   items:
     $ref: '#/definitions/VeryComplexType'
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -406,9 +395,8 @@ description: A simple string response
 schema:
   type: string
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -433,9 +421,8 @@ headers:
     description: The number of seconds left in the current period
     type: integer
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -449,9 +436,8 @@ headers:
         """
 description: object created
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseResponseObject (Parser.ParserContext.Empty)
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
         |> fun actual ->
             let expected =
                 {
@@ -467,9 +453,8 @@ description: object created
 name: pet
 description: Pets operations
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseTagObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseTagObject
         |> fun actual ->
             let expected =
                 ({
@@ -483,9 +468,8 @@ description: Pets operations
         """
 $ref: '#/definitions/Pet'
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Reference "#/definitions/Pet")
@@ -497,9 +481,8 @@ $ref: '#/definitions/Pet'
 type: string
 format: email
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             Expect.equal actual String "primitive type object"
 
@@ -519,9 +502,8 @@ properties:
     format: int32
     minimum: 0
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Object
@@ -547,9 +529,8 @@ type: object
 additionalProperties:
   type: string
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             Expect.equal actual (Dictionary String) "string to string mapping"
 
@@ -560,9 +541,8 @@ type: object
 additionalProperties:
   $ref: '#/definitions/ComplexModel'
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Dictionary (Reference "#/definitions/ComplexModel"))
@@ -584,9 +564,8 @@ example:
     name: Puma
     id: 1
     """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Object
@@ -626,9 +605,8 @@ ExtendedErrorModel:
       rootCause:
         type: string
         """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseDefinitionsObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseDefinitionsObject
         |> Seq.map (fun x->x.Key, x.Value.Value)
         |> Map.ofSeq
         |> fun actual ->
@@ -707,9 +685,8 @@ definitions:
       required:
       - packSize
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseSchemaObject Parser.emptyDict
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseSchemaObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 (Object
@@ -737,9 +714,8 @@ Tag:
     name:
       type: string
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseDefinitionsObject
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseDefinitionsObject
         |> Seq.map (fun x->x.Key, x.Value.Value)
         |> Map.ofSeq
         |> fun actual ->
@@ -787,9 +763,8 @@ limitParam:
   type: integer
   format: int32
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseParametersDefinition
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseParametersDefinition
         |> fun actual ->
             let expected =
                 ([|
@@ -825,9 +800,8 @@ GeneralError:
   schema:
     $ref: '#/definitions/GeneralError'
 """
-        |> YamlParser.Parse
-        |> YamlNodeAdapter
-        |> Parser.parseResponsesDefinition
+        |> SwaggerParser.parseYaml
+        |> Parsers.parseResponsesDefinition
         |> fun actual ->
             let expected =
                 ([|
