@@ -58,37 +58,33 @@ module internal YamlAdapter =
     open YamlDotNet.Serialization
     open System.Collections.Generic
 
-    // TODO: Merge this DU and Parse into YamlNodeAdapter
-    type YamlNode =
-        | Scalar of string
-        | List of YamlNode list
-        | Map of (string * YamlNode) list
+    let (|List|_|) (node: obj) =
+        match node with
+        | :? List<obj> as l -> Some l
+        | _ -> None
 
-    let parseYaml : (string -> YamlNode) =
-        let rec loop (n: obj) =
-            match n with
-            | :? List<obj> as l -> YamlNode.List (l |> Seq.map loop |> Seq.toList)
-            | :? Dictionary<obj,obj> as m ->
-                Map (m |> Seq.choose (fun p ->
-                    match p.Key with
-                    | :? string as key -> Some (key, loop p.Value)
-                    | _ -> None) |> Seq.toList)
-            | scalar ->
-                let value = if isNull scalar then "" else scalar.ToString()
-                Scalar (value)
+    let (|Map|_|) (node: obj) =
+        match node with
+        | :? Dictionary<obj,obj> as dict ->
+            dict 
+            |> Seq.choose (fun p ->
+                match p.Key with
+                | :? string as key -> Some (key, p.Value)
+                | _ -> None)
+            |> Some
+        | _ -> None
 
-        let deserializer = Deserializer()
-        fun (text:string) ->
-            try
-                use reader = new StringReader(text)
-                deserializer.Deserialize(reader) |> loop
-            with
-            | :? YamlDotNet.Core.YamlException as e when not <| isNull e.InnerException ->
-                raise e.InnerException // inner exceptions are much more informative
-            | _ -> reraise()
-
+    let (|Scalar|_|) (node: obj) =
+        match node with
+        | :? List<obj> 
+        | :? Dictionary<obj,obj> ->
+            None
+        | scalar -> 
+            let value = if isNull scalar then "" else scalar.ToString()
+            Some (value)
+            
     /// SchemaNode for Swagger schemes in Yaml format
-    type YamlNodeAdapter(value:YamlNode) =
+    type YamlNodeAdapter(value:obj) =
         inherit SchemaNode()
 
         override __.AsBoolean() =
@@ -104,23 +100,24 @@ module internal YamlAdapter =
         override __.AsArray() =
             match value with
             | List(nodes) ->
-                nodes |> List.map(fun x->YamlNodeAdapter(x) :> SchemaNode) |> Array.ofList
+                nodes |> Seq.map(fun x->YamlNodeAdapter(x) :> SchemaNode) |> Array.ofSeq
             | _ -> [||]
 
         override __.AsStringArrayWithoutNull() =
             match value with
             | Scalar(x) -> [|x|]
             | List(nodes) ->
-                nodes |> Array.ofList
-                |> Array.map(function
+                nodes 
+                |> Seq.map(function
                     | Scalar (x) -> x
                     | x -> failwithf "'%A' cannot be converted to string" x)
-                |> Array.filter (fun x -> x <> "null")
+                |> Seq.filter (fun x -> x <> "null")
+                |> Seq.toArray
             | other -> failwithf "Value: '%A' cannot be converted to StringArray" other
 
         override __.Properties() =
             match value with
-            | Map(pairs) -> pairs |> List.map (fun (a,b)-> (a, YamlNodeAdapter(b) :> SchemaNode)) |> Array.ofList
+            | Map(pairs) -> pairs |> Seq.map (fun (a,b)-> (a, YamlNodeAdapter(b) :> SchemaNode)) |> Array.ofSeq
             | _ -> raise <| UnexpectedValueTypeException(value, "map")
 
         override __.TryGetProperty(prop) =
@@ -131,7 +128,15 @@ module internal YamlAdapter =
                 |> Option.map (fun (_,x) -> YamlNodeAdapter(x) :> SchemaNode)
             | _ -> None
 
-    let parse = parseYaml >> YamlNodeAdapter
+    let private deserializer = Deserializer()
+    let parse (text:string) =
+        try
+            use reader = new StringReader(text)
+            deserializer.Deserialize(reader) |> YamlNodeAdapter
+        with
+        | :? YamlDotNet.Core.YamlException as e when not <| isNull e.InnerException ->
+            raise e.InnerException // inner exceptions are much more informative
+        | _ -> reraise()
 
 module SwaggerParser =
 
