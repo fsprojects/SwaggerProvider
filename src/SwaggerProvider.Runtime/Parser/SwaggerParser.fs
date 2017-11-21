@@ -48,7 +48,7 @@ module internal JsonAdapter =
                 match obj.TryGetValue(property) with
                 | true, x -> Some(JsonNodeAdapter(x) :> SchemaNode)
                 | _ -> None
-            | _ -> raise <| UnexpectedValueTypeException(value, "JObject")
+            | _ -> None
 
     let parse = JToken.Parse >> JsonNodeAdapter
 
