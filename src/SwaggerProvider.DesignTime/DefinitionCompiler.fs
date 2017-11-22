@@ -12,9 +12,9 @@ open System.Reflection
 /// Object for compiling definitions.
 type DefinitionCompiler (schema:SwaggerObject) =
     let definitions = Map.ofSeq schema.Definitions
-    let definitionTys = System.Collections.Generic.Dictionary<_,_>()
+    let definitionTys = Collections.Generic.Dictionary<_,_>()
 
-    let providedTys = System.Collections.Generic.Dictionary<_,_>()
+    let providedTys = Collections.Generic.Dictionary<_,_>()
     let uniqueName namePref suffix =
         let rec findUniq prefix i =
             let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
@@ -86,14 +86,11 @@ type DefinitionCompiler (schema:SwaggerObject) =
                     then providedTys.[tyName] <- Some(ty)
                     else providedTys.Add(tyName, Some(ty))
 
-                    // Add default constructor
-                    ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
-
                     // Generate fields and properties
                     let members =
                         let propsNameScope = UniqueNameGenerator()
-                        properties
-                        |> Array.map (fun p ->
+                        List.ofArray properties
+                        |> List.map (fun p ->
                             if String.IsNullOrEmpty(p.Name)
                                 then failwithf "Property cannot be created with empty name. Obj name:%A; ObjSchema:%A" tyName schemaObj
 
@@ -106,7 +103,27 @@ type DefinitionCompiler (schema:SwaggerObject) =
 
                     // Add fields and properties to type
                     ty.AddMembers <|
-                        (members |> Array.collect (fun (f,p) -> [|f :> MemberInfo; p:> MemberInfo|]) |> List.ofArray)
+                        (members |> List.collect (fun (f,p) -> [f :> MemberInfo; p:> MemberInfo]))
+
+                    // Add default constructor
+                    ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
+                    // Add full-init constructor
+                    let ctorParams =
+                        members |> List.map(fun (f,p) -> 
+                            let paramName = niceCamelName p.Name
+                            ProvidedParameter(paramName, f.FieldType) )
+                    ty.AddMember <| ProvidedConstructor(ctorParams, invokeCode = fun args ->
+                        let (this,args) = 
+                            match args with
+                            | x::xs -> (x,xs)
+                            | _ -> failwith "Wrong constructor arguments"
+                        List.zip args members
+                        |> List.map (fun (arg,(f, p)) ->
+                             Expr.FieldSetUnchecked(this, f, arg))
+                        |> List.rev
+                        |> List.fold (fun a b -> 
+                            Expr.Sequential(a, b)) (<@@ () @@>)
+                        )
 
                     // Override `.ToString()`
                     let toStr = 
@@ -114,7 +131,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
                             invokeCode = fun args ->
                                 let this = args.[0]
                                 let (pNames, pValues) =
-                                    members
+                                    Array.ofList members
                                     |> Array.map (fun (pField, pProp) ->
                                         let pValObj = Expr.FieldGet(this, pField)
                                         pProp.Name, Expr.Coerce(pValObj, typeof<obj>)
@@ -124,7 +141,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
                                 <@@
                                     let values = (%%pValuesArr : array<obj>)
                                     let rec formatValue (v:obj) =
-                                        if v = null then "null"
+                                        if isNull v then "null"
                                         else
                                             let vTy = v.GetType()
                                             if vTy = typeof<string>
@@ -133,7 +150,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
                                             then
                                                 let elements =
                                                     seq {
-                                                        for x in (v :?> System.Collections.IEnumerable) do
+                                                        for x in (v :?> Collections.IEnumerable) do
                                                             yield formatValue x
                                                     } |> Seq.toArray
                                                 String.Format("[{0}]", String.Join("; ", elements))
