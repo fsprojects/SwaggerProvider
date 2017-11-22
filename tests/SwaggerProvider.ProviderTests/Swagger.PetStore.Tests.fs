@@ -35,7 +35,7 @@ let petStoreTests =
         with
         | exn -> ()
 
-        let tag = PetStore.Tag (Name = "foobar")
+        let tag = PetStore.Tag(None, "foobar")
         Expect.stringContains (tag.ToString()) "foobar" "ToString"
         let pet = PetStore.Pet (Name = "foo", Id = Some 1337L, Status = "available")
         Expect.stringContains (pet.ToString()) "1337" "ToString"
