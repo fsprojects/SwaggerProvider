@@ -10,7 +10,7 @@ open System
 open System.Reflection
 
 /// Object for compiling definitions.
-type DefinitionCompiler (schema:SwaggerObject) =
+type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
     let definitions = Map.ofSeq schema.Definitions
     let definitionTys = Collections.Generic.Dictionary<_,_>()
 
@@ -43,7 +43,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
             match definitions.TryFind tyDefName with
             | Some(def) ->
                 let tyName = tyDefName.Substring("#/definitions/".Length).Replace(".","")
-                let ty = compileSchemaObject tyName def false // ?? false
+                let ty = compileSchemaObject tyName def true
                 if not <| definitions.ContainsKey tyDefName
                     then definitionTys.Add(tyDefName, ty)
                 ty
@@ -51,27 +51,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
                 let tys = definitionTys.Keys |> Seq.toArray
                 failwithf "Unknown definition '%s' in definitionTys %A" tyDefName tys
     and compileSchemaObject tyName (schemaObj:SchemaObject) isRequired =
-        match schemaObj, isRequired with
-        | Boolean, true   -> typeof<bool>
-        | Boolean, false  -> typeof<Option<bool>>
-        | Byte, true      -> typeof<byte>
-        | Byte, false     -> typeof<Option<byte>>
-        | Int32, true     -> typeof<int32>
-        | Int32, false    -> typeof<Option<int32>>
-        | Int64, true     -> typeof<int64>
-        | Int64, false    -> typeof<Option<int64>>
-        | Float, true     -> typeof<float32>
-        | Float, false    -> typeof<Option<float32>>
-        | Double, true    -> typeof<double>
-        | Double, false   -> typeof<Option<double>>
-        | String, _       -> typeof<string>
-        | Date, true  | DateTime, true   -> typeof<DateTime>
-        | Date, false | DateTime, false  -> typeof<Option<DateTime>>
-        | File, _         -> typeof<byte>.MakeArrayType(1)
-        | Enum _, _       -> typeof<string> //TODO: find better type
-        | Array eTy, _    -> (compileSchemaObject (uniqueName tyName "Item") eTy true).MakeArrayType()
-        | Dictionary eTy,_-> ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [typeof<string>; compileSchemaObject (uniqueName tyName "Item") eTy false])
-        | Object properties, _ ->
+        let compileNewObject (properties:DefinitionProperty[]) =
             if properties.Length = 0 then typeof<obj>
             else
               if isNull tyName then
@@ -108,17 +88,28 @@ type DefinitionCompiler (schema:SwaggerObject) =
                     // Add default constructor
                     ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
                     // Add full-init constructor
-                    let ctorParams =
-                        members |> List.map(fun (f,p) -> 
+                    let ctorParams, fields =
+                        let required, optional = 
+                            List.zip (List.ofArray properties) members
+                            |> List.partition (fun (x,_) -> x.IsRequired)
+                        (required @ optional)
+                        |> List.map(fun (x,(f,p)) -> 
                             let paramName = niceCamelName p.Name
-                            ProvidedParameter(paramName, f.FieldType) )
+                            let prParam = 
+                                if x.IsRequired
+                                then ProvidedParameter(paramName, f.FieldType) 
+                                else
+                                    let paramDefaultValue = this.GetDefaultValue f.FieldType
+                                    ProvidedParameter(paramName, f.FieldType, false, paramDefaultValue)
+                            prParam, f)
+                        |> List.unzip
                     ty.AddMember <| ProvidedConstructor(ctorParams, invokeCode = fun args ->
                         let (this,args) = 
                             match args with
                             | x::xs -> (x,xs)
                             | _ -> failwith "Wrong constructor arguments"
-                        List.zip args members
-                        |> List.map (fun (arg,(f, p)) ->
+                        List.zip args fields
+                        |> List.map (fun (arg, f) ->
                              Expr.FieldSetUnchecked(this, f, arg))
                         |> List.rev
                         |> List.fold (fun a b -> 
@@ -167,7 +158,31 @@ type DefinitionCompiler (schema:SwaggerObject) =
                     ty.AddMember <| toStr
 
                     ty :> Type
-        | Reference path, _ -> compileDefinition path
+        let tyType =
+            match schemaObj with
+            | Boolean   -> typeof<bool>
+            | Byte      -> typeof<byte>
+            | Int32     -> typeof<int32>
+            | Int64     -> typeof<int64>
+            | Float     -> typeof<float32>
+            | Double    -> typeof<double>
+            | String    -> typeof<string>
+            | Date | DateTime -> typeof<DateTime>
+            | File            -> typeof<byte>.MakeArrayType(1)
+            | Enum _          -> typeof<string> //TODO: find better type
+            | Array eTy       -> (compileSchemaObject (uniqueName tyName "Item") eTy true).MakeArrayType()
+            | Dictionary eTy  -> ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, 
+                                        [typeof<string>; compileSchemaObject (uniqueName tyName "Item") eTy false])
+            | Object props    -> compileNewObject props
+            | Reference path  -> compileDefinition path
+        if isRequired then tyType
+        else 
+            if provideNullable then 
+                if tyType.IsValueType
+                then ProvidedTypeBuilder.MakeGenericType(typedefof<Nullable<int>>, [tyType])
+                else tyType
+            else 
+                ProvidedTypeBuilder.MakeGenericType(typedefof<Option<obj>>, [tyType])
 
     // Compiles the `definitions` part of the schema
     do  schema.Definitions
@@ -183,18 +198,7 @@ type DefinitionCompiler (schema:SwaggerObject) =
     member __.CompileTy opName tyUseSuffix ty required =
         compileSchemaObject (uniqueName opName tyUseSuffix) ty required
 
-    /// Default value for parameters
-    member __.GetDefaultValue schemaObj =
-        match schemaObj with
-        | Boolean
-        | Byte | Int32 | Int64
-        | Float| Double 
-        | Date | DateTime
-           -> box <| None
-        | String | Enum _
-           -> box <| Unchecked.defaultof<string>
-        | File | Array _ 
-        | Dictionary _ | Object _
-        | Reference _
-           -> null
-
+    member __.GetDefaultValue ty =
+        // This method is only used for not requiried types
+        // Reference types, Option<T> and Nullable<T>
+        null

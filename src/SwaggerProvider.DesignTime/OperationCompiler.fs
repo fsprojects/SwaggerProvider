@@ -28,7 +28,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 let paramType = defCompiler.CompileTy methodName paramName x.Type x.Required
                 if x.Required then ProvidedParameter(paramName, paramType)
                 else 
-                    let paramDefaultValue = defCompiler.GetDefaultValue x.Type
+                    let paramDefaultValue = defCompiler.GetDefaultValue paramType
                     ProvidedParameter(paramName, paramType, false, paramDefaultValue)
             ]
         let retTy =

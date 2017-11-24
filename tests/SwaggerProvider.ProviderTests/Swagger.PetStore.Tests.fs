@@ -3,12 +3,11 @@
 open SwaggerProvider
 open FSharp.Data
 open Expecto
+open System
 
-type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", "Content-Type=application/json">
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
+type PetStoreNullable = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", ProvideNullable = true>
 let store = PetStore()
-
-let apiKey = "special-key"
-
 
 [<Tests>]
 let petStoreTests =
@@ -31,13 +30,13 @@ let petStoreTests =
 
     testCase "call provided methods" <| fun _ ->
         try
-            store.DeletePet(1337L, apiKey)
+            store.DeletePet(1337L)
         with
         | exn -> ()
 
-        let tag = PetStore.Tag(None, "foobar")
+        let tag = PetStore.Tag(None, Some "foobar")
         Expect.stringContains (tag.ToString()) "foobar" "ToString"
-        let pet = PetStore.Pet (Name = "foo", Id = Some 1337L, Status = "available")
+        let pet = PetStore.Pet("foo", [||], Some 1337L)
         Expect.stringContains (pet.ToString()) "1337" "ToString"
 
         try
@@ -51,4 +50,15 @@ let petStoreTests =
         Expect.equal pet.Category pet2.Category "same Category"
         Expect.equal pet.Status   pet2.Status   "same Status"
         Expect.notEqual pet pet2 "different objects"
+
+    testCase "create types with Nullable properties" <| fun _ ->
+        let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
+        Expect.stringContains (tag.ToString()) "foobar" "ToString"
+        let tag2 = PetStoreNullable.Tag (Name = "foobar")
+        Expect.stringContains (tag2.ToString()) "foobar" "ToString"
+
+        let pet = PetStoreNullable.Pet("foo", [||], Nullable(1337L))
+        Expect.stringContains (pet.ToString()) "1337" "ToString"
+        let pet2 = PetStoreNullable.Pet (Name="foo", Id = Nullable(1337L))
+        Expect.stringContains (pet2.ToString()) "1337" "ToString"
   ]

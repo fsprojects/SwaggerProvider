@@ -131,7 +131,7 @@ let returnControllersTests =
         point.Y |> shouldEqual (Some 1)
 
     testCase "Send and Receive object with byte[]" <| fun _ ->
-        let x = WebAPI.FileDescription(Name="2.txt", Bytes=[|42uy|])
+        let x = WebAPI.FileDescription(Name=Some "2.txt", Bytes=Some [|42uy|])
         let y = api.PostApiUpdateObjectFileDescriptionClass(x)
         x.Name |> shouldEqual y.Name
         x.Bytes|> shouldEqual y.Bytes
@@ -139,7 +139,7 @@ let returnControllersTests =
     testCase "Send byte[] in query" <| fun _ ->
         let bytes = [|42uy;24uy|]
         let y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
-        y.Bytes |> shouldEqual bytes
+        y.Bytes.Value |> shouldEqual bytes
 
     testCase "Use Optional param Int" <| fun _ ->
         api.GetApiUpdateWithOptionalInt(1)

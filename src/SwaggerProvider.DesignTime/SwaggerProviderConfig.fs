@@ -1,12 +1,8 @@
 ﻿namespace SwaggerProvider
 
 open System.Reflection
-open ProviderImplementation
 open ProviderImplementation.ProvidedTypes
-open Microsoft.FSharp.Core.CompilerServices
-open Microsoft.FSharp.Quotations
 open System
-open System.Runtime.Caching
 open FSharp.Data
 open Swagger.Parser
 open SwaggerProvider.Internal.Compilers
@@ -21,14 +17,16 @@ module private SwaggerProviderConfig =
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
               ProvidedStaticParameter("Headers", typeof<string>,"")
-              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)]
+              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+              ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)]
 
         //TODO: Add use operationID flag
         swaggerProvider.AddXmlDoc
             """<summary>Statically typed Swagger provider.</summary>
                <param name='Schema'>Url or Path to Swagger schema file.</param>
                <param name='Headers'>Headers that will be used to access the schema.</param>
-               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>"""
+               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
+               <param name='ProvideNullable'>Provide `Nullable<_>` for not requiried properties, instread of `Option<_>`</param>"""
 
         swaggerProvider.DefineStaticParameters(
             parameters=staticParams,
@@ -36,6 +34,7 @@ module private SwaggerProviderConfig =
                 let tempAsm = ProvidedAssembly()
                 let schemaPathRaw = args.[0] :?> string
                 let ignoreOperationId = args.[2] :?> bool
+                let provideNullable = args.[3] :?> bool
 
                 let schemaData =
                     match schemaPathRaw.StartsWith("http", true, null) with
@@ -79,7 +78,7 @@ module private SwaggerProviderConfig =
                     fun args -> (baseCtor, args)
                 ty.AddMember ctor
 
-                let defCompiler = DefinitionCompiler(schema)
+                let defCompiler = DefinitionCompiler(schema, provideNullable)
                 let opCompiler = OperationCompiler(schema, defCompiler)
                 ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all operations
                 ty.AddMembers <| defCompiler.GetProvidedTypes() // Add all compiled types

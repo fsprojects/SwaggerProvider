@@ -134,11 +134,11 @@ let returnControllersTests =
 
     testCase "Return FileDescription GET Test" <| fun _ ->
         let file = api.GetApiReturnFileDescription()
-        file.Name |> shouldEqual "1.txt"
-        file.Bytes |> shouldEqual [|1uy;2uy;3uy|]
+        file.Name.Value |> shouldEqual "1.txt"
+        file.Bytes.Value |> shouldEqual [|1uy;2uy;3uy|]
 
     testCase "Return FileDescription POST Test" <| fun _ ->
         let file = api.PostApiReturnFileDescription()
-        file.Name |> shouldEqual "1.txt"
-        file.Bytes |> shouldEqual [|1uy;2uy;3uy|]
+        file.Name.Value |> shouldEqual "1.txt"
+        file.Bytes.Value |> shouldEqual [|1uy;2uy;3uy|]
   ]
