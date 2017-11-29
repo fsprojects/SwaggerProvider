@@ -32,7 +32,7 @@ let petStoreTests =
         try
             store.DeletePet(1337L)
         with
-        | exn -> ()
+        | _ -> ()
 
         let tag = PetStore.Tag(None, Some "foobar")
         Expect.stringContains (tag.ToString()) "foobar" "ToString"

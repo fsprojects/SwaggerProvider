@@ -1,7 +1,7 @@
 ﻿namespace SwaggerProvider.Internal.Compilers
 
 open ProviderImplementation.ProvidedTypes
-open ProviderImplementation.ProvidedTypes.UncheckedQuotations
+open UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
 open Swagger.Parser.Schema
 open SwaggerProvider.Internal
@@ -33,7 +33,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 setterCode = (fun [this;v] -> Expr.FieldSetUnchecked(this, providedField, v)))
         if propName <> propertyName then
             providedProperty.AddCustomAttribute
-                <| SwaggerProvider.Internal.RuntimeHelpers.getPropertyNameAttribute propName
+                <| RuntimeHelpers.getPropertyNameAttribute propName
         providedField, providedProperty
 
     let rec compileDefinition (tyDefName:string) =
@@ -198,7 +198,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
     member __.CompileTy opName tyUseSuffix ty required =
         compileSchemaObject (uniqueName opName tyUseSuffix) ty required
 
-    member __.GetDefaultValue ty =
+    member __.GetDefaultValue _ =
         // This method is only used for not requiried types
         // Reference types, Option<T> and Nullable<T>
         null

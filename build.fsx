@@ -49,7 +49,9 @@ let tags = "F# sharp data typeprovider Swagger API REST"
 let solutionFile  = "SwaggerProvider.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "tests/**/bin/Release/*Tests*.exe"
+let testAssemblies = 
+   !! "tests/**/bin/Release/*Tests*.exe"
+     -- "tests/*.CSharp/bin/Release/*.exe"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -136,7 +138,7 @@ Target "BuildTests" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunUnitTests" (fun _ ->
-    !! testAssemblies
+    testAssemblies
     |> Expecto (fun p ->
         { p with
             Filter = "All/" } )
@@ -144,7 +146,7 @@ Target "RunUnitTests" (fun _ ->
 )
 
 Target "RunIntegrationTests" (fun _ ->
-    !! testAssemblies
+    testAssemblies
     |> Expecto (fun p ->
         { p with
             Filter = "Integration/" } )

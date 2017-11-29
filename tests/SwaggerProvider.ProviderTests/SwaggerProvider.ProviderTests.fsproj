@@ -66,6 +66,26 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <ItemGroup>
+    <Reference Include="FakeLib">
+      <HintPath>..\..\packages\build\FAKE\tools\FakeLib.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="SwaggerProvider">
+      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.dll</HintPath>
+    </Reference>
+    <Reference Include="SwaggerProvider.DesignTime">
+      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.DesignTime.dll</HintPath>
+    </Reference>
+    <Reference Include="SwaggerProvider.Runtime">
+      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Schemas\GitHub.json">
       <Link>Schemas/GitHub.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -95,26 +115,6 @@
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <Content Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FakeLib">
-      <HintPath>..\..\packages\build\FAKE\tools\FakeLib.dll</HintPath>
-    </Reference>
-    <Reference Include="mscorlib" />
-    <Reference Include="SwaggerProvider">
-      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.dll</HintPath>
-    </Reference>
-    <Reference Include="SwaggerProvider.DesignTime">
-      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.DesignTime.dll</HintPath>
-    </Reference>
-    <Reference Include="SwaggerProvider.Runtime">
-      <HintPath>..\..\bin\SwaggerProvider\SwaggerProvider.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
