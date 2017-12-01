@@ -51,22 +51,6 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/UriUtils.fs</Link>
-    </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\Http.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/Http.fs</Link>
-    </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\IO.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/IO.fs</Link>
-    </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\TextConversions.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/TextConversions.fs</Link>
-    </Compile>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
       <Paket>True</Paket>
       <Link>paket-files/Pluralizer.fs</Link>

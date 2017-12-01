@@ -6,25 +6,18 @@ NUGET
     YamlDotNet (4.2.2)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/IO.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/CommonRuntime/NameUtils.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/CommonRuntime/Pluralizer.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/CommonRuntime/StructuralTypes.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/CommonRuntime/TextConversions.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/Json/JsonConversions.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/Json/JsonExtensions.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/Json/JsonValue.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/Net/Http.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
-    src/Net/UriUtils.fs (b5df1ca30f5bb7749c4fd340b61f1b7fc43fb547)
+    src/CommonRuntime/NameUtils.fs (2971b949bfa4ade0240d273d9b23dd01d1eaa463)
+    src/CommonRuntime/Pluralizer.fs (2971b949bfa4ade0240d273d9b23dd01d1eaa463)
+    src/Net/Http.fs (2971b949bfa4ade0240d273d9b23dd01d1eaa463)
+    src/Net/UriUtils.fs (2971b949bfa4ade0240d273d9b23dd01d1eaa463)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (b03aeb9b87c24559b99da3b3afdfcfdae0cc3ce0)
-    src/ProvidedTypes.fsi (b03aeb9b87c24559b99da3b3afdfcfdae0cc3ce0)
-    src/ProvidedTypesTesting.fs (b03aeb9b87c24559b99da3b3afdfcfdae0cc3ce0)
+    src/ProvidedTypes.fs (33fd1c0a95dd1ddfe77f12e4921b6983f72c8e62)
+    src/ProvidedTypes.fsi (33fd1c0a95dd1ddfe77f12e4921b6983f72c8e62)
 GROUP Build
 RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
-    DotLiquid (2.0.227)
+    DotLiquid (2.0.232)
     FAKE (4.63.2)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.2.3)

@@ -5,7 +5,7 @@ namespace SwaggerProvider.ProviderTests.CSharp
 {
     class MainClass
     {
-        public static void UsePetstore() 
+        public static void UsePetstore()
         {
             var tag = new PS.Tag(null, "foo");
             var tag2 = new PS.Tag { Name = "foo" };
@@ -13,7 +13,7 @@ namespace SwaggerProvider.ProviderTests.CSharp
             if (!tag.ToString().Contains("foo"))
                 throw new Exception("Invalid ToString implementation - no `foo` found");
 
-            // TODO: Chech why params are not optional - where is default values
+            // TODO: Check why params are not optional - where is default values
             var pet = new PS.Pet("foo", new string[0], 1337, null, null, null);
             var pet2 = new PS.Pet { Name = "foo", Id = 1337L };
 

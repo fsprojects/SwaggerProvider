@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B98-5CED-492C-A5B7-A5B4F73CF142}"
 	ProjectSection(SolutionItems) = preProject
@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD-2B06-4030-9F0F-DC548F98E1C4}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SwaggerProvider.ProviderTests", "tests\SwaggerProvider.ProviderTests\SwaggerProvider.ProviderTests.fsproj", "{F26DFAA6-CB19-46EB-9FBD-F4A4DC46C3F5}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.ProviderTests", "tests\SwaggerProvider.ProviderTests\SwaggerProvider.ProviderTests.fsproj", "{F26DFAA6-CB19-46EB-9FBD-F4A4DC46C3F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerProvider.ProviderTests.CSharp", "tests\SwaggerProvider.ProviderTests.CSharp\SwaggerProvider.ProviderTests.CSharp.csproj", "{2950E2AC-A436-452A-9524-04BE7C82FA05}"
 EndProject

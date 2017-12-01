@@ -45,6 +45,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/UriUtils.fs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\Http.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Http.fs</Link>
+    </Compile>
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>

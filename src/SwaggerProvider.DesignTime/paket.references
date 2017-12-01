@@ -1,9 +1,5 @@
 File: ProvidedTypes.fsi
 File: ProvidedTypes.fs
-File: UriUtils.fs
-File: Http.fs
-File: IO.fs
-File: TextConversions.fs
 File: Pluralizer.fs
 File: NameUtils.fs
 FSharp.Core
