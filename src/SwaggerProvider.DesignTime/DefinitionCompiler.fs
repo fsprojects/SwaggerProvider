@@ -61,7 +61,8 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 match providedTys.TryGetValue tyName with
                 | true, Some(ty) -> ty :> Type
                 | isExist, _ ->
-                    let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
+                    let tyNiceName = nicePascalName(tyName)
+                    let ty = ProvidedTypeDefinition(tyNiceName, Some typeof<obj>, isErased = false)
                     if isExist
                     then providedTys.[tyName] <- Some(ty)
                     else providedTys.Add(tyName, Some(ty))

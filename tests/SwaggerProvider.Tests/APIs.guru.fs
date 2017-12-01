@@ -31,6 +31,7 @@ let private apisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
 
 let private manualSchemaUrls =
     [|//"https://www.expedia.com/static/mobile/swaggerui/swagger.json" // This schema is incorrect
+      "https://eaccountingapi-sandbox.test.vismaonline.com/swagger/docs/v2"
     |]
 
 let private schemaUrls =
