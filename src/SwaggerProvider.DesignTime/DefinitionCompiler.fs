@@ -23,6 +23,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
         let newName = findUniq (namePref+suffix) 0
         providedTys.Add(newName, None)
         newName
+    let tysNameScope = UniqueNameGenerator()
 
     let generateProperty propName ty (scope:UniqueNameGenerator) =
         let propertyName = scope.MakeUnique <| nicePascalName propName
@@ -61,7 +62,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 match providedTys.TryGetValue tyName with
                 | true, Some(ty) -> ty :> Type
                 | isExist, _ ->
-                    let tyNiceName = nicePascalName(tyName)
+                    let tyNiceName = tysNameScope.MakeUnique <| nicePascalName(tyName)
                     let ty = ProvidedTypeDefinition(tyNiceName, Some typeof<obj>, isErased = false)
                     if isExist
                     then providedTys.[tyName] <- Some(ty)
