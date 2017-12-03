@@ -34,7 +34,7 @@ let private manualSchemaUrls =
       "https://eaccountingapi-sandbox.test.vismaonline.com/swagger/docs/v2"
     |]
 
-let private schemaUrls =
+let schemaUrls =
     Array.concat [manualSchemaUrls; apisGuruJsonSchemaUrls]
 
 let private ignoredPrefList =

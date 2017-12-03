@@ -43,7 +43,8 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
         | false, _ ->
             match definitions.TryFind tyDefName with
             | Some(def) ->
-                let tyName = tyDefName.Substring("#/definitions/".Length).Replace(".","")
+                let tyName = tyDefName.Substring("#/definitions/".Length)
+                             |> nicePascalName |> tysNameScope.MakeUnique
                 let ty = compileSchemaObject tyName def true
                 if not <| definitions.ContainsKey tyDefName
                     then definitionTys.Add(tyDefName, ty)
@@ -62,8 +63,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 match providedTys.TryGetValue tyName with
                 | true, Some(ty) -> ty :> Type
                 | isExist, _ ->
-                    let tyNiceName = tysNameScope.MakeUnique <| nicePascalName(tyName)
-                    let ty = ProvidedTypeDefinition(tyNiceName, Some typeof<obj>, isErased = false)
+                    let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                     if isExist
                     then providedTys.[tyName] <- Some(ty)
                     else providedTys.Add(tyName, Some(ty))

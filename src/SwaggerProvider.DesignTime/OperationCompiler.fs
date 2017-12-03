@@ -187,24 +187,22 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             then m.AddObsoleteAttribute("Operation is deprecated", false)
         m
 
+    static member GetMethodNameCandidate (op:OperationObject) ignoreOperationId =
+        if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)
+        then
+            [|  yield op.Type.ToString()
+                yield!
+                    op.Path.Split('/')
+                    |> Array.filter (fun x ->
+                        not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
+            |] |> fun arr -> String.Join("_", arr)
+        else op.OperationId
+        |> nicePascalName
+
     /// Compiles the operation.
     member __.CompilePaths(ignoreOperationId) =
         let methodNameScope = UniqueNameGenerator()
-        let pathToName opType (opPath:String) =
-            String.Join("_",
-                [|
-                    yield opType.ToString()
-                    yield!
-                        opPath.Split('/')
-                        |> Array.filter (fun x ->
-                            not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
-                |])
-        let getMethodNameCandidate (op:OperationObject) =
-            if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)
-            then pathToName op.Type op.Path
-            else op.OperationId
-
         List.ofArray schema.Paths
         |> List.map (fun op ->
-            let methodNameCandidate = nicePascalName <| getMethodNameCandidate op
-            compileOperation (methodNameScope.MakeUnique methodNameCandidate) op)
+            let name = OperationCompiler.GetMethodNameCandidate op ignoreOperationId
+            compileOperation (methodNameScope.MakeUnique name) op)
