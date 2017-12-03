@@ -1,4 +1,4 @@
-#### 0.10.0-alpha4 - December 1, 2017
+#### 0.10.0-alpha5 - December 3, 2017
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet
 - Removed dependency on FSharp.Data/JsonValue (replaced by JSON.NET)

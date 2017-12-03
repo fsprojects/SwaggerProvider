@@ -14,10 +14,10 @@ type ProvidedSwaggerBaseType (host:string) =
 type private OptionConverter() =
     inherit JsonConverter()
 
-    override x.CanConvert(t) =
+    override __.CanConvert(t) =
         t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<option<_>>
 
-    override x.WriteJson(writer, value, serializer) =
+    override __.WriteJson(writer, value, serializer) =
         let value =
             if isNull value then null
             else
@@ -25,7 +25,7 @@ type private OptionConverter() =
                 fields.[0]
         serializer.Serialize(writer, value)
 
-    override x.ReadJson(reader, t, existingValue, serializer) =
+    override __.ReadJson(reader, t, _, serializer) =
         let innerType = t.GetGenericArguments().[0]
         let innerType =
             if innerType.IsValueType then (typedefof<Nullable<_>>).MakeGenericType([|innerType|])
@@ -42,9 +42,9 @@ type private ByteArrayConverter() =
         let bytes = value :?> byte[]
         let str = System.Convert.ToBase64String(bytes)
         serializer.Serialize(writer, str)
-    override __.ReadJson(reader, t, existingValue, serializer) =
+    override __.ReadJson(reader, _, _, serializer) =
         let value = serializer.Deserialize(reader, typeof<string>) :?> string
-        System.Convert.FromBase64String(value) :> obj
+        Convert.FromBase64String(value) :> obj
 
 
 module RuntimeHelpers =
@@ -73,40 +73,40 @@ module RuntimeHelpers =
         | :? array<float32> as xs -> xs |> toStrArray name
         | :? array<double> as xs -> xs |> toStrArray name
         | :? array<string> as xs -> xs |> toStrArray name
-        | :? array<System.DateTime> as xs -> xs |> toStrArray name
+        | :? array<DateTime> as xs -> xs |> toStrArray name
         | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<float32>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<System.DateTime>> as xs -> xs |> toStrArray name
+        | :? array<Option<DateTime>> as xs -> xs |> toStrArray name
         | :? Option<bool> as x -> x |> toStrOpt name
         | :? Option<int32> as x -> x |> toStrOpt name
         | :? Option<int64> as x -> x |> toStrOpt name
         | :? Option<float32> as x -> x |> toStrOpt name
         | :? Option<double> as x -> x |> toStrOpt name
         | :? Option<string> as x -> x |> toStrOpt name
-        | :? Option<System.DateTime> as x -> x |> toStrOpt name
+        | :? Option<DateTime> as x -> x |> toStrOpt name
         | _ -> [name, obj.ToString()]
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
-            member __.Constructor =  typeof<Newtonsoft.Json.JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
-            member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> System.Collections.Generic.IList<_>
-            member __.NamedArguments = [||] :> System.Collections.Generic.IList<_> }
+            member __.Constructor =  typeof<JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
+            member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> Collections.Generic.IList<_>
+            member __.NamedArguments = [||] :> Collections.Generic.IList<_> }
 
     let serialize =
         let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
-        settings.Converters.Add(new OptionConverter () :> JsonConverter)
-        settings.Converters.Add(new ByteArrayConverter () :> JsonConverter)
+        settings.Converters.Add(OptionConverter () :> JsonConverter)
+        settings.Converters.Add(ByteArrayConverter () :> JsonConverter)
         fun (value:obj) ->
             JsonConvert.SerializeObject(value, settings)
 
     let deserialize =
         let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
-        settings.Converters.Add(new OptionConverter () :> JsonConverter)
-        settings.Converters.Add(new ByteArrayConverter () :> JsonConverter)
+        settings.Converters.Add(OptionConverter () :> JsonConverter)
+        settings.Converters.Add(ByteArrayConverter () :> JsonConverter)
         fun value (retTy:Type) ->
             JsonConvert.DeserializeObject(value, retTy, settings)
 
