@@ -106,7 +106,7 @@ let parserTestBody formatParser (url:string) =
         let defCompiler = DefinitionCompiler(schema, false)
         let opCompiler = OperationCompiler(schema, defCompiler)
         ignore <| opCompiler.CompilePaths(false)
-        ignore <| defCompiler.GetProvidedTypes()
+        ignore <| defCompiler.Namespace.GetProvidedTypes()
 
 
 let private schemasFromTPTests =

@@ -50,7 +50,7 @@ module private SwaggerProviderConfig =
                             )
                         Http.RequestString(schemaPathRaw, headers=headers,
                             customizeHttpRequest = fun req ->
-                                req.Credentials <- System.Net.CredentialCache.DefaultNetworkCredentials
+                                req.Credentials <- Net.CredentialCache.DefaultNetworkCredentials
                                 req)
                     | false ->
                         schemaPathRaw |> IO.File.ReadAllText
@@ -58,7 +58,7 @@ module private SwaggerProviderConfig =
                 let schema = SwaggerParser.parseSchema schemaData
 
                 // Create Swagger provider type
-                let baseTy = Some typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
+                let baseTy = Some typeof<Internal.ProvidedSwaggerBaseType>
                 let ty = ProvidedTypeDefinition(tempAsm, NameSpace, typeName, baseTy, isErased = false, hideObjectMethods = true)
                 ty.AddXmlDoc ("Swagger.io Provider for " + schema.Host)
 
@@ -80,8 +80,8 @@ module private SwaggerProviderConfig =
 
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
                 let opCompiler = OperationCompiler(schema, defCompiler)
-                ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all operations
-                ty.AddMembers <| defCompiler.GetProvidedTypes() // Add all compiled types
+                ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all provided operations
+                ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types
 
                 tempAsm.AddTypes [ty]
 

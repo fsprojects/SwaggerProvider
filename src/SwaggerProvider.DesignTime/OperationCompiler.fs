@@ -43,7 +43,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             | None -> typeof<unit>
 
         let m = ProvidedMethod(methodName, parameters, retTy, invokeCode = fun args ->
-            let thisTy = typeof<SwaggerProvider.Internal.ProvidedSwaggerBaseType>
+            let thisTy = typeof<ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy)
             let host = Expr.PropertyGet(this, thisTy.GetProperty("Host"))
             let headers = Expr.PropertyGet(this, thisTy.GetProperty("Headers"))
@@ -51,7 +51,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
 
             let basePath =
                 let basePath = schema.BasePath
-                <@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl (%%host : string) basePath @>
+                <@ RuntimeHelpers.combineUrl (%%host : string) basePath @>
 
             // Fit headers into quotation
             let headers =
@@ -96,7 +96,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             let rec corceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
                 <@ let o = (%%obj : obj)
-                   SwaggerProvider.Internal.RuntimeHelpers.toQueryParams name o @>
+                   RuntimeHelpers.toQueryParams name o @>
 
             let replacePathTemplate path name (exp : Expr) =
                 let template = "{" + name + "}"
@@ -139,7 +139,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                     (<@@ mPath @@>, None, <@@ ([] : (string*string) list)  @@>, headers)
 
 
-            let address = <@@ SwaggerProvider.Internal.RuntimeHelpers.combineUrl %basePath (%%path :string ) @@>
+            let address = <@@ RuntimeHelpers.combineUrl %basePath (%%path :string ) @@>
             let restCall = op.Type.ToString()
 
             let customizeHttpRequest =
@@ -166,7 +166,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                             query = (%%queries : (string * string) list),
                             customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
                 | Some (Body, b)     ->
-                    <@@ let body = SwaggerProvider.Internal.RuntimeHelpers.serialize (%%b : obj)
+                    <@@ let body = RuntimeHelpers.serialize (%%b : obj)
                         Http.RequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
@@ -177,8 +177,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
 
             // Return deserialized object
-            let value = <@@ SwaggerProvider.Internal.RuntimeHelpers.deserialize
-                                (%%result : string) retTy @@>
+            let value = <@@ RuntimeHelpers.deserialize (%%result : string) retTy @@>
             Expr.Coerce(value, retTy)
         )
         if not <| String.IsNullOrEmpty(op.Summary)

@@ -7,7 +7,7 @@ open System
 
 let private apisGuruList = lazy (
     printfn "Loading APIs.Guru list ..."
-    use client = new System.Net.WebClient()
+    use client = new Net.WebClient()
     let list = client.DownloadString("https://api.apis.guru/v2/list.json")
     JsonValue.Parse(list)
              .Properties()
@@ -24,7 +24,7 @@ let private getApisGuruSchemas propertyName =
        )
     |> Array.concat
     |> Array.map (fun x->
-        FSharp.Data.JsonExtensions.AsString(x))
+        JsonExtensions.AsString(x))
 
 let private apisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
 let private apisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
