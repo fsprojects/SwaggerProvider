@@ -35,7 +35,6 @@ group Test
 	framework: net461
 
 	source https://nuget.org/api/v2
-	nuget FSharp.Data
 	nuget FSharp.Compiler.Service
 	nuget FSharp.Core redirects: force
 

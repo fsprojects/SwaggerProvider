@@ -1,5 +1,5 @@
+Newtonsoft.Json
 group Test
     Expecto
-    FSharp.Data
     FSharp.Compiler.Service
     FSharp.Core

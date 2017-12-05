@@ -1,6 +1,7 @@
 ﻿module APIsGuru
-open FSharp.Data
+
 open System
+open Newtonsoft.Json.Linq
 
 // Test that provider can parse real-word Swagger 2.0 schemes
 // https://github.com/APIs-guru/api-models/blob/master/API.md
@@ -9,22 +10,30 @@ let private apisGuruList = lazy (
     printfn "Loading APIs.Guru list ..."
     use client = new Net.WebClient()
     let list = client.DownloadString("https://api.apis.guru/v2/list.json")
-    JsonValue.Parse(list)
-             .Properties()
+    JObject.Parse(list).Properties()
+    |> Seq.map (fun x->x.Value)
   )
 
 let private getApisGuruSchemas propertyName =
+    let getProp prop (obj:JToken) =
+        match obj  with
+        | :? JObject as jObj ->
+            match jObj.TryGetValue(prop) with
+            | true, jToken -> Some jToken
+            | _ -> None
+        | _ -> None
     apisGuruList.Value
-    |> Array.choose (fun (name, obj)->
-        obj.TryGetProperty("versions")
-        |> Option.bind (fun v->
-            v.Properties()
-            |> Array.choose (fun (_,x)-> x.TryGetProperty(propertyName))
+    |> Seq.choose (fun x ->
+        x |> getProp "versions"
+        |> Option.bind (fun v ->
+            let jObj = v :?> JObject
+            jObj.Properties()
+            |> Seq.choose (fun y -> y.Value |> getProp propertyName)
             |> Some)
        )
-    |> Array.concat
-    |> Array.map (fun x->
-        JsonExtensions.AsString(x))
+    |> Seq.concat
+    |> Seq.map (fun x->x.ToObject<string>())
+    |> Seq.toArray
 
 let private apisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
 let private apisGuruYamlSchemaUrls = getApisGuruSchemas "swaggerYamlUrl"
@@ -40,7 +49,6 @@ let schemaUrls =
 let private ignoredPrefList =
     [
      // Following schemas require additional investigation and fixes
-     //"https://api.apis.guru/v2/specs/clarify.io/" // StackOverflowException during FCS compilation
     ]
 let private skipIgnored (url:string) =
     ignoredPrefList
