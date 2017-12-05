@@ -2,7 +2,18 @@
 #r "SwaggerProvider.dll"
 #r "SwaggerProvider.Runtime.dll"
 
+
 open SwaggerProvider
+
+let [<Literal>] GISchema = "https://api.apis.guru/v2/specs/gettyimages.com/3/swagger.json"
+type GI = SwaggerProvider<GISchema>
+
+let gi = GI() 
+
+let x = GI.GettyImages.Models.Customers()
+let y = GI.GettyImages()
+
+
 let [<Literal>]Schema = "http://petstore.swagger.io/v2/swagger.json"
 type PetStore = SwaggerProvider<Schema> // Provided Types
 let petStore = PetStore()

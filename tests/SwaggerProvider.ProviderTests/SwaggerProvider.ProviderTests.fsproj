@@ -102,6 +102,7 @@
     <Compile Include="Swagger.GitHub.Tests.fs" />
     <Compile Include="Swagger.Instagram.Tests.fs" />
     <Compile Include="Swagger.i0027.Tests.fs" />
+    <Compile Include="Swagger.Namespaces.Tests.fs" />
     <Compile Include="Swashbuckle.ReturnControllers.Tests.fs" />
     <Compile Include="Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="Swashbuckle.ResourceControllers.Tests.fs" />

@@ -1,10 +1,11 @@
-#### 0.10.0-alpha5 - December 3, 2017
+#### 0.10.0-alpha6 - December 5, 2017
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet
 - Removed dependency on FSharp.Data/JsonValue (replaced by JSON.NET)
 - Added full-init constructor for provided types [#91](https://github.com/fsprojects/SwaggerProvider/pull/91)
 - Option/Nullable types for not required properties [#93](https://github.com/fsprojects/SwaggerProvider/pull/93)
 - `Http.fs` is moved to `SwaggerProvider.Runtime.dll` and `nicePascalName` applied to provided types, because FSI cannot load types with special characters in name (like `[` and `]`) - fix for [#94](https://github.com/fsprojects/SwaggerProvider/issues/94)
+- Provide namespaces as nested types [#96](https://github.com/fsprojects/SwaggerProvider/issues/96)
 
 #### 0.9.0 - November 17, 2017
 * Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
