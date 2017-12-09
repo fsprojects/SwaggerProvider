@@ -20,7 +20,7 @@ namespace SwaggerProvider.ProviderTests.CSharp
             if (!tag.ToString().Contains("1337"))
                 throw new Exception("Invalid ToString implementation - no `1337` found");
 
-            var client = new PS(null);
+            var client = new PS.Client(null);
             client.AddPet(pet2);
         }
 

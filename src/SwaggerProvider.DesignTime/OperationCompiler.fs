@@ -13,7 +13,7 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId) =
 
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
@@ -186,7 +186,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
             then m.AddObsoleteAttribute("Operation is deprecated", false)
         m
 
-    static member GetMethodNameCandidate (op:OperationObject) ignoreOperationId =
+    static member GetMethodNameCandidate (op:OperationObject) skipLength ignoreOperationId =
         if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)
         then
             [|  yield op.Type.ToString()
@@ -195,13 +195,46 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                     |> Array.filter (fun x ->
                         not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
             |] |> fun arr -> String.Join("_", arr)
-        else op.OperationId
+        else op.OperationId.Substring(skipLength)
         |> nicePascalName
 
-    /// Compiles the operation.
-    member __.CompilePaths(ignoreOperationId) =
-        let methodNameScope = UniqueNameGenerator()
+    member __.GetProvidedClients() =
+        let defaultHost =
+            let protocol =
+                match schema.Schemes with
+                | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
+                | array -> array.[0]
+            sprintf "%s://%s" protocol schema.Host
+        let baseTy = Some typeof<ProvidedSwaggerBaseType>
+        let baseCtor = baseTy.Value.GetConstructors().[0]
+
         List.ofArray schema.Paths
-        |> List.map (fun op ->
-            let name = OperationCompiler.GetMethodNameCandidate op ignoreOperationId
-            compileOperation (methodNameScope.MakeUnique name) op)
+        |> List.groupBy (fun x ->
+            if ignoreControllerPrefix then String.Empty //
+            else
+                let ind = x.OperationId.IndexOf("_")
+                if ind <= 0 then String.Empty
+                else x.OperationId.Substring(0, ind) )
+        |> List.map (fun (clientName, operations) ->
+            let typeName = nicePascalName clientName + "Client"
+            let ty = ProvidedTypeDefinition(typeName, baseTy, isErased = false, hideObjectMethods = true)
+            ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
+
+            ty.AddMember <|
+                ProvidedConstructor(
+                    [ProvidedParameter("host", typeof<string>, optionalValue = defaultHost)],
+                    invokeCode = (fun args ->
+                        match args with
+                        | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
+                        | _ -> <@@ () @@>),
+                    BaseConstructorCall = fun args -> (baseCtor, args))
+
+            let methodNameScope = UniqueNameGenerator()
+            operations |> List.map (fun op ->
+                let skipLength = if String.IsNullOrEmpty clientName then 0 else clientName.Length + 1
+                let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
+                compileOperation (methodNameScope.MakeUnique name) op)
+            |> ty.AddMembers
+
+            ty
+        )

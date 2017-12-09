@@ -37,7 +37,7 @@ let testTemplate url testBodyFunc =
     module TestModule
     open SwaggerProvider
     type ProvidedSwagger = SwaggerProvider<"%s">
-    let instance = ProvidedSwagger()
+    let instance = ProvidedSwagger.Client()
     #if INTERACTIVE
     System.Console.WriteLine("Hello from FSI: {0}", instance.Host)
     #endif

@@ -18,6 +18,7 @@ module private SwaggerProviderConfig =
             [ ProvidedStaticParameter("Schema", typeof<string>)
               ProvidedStaticParameter("Headers", typeof<string>,"")
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+              ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
               ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)]
 
         //TODO: Add use operationID flag
@@ -26,6 +27,7 @@ module private SwaggerProviderConfig =
                <param name='Schema'>Url or Path to Swagger schema file.</param>
                <param name='Headers'>Headers that will be used to access the schema.</param>
                <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
+               <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
                <param name='ProvideNullable'>Provide `Nullable<_>` for not requiried properties, instread of `Option<_>`</param>"""
 
         swaggerProvider.DefineStaticParameters(
@@ -34,7 +36,8 @@ module private SwaggerProviderConfig =
                 let tempAsm = ProvidedAssembly()
                 let schemaPathRaw = args.[0] :?> string
                 let ignoreOperationId = args.[2] :?> bool
-                let provideNullable = args.[3] :?> bool
+                let ignoreControllerPrefix = args.[3] :?> bool
+                let provideNullable = args.[4] :?> bool
 
                 let schemaData =
                     match schemaPathRaw.StartsWith("http", true, null) with
@@ -58,29 +61,15 @@ module private SwaggerProviderConfig =
                 let schema = SwaggerParser.parseSchema schemaData
 
                 // Create Swagger provider type
-                let baseTy = Some typeof<Internal.ProvidedSwaggerBaseType>
+                let baseTy = Some typeof<obj>
                 let ty = ProvidedTypeDefinition(tempAsm, NameSpace, typeName, baseTy, isErased = false, hideObjectMethods = true)
-                ty.AddXmlDoc ("Swagger.io Provider for " + schema.Host)
-
-                let protocol =
-                    match schema.Schemes with
-                    | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
-                    | array -> array.[0]
-                let ctor =
-                    ProvidedConstructor(
-                        [ProvidedParameter("host", typeof<string>, optionalValue = sprintf "%s://%s" protocol schema.Host)],
-                        invokeCode = fun args ->
-                            match args with
-                            | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
-                            | _ -> <@@ () @@>)
-                ctor.BaseConstructorCall <-
-                    let baseCtor = baseTy.Value.GetConstructors().[0]
-                    fun args -> (baseCtor, args)
-                ty.AddMember ctor
+                ty.AddXmlDoc ("Swagger Provider for " + schema.Host)
+                ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
-                let opCompiler = OperationCompiler(schema, defCompiler)
-                ty.AddMembers <| opCompiler.CompilePaths(ignoreOperationId) // Add all provided operations
+                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId)
+
+                ty.AddMembers <| opCompiler.GetProvidedClients()
                 ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types
 
                 tempAsm.AddTypes [ty]

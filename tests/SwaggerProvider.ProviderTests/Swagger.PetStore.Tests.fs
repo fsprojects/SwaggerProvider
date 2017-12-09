@@ -7,7 +7,7 @@ open System
 
 type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
 type PetStoreNullable = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", ProvideNullable = true>
-let store = PetStore()
+let store = PetStore.Client()
 
 [<Tests>]
 let petStoreTests =

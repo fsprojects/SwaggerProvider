@@ -5,4 +5,4 @@ open SwaggerProvider
 let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/i0027.json"
 type PSwagger = SwaggerProvider<Schema>
 
-let inst = PSwagger()
+let inst = PSwagger.Client()
