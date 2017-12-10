@@ -198,7 +198,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
         else op.OperationId.Substring(skipLength)
         |> nicePascalName
 
-    member __.GetProvidedClients() =
+    member __.CompileProvidedClients(ns:NamespaceAbstraction) =
         let defaultHost =
             let protocol =
                 match schema.Schemes with
@@ -215,9 +215,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 let ind = x.OperationId.IndexOf("_")
                 if ind <= 0 then String.Empty
                 else x.OperationId.Substring(0, ind) )
-        |> List.map (fun (clientName, operations) ->
-            let typeName = nicePascalName clientName + "Client"
-            let ty = ProvidedTypeDefinition(typeName, baseTy, isErased = false, hideObjectMethods = true)
+        |> List.iter (fun (clientName, operations) ->
+            let tyName = ns.ReserveUniqueName clientName "Client"
+            let ty = ProvidedTypeDefinition(tyName, baseTy, isErased = false, hideObjectMethods = true)
+            ns.RegisterType(tyName, ty)
             ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
 
             ty.AddMember <|
@@ -235,6 +236,4 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
                 compileOperation (methodNameScope.MakeUnique name) op)
             |> ty.AddMembers
-
-            ty
         )

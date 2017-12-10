@@ -69,7 +69,7 @@ module private SwaggerProviderConfig =
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
                 let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId)
 
-                ty.AddMembers <| opCompiler.GetProvidedClients()
+                opCompiler.CompileProvidedClients(defCompiler.Namespace)
                 ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types
 
                 tempAsm.AddTypes [ty]

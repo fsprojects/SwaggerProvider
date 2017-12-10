@@ -105,7 +105,7 @@ let parserTestBody formatParser (url:string) =
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
         let defCompiler = DefinitionCompiler(schema, false)
         let opCompiler = OperationCompiler(schema, defCompiler, true, false)
-        ignore <| opCompiler.GetProvidedClients()
+        opCompiler.CompileProvidedClients(defCompiler.Namespace)
         ignore <| defCompiler.Namespace.GetProvidedTypes()
 
 
