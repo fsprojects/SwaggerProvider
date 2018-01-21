@@ -43,6 +43,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\Net\UriUtils.fs">
@@ -59,7 +60,9 @@
     <Compile Include="Parser\Schema.fs" />
     <Compile Include="Parser\Parsers.fs" />
     <Compile Include="Parser\SwaggerParser.fs" />
+    <Compile Include="Serialization.fs" />
     <Compile Include="RuntimeHelpers.fs" />
+    <Compile Include="SwaggerApiClient.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <PropertyGroup>

@@ -1,14 +1,14 @@
 ﻿namespace SwaggerProvider.Internal.Compilers
 
+open System
+open System.Reflection
 open ProviderImplementation.ProvidedTypes
 open UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
 open Swagger.Parser.Schema
+open Swagger.Internal
 open SwaggerProvider.Internal
 open Microsoft.FSharp.Quotations
-open System
-open System.Reflection
-open System.ComponentModel
 
 type DefinitionPath =
     { 

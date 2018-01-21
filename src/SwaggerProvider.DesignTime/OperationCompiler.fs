@@ -3,7 +3,7 @@
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
 open Swagger.Parser.Schema
-open SwaggerProvider.Internal
+open Swagger.Internal
 
 open System
 open FSharp.Data
@@ -11,6 +11,7 @@ open FSharp.Data
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
+open SwaggerProvider.Internal
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId) =
