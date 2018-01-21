@@ -1,4 +1,5 @@
 #### 0.10.0-alpha7 - December 9, 2017
+_ Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet
 - Removed dependency on FSharp.Data/JsonValue (replaced by JSON.NET)
@@ -8,8 +9,8 @@
 - Provide namespaces as nested types [#96](https://github.com/fsprojects/SwaggerProvider/issues/96)
 - Added ability to generate multiple clients (one per controller) This feature is turned off by default and is controlled by `IgnoreControllerPrefix` parameter [45](https://github.com/fsprojects/SwaggerProvider/issues/45#issuecomment-240554229)
 
-#### 0.9.0 - November 17, 2017
-* Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
+#### 0.8.2 - January 19, 2017
+* Fix probing locations [#97](https://github.com/fsprojects/SwaggerProvider/pull/97)
 
 #### 0.8.1 - August 21, 2017
 * Removed caching and dependency on FSharp.Configuration context [#84](https://github.com/fsprojects/SwaggerProvider/issues/84)
