@@ -3,7 +3,6 @@
 open Swagger.Parser.Schema
 open Swagger.Parser
 open Expecto
-open FSharp.Data
 
 [<Tests>]
 let jsonSpecTests =
@@ -269,7 +268,7 @@ let jsonSpecTests =
           }
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -296,7 +295,7 @@ let jsonSpecTests =
           }
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -323,7 +322,7 @@ let jsonSpecTests =
           "collectionFormat": "csv"
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -345,7 +344,7 @@ let jsonSpecTests =
           "type": "string"
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -371,7 +370,7 @@ let jsonSpecTests =
           "collectionFormat": "multi"
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -393,7 +392,7 @@ let jsonSpecTests =
           "type": "file"
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -862,7 +861,7 @@ let jsonSpecTests =
           }
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parseParametersDefinition
+        |> Parsers.parseParametersDefinition Parsers.emptyDict
         |> fun actual ->
             let expected =
                 ([|

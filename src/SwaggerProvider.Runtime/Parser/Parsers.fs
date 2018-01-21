@@ -4,7 +4,7 @@ open System
 open Swagger.Parser.Schema
 open System.Collections.Generic
 
-module Exceptions = 
+module Exceptions =
 
     type SwaggerSchemaParseException(message) =
         inherit Exception(message)
@@ -211,9 +211,8 @@ module Parsers =
             match obj with
             | IsAllOf allOf ->
                 let components =
-                    allOf
-                    |> Array.map (parseSchemaObject definitions)
-                    |> Array.map (function
+                    allOf |> Array.map (fun x ->
+                        match parseSchemaObject definitions x with
                         | Object props -> Some props
                         | Reference path ->
                             match definitions.TryGetValue path with
@@ -222,8 +221,8 @@ module Parsers =
                                 | Object props -> Some props
                                 | _ -> None
                             | _ -> failwithf "Reference to unknown type %s" path
-                        | obj -> None
-                       )
+                        | _ -> None
+                    )
 
                 if components |> Array.forall (Option.isSome)
                 then
@@ -290,7 +289,7 @@ module Parsers =
         | _ -> raise <| UnknownFieldValueException(obj, location, "in", spec)
 
     /// Parses the SchemaNode as a ParameterObject.
-    let parseParameterObject (obj:SchemaNode) : ParameterObject =
+    let parseParameterObject (definitions:Dictionary<string,Lazy<SchemaObject>>) (obj:SchemaNode) : ParameterObject =
         let spec = "http://swagger.io/specification/#parameterObject"
         let location =
             obj.GetRequiredField("in", spec).AsString()
@@ -303,8 +302,8 @@ module Parsers =
                        | Some(x) -> x.AsBoolean() | None -> false
             Type =
                 match location with
-                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject emptyDict
-                | _    -> obj |> parseSchemaObject emptyDict // TODO: Restrict parser
+                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject definitions
+                | _    -> obj |> parseSchemaObject definitions
                           // The `type` value MUST be one of "string", "number", "integer", "boolean", "array" or "file"
             CollectionFormat =
                 match location, obj.TryGetProperty("collectionFormat") with
@@ -321,10 +320,10 @@ module Parsers =
         }
 
     /// Parse the SchemaNode as a Parameters Definition Object
-    let parseParametersDefinition (obj:SchemaNode) : Map<string, ParameterObject> =
+    let parseParametersDefinition (definitions:Dictionary<string,Lazy<SchemaObject>>) (obj:SchemaNode) : Map<string, ParameterObject> =
         obj.Properties()
         |> Array.map (fun (name, obj) ->
-            "#/parameters/"+name, parseParameterObject obj)
+            "#/parameters/"+name, parseParameterObject definitions obj)
         |> Map.ofArray
 
     /// Parses the SchemaNode as a ResponseObject.
@@ -397,7 +396,7 @@ module Parsers =
                             |> Array.map (fun obj ->
                                 match context.ResolveParameterObject obj with
                                 | Some(param) -> param
-                                | None -> parseParameterObject obj)
+                                | None -> parseParameterObject context.Definitions obj)
                         | None -> [||])
                    context.ApplicableParameters
         }
@@ -413,7 +412,7 @@ module Parsers =
             | "options" -> Some <| parseOperationObject context path Options obj
             | "head"    -> Some <| parseOperationObject context path Head obj
             | "patch"   -> Some <| parseOperationObject context path Patch obj
-            | "$ref"       -> failwith "External definition of this path item is not supported yet"
+            | "$ref"    -> failwith "External definition of this path item is not supported yet"
             | _ -> None
         let updateContext (pathItemObj:SchemaNode) =
             match pathItemObj.TryGetProperty("parameters") with
@@ -426,7 +425,7 @@ module Parsers =
                         |> Array.map (fun paramObj ->
                             match context.ResolveParameterObject paramObj with
                             | Some(param) -> param
-                            | None -> parseParameterObject paramObj
+                            | None -> parseParameterObject context.Definitions paramObj
                         )
                 }
 
@@ -472,16 +471,17 @@ module Parsers =
 
         // Context holds parameters and responses that could be referenced from path definitions
         let context =
+            let definitions =
+                match obj.TryGetProperty("definitions") with
+                | None -> emptyDict
+                | Some(definitions) -> parseDefinitionsObject definitions
             {
                 ParserContext.Empty with
-                    Definitions =
-                        match obj.TryGetProperty("definitions") with
-                        | None -> emptyDict
-                        | Some(definitions) -> parseDefinitionsObject definitions
+                    Definitions = definitions
                     Parameters =
                         match obj.TryGetProperty("parameters") with
                         | None -> Map.empty<_,_>
-                        | Some(parameters) -> parseParametersDefinition parameters
+                        | Some(parameters) -> parseParametersDefinition definitions parameters
                     Responses =
                         match obj.TryGetProperty("responses") with
                         | None -> Map.empty<_,_>

@@ -96,6 +96,7 @@ let fsiTests =
     APIsGuru.JsonSchemas
     |> APIsGuru.shrink 30
     |> List.ofArray
+    |> List.distinct
     |> List.choose (fun url ->
         if testFsi then
             testCase

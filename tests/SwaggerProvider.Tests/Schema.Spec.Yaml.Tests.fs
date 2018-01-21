@@ -234,7 +234,7 @@ schema:
   $ref: '#/definitions/User'
         """
             |> SwaggerParser.parseYaml
-            |> Parsers.parseParameterObject
+            |> Parsers.parseParameterObject Parsers.emptyDict
             |> fun actual ->
                 let expected =
                     {
@@ -260,7 +260,7 @@ schema:
     type: string
         """
             |> SwaggerParser.parseYaml
-            |> Parsers.parseParameterObject
+            |> Parsers.parseParameterObject Parsers.emptyDict
             |> fun actual ->
                 let expected =
                     {
@@ -286,7 +286,7 @@ items:
 collectionFormat: csv
         """
         |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -308,7 +308,7 @@ required: true
 type: string
         """
         |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -334,7 +334,7 @@ items:
 collectionFormat: multi
 """
         |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -356,7 +356,7 @@ required: true
 type: file
 """
         |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject
+        |> Parsers.parseParameterObject Parsers.emptyDict
         |> fun actual ->
             let expected =
                 {
@@ -764,7 +764,7 @@ limitParam:
   format: int32
 """
         |> SwaggerParser.parseYaml
-        |> Parsers.parseParametersDefinition
+        |> Parsers.parseParametersDefinition Parsers.emptyDict
         |> fun actual ->
             let expected =
                 ([|

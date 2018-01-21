@@ -151,9 +151,11 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 let ns, tyName = tyDefName |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileSchemaObject ns tyName def true (registerInNsAndInDef tyDefName ns)
                 ty :> Type
-            | None ->
+            | None when tyDefName.StartsWith("#/definitions/") ->
                 failwithf "Cannot find definition '%s' in schema definitions %A" 
                     tyDefName (definitionToType.Keys |> Seq.toArray)
+            | None ->
+                failwithf "Cannot find definition '%s' (references to relative documents are not supported yet)"  tyDefName
     and compileSchemaObject (ns:NamespaceAbstraction) tyName (schemaObj:SchemaObject) isRequired registerNew =
         let compileNewObject (properties:DefinitionProperty[]) =
             if properties.Length = 0 
