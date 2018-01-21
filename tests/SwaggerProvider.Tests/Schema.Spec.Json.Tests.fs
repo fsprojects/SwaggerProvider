@@ -506,7 +506,7 @@ let jsonSpecTests =
             Expect.equal actual expected "parse Tag Object"
 
 
-    testCase "Tag Object Example" <| fun _ ->
+    testCase "Tag Object Example Ref" <| fun _ ->
         """{
             "$ref": "#/definitions/Pet"
         }"""

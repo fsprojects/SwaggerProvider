@@ -80,10 +80,6 @@ let returnControllersTests =
         api.GetApiReturnEnum()
         |> shouldEqual "1"
 
-    testCase "Return Enum GET Test" <| fun _ ->
-        api.PostApiReturnEnum()
-        |> shouldEqual "1"
-
 
     testCase "Return Array Int GET Test" <| fun _ ->
         api.GetApiReturnArrayInt()

@@ -28,4 +28,4 @@ files
 dependencies
     FSharp.Core >= 4.0.0
     Newtonsoft.Json >= 10.0.0
-    YamlDotNet ~> 4.2.2
+    YamlDotNet ~> 4.2.3

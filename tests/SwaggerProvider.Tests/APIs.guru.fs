@@ -64,6 +64,10 @@ let private shrinkOnMonoTo size arr =
 
 let private filter = Array.filter skipIgnored >> shrinkOnMonoTo 80
 
-let JsonSchemas = filter schemaUrls
-let YamlSchemas = filter apisGuruYamlSchemaUrls
+let JsonSchemas = 
+    filter schemaUrls
+    |> Array.distinct
+let YamlSchemas = 
+    filter apisGuruYamlSchemaUrls
+    |> Array.distinct
 
