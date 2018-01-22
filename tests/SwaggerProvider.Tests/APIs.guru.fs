@@ -49,12 +49,6 @@ let schemaUrls =
 let private ignoredPrefList =
     [
      // Following schemas require additional investigation and fixes
-     "https://api.apis.guru/v2/specs/azure.com/automation-dscCompilationJob/" // relative file ref
-     "https://api.apis.guru/v2/specs/azure.com/automation-job/" // relative file ref
-     "https://api.apis.guru/v2/specs/azure.com/automation-softwareUpdateConfiguration/" // relative file ref
-     "https://api.apis.guru/v2/specs/azure.com/automation-softwareUpdateConfigurationMachineRun/" // relative file ref
-     "https://api.apis.guru/v2/specs/azure.com/network-expressRouteCircuit/" // relative file ref
-     "https://api.apis.guru/v2/specs/azure.com/automation-runbook/" // relative file ref
     ]
 let private skipIgnored (url:string) =
     ignoredPrefList
