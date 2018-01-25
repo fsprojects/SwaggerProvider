@@ -3,13 +3,13 @@ NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.0.0.1)
     Newtonsoft.Json (10.0.3)
-    YamlDotNet (4.2.3)
+    YamlDotNet (4.2.4)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/NameUtils.fs (e2d0411e7ac2ab429184549943383d2483cec02a)
-    src/CommonRuntime/Pluralizer.fs (e2d0411e7ac2ab429184549943383d2483cec02a)
-    src/Net/Http.fs (e2d0411e7ac2ab429184549943383d2483cec02a)
-    src/Net/UriUtils.fs (e2d0411e7ac2ab429184549943383d2483cec02a)
+    src/CommonRuntime/NameUtils.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
+    src/CommonRuntime/Pluralizer.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
+    src/Net/Http.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
+    src/Net/UriUtils.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (b6d5c949e46c34f051e2adf88170e1a2d20cbfd9)
     src/ProvidedTypes.fsi (b6d5c949e46c34f051e2adf88170e1a2d20cbfd9)
