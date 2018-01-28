@@ -4,9 +4,6 @@ open Expecto
 open System
 open SwashbuckleReturnControllersTests
 
-let shouldEqual expected actual =
-    Expect.equal actual expected "return value"
-
 [<Tests>]
 let resourceControllersTests =
   testList "All/Swashbuckle.ResourceControllers.Tests" [

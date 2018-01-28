@@ -13,13 +13,22 @@ module private SwaggerProviderConfig =
     let internal typedSwaggerProvider (ctx: ProvidedTypesContext) asmLocation =
         let asm = Assembly.LoadFrom asmLocation
         let swaggerProvider = ProvidedTypeDefinition(asm, NameSpace, "SwaggerProvider", Some typeof<obj>, isErased=false)
+        
+        let staticParam name ty doc (def: 'a Option) = 
+            let p = 
+                match def with 
+                | Some d -> ProvidedStaticParameter(name, ty, d) 
+                | None -> ProvidedStaticParameter(name, ty)
+            p.AddXmlDoc(doc)
+            p
 
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
-              ProvidedStaticParameter("Headers", typeof<string>,"")
+              ProvidedStaticParameter("Headers", typeof<string>, "")
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-              ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)]
+              ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)
+              ProvidedStaticParameter("Synchronous", typeof<bool>, false)]
 
         //TODO: Add use operationID flag
         swaggerProvider.AddXmlDoc
@@ -28,7 +37,8 @@ module private SwaggerProviderConfig =
                <param name='Headers'>Headers that will be used to access the schema.</param>
                <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
                <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
-               <param name='ProvideNullable'>Provide `Nullable<_>` for not requiried properties, instread of `Option<_>`</param>"""
+               <param name='ProvideNullable'>Provide `Nullable<_>` for not requiried properties, instread of `Option<_>`</param>
+               <param name="'Synchronous'>Make Synchronous HTTP calls instead of asyncronous. Default of 'false'</param>"""
 
         swaggerProvider.DefineStaticParameters(
             parameters=staticParams,
@@ -38,6 +48,7 @@ module private SwaggerProviderConfig =
                 let ignoreOperationId = args.[2] :?> bool
                 let ignoreControllerPrefix = args.[3] :?> bool
                 let provideNullable = args.[4] :?> bool
+                let asAsync = args.[5] :?> bool |> not
 
                 let schemaData =
                     match schemaPathRaw.StartsWith("http", true, null) with
@@ -67,7 +78,7 @@ module private SwaggerProviderConfig =
                 ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
-                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, false)
+                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
 
                 opCompiler.CompileProvidedClients(defCompiler.Namespace)
                 ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types

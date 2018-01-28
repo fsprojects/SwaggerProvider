@@ -41,12 +41,19 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             match okResponse with
             | Some (_,resp) ->
                 match resp.Schema with
-                | None -> typeof<unit>
-                | Some ty -> defCompiler.CompileTy methodName "Response" ty true
-            | None -> typeof<unit>
+                | None -> None
+                | Some ty -> Some <| defCompiler.CompileTy methodName "Response" ty true
+            | None -> None
+        
+        let innerTypeIfPresent = match retTy with Some t -> t | None -> null
         
         // the overall return type will be Async<retTy>
-        let overallReturnType = if isAsync then openAsync.MakeGenericType(retTy) else retTy
+        let overallReturnType = 
+            match isAsync, retTy with
+            | true, Some t -> openAsync.MakeGenericType t
+            | true, None -> typeof<Async<unit>>
+            | false, Some t -> t
+            | false, None -> typeof<unit>
 
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
             let thisTy = typeof<ProvidedSwaggerBaseType>
@@ -180,17 +187,24 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                             customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
             
-            let response = 
-                <@ async {
+            let responseObj = 
+                <@@ async {
                     let! response = %action
-                    return RuntimeHelpers.deserialize response retTy
-                } @>
+                    return RuntimeHelpers.deserialize response innerTypeIfPresent
+                } @@>
+            let responseUnit =
+                <@ async {
+                    let! _ = %action
+                    return ()
+                   } @>
             
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
             // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
-            if isAsync 
-            then Expr.Coerce(response, overallReturnType)
-            else Expr.Coerce( <@ Async.RunSynchronously(%response) @>, overallReturnType)
+            match isAsync, retTy with
+            | true, Some t -> Expr.Coerce(responseObj, overallReturnType)
+            | true, None -> responseUnit.Raw
+            | false, Some t -> Expr.Coerce( <@ Async.RunSynchronously(%%responseObj) @>, overallReturnType)
+            | false, None -> Expr.Coerce( <@ Async.RunSynchronously(%responseUnit) @>, overallReturnType)
         )
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
