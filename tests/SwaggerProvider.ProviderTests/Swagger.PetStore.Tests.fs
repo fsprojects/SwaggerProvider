@@ -27,9 +27,9 @@ let petStoreTests =
         Expect.equal pet.Name "bar" "access modified value"
         Expect.stringContains (pet.ToString()) "bar" "ToString"
 
-    testCase "call provided methods" <| fun _ ->
+    testCaseAsync "call provided methods" <| async {
         try
-            store.DeletePet(1337L)
+            do! store.DeletePet(1337L, apiKey)
         with
         | _ -> ()
 
@@ -39,11 +39,11 @@ let petStoreTests =
         Expect.stringContains (pet.ToString()) "1337" "ToString"
 
         try
-            store.AddPet(pet)
+            do! store.AddPet(pet)
         with
         | exn -> failwithf "Adding pet failed with message: %s" exn.Message
 
-        let pet2 = store.GetPetById(1337L)
+        let! pet2 = store.GetPetById(1337L)
         Expect.equal pet.Name     pet2.Name     "same Name"
         Expect.equal pet.Id       pet.Id        "same Id"
         Expect.equal pet.Category pet2.Category "same Category"
