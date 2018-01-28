@@ -14,8 +14,8 @@ open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId) =
-
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, isAsync) =
+    let openAsync = typedefof<Async<unit>>
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
@@ -32,6 +32,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     let paramDefaultValue = defCompiler.GetDefaultValue paramType
                     ProvidedParameter(paramName, paramType, false, paramDefaultValue)
             ]
+        
+        // find the innner type value
         let retTy =
             let okResponse = // BUG :  wrong selector
                 op.Responses |> Array.tryFind (fun (code, resp) ->
@@ -42,8 +44,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | None -> typeof<unit>
                 | Some ty -> defCompiler.CompileTy methodName "Response" ty true
             | None -> typeof<unit>
+        
+        // the overall return type will be Async<retTy>
+        let overallReturnType = if isAsync then openAsync.MakeGenericType(retTy) else retTy
 
-        let m = ProvidedMethod(methodName, parameters, retTy, invokeCode = fun args ->
+        let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
             let thisTy = typeof<ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy)
             let host = Expr.PropertyGet(this, thisTy.GetProperty("Host"))
@@ -150,36 +155,42 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                             then request.ContentLength <- 0L
                         customizeCall request @@>
 
-            // Make HTTP call
-            let result =
+            let action = 
                 match payload with
                 | None ->
-                    <@@ Http.RequestString(%%address,
+                    <@ Http.AsyncRequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
                             query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @>
                 | Some (FormData, b) ->
-                    <@@ Http.RequestString(%%address,
+                    <@ Http.AsyncRequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
-                            body = HttpRequestBody.FormValues (%%b : seq<string * string>),
+                            body = HttpRequestBody.FormValues (%%b: seq<string*string>),
                             query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @@>
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))@>
                 | Some (Body, b)     ->
-                    <@@ let body = RuntimeHelpers.serialize (%%b : obj)
-                        Http.RequestString(%%address,
+                    <@ let body = RuntimeHelpers.serialize (%%b: obj)
+                       Http.AsyncRequestString(%%address,
                             httpMethod = restCall,
                             headers = (%%heads : array<string*string>),
                             body = HttpRequestBody.TextRequest body,
                             query = (%%queries : (string * string) list),
-                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest))
-                    @@>
+                            customizeHttpRequest = (%%customizeHttpRequest : Net.HttpWebRequest -> Net.HttpWebRequest)) @>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
-
-            // Return deserialized object
-            let value = <@@ RuntimeHelpers.deserialize (%%result : string) retTy @@>
-            Expr.Coerce(value, retTy)
+            
+            let response = 
+                <@ async {
+                    let! response = %action
+                    return RuntimeHelpers.deserialize response retTy
+                } @>
+            
+            // if we're an async method, then we can just return the above, coerced to the overallReturnType.
+            // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
+            if isAsync 
+            then Expr.Coerce(response, overallReturnType)
+            else Expr.Coerce( <@ Async.RunSynchronously(%response) @>, overallReturnType)
         )
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
