@@ -13,6 +13,12 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 
+module ReflectionHelper = 
+    let asyncCast = 
+        let castFn = typeof<AsyncExtensions>.GetMethod("cast")
+        fun runtimeTy (asyncOp: Async<obj>) -> 
+            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null,  [|asyncOp|])
+
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, isAsync) =
     let openAsync = typedefof<Async<unit>>
@@ -188,23 +194,24 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
             
             let responseObj = 
-                <@@ async {
+                <@ async {
                     let! response = %action
                     return RuntimeHelpers.deserialize response innerTypeIfPresent
-                } @@>
+                } @>
             let responseUnit =
                 <@ async {
                     let! _ = %action
                     return ()
                    } @>
             
+            let sync e = <@ Async.RunSynchronously(%e) @>
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
             // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
             match isAsync, retTy with
-            | true, Some t -> Expr.Coerce(responseObj, overallReturnType)
+            | true, Some t -> Expr.Coerce(<@@ ReflectionHelper.asyncCast t %responseObj @@>, overallReturnType)
             | true, None -> responseUnit.Raw
-            | false, Some t -> Expr.Coerce( <@ Async.RunSynchronously(%%responseObj) @>, overallReturnType)
-            | false, None -> Expr.Coerce( <@ Async.RunSynchronously(%responseUnit) @>, overallReturnType)
+            | false, Some _ -> Expr.Coerce(sync responseObj , overallReturnType)
+            | false, None -> Expr.Coerce(sync responseUnit, overallReturnType)
         )
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
