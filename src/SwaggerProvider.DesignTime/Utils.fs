@@ -15,3 +15,10 @@ type UniqueNameGenerator() =
 
     member __.MakeUnique methodName =
         findUniq methodName 0
+
+type AsyncExtensions () =
+    static member cast<'t> asyncOp = async {
+        let! ret = asyncOp
+        let cast = box ret
+        return cast :?> 't
+    }
