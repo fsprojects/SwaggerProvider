@@ -92,9 +92,12 @@ let parserTestBody formatParser (url:string) =
         match Uri.TryCreate(url, UriKind.Absolute) with
         | true, uri when url.IndexOf("http") >=0  -> 
             let client = new HttpClient()
-            client.GetStringAsync(uri)
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
+            try
+                client.GetStringAsync(uri)
+                |> Async.AwaitTask
+                |> Async.RunSynchronously
+            with e ->
+                Tests.skiptestf "Netowrk issue %s" e.Message
         | _ when File.Exists(url) ->
             File.ReadAllText url
         | _ -> 
