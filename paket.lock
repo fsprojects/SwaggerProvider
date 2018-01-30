@@ -36,13 +36,13 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (51a7cae12acc7292db4623ae0e3cc3a2ce6ca1c9)
+    modules/Octokit/Octokit.fsx (82d22da50df68d0af572d6cf4922387807cfa3f4)
       Octokit (>= 0.20)
 GROUP OWIN
 RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Core (4.2.3) - redirects: force
+    FSharp.Core (4.3.2) - redirects: force
     Microsoft.AspNet.WebApi.Client (5.2.3)
       Newtonsoft.Json (>= 6.0.4)
     Microsoft.AspNet.WebApi.Core (5.2.3)
@@ -81,7 +81,7 @@ NUGET
     FSharp.Compiler.Service (17.0.1)
       System.Collections.Immutable (>= 1.3.1)
       System.Reflection.Metadata (>= 1.4.2)
-    FSharp.Core (4.2.3) - redirects: force
+    FSharp.Core (4.3.2) - redirects: force
     Microsoft.NETCore.Platforms (2.0.1)
     Mono.Cecil (0.10.0-beta7)
     NETStandard.Library (2.0.1)
