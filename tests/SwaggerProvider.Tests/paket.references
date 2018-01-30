@@ -1,4 +1,5 @@
 Newtonsoft.Json
+Microsoft.OpenApi.Readers
 group Test
     Expecto
     FSharp.Core

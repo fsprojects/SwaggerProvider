@@ -4,6 +4,8 @@ framework: >= net45
 nuget Newtonsoft.Json >= 9.0.1
 nuget FSharp.Core ~> 4.0.0
 nuget YamlDotNet
+// New schema parser (experimental at the moment)
+nuget Microsoft.OpenApi.Readers prerelease
 
 github fsharp/FSharp.Data src/Net/UriUtils.fs
 github fsharp/FSharp.Data src/Net/Http.fs
