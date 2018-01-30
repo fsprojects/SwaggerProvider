@@ -58,11 +58,15 @@ let private skipIgnored (url:string) =
 let private rnd = Random(int(DateTime.Now.Ticks))
 let shrink size (arr:'a[]) = 
     Array.init size (fun _ -> arr.[rnd.Next(arr.Length)])
-let private shrinkOnMonoTo size arr =
-    if isNull <| Type.GetType ("Mono.Runtime")
-    then arr else arr |> shrink size
 
-let private filter = Array.filter skipIgnored >> shrinkOnMonoTo 80
+let private shrinkOnCI arr =
+    if not <| isNull (Environment.GetEnvironmentVariable "TRAVIS")
+    then arr |> shrink 80  
+    elif not <| isNull (Environment.GetEnvironmentVariable "APPVEYOR")
+    then arr |> shrink 500 
+    else arr
+
+let private filter = Array.filter skipIgnored >> shrinkOnCI
 
 let JsonSchemas = 
     filter schemaUrls

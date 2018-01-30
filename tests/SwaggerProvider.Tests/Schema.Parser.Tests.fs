@@ -97,7 +97,7 @@ let parserTestBody formatParser (url:string) =
                 |> Async.AwaitTask
                 |> Async.RunSynchronously
             with e ->
-                Tests.skiptestf "Netowrk issue %s" e.Message
+                Tests.skiptestf "Netowork issue %s" e.Message
         | _ when File.Exists(url) ->
             File.ReadAllText url
         | _ -> 
