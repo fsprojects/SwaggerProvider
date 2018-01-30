@@ -145,6 +145,8 @@ type ParameterObject =
       /// Determines the format of the array if type array is used.
       CollectionFormat: CollectionFormat
     }
+    with
+        member x.UnambiguousName = sprintf "%s%A" x.Name x.In
 
 
 /// Describes a single response from an API Operation.

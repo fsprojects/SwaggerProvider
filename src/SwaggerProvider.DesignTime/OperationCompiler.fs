@@ -19,25 +19,42 @@ module ReflectionHelper =
         fun runtimeTy (asyncOp: Async<obj>) -> 
             castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null,  [|asyncOp|])
 
+
+
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, isAsync) =
-    let openAsync = typedefof<Async<unit>>
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
 
         let parameters =
-            [
-             let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
-             let parameters = Array.append required optional
-             for x in parameters ->
-                let paramName = niceCamelName x.Name
-                let paramType = defCompiler.CompileTy methodName paramName x.Type x.Required
-                if x.Required then ProvidedParameter(paramName, paramType)
-                else 
-                    let paramDefaultValue = defCompiler.GetDefaultValue paramType
-                    ProvidedParameter(paramName, paramType, false, paramDefaultValue)
-            ]
+            /// handles deduping Swagger parameter names if the same parameter name 
+            /// appears in multiple locations in a given operation definition.
+            let uniqueParamName existing (current: ParameterObject) = 
+                let name = niceCamelName current.Name
+                if Set.contains name existing 
+                then
+                    Set.add current.UnambiguousName existing, current.UnambiguousName
+                else
+                    Set.add name existing, name                
+                
+            let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
+            let parameters = Array.append required optional
+            parameters
+            |> Array.fold (fun (names,parameters) current -> 
+               let (names, paramName) = uniqueParamName names current
+               let paramType = defCompiler.CompileTy methodName paramName current.Type current.Required
+               let providedParam = 
+                   if current.Required then ProvidedParameter(paramName, paramType)
+                   else 
+                       let paramDefaultValue = defCompiler.GetDefaultValue current.Type
+                       ProvidedParameter(paramName, paramType, false, paramDefaultValue)
+               (names, providedParam :: parameters)
+            ) (Set.empty, [])
+            |> snd
+            // because we built up our list in reverse order with the fold, 
+            // reverse it again so that all required properties come first
+            |> List.rev
         
         // find the innner type value
         let retTy =
@@ -56,7 +73,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
         // the overall return type will be Async<retTy>
         let overallReturnType = 
             match isAsync, retTy with
-            | true, Some t -> openAsync.MakeGenericType t
+            | true, Some t -> typedefof<Async<unit>>.MakeGenericType t
             | true, None -> typeof<Async<unit>>
             | false, Some t -> t
             | false, None -> typeof<unit>
@@ -100,7 +117,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     | ShapeVar sVar as expr ->
                         let param =
                             op.Parameters
-                            |> Array.find (fun x -> niceCamelName x.Name = sVar.Name) // ???
+                            |> Array.find (fun x -> 
+                                let baseName = niceCamelName x.Name
+                                baseName = sVar.Name || x.UnambiguousName = sVar.Name )// ???
                         param, expr
                     | _  ->
                         failwithf "Function '%s' does not support functions as arguments." methodName
