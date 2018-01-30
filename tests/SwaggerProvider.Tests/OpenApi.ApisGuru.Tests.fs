@@ -10,7 +10,7 @@ open Microsoft.OpenApi
 let openApiTestBody (url:string) =
     let stream = 
         match Uri.TryCreate(url, UriKind.Absolute) with
-        | true, uri -> 
+        | true, uri when url.IndexOf("http") >=0 -> 
             let client = new HttpClient()
             client.GetStreamAsync(uri)
             |> Async.AwaitTask

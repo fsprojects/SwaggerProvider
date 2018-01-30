@@ -90,7 +90,7 @@ let petStoreTests =
 let parserTestBody formatParser (url:string) =
     let schemaStr = 
         match Uri.TryCreate(url, UriKind.Absolute) with
-        | true, uri -> 
+        | true, uri when url.IndexOf("http") >=0  -> 
             let client = new HttpClient()
             client.GetStringAsync(uri)
             |> Async.AwaitTask
