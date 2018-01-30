@@ -1,4 +1,5 @@
 ﻿namespace SwaggerProvider.Internal
+open System.Threading.Tasks
 
 type UniqueNameGenerator() =
     let hash = System.Collections.Generic.HashSet<_>()
@@ -22,3 +23,6 @@ type AsyncExtensions () =
         let cast = box ret
         return cast :?> 't
     }
+
+type TaskExtensions () = 
+    static member cast<'t> (task: Task<obj>): Task<'t> = task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)

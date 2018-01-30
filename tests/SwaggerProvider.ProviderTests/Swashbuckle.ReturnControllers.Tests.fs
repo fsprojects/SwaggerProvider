@@ -4,7 +4,7 @@ open Expecto
 open SwaggerProvider
 open System
 
-type WebAPI = SwaggerProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true>
+type WebAPI = SwaggerProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true, OperationTypes = OperationTypes.Async>
 let api = WebAPI()
 
 let shouldEqual expected actual =
@@ -87,18 +87,10 @@ let returnControllersTests =
         (api.GetApiReturnEnum()
          |> asyncEqual "1")
 
-<<<<<<< HEAD
-||||||| merged common ancestors
-    testCase "Return Enum GET Test" <| fun _ ->
-        api.PostApiReturnEnum()
-        |> shouldEqual "1"
-
-=======
     testCaseAsync "Return Enum GET Test" <| 
         (api.PostApiReturnEnum()
          |> asyncEqual "1")
 
->>>>>>> make local dev server tests async for THE SPEED
 
     testCaseAsync "Return Array Int GET Test" <| 
         (api.GetApiReturnArrayInt()
