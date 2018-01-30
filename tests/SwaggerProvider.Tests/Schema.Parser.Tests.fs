@@ -3,9 +3,10 @@
 open Swagger.Parser.Schema
 open Swagger.Parser
 open SwaggerProvider.Internal.Compilers
-open FSharp.Data
 open Expecto
+open System
 open System.IO
+open System.Net.Http
 
 type ThisAssemblyPointer() = class end
 let root =
@@ -46,9 +47,12 @@ let petStoreTests =
             (schema.Definitions.Length)
             6 "only 6 objects in PetStore"
 
+        use client = new HttpClient()
         let schemaOnline =
             "http://petstore.swagger.io/v2/swagger.json"
-            |> Http.RequestString
+            |> client.GetStringAsync
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
             |> parseJson
 
         Expect.equal schemaOnline.BasePath schema.BasePath "same BasePath"
@@ -84,15 +88,18 @@ let petStoreTests =
   ]
 
 let parserTestBody formatParser (url:string) =
-    let schemaStr =
-        try
-            if url.StartsWith("http")
-            then Http.RequestString url
-            else File.ReadAllText url
-        with
-        | :? System.Net.WebException ->
-            printfn "Schema is unaccessible %s" url
-            ""
+    let schemaStr = 
+        match Uri.TryCreate(url, UriKind.Absolute) with
+        | true, uri -> 
+            let client = new HttpClient()
+            client.GetStringAsync(uri)
+            |> Async.AwaitTask
+            |> Async.RunSynchronously
+        | _ when File.Exists(url) ->
+            File.ReadAllText url
+        | _ -> 
+            failwithf "Cannot find schema '%s'" url
+
     if not <| System.String.IsNullOrEmpty(schemaStr) then
         let schema = formatParser schemaStr
                      |> Parsers.parseSwaggerObject

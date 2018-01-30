@@ -1,7 +1,6 @@
 ﻿module Swagger.GitHub.Tests
 
 open SwaggerProvider
-open FSharp.Data
 open Expecto
 
 let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/GitHub.json"

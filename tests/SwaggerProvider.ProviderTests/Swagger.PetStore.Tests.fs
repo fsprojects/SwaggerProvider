@@ -1,7 +1,6 @@
 ﻿module Swagger.PetStore.Tests
 
 open SwaggerProvider
-open FSharp.Data
 open Expecto
 open System
 
