@@ -4,7 +4,7 @@ open Expecto
 open SwaggerProvider
 open System
 
-type WebAPI = SwaggerProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true, OperationTypes = OperationTypes.Async>
+type WebAPI = SwaggerProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true>
 let api = WebAPI()
 
 let shouldEqual expected actual =
