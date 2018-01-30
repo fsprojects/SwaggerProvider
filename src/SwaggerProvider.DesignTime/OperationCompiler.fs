@@ -14,7 +14,6 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 open System.Threading.Tasks
-open SwaggerProvider
 
 module ReflectionHelper = 
     let asyncCast = 
