@@ -29,7 +29,7 @@ module private SwaggerProviderConfig =
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
               ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)
-              ProvidedStaticParameter("OperationTypes", typeof<OperationTypes>, OperationTypes.Async)]
+              ProvidedStaticParameter("AsyncInsteadOfTask", typeof<bool>, false)]
 
         //TODO: Add use operationID flag
         swaggerProvider.AddXmlDoc
@@ -39,7 +39,7 @@ module private SwaggerProviderConfig =
                <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
                <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
                <param name='ProvideNullable'>Provide `Nullable<_>` for not requiried properties, instread of `Option<_>`</param>
-               <param name='OperationTypes'>OperationTypes tells the SwaggerProvider what kind of methods to generate for the Swagger operations. Defaults to `OperationTypes.Async`</param>"""
+               <param name='AsyncInsteadOfTask'>AsyncInsteadOfTask tells the SwaggerProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
 
         swaggerProvider.DefineStaticParameters(
             parameters=staticParams,
@@ -49,7 +49,7 @@ module private SwaggerProviderConfig =
                 let ignoreOperationId = args.[2] :?> bool
                 let ignoreControllerPrefix = args.[3] :?> bool
                 let provideNullable = args.[4] :?> bool
-                let genMethods = args.[5] :?> OperationTypes
+                let asAsync = args.[5] :?> bool
 
                 let schemaData =
                     match schemaPathRaw.StartsWith("http", true, null) with
@@ -79,7 +79,7 @@ module private SwaggerProviderConfig =
                 ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
-                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, genMethods)
+                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
 
                 opCompiler.CompileProvidedClients(defCompiler.Namespace)
                 ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types

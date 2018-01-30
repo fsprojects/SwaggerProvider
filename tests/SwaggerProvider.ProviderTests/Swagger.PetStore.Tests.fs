@@ -4,9 +4,10 @@ open SwaggerProvider
 open Expecto
 open System
 
-type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json">
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", AsyncInsteadOfTask = true>
 type PetStoreNullable = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", ProvideNullable = true>
 let store = PetStore.Client()
+let apiKey = "test-key"
 
 [<Tests>]
 let petStoreTests =
@@ -29,7 +30,7 @@ let petStoreTests =
 
     testCaseAsync "call provided methods" <| async {
         try
-            do! store.DeletePet(1337L, apiKey)
+            do! store.DeletePetAsync(1337L, Some apiKey)
         with
         | _ -> ()
 
@@ -39,16 +40,17 @@ let petStoreTests =
         Expect.stringContains (pet.ToString()) "1337" "ToString"
 
         try
-            do! store.AddPet(pet)
+            do! store.AddPetAsync(pet)
         with
         | exn -> failwithf "Adding pet failed with message: %s" exn.Message
 
-        let! pet2 = store.GetPetById(1337L)
+        let! pet2 = store.GetPetByIdAsync(1337L)
         Expect.equal pet.Name     pet2.Name     "same Name"
         Expect.equal pet.Id       pet.Id        "same Id"
         Expect.equal pet.Category pet2.Category "same Category"
         Expect.equal pet.Status   pet2.Status   "same Status"
         Expect.notEqual pet pet2 "different objects"
+    }
 
     testCase "create types with Nullable properties" <| fun _ ->
         let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")

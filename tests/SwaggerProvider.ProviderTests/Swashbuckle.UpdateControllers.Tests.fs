@@ -9,92 +9,92 @@ let returnControllersTests =
   testList "All/Swashbuckle.UpdateControllers.Tests" [
 
     testCaseAsync "Update Bool GET Test" <| 
-        (api.GetApiUpdateBool(true)
+        (api.GetApiUpdateBoolAsync(true)
          |> asyncEqual false)
 
     testCaseAsync "Update Bool POST Test" <| 
-        (api.PostApiUpdateBool(false)
+        (api.PostApiUpdateBoolAsync(false)
          |> asyncEqual true)
 
 
     testCaseAsync "Update Int32 GET Test" <| 
-        (api.GetApiUpdateInt32(0)
+        (api.GetApiUpdateInt32Async(0)
          |> asyncEqual 1)
 
     testCaseAsync "Update Int32 POST Test" <| 
-        (api.PostApiUpdateInt32(0)
+        (api.PostApiUpdateInt32Async(0)
          |> asyncEqual 1)
 
 
     testCaseAsync "Update Int64 GET Test" <| 
-        (api.GetApiUpdateInt64(10L)
+        (api.GetApiUpdateInt64Async(10L)
          |> asyncEqual 11L)
 
     testCaseAsync "Update Int64 POST Test" <| 
-        (api.PostApiUpdateInt64(10L)
+        (api.PostApiUpdateInt64Async(10L)
          |> asyncEqual 11L)
 
 
     testCaseAsync "Update Float GET Test" <| 
-        (api.GetApiUpdateFloat(1.0f)
+        (api.GetApiUpdateFloatAsync(1.0f)
          |> asyncEqual 2.0f)
 
     testCaseAsync "Update Float POST Test" <| 
-        (api.PostApiUpdateFloat(1.0f)
+        (api.PostApiUpdateFloatAsync(1.0f)
          |> asyncEqual 2.0f)
 
 
     testCaseAsync "Update Double GET Test" <| 
-        (api.GetApiUpdateDouble(2.0)
+        (api.GetApiUpdateDoubleAsync(2.0)
          |> asyncEqual 3.0)
 
     testCaseAsync "Update Double POST Test" <| 
-        (api.PostApiUpdateDouble(2.0)
+        (api.PostApiUpdateDoubleAsync(2.0)
          |> asyncEqual 3.0)
 
 
     testCaseAsync "Update String GET Test" <| 
-        (api.GetApiUpdateString("Serge")
+        (api.GetApiUpdateStringAsync("Serge")
          |> asyncEqual "Hello, Serge")
 
     testCaseAsync "Update String POST Test" <| 
-        (api.PostApiUpdateString("Serge")
+        (api.PostApiUpdateStringAsync("Serge")
          |> asyncEqual "Hello, Serge")
 
 
     testCaseAsync "Update DateTime GET Test" <| 
-        (api.GetApiUpdateDateTime(DateTime(2015,1,1))
+        (api.GetApiUpdateDateTimeAsync(DateTime(2015,1,1))
          |> asyncEqual (DateTime(2015,1,2)))
 
     testCaseAsync "Update DateTime POST Test" <| 
-        (api.PostApiUpdateDateTime(DateTime(2015,1,1))
+        (api.PostApiUpdateDateTimeAsync(DateTime(2015,1,1))
          |> asyncEqual (DateTime(2015,1,2)))
 
 
     testCaseAsync "Update Enum GET Test" <| 
-        (api.GetApiUpdateEnum("1")
+        (api.GetApiUpdateEnumAsync("1")
          |> asyncEqual "1")
 
     testCaseAsync "Update Enum POST Test" <| 
-        (api.PostApiUpdateEnum("1")
+        (api.PostApiUpdateEnumAsync("1")
          |> asyncEqual "1")
 
 
     testCaseAsync "Update Array Int GET Test" <| 
-        (api.GetApiUpdateArrayInt([|3;2;1|])
+        (api.GetApiUpdateArrayIntAsync([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
     testCaseAsync "Update Array Int POST Test" <| 
-        (api.PostApiUpdateArrayInt([|3;2;1|])
+        (api.PostApiUpdateArrayIntAsync([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Update Array Enum GET Test" <| 
-        (api.GetApiUpdateArrayEnum([|"2";"1"|])
+        (api.GetApiUpdateArrayEnumAsync([|"2";"1"|])
          |> asyncEqual [|"1";"2"|])
 
     testCaseAsync "Update Array Enum POST Test" <| 
-        (api.PostApiUpdateArrayEnum([|"2";"1"|])
+        (api.PostApiUpdateArrayEnumAsync([|"2";"1"|])
          |> asyncEqual [|"1";"2"|])
 
 
@@ -104,21 +104,21 @@ let returnControllersTests =
 //    |> asyncEqual [|1;2;3|]
 
     testCaseAsync "Update List Int POST Test" <| 
-        (api.PostApiUpdateListInt([|3;2;1|])
+        (api.PostApiUpdateListIntAsync([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Update Seq Int GET Test" <| 
-        (api.GetApiUpdateSeqInt([|3;2;1|])
+        (api.GetApiUpdateSeqIntAsync([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
     testCaseAsync "Update Seq Int POST Test" <| 
-        (api.PostApiUpdateSeqInt([|3;2;1|])
+        (api.PostApiUpdateSeqIntAsync([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Update Object Point GET Test" <| async {
-        let! point = api.GetApiUpdateObjectPointClass(xX = Some 1, xY = Some 2)
+        let! point = api.GetApiUpdateObjectPointClassAsync(xX = Some 1, xY = Some 2)
         point.X |> shouldEqual (Some 2)
         point.Y |> shouldEqual (Some 1)
     }
@@ -127,26 +127,26 @@ let returnControllersTests =
         let p = WebAPI.PointClass()
         p.X <- Some 1
         p.Y <- Some 2
-        let! point = api.PostApiUpdateObjectPointClass(p)
+        let! point = api.PostApiUpdateObjectPointClassAsync(p)
         point.X |> shouldEqual (Some 2)
         point.Y |> shouldEqual (Some 1)
     }
 
     testCaseAsync "Send and Receive object with byte[]" <| async {
-        let x = WebAPI.FileDescription(Name=Some "2.txt", Bytes=some [|42uy|])
-        let! y = api.PostApiUpdateObjectFileDescriptionClass(x)
+        let x = WebAPI.FileDescription(Name = Some "2.txt", Bytes = Some [|42uy|])
+        let! y = api.PostApiUpdateObjectFileDescriptionClassAsync(x)
         x.Name |> shouldEqual y.Name
         x.Bytes|> shouldEqual y.Bytes
     }
 
     testCaseAsync "Send byte[] in query" <| async {
         let bytes = [|42uy;24uy|]
-        let! y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
-        y.Bytes |> shouldEqual (Some  bytes)
+        let! y = api.GetApiUpdateObjectFileDescriptionClassAsync(bytes)
+        y.Bytes |> shouldEqual (Some bytes)
     }
 
     testCaseAsync "Use Optional param Int" <| async {
-        do! api.GetApiUpdateWithOptionalInt(1) |> asyncEqual 2
-        do! api.GetApiUpdateWithOptionalInt(1, Some(2)) |> asyncEqual 3
+        do! api.GetApiUpdateWithOptionalIntAsync(1) |> asyncEqual 2
+        do! api.GetApiUpdateWithOptionalIntAsync(1, Some(2)) |> asyncEqual 3
     }
   ]
