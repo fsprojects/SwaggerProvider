@@ -6,7 +6,6 @@ open System
 open FSharp.Data
 open Swagger.Parser
 open SwaggerProvider.Internal.Compilers
-open SwaggerProvider
 
 module private SwaggerProviderConfig =
     let NameSpace = "SwaggerProvider"
