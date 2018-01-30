@@ -1,15 +1,4 @@
-﻿namespace SwaggerProvider 
-[<System.Flags>]
-type OperationTypes =
-/// Generate synchronous HTTP calls
-| Sync = 1
-/// Generate HTTP calls that return Async<'T>
-| Async = 2
-/// Generate HTTP calls that return Task<'T>
-| Task = 4
-/// Generate all versions of the HTTP calls
-| All = 128
-
+﻿namespace SwaggerProvider
 namespace SwaggerProvider.Internal.Compilers
 
 open ProviderImplementation.ProvidedTypes
@@ -36,10 +25,15 @@ module ReflectionHelper =
     let taskCast = 
         let castFn = typeof<TaskExtensions>.GetMethod("cast")
         fun runtimeTy (task: Task<obj>) ->
-            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])    
+            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])
+
+type Methods =
+| Sync
+| Async
+| Task
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, genMethods : OperationTypes) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
@@ -85,22 +79,29 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | Some ty -> Some <| defCompiler.CompileTy methodName "Response" ty true
             | None -> None
         
-        let methodTypes = [ if genMethods.HasFlag(OperationTypes.All) || genMethods.HasFlag(OperationTypes.Async) then yield OperationTypes.Async
-                            if genMethods.HasFlag(OperationTypes.All) || genMethods.HasFlag(OperationTypes.Task) then yield OperationTypes.Task
-                            if genMethods.HasFlag(OperationTypes.All) || genMethods.HasFlag(OperationTypes.Sync) then yield OperationTypes.Sync ]
-
-        let generateReturnType (t: Type option) (method: OperationTypes) = 
+        let generateReturnType (t: Type option) (method: Methods) = 
             match method, t with
-            | OperationTypes.Async, Some t -> typedefof<Async<unit>>.MakeGenericType(t)
-            | OperationTypes.Async, None -> typeof<Async<unit>>
-            | OperationTypes.Task, Some t -> typedefof<Task<unit>>.MakeGenericType(t)
-            | OperationTypes.Task, None -> typeof<Task<unit>>
-            | OperationTypes.Sync, Some t -> t
-            | OperationTypes.Sync, None -> typeof<unit>
-            | _ -> failwithf "unknown OperationTypes %O" method
+            | Async, Some t -> typedefof<Async<unit>>.MakeGenericType(t)
+            | Async, None -> typeof<Async<unit>>
+            | Task, Some t -> typedefof<Task<unit>>.MakeGenericType(t)
+            | Task, None -> typeof<Task<unit>>
+            | Sync, Some t -> t
+            | Sync, None -> typeof<unit>
 
-        [ for method in methodTypes do
+        let generateMethodName (baseName: string) (method: Methods) =
+            match method with
+            | Async | Task -> sprintf "%sAsync" baseName
+            | _ -> baseName        
+
+        let methods = [
+            yield Sync
+            if asAsync then yield Async 
+                       else yield Task
+        ]
+
+        [ for method in methods do
             let overallReturnType = generateReturnType retTy method
+            let methodName = generateMethodName methodName method
             let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
                 let thisTy = typeof<ProvidedSwaggerBaseType>
                 let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
@@ -237,13 +238,12 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 // if we're an async method, then we can just return the above, coerced to the overallReturnType.
                 // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
                 match method, retTy with
-                | OperationTypes.Async, Some t -> Expr.Coerce(<@ ReflectionHelper.asyncCast t %responseObj @>, overallReturnType)
-                | OperationTypes.Async, None -> responseUnit.Raw
-                | OperationTypes.Task, Some t -> Expr.Coerce(<@ ReflectionHelper.taskCast t %(task responseObj) @>, overallReturnType)
-                | OperationTypes.Task, None -> Expr.Coerce(task responseUnit, overallReturnType)
-                | OperationTypes.Sync, Some _ -> Expr.Coerce(sync responseObj, overallReturnType)
-                | OperationTypes.Sync, None -> Expr.Coerce(sync responseUnit, overallReturnType)
-                | _ -> failwithf "unknown OperationTypes %A" method
+                | Async, Some t -> Expr.Coerce(<@ ReflectionHelper.asyncCast t %responseObj @>, overallReturnType)
+                | Async, None -> responseUnit.Raw
+                | Task, Some t -> Expr.Coerce(<@ ReflectionHelper.taskCast t %(task responseObj) @>, overallReturnType)
+                | Task, None -> Expr.Coerce(task responseUnit, overallReturnType)
+                | Sync, Some _ -> Expr.Coerce(sync responseObj, overallReturnType)
+                | Sync, None -> Expr.Coerce(sync responseUnit, overallReturnType)
             )
             if not <| String.IsNullOrEmpty(op.Summary)
                 then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
