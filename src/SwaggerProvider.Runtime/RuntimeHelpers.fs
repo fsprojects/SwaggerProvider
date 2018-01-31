@@ -4,11 +4,22 @@ open System
 open Newtonsoft.Json
 
 open Swagger.Serialization
+open System.Threading.Tasks
 
 type ProvidedSwaggerBaseType (host:string) =
     member val Host = host with get, set
     member val Headers = Array.empty<string*string> with get, set
     member val CustomizeHttpRequest = (id:Net.HttpWebRequest -> Net.HttpWebRequest) with get, set
+
+type AsyncExtensions () =
+    static member cast<'t> asyncOp = async {
+        let! ret = asyncOp
+        let cast = box ret
+        return cast :?> 't
+    }
+
+type TaskExtensions () =
+    static member cast<'t> (task: Task<obj>): Task<'t> = task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)
 
 module RuntimeHelpers =
 
@@ -75,3 +86,13 @@ module RuntimeHelpers =
 
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
+
+    let asyncCast =
+        let castFn = typeof<AsyncExtensions>.GetMethod("cast")
+        fun runtimeTy (asyncOp: Async<obj>) ->
+            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|asyncOp|])
+
+    let taskCast =
+        let castFn = typeof<TaskExtensions>.GetMethod("cast")
+        fun runtimeTy (task: Task<obj>) ->
+            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])

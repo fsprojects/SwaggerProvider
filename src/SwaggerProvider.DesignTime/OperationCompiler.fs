@@ -1,5 +1,4 @@
-﻿namespace SwaggerProvider
-namespace SwaggerProvider.Internal.Compilers
+﻿namespace SwaggerProvider.Internal.Compilers
 
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
@@ -14,17 +13,6 @@ open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 open System.Threading.Tasks
-
-module ReflectionHelper = 
-    let asyncCast = 
-        let castFn = typeof<AsyncExtensions>.GetMethod("cast")
-        fun runtimeTy (asyncOp: Async<obj>) -> 
-            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|asyncOp|])
-
-    let taskCast = 
-        let castFn = typeof<TaskExtensions>.GetMethod("cast")
-        fun runtimeTy (task: Task<obj>) ->
-            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])
 
 type Methods =
 | Sync
@@ -237,9 +225,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 // if we're an async method, then we can just return the above, coerced to the overallReturnType.
                 // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
                 match method, retTy with
-                | Async, Some t -> Expr.Coerce(<@ ReflectionHelper.asyncCast t %responseObj @>, overallReturnType)
+                | Async, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
                 | Async, None -> responseUnit.Raw
-                | Task, Some t -> Expr.Coerce(<@ ReflectionHelper.taskCast t %(task responseObj) @>, overallReturnType)
+                | Task, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
                 | Task, None -> Expr.Coerce(task responseUnit, overallReturnType)
                 | Sync, Some _ -> Expr.Coerce(sync responseObj, overallReturnType)
                 | Sync, None -> Expr.Coerce(sync responseUnit, overallReturnType)
