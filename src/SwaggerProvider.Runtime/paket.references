@@ -1,6 +1,4 @@
-File: UriUtils.fs
-File: Http.fs
-
 FSharp.Core
 Newtonsoft.Json
 YamlDotNet
+Microsoft.Net.Http

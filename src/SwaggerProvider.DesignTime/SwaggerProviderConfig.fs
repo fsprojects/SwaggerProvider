@@ -3,7 +3,7 @@
 open System.Reflection
 open ProviderImplementation.ProvidedTypes
 open System
-open FSharp.Data
+open System.Net.Http
 open Swagger.Parser
 open SwaggerProvider.Internal.Compilers
 
@@ -62,10 +62,16 @@ module private SwaggerProviderConfig =
                                 then Some (pair.[0],pair.[1])
                                 else None
                             )
-                        Http.RequestString(schemaPathRaw, headers=headers,
-                            customizeHttpRequest = fun req ->
-                                req.Credentials <- Net.CredentialCache.DefaultNetworkCredentials
-                                req)
+                        let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
+                        for (name, value) in headers do 
+                            request.Headers.Add(name, value)
+                        // using a custom handler means that we can set the default credentials.
+                        let handler = new HttpClientHandler(UseDefaultCredentials = true)
+                        let client = new HttpClient(handler)
+                        async {
+                            let! response = client.SendAsync(request) |> Async.AwaitTask
+                            return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                        } |> Async.RunSynchronously
                     | false ->
                         schemaPathRaw |> IO.File.ReadAllText
 

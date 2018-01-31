@@ -104,7 +104,9 @@ let resolveReferencedAssembly (asmName:string) =
         else
           Logging.logf "...version mismatch, skipping"
           None
-      else None)
+      else 
+        Logging.logf <| sprintf "Didn't find library %s" libraryName 
+        None)
 
     if asm = None then Logging.logf <| sprintf "Assembly not found! %s" asmName
     defaultArg asm null

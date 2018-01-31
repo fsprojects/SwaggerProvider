@@ -6,13 +6,13 @@ open Swagger.Parser.Schema
 open Swagger.Internal
 
 open System
-open FSharp.Data
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
 open SwaggerProvider.Internal
-open System.Threading.Tasks
+open System.Net.Http
+open System.Collections.Generic
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool, asyncTy: Type, taskTy: Type) =
@@ -66,6 +66,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             else ProvidedTypeBuilder.MakeGenericType(taskTy, [retTy])
 
         let overallReturnType = generateReturnType (defaultArg retTy (typeof<unit>)) asAsync
+
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
             let thisTy = typeof<ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
@@ -152,53 +153,77 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
             let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
-            let restCall = op.Type.ToString()
+            let restCall = op.Type
+
+            let httpMethodForRestCall restCall = 
+                match restCall with
+                | Get -> HttpMethod.Get
+                | Put -> HttpMethod.Put
+                | Post -> HttpMethod.Post
+                | Delete -> HttpMethod.Delete
+                | Options -> HttpMethod.Options
+                | Head -> HttpMethod.Head
+                | Patch -> HttpMethod("Patch")
 
             let customizeHttpRequest =
-                <@ fun (request:Net.HttpWebRequest) ->
-                     if restCall = "Post"
-                         then request.ContentLength <- 0L
+                <@ fun (request:HttpRequestMessage) ->
+                     if restCall = Post && request.Content <> null
+                     then request.Content.Headers.ContentLength <- Nullable<_> 0L
                      (%customizeHttpRequest) request @>
 
             let innerReturnType = defaultArg retTy null
+
+            let httpRequestMessage = 
+                <@ 
+                   let requestUrl = 
+                    let uriB = UriBuilder %address
+                    let newQueries = %queries |> Seq.map (fun (name, value) -> sprintf "%s=%s" (Uri.EscapeDataString name) (Uri.EscapeDataString value)) |> String.concat "&"
+                    if String.IsNullOrEmpty uriB.Query
+                    then uriB.Query <- sprintf "%s&%s" uriB.Query newQueries
+                    else uriB.Query <- sprintf "%s?%s" uriB.Query newQueries 
+                    uriB.Uri
+                   let msg = new HttpRequestMessage(httpMethodForRestCall restCall, requestUrl)
+                   for (name, value) in %heads do msg.Headers.Add(name, value)
+                   msg @>
+
+            let sendMessage message = 
+                async {
+                    let! response = RuntimeHelpers.httpClient.SendAsync(message) |> Async.AwaitTask
+                    return! response.EnsureSuccessStatusCode().Content.ReadAsStringAsync() |> Async.AwaitTask
+                }
+
             let action = 
                 match payload with
                 | None ->
-                    <@ Http.AsyncRequestString(%address,
-                            httpMethod = restCall,
-                            headers = %heads,
-                            query = %queries,
-                            customizeHttpRequest = %customizeHttpRequest) @>
+                    <@ (%customizeHttpRequest) %httpRequestMessage |> sendMessage @>
                 | Some (FormData, b) ->
-                    <@ Http.AsyncRequestString(%address,
-                            httpMethod = restCall,
-                            headers = %heads,
-                            body = HttpRequestBody.FormValues (%%b: seq<string*string>),
-                            query = %queries,
-                            customizeHttpRequest = %customizeHttpRequest) @>
+                    <@ let keyValues = (%%b: seq<string*string>) |> Seq.map KeyValuePair
+                       let msg = %httpRequestMessage
+                       msg.Content <- new FormUrlEncodedContent(keyValues)
+                       let msg = (%customizeHttpRequest) msg
+                       sendMessage msg @>
                 | Some (Body, b)     ->
-                    <@ let body = RuntimeHelpers.serialize (%%b: obj)
-                       Http.AsyncRequestString(%address,
-                            httpMethod = restCall,
-                            headers = %heads,
-                            body = HttpRequestBody.TextRequest body,
-                            query = %queries,
-                            customizeHttpRequest = %customizeHttpRequest) @>
+                    <@ let content = new StringContent(RuntimeHelpers.serialize (%%b: obj), Text.Encoding.UTF8, "application/json")
+                       let msg = %httpRequestMessage
+                       msg.Content <- content
+                       let msg = (%customizeHttpRequest) msg
+                       sendMessage msg @>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
-            
+      
             let responseObj = 
                 <@ async {
                     let! response = %action
                     return RuntimeHelpers.deserialize response innerReturnType
-                } @>
+                   } @>
+
             let responseUnit =
                 <@ async {
                     let! _ = %action
                     return ()
                    } @>
             
-            let sync e = <@ Async.RunSynchronously(%e) @>
             let task t = <@ Async.StartAsTask(%t) @>
+
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
             // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
             match asAsync, retTy with
@@ -206,7 +231,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             | true, None -> responseUnit.Raw
             | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
             | false, None -> Expr.Coerce(task responseUnit, overallReturnType)
-        )
+            )
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
         if op.Deprecated

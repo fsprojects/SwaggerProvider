@@ -2,14 +2,14 @@
 
 open System
 open Newtonsoft.Json
-
 open Swagger.Serialization
 open System.Threading.Tasks
+open System.Net.Http
 
 type ProvidedSwaggerBaseType (host:string) =
     member val Host = host with get, set
     member val Headers = Array.empty<string*string> with get, set
-    member val CustomizeHttpRequest = (id:Net.HttpWebRequest -> Net.HttpWebRequest) with get, set
+    member val CustomizeHttpRequest = (id: HttpRequestMessage -> HttpRequestMessage) with get, set
 
 type AsyncExtensions () =
     static member cast<'t> asyncOp = async {
@@ -22,6 +22,10 @@ type TaskExtensions () =
     static member cast<'t> (task: Task<obj>): Task<'t> = task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)
 
 module RuntimeHelpers =
+    /// initialize a static httpclient because they are stateless as long as we don't mutate the DefaultHttpHeaders property. See https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/ and a billion other articles for why
+    ///
+    /// NOTE: DNS records for this HttpClient instance will remain stagnant once retrieved. This can be bad. We should probably convert this to some kind of factory function that swaps instances after a bit.
+    let httpClient = new HttpClient()
 
     let inline private toStrArray name values =
         values

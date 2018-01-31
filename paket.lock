@@ -6,6 +6,13 @@ NUGET
     Microsoft.OpenApi.Readers (1.0.0-beta014)
       Microsoft.OpenApi (>= 1.0.0-beta014) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
       SharpYaml (>= 1.6.1) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+
+    Microsoft.Bcl (1.1.10)
+      Microsoft.Bcl.Build (>= 1.0.14)
+    Microsoft.Bcl.Build (1.0.21) - import_targets: false
+    Microsoft.Net.Http (2.2.29)
+      Microsoft.Bcl (>= 1.1.10)
+      Microsoft.Bcl.Build (>= 1.0.14)
     Newtonsoft.Json (10.0.3)
     SharpYaml (1.6.2) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
     YamlDotNet (4.3)
@@ -13,8 +20,6 @@ GITHUB
   remote: fsharp/FSharp.Data
     src/CommonRuntime/NameUtils.fs (d7b754ddec038209bca7709994289454db1e395e)
     src/CommonRuntime/Pluralizer.fs (d7b754ddec038209bca7709994289454db1e395e)
-    src/Net/Http.fs (d7b754ddec038209bca7709994289454db1e395e)
-    src/Net/UriUtils.fs (d7b754ddec038209bca7709994289454db1e395e)
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (059ed4fcf4f4d7587331574092777e65337a95db)
     src/ProvidedTypes.fsi (059ed4fcf4f4d7587331574092777e65337a95db)
