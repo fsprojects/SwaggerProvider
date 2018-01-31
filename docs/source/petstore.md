@@ -18,8 +18,11 @@ When you use TP you can specify following parameters
 | Parameter | Description |
 |-----------|-------------|
 | `Schema` | Url or Path to Swagger schema file. By default relative file paths will based off the IDE execution directory. `__SOURCE_DIRECTORY__` can be used to make the path relative to the location of the source file. For example `let [<Literal>]schema = __SOURCE_DIRECTORY__ + "./../APIDefs/swagger.json"`will navigate up one directory and down into APIDefs.|
-| `Headers` | Headers that will be used to access the schema |
-| `IgnoreOperationId` | `IgnoreOperationId` tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false` |
+| `Headers` | Headers that will be used to access the schema. |
+| `IgnoreOperationId` | `IgnoreOperationId` tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`. |
+| `IgnoreControllerPrefix` | Instead of generating one client per controller, generate one client and attach all operations to it. Default value `false`. |
+| `PreferNullable` | Generate `Nullable<_>` properties instead of `Option<_>`. Default value `false`. |
+| `PreferAsync` | Generate return types as `Async<_>` instead of `Task<_>`. Default value `false` |
 
 ### Generated constructor
 
@@ -62,34 +65,42 @@ Instantiate the types provided by the SwaggerProvider.
 
 Invoke the Swagger operations using `petStore` instance.
 
-    let f = petStore.GetPetById(6L)
-    f.Category
-    f.Name <- "Hans"
-    f.Tags <- Array.append f.Tags [|tag|]
+    async {
+      let! f = petStore.GetPetById(6L)
+      f.Category <- PetStore.Category(Id = Some 1337L, Name = "dog")
+      f.Name <- "Hans"
+      f.Tags <- Array.append f.Tags [|tag|]
 
-    petStore.AddPet(pet)
-    let x = petStore.FindPetsByTags([|"tag1"|])
-    Array.length x
+      let! pet = petStore.AddPet(pet)
+      let! x = petStore.FindPetsByTags([|"tag1"|])
+      Array.length x
 
-    petStore.UpdatePetWithForm(-1L, "name", "sold")
-    petStore.GetPetById(1337L)
+      do! petStore.UpdatePetWithForm(-1L, "name", "sold")
+      let! leetPet = petStore.GetPetById(1337L)
 
-    let h = petStore.FindPetsByStatus([|"pending";"sold"|])
-    h.ToString()
-    let i = petStore.FindPetsByTags([|"tag2"|])
-    i.ToString()
+      let! h = petStore.FindPetsByStatus([|"pending";"sold"|])
+      h.ToString()
+      let! i = petStore.FindPetsByTags([|"tag2"|])
+      i.ToString()
 
-    petStore.GetInventory().ToString()
-    petStore.GetOrderById(3L).ToString()
+      let! inventory = petStore.GetInventory()
+      inventory.ToString()
+      let! order = petStore.GetOrderById(3L)
+      order.ToString()
 
-    petStore.GetPetById(14L).ToString()
-    petStore.DeletePet(14L, "no-key").ToString()
-    petStore.GetPetById(14L).ToString()
+      let! ``14`` = petStore.GetPetById(14L)
+      ``14``.ToString()
+      do! petStore.DeletePet(14L, "no-key")
+      // throws, the pet no longer exists!
+      let! pet = petStore.GetPetById(14L)
 
-
-    PetStore.Pet.GetPetById(14L).ToString()
-    PetStore.Pet.DeletePet(14L, "no-key").ToString()
-    PetStore.Pet.GetPetById(14L).ToString()
+      let! ``14`` = PetStore.Pet.GetPetById(14L)
+      ``14``.ToString()
+      // throws, the pet no longer exists!
+      do! PetStore.Pet.DeletePet(14L, "no-key")
+      let! ``14`` = PetStore.Pet.GetPetById(14L)
+      ``14``.ToString()
+    }
 
 Enjoy!
 

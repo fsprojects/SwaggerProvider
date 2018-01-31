@@ -14,11 +14,6 @@ open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 open System.Threading.Tasks
 
-type Methods =
-| Sync
-| Async
-| Task
-
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (methodName:string) (op:OperationObject) =
@@ -66,178 +61,160 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | Some ty -> Some <| defCompiler.CompileTy methodName "Response" ty true
             | None -> None
         
-        let generateReturnType (t: Type option) (method: Methods) = 
-            match method, t with
-            | Async, Some t -> typedefof<Async<unit>>.MakeGenericType(t)
-            | Async, None -> typeof<Async<unit>>
-            | Task, Some t -> typedefof<Task<unit>>.MakeGenericType(t)
-            | Task, None -> typeof<Task<unit>>
-            | Sync, Some t -> t
-            | Sync, None -> typeof<unit>
+        let generateReturnType (t: Type option) asAsync = 
+            match asAsync, t with
+            | true, Some t -> typedefof<Async<unit>>.MakeGenericType(t)
+            | true, None -> typeof<Async<unit>>
+            | false, Some t -> typedefof<Task<unit>>.MakeGenericType(t)
+            | false, None -> typeof<Task<unit>>
 
-        let generateMethodName (baseName: string) (method: Methods) =
-            match method with
-            | Async | Task -> sprintf "%sAsync" baseName
-            | _ -> baseName        
+        let overallReturnType = generateReturnType retTy asAsync
+        let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
+            let thisTy = typeof<ProvidedSwaggerBaseType>
+            let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
+            let host = <@ (%this).Host @>
+            let headers = <@ (%this).Headers @>
+            let customizeHttpRequest = <@ (%this).CustomizeHttpRequest @> 
+            
+            let basePath =
+                let basePath = schema.BasePath
+                <@ RuntimeHelpers.combineUrl %host basePath @>
 
-        let methods = [
-            yield Sync
-            if asAsync then yield Async 
-                       else yield Task
-        ]
+            // Fit headers into quotation
+            let headers =
+                let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
+                <@ let ctHeaderExist = %headers |> Array.exists (fun (h,_)->h="Content-Type")
+                   if not(ctHeaderExist) && jsonConsumable
+                   then Array.append [|"Content-Type","application/json"|] %headers
+                   else %headers @>
 
-        [ for method in methods do
-            let overallReturnType = generateReturnType retTy method
-            let methodName = generateMethodName methodName method
-            let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
-                let thisTy = typeof<ProvidedSwaggerBaseType>
-                let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
-                let host = <@ (%this).Host @>
-                let headers = <@ (%this).Headers @>
-                let customizeHttpRequest = <@ (%this).CustomizeHttpRequest @> 
-                
-                let basePath =
-                    let basePath = schema.BasePath
-                    <@ RuntimeHelpers.combineUrl %host basePath @>
+            // Locates parameters matching the arguments
+            let parameters =
+                List.tail args // skip `this` param
+                |> List.map (function
+                    | ShapeVar sVar as expr ->
+                        let param =
+                            op.Parameters
+                            |> Array.find (fun x -> 
+                                // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
+                                let baseName = niceCamelName x.Name
+                                baseName = sVar.Name || x.UnambiguousName = sVar.Name )
+                        param, expr
+                    | _  ->
+                        failwithf "Function '%s' does not support functions as arguments." methodName
+                    )
 
-                // Fit headers into quotation
-                let headers =
-                    let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
-                    <@ let ctHeaderExist = %headers |> Array.exists (fun (h,_)->h="Content-Type")
-                       if not(ctHeaderExist) && jsonConsumable
-                       then Array.append [|"Content-Type","application/json"|] %headers
-                       else %headers @>
+            // Makes argument a string // TODO: Make body an exception
+            let coerceString defType (format : CollectionFormat) exp =
+                let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
+                <@ (%obj).ToString() @>
 
-                // Locates parameters matching the arguments
-                let parameters =
-                    List.tail args // skip `this` param
-                    |> List.map (function
-                        | ShapeVar sVar as expr ->
-                            let param =
-                                op.Parameters
-                                |> Array.find (fun x -> 
-                                    // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
-                                    let baseName = niceCamelName x.Name
-                                    baseName = sVar.Name || x.UnambiguousName = sVar.Name )
-                            param, expr
-                        | _  ->
-                            failwithf "Function '%s' does not support functions as arguments." methodName
-                        )
+            let rec corceQueryString name expr =
+                let obj = Expr.Coerce(expr, typeof<obj>)
+                <@ let o = (%%obj : obj)
+                   RuntimeHelpers.toQueryParams name o @>
 
-                // Makes argument a string // TODO: Make body an exception
-                let coerceString defType (format : CollectionFormat) exp =
-                    let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                    <@ (%obj).ToString() @>
+            let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
+                <@ Regex.Replace(%path, sprintf "{%s}" name, %value) @>
 
-                let rec corceQueryString name expr =
-                    let obj = Expr.Coerce(expr, typeof<obj>)
-                    <@ let o = (%%obj : obj)
-                       RuntimeHelpers.toQueryParams name o @>
+            let addPayload load (param : ParameterObject) (exp : Expr) =
+                let name = param.Name
+                let var = coerceString param.Type param.CollectionFormat exp
+                match load with
+                | Some (FormData, b) -> Some (FormData, <@@ Seq.append %%b [name, (%var : string)] @@>)
+                | None               -> match param.In with
+                                        | Body -> Some (Body, Expr.Coerce (exp, typeof<obj>))
+                                        | _    -> Some (FormData, <@@ (seq [name, (%var : string)]) @@>)
+                | _                  -> failwith ("Can only contain one payload")
 
-                let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
-                    <@ Regex.Replace(%path, sprintf "{%s}" name, %value) @>
+            let addQuery (quer: Expr<(string*string) list>) name (exp : Expr) =
+                let listValues = corceQueryString name exp
+                <@ List.append %quer %listValues @>
 
-                let addPayload load (param : ParameterObject) (exp : Expr) =
-                    let name = param.Name
-                    let var = coerceString param.Type param.CollectionFormat exp
-                    match load with
-                    | Some (FormData, b) -> Some (FormData, <@@ Seq.append %%b [name, (%var : string)] @@>)
-                    | None               -> match param.In with
-                                            | Body -> Some (Body, Expr.Coerce (exp, typeof<obj>))
-                                            | _    -> Some (FormData, <@@ (seq [name, (%var : string)]) @@>)
-                    | _                  -> failwith ("Can only contain one payload")
+            let addHeader (heads: Expr<(string * string) []>) name (value: Expr<string>) =
+                <@ Array.append %heads [|name, %value|] @>
 
-                let addQuery (quer: Expr<(string*string) list>) name (exp : Expr) =
-                    let listValues = corceQueryString name exp
-                    <@ List.append %quer %listValues @>
+            // Partitions arguments based on their locations
+            let (path, payload, queries, heads) =
+                let mPath = op.Path
+                parameters
+                |> List.fold (
+                    fun (path, load, quer, head) (param : ParameterObject, exp) ->
+                        let name = param.Name
+                        match param.In with
+                        | Path   -> 
+                            let value = coerceString param.Type param.CollectionFormat exp
+                            (replacePathTemplate path name value, load, quer, head)
+                        | FormData
+                        | Body   -> (path, addPayload load param exp, quer, head)
+                        | Query  -> (path, load, addQuery quer name exp, head)
+                        | Header -> 
+                            let value = coerceString param.Type param.CollectionFormat exp
+                            (path, load, quer, addHeader head name value)
+                    )
+                    ( <@ mPath @>, None, <@ [] @>, headers)
 
-                let addHeader (heads: Expr<(string * string) []>) name (value: Expr<string>) =
-                    <@ Array.append %heads [|name, %value|] @>
+            let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
+            let restCall = op.Type.ToString()
 
-                // Partitions arguments based on their locations
-                let (path, payload, queries, heads) =
-                    let mPath = op.Path
-                    parameters
-                    |> List.fold (
-                        fun (path, load, quer, head) (param : ParameterObject, exp) ->
-                            let name = param.Name
-                            match param.In with
-                            | Path   -> 
-                                let value = coerceString param.Type param.CollectionFormat exp
-                                (replacePathTemplate path name value, load, quer, head)
-                            | FormData
-                            | Body   -> (path, addPayload load param exp, quer, head)
-                            | Query  -> (path, load, addQuery quer name exp, head)
-                            | Header -> 
-                                let value = coerceString param.Type param.CollectionFormat exp
-                                (path, load, quer, addHeader head name value)
-                        )
-                        ( <@ mPath @>, None, <@ [] @>, headers)
+            let customizeHttpRequest =
+                <@ fun (request:Net.HttpWebRequest) ->
+                     if restCall = "Post"
+                         then request.ContentLength <- 0L
+                     (%customizeHttpRequest) request @>
 
-                let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
-                let restCall = op.Type.ToString()
-
-                let customizeHttpRequest =
-                    <@ fun (request:Net.HttpWebRequest) ->
-                         if restCall = "Post"
-                             then request.ContentLength <- 0L
-                         (%customizeHttpRequest) request @>
-
-                let innerReturnType = defaultArg retTy null
-                let action = 
-                    match payload with
-                    | None ->
-                        <@ Http.AsyncRequestString(%address,
-                                httpMethod = restCall,
-                                headers = %heads,
-                                query = %queries,
-                                customizeHttpRequest = %customizeHttpRequest) @>
-                    | Some (FormData, b) ->
-                        <@ Http.AsyncRequestString(%address,
-                                httpMethod = restCall,
-                                headers = %heads,
-                                body = HttpRequestBody.FormValues (%%b: seq<string*string>),
-                                query = %queries,
-                                customizeHttpRequest = %customizeHttpRequest) @>
-                    | Some (Body, b)     ->
-                        <@ let body = RuntimeHelpers.serialize (%%b: obj)
-                           Http.AsyncRequestString(%address,
-                                httpMethod = restCall,
-                                headers = %heads,
-                                body = HttpRequestBody.TextRequest body,
-                                query = %queries,
-                                customizeHttpRequest = %customizeHttpRequest) @>
-                    | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
-                
-                let responseObj = 
-                    <@ async {
-                        let! response = %action
-                        return RuntimeHelpers.deserialize response innerReturnType
-                    } @>
-                let responseUnit =
-                    <@ async {
-                        let! _ = %action
-                        return ()
-                       } @>
-                
-                let sync e = <@ Async.RunSynchronously(%e) @>
-                let task t = <@ Async.StartAsTask(%t) @>
-                // if we're an async method, then we can just return the above, coerced to the overallReturnType.
-                // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
-                match method, retTy with
-                | Async, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
-                | Async, None -> responseUnit.Raw
-                | Task, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
-                | Task, None -> Expr.Coerce(task responseUnit, overallReturnType)
-                | Sync, Some _ -> Expr.Coerce(sync responseObj, overallReturnType)
-                | Sync, None -> Expr.Coerce(sync responseUnit, overallReturnType)
-            )
-            if not <| String.IsNullOrEmpty(op.Summary)
-                then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
-            if op.Deprecated
-                then m.AddObsoleteAttribute("Operation is deprecated", false)
-            yield m
-        ]
+            let innerReturnType = defaultArg retTy null
+            let action = 
+                match payload with
+                | None ->
+                    <@ Http.AsyncRequestString(%address,
+                            httpMethod = restCall,
+                            headers = %heads,
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>
+                | Some (FormData, b) ->
+                    <@ Http.AsyncRequestString(%address,
+                            httpMethod = restCall,
+                            headers = %heads,
+                            body = HttpRequestBody.FormValues (%%b: seq<string*string>),
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>
+                | Some (Body, b)     ->
+                    <@ let body = RuntimeHelpers.serialize (%%b: obj)
+                       Http.AsyncRequestString(%address,
+                            httpMethod = restCall,
+                            headers = %heads,
+                            body = HttpRequestBody.TextRequest body,
+                            query = %queries,
+                            customizeHttpRequest = %customizeHttpRequest) @>
+                | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
+            
+            let responseObj = 
+                <@ async {
+                    let! response = %action
+                    return RuntimeHelpers.deserialize response innerReturnType
+                } @>
+            let responseUnit =
+                <@ async {
+                    let! _ = %action
+                    return ()
+                   } @>
+            
+            let sync e = <@ Async.RunSynchronously(%e) @>
+            let task t = <@ Async.StartAsTask(%t) @>
+            // if we're an async method, then we can just return the above, coerced to the overallReturnType.
+            // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
+            match asAsync, retTy with
+            | true, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
+            | true, None -> responseUnit.Raw
+            | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
+            | false, None -> Expr.Coerce(task responseUnit, overallReturnType)
+        )
+        if not <| String.IsNullOrEmpty(op.Summary)
+            then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
+        if op.Deprecated
+            then m.AddObsoleteAttribute("Operation is deprecated", false)
+        m
 
     static member GetMethodNameCandidate (op:OperationObject) skipLength ignoreOperationId =
         if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)
@@ -284,7 +261,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     BaseConstructorCall = fun args -> (baseCtor, args))
 
             let methodNameScope = UniqueNameGenerator()
-            operations |> List.collect (fun op ->
+            operations |> List.map (fun op ->
                 let skipLength = if String.IsNullOrEmpty clientName then 0 else clientName.Length + 1
                 let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
                 compileOperation (methodNameScope.MakeUnique name) op)
