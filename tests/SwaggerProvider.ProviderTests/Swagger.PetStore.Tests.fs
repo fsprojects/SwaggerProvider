@@ -4,7 +4,7 @@ open SwaggerProvider
 open Expecto
 open System
 
-type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", AsyncInsteadOfTask = true>
+type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", PreferAsync = true>
 type PetStoreNullable = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", ProvideNullable = true>
 let store = PetStore.Client()
 let apiKey = "test-key"
@@ -30,7 +30,7 @@ let petStoreTests =
 
     testCaseAsync "call provided methods" <| async {
         try
-            do! store.DeletePetAsync(1337L, Some apiKey)
+            do! store.DeletePet(1337L, Some apiKey)
         with
         | _ -> ()
 
@@ -40,11 +40,11 @@ let petStoreTests =
         Expect.stringContains (pet.ToString()) "1337" "ToString"
 
         try
-            do! store.AddPetAsync(pet)
+            do! store.AddPet(pet)
         with
         | exn -> failwithf "Adding pet failed with message: %s" exn.Message
 
-        let! pet2 = store.GetPetByIdAsync(1337L)
+        let! pet2 = store.GetPetById(1337L)
         Expect.equal pet.Name     pet2.Name     "same Name"
         Expect.equal pet.Id       pet.Id        "same Id"
         Expect.equal pet.Category pet2.Category "same Category"

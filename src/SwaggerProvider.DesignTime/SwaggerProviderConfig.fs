@@ -28,7 +28,7 @@ module private SwaggerProviderConfig =
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
               ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)
-              ProvidedStaticParameter("AsyncInsteadOfTask", typeof<bool>, false)]
+              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)]
 
         //TODO: Add use operationID flag
         swaggerProvider.AddXmlDoc
@@ -37,8 +37,8 @@ module private SwaggerProviderConfig =
                <param name='Headers'>Headers that will be used to access the schema.</param>
                <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
                <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
-               <param name='ProvideNullable'>Provide `Nullable<_>` for not requiried properties, instread of `Option<_>`</param>
-               <param name='AsyncInsteadOfTask'>AsyncInsteadOfTask tells the SwaggerProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
+               <param name='ProvideNullable'>Provide `Nullable<_>` for not required properties, instread of `Option<_>`</param>
+               <param name='PreferAsync'>PreferAsync tells the SwaggerProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
 
         swaggerProvider.DefineStaticParameters(
             parameters=staticParams,

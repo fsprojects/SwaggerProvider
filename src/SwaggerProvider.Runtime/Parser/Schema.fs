@@ -146,7 +146,7 @@ type ParameterObject =
       CollectionFormat: CollectionFormat
     }
     with
-        member x.UnambiguousName = sprintf "%s%A" x.Name x.In
+        member x.UnambiguousName = sprintf "%sIn%A" x.Name x.In
 
 
 /// Describes a single response from an API Operation.

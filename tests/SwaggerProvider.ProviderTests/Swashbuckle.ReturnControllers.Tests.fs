@@ -4,7 +4,7 @@ open Expecto
 open SwaggerProvider
 open System
 
-type WebAPI = SwaggerProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true, AsyncInsteadOfTask = true>
+type WebAPI = SwaggerProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true, PreferAsync = true>
 let api = WebAPI.Client()
 
 let shouldEqual expected actual =
@@ -21,134 +21,134 @@ let returnControllersTests =
   testList "All/Swashbuckle.ReturnControllers.Tests" [
 
     testCaseAsync "Return Bool GET Test" <| 
-        (api.GetApiReturnBooleanAsync()
+        (api.GetApiReturnBoolean()
          |> asyncEqual true)
 
     testCaseAsync "Return Bool POST Test" <| 
-        (api.PostApiReturnBooleanAsync()
+        (api.PostApiReturnBoolean()
          |> asyncEqual true)
 
 
     testCaseAsync "Return Int32 GET Test" <| 
-        (api.GetApiReturnInt32Async()
+        (api.GetApiReturnInt32()
          |> asyncEqual 42)
 
     testCaseAsync "Return Int32 POST Test" <| 
-        (api.PostApiReturnInt32Async()
+        (api.PostApiReturnInt32()
          |> asyncEqual 42)
 
 
     testCaseAsync "Return Int64 GET Test" <| 
-        (api.GetApiReturnInt64Async()
+        (api.GetApiReturnInt64()
          |> asyncEqual 42L)
 
     testCaseAsync "Return Int64 POST Test" <| 
-        (api.PostApiReturnInt64Async()
+        (api.PostApiReturnInt64()
          |> asyncEqual 42L)
 
 
     testCaseAsync "Return Float GET Test" <| 
-        (api.GetApiReturnFloatAsync()
+        (api.GetApiReturnFloat()
          |> asyncEqual 42.0f)
 
     testCaseAsync "Return Float POST Test" <| 
-        (api.PostApiReturnFloatAsync()
+        (api.PostApiReturnFloat()
          |> asyncEqual 42.0f)
 
 
     testCaseAsync "Return Double GET Test" <| 
-        (api.GetApiReturnDoubleAsync()
+        (api.GetApiReturnDouble()
          |> asyncEqual 42.0)
 
     testCaseAsync "Return Double POST Test" <| 
-        (api.PostApiReturnDoubleAsync()
+        (api.PostApiReturnDouble()
          |> asyncEqual 42.0)
 
 
     testCaseAsync "Return String GET Test" <| 
-        (api.GetApiReturnStringAsync()
+        (api.GetApiReturnString()
          |> asyncEqual "Hello world")
 
     testCaseAsync "Return String POST Test" <| 
-        (api.PostApiReturnStringAsync()
+        (api.PostApiReturnString()
          |> asyncEqual "Hello world")
 
 
     testCaseAsync "Return DateTime GET Test" <| 
-        (api.GetApiReturnDateTimeAsync()
+        (api.GetApiReturnDateTime()
          |> asyncEqual (DateTime(2015,1,1)))
 
     testCaseAsync "Return DateTime POST Test" <| 
-        (api.PostApiReturnDateTimeAsync()
+        (api.PostApiReturnDateTime()
          |> asyncEqual (DateTime(2015,1,1)))
 
 
     testCaseAsync "Return Enum GET Test" <| 
-        (api.GetApiReturnEnumAsync()
+        (api.GetApiReturnEnum()
          |> asyncEqual "1")
 
     testCaseAsync "Return Enum POST Test" <| 
-        (api.PostApiReturnEnumAsync()
+        (api.PostApiReturnEnum()
          |> asyncEqual "1")
 
 
     testCaseAsync "Return Array Int GET Test" <| 
-        (api.GetApiReturnArrayIntAsync()
+        (api.GetApiReturnArrayInt()
          |> asyncEqual [|1;2;3|])
 
     testCaseAsync "Return Array Int POST Test" <| 
-        (api.PostApiReturnArrayIntAsync()
+        (api.PostApiReturnArrayInt()
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Return Array Enum GET Test" <| 
-        (api.GetApiReturnArrayEnumAsync()
+        (api.GetApiReturnArrayEnum()
          |> asyncEqual [|"1";"2"|])
 
     testCaseAsync "Return Array Enum POST Test" <| 
-        (api.PostApiReturnArrayEnumAsync()
+        (api.PostApiReturnArrayEnum()
          |> asyncEqual [|"1";"2"|])
 
 
     testCaseAsync "Return List Int GET Test" <| 
-        (api.GetApiReturnListIntAsync()
+        (api.GetApiReturnListInt()
          |> asyncEqual [|1;2;3|])
 
     testCaseAsync "Return List Int POST Test" <| 
-        (api.PostApiReturnListIntAsync()
+        (api.PostApiReturnListInt()
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Return Seq Int GET Test" <| 
-        (api.GetApiReturnSeqIntAsync()
+        (api.GetApiReturnSeqInt()
          |> asyncEqual [|1;2;3|])
 
     testCaseAsync "Return Seq Int POST Test" <| 
-        (api.PostApiReturnSeqIntAsync()
+        (api.PostApiReturnSeqInt()
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Return Object Point GET Test" <| async {
-        let! point = api.GetApiReturnObjectPointClassAsync()
+        let! point = api.GetApiReturnObjectPointClass()
         point.X  |> shouldEqual (Some(0))
         point.Y  |> shouldEqual (Some(0))
     }
 
     testCaseAsync "Return Object Point POST Test" <| async {
-        let! point = api.PostApiReturnObjectPointClassAsync()
+        let! point = api.PostApiReturnObjectPointClass()
         point.X  |> shouldEqual (Some(0))
         point.Y  |> shouldEqual (Some(0))
     }
 
 
     testCaseAsync "Return FileDescription GET Test" <| async {
-        let! file = api.GetApiReturnFileDescriptionAsync()
+        let! file = api.GetApiReturnFileDescription()
         file.Name  |> shouldEqual (Some "1.txt")
         file.Bytes  |> shouldEqual (Some [|1uy;2uy;3uy|])
     }
 
     testCaseAsync "Return FileDescription POST Test" <| async {
-        let! file = api.PostApiReturnFileDescriptionAsync()
+        let! file = api.PostApiReturnFileDescription()
         file.Name  |> shouldEqual (Some "1.txt")
         file.Bytes  |> shouldEqual (Some [|1uy;2uy;3uy|])
     }
