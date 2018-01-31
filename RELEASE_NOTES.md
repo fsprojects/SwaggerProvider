@@ -1,4 +1,4 @@
-#### 0.10.0-alpha8 - January 21, 2018
+#### 0.10.0-alpha9 - January 31, 2018
 - Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet
@@ -7,8 +7,9 @@
 - Option/Nullable types for not required properties [#93](https://github.com/fsprojects/SwaggerProvider/pull/93)
 - `Http.fs` is moved to `SwaggerProvider.Runtime.dll` and `nicePascalName` applied to provided types, because FSI cannot load types with special characters in name (like `[` and `]`) - fix for [#94](https://github.com/fsprojects/SwaggerProvider/issues/94)
 - Provide namespaces as nested types [#96](https://github.com/fsprojects/SwaggerProvider/issues/96)
-- Added ability to generate multiple clients (one per controller) This feature is turned off by default and is controlled by `IgnoreControllerPrefix` parameter [45](https://github.com/fsprojects/SwaggerProvider/issues/45#issuecomment-240554229)
+- Added ability to generate multiple clients (one per controller) This feature is turned off by default and is controlled by `IgnoreControllerPrefix` parameter [#45](https://github.com/fsprojects/SwaggerProvider/issues/45#issuecomment-240554229)
 - Supported parsing of schemas with inheritance in types defined inside operation parameters
+- Added Async & Task-based calls for the Operations [#21](https://github.com/fsprojects/SwaggerProvider/issues/21)
 
 #### 0.8.2 - January 19, 2017
 * Fix probing locations [#97](https://github.com/fsprojects/SwaggerProvider/pull/97)
