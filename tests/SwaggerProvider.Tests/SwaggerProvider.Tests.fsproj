@@ -154,7 +154,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
         <Reference Include="Argu">
-          <HintPath>..\..\packages\test\Argu\lib\net40\Argu.dll</HintPath>
+          <HintPath>..\..\packages\test\Argu\lib\net45\Argu.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
