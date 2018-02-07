@@ -114,7 +114,7 @@ let parserTestBody formatParser (url:string) =
         //Number of generated types may be less than number of type definition in schema
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
         let defCompiler = DefinitionCompiler(schema, false)
-        let opCompiler = OperationCompiler(schema, defCompiler, true, false, asAsync = true)
+        let opCompiler = OperationCompiler(schema, defCompiler, true, false, true, typedefof<Async<_>>, typedefof<System.Threading.Tasks.Task<_>>)
         opCompiler.CompileProvidedClients(defCompiler.Namespace)
         ignore <| defCompiler.Namespace.GetProvidedTypes()
 

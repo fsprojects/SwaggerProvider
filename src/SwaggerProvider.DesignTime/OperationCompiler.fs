@@ -15,7 +15,7 @@ open SwaggerProvider.Internal
 open System.Threading.Tasks
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool, asyncTy: Type, taskTy: Type) =
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
@@ -61,14 +61,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | Some ty -> Some <| defCompiler.CompileTy methodName "Response" ty true
             | None -> None
         
-        let generateReturnType (t: Type option) asAsync = 
-            match asAsync, t with
-            | true, Some t -> typedefof<Async<unit>>.MakeGenericType(t)
-            | true, None -> typeof<Async<unit>>
-            | false, Some t -> typedefof<Task<unit>>.MakeGenericType(t)
-            | false, None -> typeof<Task<unit>>
+        let generateReturnType (retTy: Type) asAsync = 
+            if asAsync then asyncTy.MakeGenericType(retTy)
+            else taskTy.MakeGenericType(retTy)
 
-        let overallReturnType = generateReturnType retTy asAsync
+        let overallReturnType = generateReturnType (defaultArg retTy (typeof<unit>)) asAsync
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
             let thisTy = typeof<ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
