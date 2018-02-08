@@ -9,7 +9,7 @@ open System.Collections.Generic
 
 type Logging() =
     static member logf (s:string) =
-        ()//System.IO.File.AppendAllLines(@"c:\swaggerlog.txt", [|s|])
+        ()//System.IO.File.AppendAllLines(@"c:\temp\swaggerlog.txt", [|s|])
 
 /// Returns the Assembly object of SwaggerProvider.Runtime.dll (this needs to
 /// work when called from SwaggerProvider.DesignTime.dll)
@@ -55,12 +55,14 @@ let getProbingLocations() =
     let pattern = config.AppSettings.Settings.["ProbingLocations"]
     if pattern <> null then
       Logging.logf <| sprintf "Pattern %s" pattern.Value
-      [ yield root
+      let rootDir = Path.GetDirectoryName(root) 
+      [ yield rootDir
         let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
         for pat in pattern do
-          let roots = [ Path.GetDirectoryName(root) ]
+          let roots = [ rootDir ]
           for dir in roots |> searchDirectories (List.ofSeq (pat.Split('/','\\'))) do
-            if Directory.Exists(dir) then yield dir ]
+            if Directory.Exists(dir) 
+            then yield Path.GetFullPath(dir) ]
     else []
   with :? ConfigurationErrorsException | :? KeyNotFoundException -> []
 
@@ -104,5 +106,5 @@ let resolveReferencedAssembly (asmName:string) =
           None
       else None)
 
-    if asm = None then Logging.logf "Assembly not found!"
+    if asm = None then Logging.logf <| sprintf "Assembly not found! %s" asmName
     defaultArg asm null

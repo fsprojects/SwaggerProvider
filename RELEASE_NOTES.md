@@ -1,4 +1,4 @@
-#### 0.10.0-alpha10 - February 7, 2018
+#### 0.10.0-beta02 - February 7, 2018
 - Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet

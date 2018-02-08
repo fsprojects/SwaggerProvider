@@ -17,7 +17,7 @@ requireLicenseAcceptance
 copyright
     Copyright 2015-2018
 tags
-    F# fsharp data typeprovider Swagger API REST
+    F# fsharp data typeprovider Swagger API REST OpenAPI
 summary
     F# Type Provider for Swagger
 description
