@@ -48,7 +48,11 @@ let schemaUrls =
 
 let private ignoredPrefList =
     [
-     // Following schemas require additional investigation and fixes
+    // Following schemas require additional investigation and fixes
+
+    // System.Exception: Reference to unknown type #/definitions/CalendarEventResource/properties/attributes
+    // at Swagger.Parser.Parsers.|IsComposition|_|@209(Dictionary`2 definitions, SchemaNode obj) in C:\projects\swaggerprovider\src\SwaggerProvider.Runtime\Parser\Parsers.fs:line 214
+    "https://api.apis.guru/v2/specs/twinehealth.com/"
     ]
 let private skipIgnored (url:string) =
     ignoredPrefList
