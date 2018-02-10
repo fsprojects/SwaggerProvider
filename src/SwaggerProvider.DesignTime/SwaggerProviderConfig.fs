@@ -77,16 +77,8 @@ module private SwaggerProviderConfig =
                 ty.AddXmlDoc ("Swagger Provider for " + schema.Host)
                 ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
-                let resolveTy asm ty = 
-                    match ctx.TryBindSimpleAssemblyNameToTarget asm with
-                    | Choice1Of2 asm -> asm.GetType(ty)
-                    | Choice2Of2 err -> raise err
-                
-                let asyncTy = resolveTy "FSharp.Core" "Microsoft.FSharp.Control.FSharpAsync`1"
-                let taskTy = resolveTy "mscorlib" "System.Threading.Tasks.Task`1" 
-
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
-                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync, asyncTy, taskTy)
+                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync, typedefof<Async<unit>>, typedefof<System.Threading.Tasks.Task<unit>>)
 
                 opCompiler.CompileProvidedClients(defCompiler.Namespace)
                 ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types
