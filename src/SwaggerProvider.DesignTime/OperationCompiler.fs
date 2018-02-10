@@ -62,8 +62,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             | None -> None
         
         let generateReturnType (retTy: Type) asAsync = 
-            if asAsync then asyncTy.MakeGenericType(retTy)
-            else taskTy.MakeGenericType(retTy)
+            if asAsync then ProvidedTypeBuilder.MakeGenericType(asyncTy, [retTy])
+            else ProvidedTypeBuilder.MakeGenericType(taskTy, [retTy])
 
         let overallReturnType = generateReturnType (defaultArg retTy (typeof<unit>)) asAsync
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
