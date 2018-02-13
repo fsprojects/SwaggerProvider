@@ -26,6 +26,9 @@ files
     ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net45
     SwaggerProvider.fsx ==> .
 dependencies
-    FSharp.Core >= 4.0.0
-    Newtonsoft.Json ~> 10.0
-    YamlDotNet ~> 4.3.0
+    FSharp.Core ~> LOCKEDVERSION
+    Newtonsoft.Json ~> LOCKEDVERSION
+    YamlDotNet ~> LOCKEDVERSION
+references
+    SwaggerProvider.dll
+    SwaggerProvider.Runtime.dll
