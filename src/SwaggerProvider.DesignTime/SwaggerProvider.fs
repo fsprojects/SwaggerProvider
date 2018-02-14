@@ -17,8 +17,6 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
       AppDomain.CurrentDomain.add_AssemblyResolve(fun source args ->
         SwaggerProvider.Internal.Configuration.resolveReferencedAssembly args.Name)
 
-    
-
     do
         this.RegisterRuntimeAssemblyLocationAsProbingFolder cfg
         
