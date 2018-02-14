@@ -8,12 +8,12 @@ open System.Configuration
 open System.Collections.Generic
 
 type Logging() =
-    static member logf (s:string) =
-        ()//System.IO.File.AppendAllLines(@"c:\temp\swaggerlog.txt", [|s|])
+  static member logf (s: string) =
+    () // File.AppendAllLines("swaggerlog", [|s|])
 
 /// Returns the Assembly object of SwaggerProvider.Runtime.dll (this needs to
 /// work when called from SwaggerProvider.DesignTime.dll)
-let getSwaggerProviderRuntimeAssembly() =
+let swaggerRuntimeAssy =
   AppDomain.CurrentDomain.GetAssemblies()
   |> Seq.find (fun a -> a.FullName.StartsWith("SwaggerProvider,"))
 
@@ -24,46 +24,50 @@ let rec searchDirectories (patterns:string list) dirs =
   match patterns with
   | [] -> dirs
   | name::patterns when name.EndsWith("*") ->
-      let prefix = name.TrimEnd([|'*'|])
-      dirs
-      |> List.collect (fun dir ->
-           Directory.GetDirectories dir
-           |> Array.filter (fun x -> x.IndexOf(prefix, dir.Length) >= 0)
-           |> List.ofArray
-         )
-      |> searchDirectories patterns
+    let prefix = name.TrimEnd([|'*'|])
+    dirs
+    |> List.collect (fun dir ->
+      Directory.GetDirectories dir
+      |> Array.filter (fun x -> x.IndexOf(prefix, dir.Length) >= 0)
+      |> List.ofArray
+    )
+    |> searchDirectories patterns
   | name::patterns ->
-      dirs
-      |> List.map (fun d -> Path.Combine(d, name))
-      |> searchDirectories patterns
+    dirs
+    |> List.map (fun d -> Path.Combine(d, name))
+    |> searchDirectories patterns
 
 /// Returns the real assembly location - when shadow copying is enabled, this
 /// returns the original assembly location (which may contain other files we need)
 let getAssemblyLocation (assem:Assembly) =
-  if System.AppDomain.CurrentDomain.ShadowCopyFiles then
-      (new System.Uri(assem.EscapedCodeBase)).LocalPath
+  if System.AppDomain.CurrentDomain.ShadowCopyFiles
+  then (System.Uri(assem.EscapedCodeBase)).LocalPath
   else assem.Location
 
 /// Reads the 'SwaggerProvider.dll.config' file and gets the 'ProbingLocations'
 /// parameter from the configuration file. Resolves the directories and returns
 /// them as a list.
-let getProbingLocations() =
+let probingLocations =
   try
-    let root = getSwaggerProviderRuntimeAssembly() |> getAssemblyLocation
-    Logging.logf <| sprintf "Root %s" root
-    let config = System.Configuration.ConfigurationManager.OpenExeConfiguration(root)
+    let rootExe = getAssemblyLocation swaggerRuntimeAssy
+    let rootDir = Path.GetDirectoryName rootExe
+    Logging.logf <| sprintf "Root %s" rootDir
+    let config = System.Configuration.ConfigurationManager.OpenExeConfiguration(rootExe)
     let pattern = config.AppSettings.Settings.["ProbingLocations"]
-    if pattern <> null then
-      Logging.logf <| sprintf "Pattern %s" pattern.Value
-      let rootDir = Path.GetDirectoryName(root) 
-      [ yield rootDir
-        let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
-        for pat in pattern do
-          let roots = [ rootDir ]
-          for dir in roots |> searchDirectories (List.ofSeq (pat.Split('/','\\'))) do
-            if Directory.Exists(dir) 
-            then yield Path.GetFullPath(dir) ]
-    else []
+    if isNull pattern
+    then []
+    else
+      Logging.logf <| sprintf "Probing patterns %A" (pattern.Value.Split(';'))
+      let dirs =
+        [ yield rootDir
+          let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
+          for pat in pattern do
+            let roots = [ rootDir ]
+            for dir in roots |> searchDirectories (List.ofSeq (pat.Split('/','\\'))) do
+              if Directory.Exists(dir)
+              then yield Path.GetFullPath(dir) ]
+      Logging.logf (sprintf "Found probing directories: %A" dirs)
+      dirs
   with :? ConfigurationErrorsException | :? KeyNotFoundException -> []
 
 /// Given an assembly name, try to find it in either assemblies
@@ -80,18 +84,16 @@ let resolveReferencedAssembly (asmName:string) =
     System.AppDomain.CurrentDomain.GetAssemblies()
     |> Seq.tryFind (fun a -> AssemblyName.ReferenceMatchesDefinition(fullName, a.GetName()))
   match loadedAsm with
-  | Some asm -> asm
+  | Some asm ->
+    Logging.logf (sprintf "found assembly %s" asm.FullName)
+    asm
   | None ->
-
     // Otherwise, search the probing locations for a DLL file
     let libraryName =
       let idx = asmName.IndexOf(',')
       if idx > 0 then asmName.Substring(0, idx) else asmName
 
-    let locations = getProbingLocations()
-    Logging.logf <| sprintf "Probing locations: %A" locations
-
-    let asm = locations |> Seq.tryPick (fun dir ->
+    let asm = probingLocations |> Seq.tryPick (fun dir ->
       let library = Path.Combine(dir, libraryName+".dll")
       if File.Exists(library) then
         Logging.logf <| sprintf "Found assembly, checking version! (%s)" library
@@ -104,8 +106,8 @@ let resolveReferencedAssembly (asmName:string) =
         else
           Logging.logf "...version mismatch, skipping"
           None
-      else 
-        Logging.logf <| sprintf "Didn't find library %s" libraryName 
+      else
+        Logging.logf <| sprintf "Didn't find library %s" libraryName
         None)
 
     if asm = None then Logging.logf <| sprintf "Assembly not found! %s" asmName
