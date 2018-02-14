@@ -2,22 +2,22 @@ RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.0.0.1)
-    Microsoft.OpenApi (1.0.0-beta013) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
-    Microsoft.OpenApi.Readers (1.0.0-beta013)
-      Microsoft.OpenApi (>= 1.0.0-beta013) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+    Microsoft.OpenApi (1.0.0-beta014) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+    Microsoft.OpenApi.Readers (1.0.0-beta014)
+      Microsoft.OpenApi (>= 1.0.0-beta014) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
       SharpYaml (>= 1.6.1) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
     Newtonsoft.Json (10.0.3)
     SharpYaml (1.6.2) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
     YamlDotNet (4.3)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/NameUtils.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
-    src/CommonRuntime/Pluralizer.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
-    src/Net/Http.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
-    src/Net/UriUtils.fs (f000cc1a9ba19e5187b5828acbdc66a701142eb4)
+    src/CommonRuntime/NameUtils.fs (d7b754ddec038209bca7709994289454db1e395e)
+    src/CommonRuntime/Pluralizer.fs (d7b754ddec038209bca7709994289454db1e395e)
+    src/Net/Http.fs (d7b754ddec038209bca7709994289454db1e395e)
+    src/Net/UriUtils.fs (d7b754ddec038209bca7709994289454db1e395e)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (b6d5c949e46c34f051e2adf88170e1a2d20cbfd9)
-    src/ProvidedTypes.fsi (b6d5c949e46c34f051e2adf88170e1a2d20cbfd9)
+    src/ProvidedTypes.fs (059ed4fcf4f4d7587331574092777e65337a95db)
+    src/ProvidedTypes.fsi (059ed4fcf4f4d7587331574092777e65337a95db)
 GROUP Build
 RESTRICTION: == net461
 NUGET
@@ -25,7 +25,7 @@ NUGET
     DotLiquid (2.0.254)
     FAKE (4.64.4)
     FSharp.Compiler.Service (2.0.0.6)
-    FSharp.Core (4.3.3)
+    FSharp.Core (4.3.4)
     FSharp.Formatting (2.14.4)
       FSharp.Compiler.Service (2.0.0.6)
       FSharpVSPowerTools.Core (>= 2.3 < 2.4)
@@ -36,23 +36,23 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (c9d0757a8257dc1d1ac3d28b813bc0e1d89e521f)
+    modules/Octokit/Octokit.fsx (43d68ede74f15158defc18fab7745c142972a8cf)
       Octokit (>= 0.20)
 GROUP OWIN
 RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Core (4.3.3) - redirects: force
-    Microsoft.AspNet.WebApi.Client (5.2.3)
+    FSharp.Core (4.3.4) - redirects: force
+    Microsoft.AspNet.WebApi.Client (5.2.4)
       Newtonsoft.Json (>= 6.0.4)
-    Microsoft.AspNet.WebApi.Core (5.2.3)
-      Microsoft.AspNet.WebApi.Client (>= 5.2.3)
-    Microsoft.AspNet.WebApi.Owin (5.2.3)
-      Microsoft.AspNet.WebApi.Core (>= 5.2.3 < 5.3)
+    Microsoft.AspNet.WebApi.Core (5.2.4)
+      Microsoft.AspNet.WebApi.Client (>= 5.2.4)
+    Microsoft.AspNet.WebApi.Owin (5.2.4)
+      Microsoft.AspNet.WebApi.Core (>= 5.2.4 < 5.3)
       Microsoft.Owin (>= 2.0.2)
       Owin (>= 1.0)
-    Microsoft.AspNet.WebApi.OwinSelfHost (5.2.3)
-      Microsoft.AspNet.WebApi.Owin (>= 5.2.3 < 5.3)
+    Microsoft.AspNet.WebApi.OwinSelfHost (5.2.4)
+      Microsoft.AspNet.WebApi.Owin (>= 5.2.4 < 5.3)
       Microsoft.Owin.Host.HttpListener (>= 2.0.2)
       Microsoft.Owin.Hosting (>= 2.0.2)
     Microsoft.Owin (3.1)
@@ -81,7 +81,7 @@ NUGET
     FSharp.Compiler.Service (17.0.1)
       System.Collections.Immutable (>= 1.3.1)
       System.Reflection.Metadata (>= 1.4.2)
-    FSharp.Core (4.3.3) - redirects: force
+    FSharp.Core (4.3.4) - redirects: force
     Microsoft.NETCore.Platforms (2.0.1)
     Mono.Cecil (0.10.0-beta7)
     NETStandard.Library (2.0.1)
