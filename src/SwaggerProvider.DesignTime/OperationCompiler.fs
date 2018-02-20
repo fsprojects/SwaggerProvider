@@ -153,21 +153,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
             let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
-            let restCall = op.Type
-
-            let httpMethodForRestCall restCall = 
-                match restCall with
-                | Get -> HttpMethod.Get
-                | Put -> HttpMethod.Put
-                | Post -> HttpMethod.Post
-                | Delete -> HttpMethod.Delete
-                | Options -> HttpMethod.Options
-                | Head -> HttpMethod.Head
-                | Patch -> HttpMethod("Patch")
+            let restCall = op.Type.ToString()
 
             let customizeHttpRequest =
                 <@ fun (request:HttpRequestMessage) ->
-                     if restCall = Post && request.Content <> null
+                     if restCall = Post.ToString() && request.Content <> null
                      then request.Content.Headers.ContentLength <- Nullable<_> 0L
                      (%customizeHttpRequest) request @>
 
@@ -182,32 +172,27 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     then uriB.Query <- sprintf "%s&%s" uriB.Query newQueries
                     else uriB.Query <- sprintf "%s?%s" uriB.Query newQueries 
                     uriB.Uri
-                   let msg = new HttpRequestMessage(httpMethodForRestCall restCall, requestUrl)
+                   let method = HttpMethod(restCall) 
+                   let msg = new HttpRequestMessage(method, requestUrl)
                    for (name, value) in %heads do msg.Headers.Add(name, value)
                    msg @>
-
-            let sendMessage message = 
-                async {
-                    let! response = RuntimeHelpers.httpClient.SendAsync(message) |> Async.AwaitTask
-                    return! response.EnsureSuccessStatusCode().Content.ReadAsStringAsync() |> Async.AwaitTask
-                }
 
             let action = 
                 match payload with
                 | None ->
-                    <@ (%customizeHttpRequest) %httpRequestMessage |> sendMessage @>
+                    <@ (%customizeHttpRequest) %httpRequestMessage |> RuntimeHelpers.sendMessage @>
                 | Some (FormData, b) ->
                     <@ let keyValues = (%%b: seq<string*string>) |> Seq.map KeyValuePair
                        let msg = %httpRequestMessage
                        msg.Content <- new FormUrlEncodedContent(keyValues)
                        let msg = (%customizeHttpRequest) msg
-                       sendMessage msg @>
+                       RuntimeHelpers.sendMessage msg @>
                 | Some (Body, b)     ->
                     <@ let content = new StringContent(RuntimeHelpers.serialize (%%b: obj), Text.Encoding.UTF8, "application/json")
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        let msg = (%customizeHttpRequest) msg
-                       sendMessage msg @>
+                       RuntimeHelpers.sendMessage msg @>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
       
             let responseObj = 

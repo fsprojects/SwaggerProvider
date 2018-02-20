@@ -27,6 +27,12 @@ module RuntimeHelpers =
     /// NOTE: DNS records for this HttpClient instance will remain stagnant once retrieved. This can be bad. We should probably convert this to some kind of factory function that swaps instances after a bit.
     let httpClient = new HttpClient()
 
+    let sendMessage message = 
+        async {
+            let! response = httpClient.SendAsync(message) |> Async.AwaitTask
+            return! response.EnsureSuccessStatusCode().Content.ReadAsStringAsync() |> Async.AwaitTask
+        }
+
     let inline private toStrArray name values =
         values
         |> Array.map (fun value-> name, value.ToString())
