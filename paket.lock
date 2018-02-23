@@ -20,8 +20,8 @@ GITHUB
     src/CommonRuntime/NameUtils.fs (d7b754ddec038209bca7709994289454db1e395e)
     src/CommonRuntime/Pluralizer.fs (d7b754ddec038209bca7709994289454db1e395e)
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (059ed4fcf4f4d7587331574092777e65337a95db)
-    src/ProvidedTypes.fsi (059ed4fcf4f4d7587331574092777e65337a95db)
+    src/ProvidedTypes.fs (a23cf5dcd4309cc528bbd4662c5971fe163a0bab)
+    src/ProvidedTypes.fsi (a23cf5dcd4309cc528bbd4662c5971fe163a0bab)
 GROUP Build
 RESTRICTION: == net461
 NUGET
