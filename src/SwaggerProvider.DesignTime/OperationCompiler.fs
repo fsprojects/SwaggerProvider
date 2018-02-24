@@ -183,7 +183,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                         uriB.Uri
                     let method = HttpMethod(httpMethod) 
                     let msg = new HttpRequestMessage(method, requestUrl)
-                    for (name, value) in %heads do msg.Headers.Add(name, value)
+                    %heads
+                    |> Seq.iter (fun (name, value) ->
+                        msg.Headers.Add(name, value)
+                    )
                     msg 
                 @>
 
