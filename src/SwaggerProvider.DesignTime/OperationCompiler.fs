@@ -15,7 +15,7 @@ open System.Net.Http
 open System.Collections.Generic
 
 /// Object for compiling operations.
-type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool, asyncTy: Type, taskTy: Type) =
+type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (methodName:string) (op:OperationObject) =
         if String.IsNullOrWhiteSpace methodName
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
@@ -60,12 +60,14 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | None -> None
                 | Some ty -> Some <| defCompiler.CompileTy methodName "Response" ty true
             | None -> None
-        
-        let generateReturnType (retTy: Type) asAsync = 
-            if asAsync then ProvidedTypeBuilder.MakeGenericType(asyncTy, [retTy])
-            else ProvidedTypeBuilder.MakeGenericType(taskTy, [retTy])
 
-        let overallReturnType = generateReturnType (defaultArg retTy (typeof<unit>)) asAsync
+        let overallReturnType =
+            ProvidedTypeBuilder.MakeGenericType(
+                    (if asAsync 
+                     then typedefof<Async<unit>> 
+                     else typedefof<System.Threading.Tasks.Task<unit>>),
+                    [defaultArg retTy (typeof<unit>)]
+                 )
 
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
             let thisTy = typeof<ProvidedSwaggerBaseType>
@@ -76,7 +78,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             
             let basePath =
                 let basePath = schema.BasePath
-                <@ RuntimeHelpers.combineUrl %host basePath @>
+                if String.IsNullOrWhiteSpace basePath
+                then host
+                else <@ RuntimeHelpers.combineUrl %host basePath @>
 
             // Fit headers into quotation
             let headers =
@@ -113,7 +117,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                    RuntimeHelpers.toQueryParams name o @>
 
             let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
-                <@ Regex.Replace(%path, sprintf "{%s}" name, %value) @>
+                let pattern = sprintf "{%s}" name
+                <@ Regex.Replace(%path, pattern, %value) @>
 
             let addPayload load (param : ParameterObject) (exp : Expr) =
                 let name = param.Name
@@ -153,29 +158,34 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
             let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
-            let restCall = op.Type.ToString()
+            let httpMethod = op.Type.ToString()
 
             let customizeHttpRequest =
                 <@ fun (request:HttpRequestMessage) ->
-                     if restCall = Post.ToString() && request.Content <> null
+                     if httpMethod = Post.ToString() && request.Content <> null
                      then request.Content.Headers.ContentLength <- Nullable<_> 0L
                      (%customizeHttpRequest) request @>
 
             let innerReturnType = defaultArg retTy null
 
             let httpRequestMessage = 
-                <@ 
-                   let requestUrl = 
-                    let uriB = UriBuilder %address
-                    let newQueries = %queries |> Seq.map (fun (name, value) -> sprintf "%s=%s" (Uri.EscapeDataString name) (Uri.EscapeDataString value)) |> String.concat "&"
-                    if String.IsNullOrEmpty uriB.Query
-                    then uriB.Query <- sprintf "%s&%s" uriB.Query newQueries
-                    else uriB.Query <- sprintf "%s?%s" uriB.Query newQueries 
-                    uriB.Uri
-                   let method = HttpMethod(restCall) 
-                   let msg = new HttpRequestMessage(method, requestUrl)
-                   for (name, value) in %heads do msg.Headers.Add(name, value)
-                   msg @>
+                <@
+                    let requestUrl = 
+                        let uriB = UriBuilder %address
+                        let newQueries = 
+                            %queries 
+                            |> Seq.map (fun (name, value) -> 
+                                String.Format("{0}={1}", Uri.EscapeDataString name, Uri.EscapeDataString value))
+                            |> String.concat "&"
+                        if String.IsNullOrEmpty uriB.Query
+                        then uriB.Query <- newQueries
+                        else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
+                        uriB.Uri
+                    let method = HttpMethod(httpMethod) 
+                    let msg = new HttpRequestMessage(method, requestUrl)
+                    for (name, value) in %heads do msg.Headers.Add(name, value)
+                    msg 
+                @>
 
             let action = 
                 match payload with
@@ -215,7 +225,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             | true, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
             | true, None -> responseUnit.Raw
             | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
-            | false, None -> Expr.Coerce(task responseUnit, overallReturnType)
+            | false, None -> (task responseUnit).Raw
             )
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs

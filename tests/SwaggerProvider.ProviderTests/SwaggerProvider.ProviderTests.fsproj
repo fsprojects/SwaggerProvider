@@ -8,7 +8,7 @@
     <ProjectGuid>{f26dfaa6-cb19-46eb-9fbd-f4a4dc46c3f5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>SwaggerProvider.Tests</RootNamespace>
-    <AssemblyName>SwaggerProvider.Tests</AssemblyName>
+    <AssemblyName>SwaggerProvider.ProviderTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>

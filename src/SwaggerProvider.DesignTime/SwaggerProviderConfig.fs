@@ -84,7 +84,7 @@ module private SwaggerProviderConfig =
                 ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
 
                 let defCompiler = DefinitionCompiler(schema, provideNullable)
-                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync, typedefof<Async<unit>>, typedefof<System.Threading.Tasks.Task<unit>>)
+                let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
 
                 opCompiler.CompileProvidedClients(defCompiler.Namespace)
                 ty.AddMembers <| defCompiler.Namespace.GetProvidedTypes() // Add all provided types

@@ -82,13 +82,13 @@ type OperationType =
 
     override this.ToString() =
         match this with
-        | Get     -> "Get"
-        | Put     -> "Put"
-        | Post    -> "Post"
-        | Delete  -> "Delete"
-        | Options -> "Options"
-        | Head    -> "Head"
-        | Patch   -> "Patch"
+        | Get     -> "GET"
+        | Put     -> "PUT"
+        | Post    -> "POST"
+        | Delete  -> "DELETE"
+        | Options -> "OPTIONS"
+        | Head    -> "HEAD"
+        | Patch   -> "PATCH"
 
 
 /// Determines the format of the array if type array is used. Array value separator.
