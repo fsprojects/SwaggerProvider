@@ -76,6 +76,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let headers = <@ (%this).Headers @>
             let customizeHttpRequest = <@ (%this).CustomizeHttpRequest @> 
             
+            let httpMethod = op.Type.ToString()
+            
             let basePath =
                 let basePath = schema.BasePath
                 if String.IsNullOrWhiteSpace basePath
@@ -158,13 +160,12 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
             let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
-            let httpMethod = op.Type.ToString()
 
-            let customizeHttpRequest =
-                <@ fun (request:HttpRequestMessage) ->
-                     if httpMethod = Post.ToString() && request.Content <> null
-                     then request.Content.Headers.ContentLength <- Nullable<_> 0L
-                     (%customizeHttpRequest) request @>
+            // let customizeHttpRequest =
+            //     <@ fun (request:HttpRequestMessage) ->
+            //          if httpMethod = Post.ToString() && request.Content <> null
+            //          then request.Content.Headers.ContentLength <- Nullable<_> 0L
+            //          (%customizeHttpRequest) request @>
 
             let innerReturnType = defaultArg retTy null
 
@@ -182,31 +183,37 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                         else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
                         uriB.Uri
                     let method = HttpMethod(httpMethod) 
-                    let msg = new HttpRequestMessage(method, requestUrl)
-                    %heads
-                    |> Seq.iter (fun (name, value) ->
-                        msg.Headers.Add(name, value)
-                    )
-                    msg 
+                    new HttpRequestMessage(method, requestUrl)
                 @>
 
-            let action = 
+            let httpRequestMessageWithPayload = 
                 match payload with
-                | None ->
-                    <@ (%customizeHttpRequest) %httpRequestMessage |> RuntimeHelpers.sendMessage @>
+                | None -> httpRequestMessage
                 | Some (FormData, b) ->
                     <@ let keyValues = (%%b: seq<string*string>) |> Seq.map KeyValuePair
                        let msg = %httpRequestMessage
                        msg.Content <- new FormUrlEncodedContent(keyValues)
-                       let msg = (%customizeHttpRequest) msg
-                       RuntimeHelpers.sendMessage msg @>
+                       msg @>
                 | Some (Body, b)     ->
                     <@ let content = new StringContent(RuntimeHelpers.serialize (%%b: obj), Text.Encoding.UTF8, "application/json")
                        let msg = %httpRequestMessage
                        msg.Content <- content
-                       let msg = (%customizeHttpRequest) msg
-                       RuntimeHelpers.sendMessage msg @>
+                       msg @>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
+      
+            let action = 
+                <@
+                    let msg = %httpRequestMessageWithPayload
+                    %heads
+                    |> Seq.iter (fun (name, value) ->
+                        if not <| msg.Headers.TryAddWithoutValidation(name, value) then
+                            let errMsg = String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
+                            if (name <> "Content-Type") then
+                                raise <| System.Exception(errMsg)
+                    )
+                    let msg = (%customizeHttpRequest) msg
+                    RuntimeHelpers.sendMessage msg
+                @>
       
             let responseObj = 
                 <@ async {

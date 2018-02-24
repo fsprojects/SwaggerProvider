@@ -14,6 +14,7 @@ let assembliesList =
         //yield typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
         yield typeof<System.Int32>.Assembly.Location
         yield typeof<System.Net.CookieContainer>.Assembly.Location
+        yield typeof<System.Net.Http.HttpRequestMessage>.Assembly.Location
         yield buildTarget "SwaggerProvider.Runtime.dll"
         yield buildTarget "SwaggerProvider.dll"
     ]

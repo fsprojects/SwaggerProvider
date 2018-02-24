@@ -42,7 +42,10 @@ let petStoreTests =
         try
             do! store.AddPet(pet)
         with
-        | exn -> failwithf "Adding pet failed with message: %s" exn.Message
+        | exn ->
+            let msg = if exn.InnerException = null then exn.Message
+                      else exn.InnerException.Message
+            failwithf "Adding pet failed with message: %s" msg
 
         let! pet2 = store.GetPetById(1337L)
         Expect.equal pet.Name     pet2.Name     "same Name"

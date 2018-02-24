@@ -118,7 +118,6 @@ let parserTestBody formatParser (url:string) =
         opCompiler.CompileProvidedClients(defCompiler.Namespace)
         ignore <| defCompiler.Namespace.GetProvidedTypes()
 
-
 let private schemasFromTPTests =
     let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
     Directory.GetFiles(folder)
