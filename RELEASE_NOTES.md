@@ -1,4 +1,4 @@
-#### 0.10.0-beta03 - February 13, 2018
+#### 0.10.0-beta04 - March 1, 2018
 - Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet
@@ -11,6 +11,7 @@
 - Supported parsing of schemas with inheritance in types defined inside operation parameters
 - Added Async & Task-based calls for the Operations [#21](https://github.com/fsprojects/SwaggerProvider/issues/21)
 - Do not reference design-time assembly when install from nuget [#104](https://github.com/fsprojects/SwaggerProvider/pull/104)
+- Migration to `HttpClient`-based communication [#105](https://github.com/fsprojects/SwaggerProvider/pull/105)
 
 #### 0.8.2 - January 19, 2017
 * Fix probing locations [#97](https://github.com/fsprojects/SwaggerProvider/pull/97)
