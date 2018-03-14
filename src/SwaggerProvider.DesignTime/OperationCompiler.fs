@@ -13,6 +13,8 @@ open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 open System.Net.Http
 open System.Collections.Generic
+open System.Linq
+open System.Threading.Tasks
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -21,34 +23,34 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
 
         let parameters =
-            /// handles deduping Swagger parameter names if the same parameter name 
+            /// handles deduping Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
-            let uniqueParamName existing (current: ParameterObject) = 
+            let uniqueParamName existing (current: ParameterObject) =
                 let name = niceCamelName current.Name
-                if Set.contains name existing 
+                if Set.contains name existing
                 then
                     Set.add current.UnambiguousName existing, current.UnambiguousName
                 else
-                    Set.add name existing, name                
-                
+                    Set.add name existing, name
+
             let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
-            
+
             Array.append required optional
-            |> Array.fold (fun (names,parameters) current -> 
+            |> Array.fold (fun (names,parameters) current ->
                let (names, paramName) = uniqueParamName names current
                let paramType = defCompiler.CompileTy methodName paramName current.Type current.Required
-               let providedParam = 
+               let providedParam =
                    if current.Required then ProvidedParameter(paramName, paramType)
-                   else 
+                   else
                        let paramDefaultValue = defCompiler.GetDefaultValue paramType
                        ProvidedParameter(paramName, paramType, false, paramDefaultValue)
                (names, providedParam :: parameters)
             ) (Set.empty, [])
             |> snd
-            // because we built up our list in reverse order with the fold, 
+            // because we built up our list in reverse order with the fold,
             // reverse it again so that all required properties come first
             |> List.rev
-        
+
         // find the innner type value
         let retTy =
             let okResponse = // BUG :  wrong selector
@@ -58,13 +60,14 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             | Some (_,resp) ->
                 match resp.Schema with
                 | None -> None
+                | Some File -> Some typeof<IO.Stream>
                 | Some ty -> Some <| defCompiler.CompileTy methodName "Response" ty true
             | None -> None
 
         let overallReturnType =
             ProvidedTypeBuilder.MakeGenericType(
-                    (if asAsync 
-                     then typedefof<Async<unit>> 
+                    (if asAsync
+                    then typedefof<Async<unit>>
                      else typedefof<System.Threading.Tasks.Task<unit>>),
                     [defaultArg retTy (typeof<unit>)]
                  )
@@ -74,10 +77,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
             let host = <@ (%this).Host @>
             let headers = <@ (%this).Headers @>
-            let customizeHttpRequest = <@ (%this).CustomizeHttpRequest @> 
-            
+            let customizeHttpRequest = <@ (%this).CustomizeHttpRequest @>
+
             let httpMethod = op.Type.ToString()
-            
+
             let basePath =
                 let basePath = schema.BasePath
                 if String.IsNullOrWhiteSpace basePath
@@ -99,7 +102,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     | ShapeVar sVar as expr ->
                         let param =
                             op.Parameters
-                            |> Array.find (fun x -> 
+                            |> Array.find (fun x ->
                                 // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
                                 let baseName = niceCamelName x.Name
                                 baseName = sVar.Name || x.UnambiguousName = sVar.Name )
@@ -126,10 +129,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 let name = param.Name
                 let var = coerceString param.Type param.CollectionFormat exp
                 match load with
-                | Some (FormData, b) -> Some (FormData, <@@ Seq.append %%b [name, (%var : string)] @@>)
+                | Some (FormData, _,  b) -> Some (FormData, param.Type, <@@ Seq.append %%b [name, (%var : string)] @@>)
                 | None               -> match param.In with
-                                        | Body -> Some (Body, Expr.Coerce (exp, typeof<obj>))
-                                        | _    -> Some (FormData, <@@ (seq [name, (%var : string)]) @@>)
+                                        | Body -> Some (Body, param.Type, Expr.Coerce (exp, typeof<obj>))
+                                        | _    -> Some (FormData, param.Type, <@@ (seq [name, (%var : string)]) @@>)
                 | _                  -> failwith ("Can only contain one payload")
 
             let addQuery (quer: Expr<(string*string) list>) name (exp : Expr) =
@@ -139,23 +142,33 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let addHeader (heads: Expr<(string * string) []>) name (value: Expr<string>) =
                 <@ Array.append %heads [|name, %value|] @>
 
+            let sendFilesMultipart required (parts: Expr): (ParameterObjectLocation * SchemaObject * Expr) option =
+              let asSeq =
+                if required
+                then <@ %%parts: seq<string*IO.Stream> @>
+                else <@ defaultArg (%%parts: seq<string*IO.Stream> option) Seq.empty @>
+              Some (FormData, File, asSeq.Raw)
+
             // Partitions arguments based on their locations
             let (path, payload, queries, heads) =
                 let mPath = op.Path
                 parameters
                 |> List.fold (
-                    fun (path, load, quer, head) (param : ParameterObject, exp) ->
+                    fun (path, load, query, headers) (param : ParameterObject, exp) ->
                         let name = param.Name
-                        match param.In with
-                        | Path   -> 
+                        match param with
+                        | { In = Path }  ->
                             let value = coerceString param.Type param.CollectionFormat exp
-                            (replacePathTemplate path name value, load, quer, head)
-                        | FormData
-                        | Body   -> (path, addPayload load param exp, quer, head)
-                        | Query  -> (path, load, addQuery quer name exp, head)
-                        | Header -> 
+                            (replacePathTemplate path name value, load, query, headers)
+                        | { In = FormData; Type = File; } ->
+                          // the exp will be a seq<string*string*IO.Stream>, ie fileName/contentType/content
+                          path, sendFilesMultipart param.Required exp, query, headers
+                        | { In = FormData }
+                        | { In = Body }  -> (path, addPayload load param exp, query, headers)
+                        | { In = Query } -> (path, load, addQuery query name exp, headers)
+                        | { In = Header } ->
                             let value = coerceString param.Type param.CollectionFormat exp
-                            (path, load, quer, addHeader head name value)
+                            (path, load, query, addHeader headers name value)
                     )
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
@@ -169,39 +182,47 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
             let innerReturnType = defaultArg retTy null
 
-            let httpRequestMessage = 
+            let httpRequestMessage =
                 <@
-                    let requestUrl = 
+                    let requestUrl =
                         let uriB = UriBuilder %address
-                        let newQueries = 
-                            %queries 
-                            |> Seq.map (fun (name, value) -> 
+                        let newQueries =
+                            %queries
+                            |> Seq.map (fun (name, value) ->
                                 String.Format("{0}={1}", Uri.EscapeDataString name, Uri.EscapeDataString value))
                             |> String.concat "&"
                         if String.IsNullOrEmpty uriB.Query
                         then uriB.Query <- newQueries
                         else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
                         uriB.Uri
-                    let method = HttpMethod(httpMethod) 
+                    let method = HttpMethod(httpMethod)
                     new HttpRequestMessage(method, requestUrl)
                 @>
 
-            let httpRequestMessageWithPayload = 
+            let httpRequestMessageWithPayload =
                 match payload with
                 | None -> httpRequestMessage
-                | Some (FormData, b) ->
+                | Some (FormData, File, b) ->
+                    <@  let parts = (%%b: seq<string*IO.Stream>)
+                        let content = new MultipartFormDataContent()
+                        for (name, data) in parts do
+                          content.Add(new StreamContent(data), name, name)
+                        let msg = %httpRequestMessage
+                        msg.Content <- content
+                        msg @>
+                | Some (FormData, _, b) ->
                     <@ let keyValues = (%%b: seq<string*string>) |> Seq.map KeyValuePair
                        let msg = %httpRequestMessage
                        msg.Content <- new FormUrlEncodedContent(keyValues)
                        msg @>
-                | Some (Body, b)     ->
+                | Some (Body, _, b)     ->
                     <@ let content = new StringContent(RuntimeHelpers.serialize (%%b: obj), Text.Encoding.UTF8, "application/json")
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
-                | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
-      
-            let action = 
+                | Some (x, _, _) -> failwith ("Payload should not be able to have type: " + string x)
+
+            let action: Expr<Async<HttpContent>> =
                 <@
                     let msg = %httpRequestMessageWithPayload
                     %heads
@@ -214,28 +235,41 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     let msg = (%customizeHttpRequest) msg
                     RuntimeHelpers.sendMessage msg
                 @>
-      
-            let responseObj = 
+
+            /// Get the inner string content of a message as an object
+            let responseObj =
                 <@ async {
                     let! response = %action
-                    return RuntimeHelpers.deserialize response innerReturnType
+                    let! content = response.ReadAsStringAsync() |> Async.AwaitTask
+                    return RuntimeHelpers.deserialize content innerReturnType
                    } @>
+
+            /// Retrieve the filestream data from a response and
+            let responseStream =
+                <@ async {
+                    let! response = %action
+                    let! data = response.ReadAsStreamAsync() |> Async.AwaitTask
+                    return data
+                  } @>
 
             let responseUnit =
                 <@ async {
                     let! _ = %action
                     return ()
                    } @>
-            
+
             let task t = <@ Async.StartAsTask(%t) @>
 
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
             // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
-            match asAsync, retTy with
-            | true, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
-            | true, None -> responseUnit.Raw
-            | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
-            | false, None -> (task responseUnit).Raw
+            match overallReturnType with
+            | t when t = typeof<Async<IO.Stream>> -> <@ %responseStream @>.Raw
+            | t when t = typeof<Async<unit>> -> responseUnit.Raw
+            | t when t.GetGenericTypeDefinition() = typedefof<Async<_>>  -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
+            | t when t = typeof<Task<IO.Stream>> -> <@ %responseStream |> Async.StartAsTask @>.Raw
+            | t when t = typeof<Task<unit>> -> (task responseUnit).Raw
+            | t when t.GetGenericTypeDefinition() = typedefof<Task<_>> -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
+            | t -> failwithf "unknown output type %s" t.FullName
             )
         if not <| String.IsNullOrEmpty(op.Summary)
             then m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs

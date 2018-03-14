@@ -61,6 +61,7 @@ type ReturnFileController () =
         let bytes = System.Text.Encoding.UTF8.GetBytes("I am totally a file's\ncontent")
         let response = new HttpResponseMessage(HttpStatusCode.OK)
         response.Content <- new StreamContent(new System.IO.MemoryStream(bytes))
+        response.Content.Headers.ContentDisposition <- Headers.ContentDispositionHeaderValue(sprintf "attachment; filename=file.txt")
         response.Content.Headers.ContentType <- Headers.MediaTypeHeaderValue("application/octet-stream")
         response
 
