@@ -3,7 +3,36 @@ open Owin
 open System
 open System.Web.Http
 open Swashbuckle.Application
+open Swashbuckle.Swagger
 
+/// A filter that sets a file response on a particular action because I don't know how to do that in swashbuckle.
+let fileDownloadFilter =
+    { new IOperationFilter with
+            member x.Apply(operation, schemaRegistry, apiDescription) =
+                    if operation.operationId = "ReturnFile_Get"
+                    then
+                        operation.produces <- [| "application/octet-stream" |]
+                        operation.responses.["200"] <- Response(schema = Schema(``type`` = "file"), description = "file response")
+    }
+
+/// A filter that generates a body file parameter on a particular endpoint because I don't know how to set that up through swashbuckle
+let fileUploadFormFilter =
+    { new IOperationFilter with
+            member __.Apply(operation, schemaRegistry, apiDescripion) =
+                    if operation.operationId = "ReturnFile_Post"
+                    then
+                        let parameter =
+                          Parameter(
+                            name = "file",
+                            ``in`` = "formData",
+                            required = Nullable<bool>(true),
+                            ``type`` = "file"
+                          )
+                        if operation.parameters <> null
+                        then operation.parameters.Add(parameter)
+                        else operation.parameters <- [| parameter |]
+                        operation.consumes.Add("multipart/form-data")
+    }
 
 let getAppBuilder() =
     let config = new HttpConfiguration()
@@ -13,7 +42,11 @@ let getAppBuilder() =
     config.Routes.MapHttpRoute("default",  "api/{controller}") |> ignore
     // Enable Swagger and Swagger UI
     config
-        .EnableSwagger(fun c -> c.SingleApiVersion("v1", "Test Controllers for SwaggerProvider") |> ignore)
+        .EnableSwagger(fun c ->
+          c.SingleApiVersion("v1", "Test Controllers for SwaggerProvider") |> ignore
+          c.OperationFilter(fun _ -> fileDownloadFilter)
+          c.OperationFilter(fun _ -> fileUploadFormFilter)
+        )
         .EnableSwaggerUi();
 
     fun (appBuilder:IAppBuilder) ->

@@ -2,6 +2,8 @@
 
 open System
 open System.Web.Http
+open System.Net.Http
+open System.Net
 
 type ReturnController<'T>(value:'T) =
     inherit ApiController()
@@ -51,3 +53,36 @@ type ReturnObjectPointClassController () =
 
 type ReturnFileDescriptionController () =
     inherit ReturnController<Types.FileDescription>(Types.FileDescription("1.txt",[|1uy;2uy;3uy|]))
+
+/// These are special snowflakes. See the customizations we have to make in the swagger registration via filters.
+type ReturnFileController () =
+    inherit ApiController()
+     member __.Get () =
+        let bytes = System.Text.Encoding.UTF8.GetBytes("I am totally a file's\ncontent")
+        let response = new HttpResponseMessage(HttpStatusCode.OK)
+        response.Content <- new StreamContent(new System.IO.MemoryStream(bytes))
+        response.Content.Headers.ContentType <- Headers.MediaTypeHeaderValue("application/octet-stream")
+        response
+
+    /// echoes back the first file sent
+    member x.Post () =
+        if not <| x.Request.Content.IsMimeMultipartContent()
+        then raise (HttpResponseException(HttpStatusCode.UnsupportedMediaType))
+        x.Request.Content.LoadIntoBufferAsync().Wait()
+        printfn "got a multipart request"
+        printfn "stream length is %d" (x.Request.Content.ReadAsStreamAsync().Result.Length)
+        let printHeader (KeyValue(key, value)) = printfn "%s: %A" key value
+        x.Request.Headers |> Seq.iter printHeader
+        x.Request.Content.Headers |> Seq.iter printHeader
+
+        // Read the form data and return an async task.
+        let root = System.IO.Path.GetTempPath()
+        let multipartProvider = MultipartFormDataStreamProvider(root)
+        try
+            let written = x.Request.Content.ReadAsMultipartAsync(multipartProvider) |> Async.AwaitTask |> Async.RunSynchronously
+            written.FileData |> Seq.iter (fun fileData -> printfn "saved to %s" fileData.LocalFileName)
+            written.FileData |> Seq.map (fun fileData -> fileData.Headers.ContentDisposition.Name, fileData.Headers.ContentLength)
+        with
+        | e ->
+            printfn "%O" e
+            raise e
