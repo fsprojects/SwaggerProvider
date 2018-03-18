@@ -205,8 +205,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | Some (FormData, File, b) ->
                     <@  let parts = (%%b: seq<string*IO.Stream>)
                         let content = new MultipartFormDataContent()
-                        for (name, data) in parts do
+                        parts |> Seq.iter (fun (name, data) ->
                           content.Add(new StreamContent(data), name, name)
+                        )
                         let msg = %httpRequestMessage
                         msg.Content <- content
                         msg @>
