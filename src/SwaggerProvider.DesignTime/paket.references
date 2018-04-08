@@ -3,4 +3,3 @@ File: ProvidedTypes.fs
 File: Pluralizer.fs
 File: NameUtils.fs
 FSharp.Core
-Microsoft.Net.Http

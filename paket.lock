@@ -2,23 +2,17 @@ RESTRICTION: >= net45
 NUGET
   remote: https://www.nuget.org/api/v2
     FSharp.Core (4.0.0.1)
-    Microsoft.Bcl (1.1.10)
-      Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.Bcl.Build (1.0.21) - import_targets: false
-    Microsoft.Net.Http (2.2.29)
-      Microsoft.Bcl (>= 1.1.10)
-      Microsoft.Bcl.Build (>= 1.0.14)
-    Microsoft.OpenApi (1.0.0-beta014) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
-    Microsoft.OpenApi.Readers (1.0.0-beta014)
-      Microsoft.OpenApi (>= 1.0.0-beta014) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+    Microsoft.OpenApi (1.0.0-beta015) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+    Microsoft.OpenApi.Readers (1.0.0-beta015)
+      Microsoft.OpenApi (>= 1.0.0-beta015) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
       SharpYaml (>= 1.6.1) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
-    Newtonsoft.Json (10.0.3)
+    Newtonsoft.Json (11.0.2)
     SharpYaml (1.6.2) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
-    YamlDotNet (4.3)
+    YamlDotNet (4.3.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/NameUtils.fs (0fa6a6799172565f8f49bea5e572c1bb191406ff)
-    src/CommonRuntime/Pluralizer.fs (0fa6a6799172565f8f49bea5e572c1bb191406ff)
+    src/CommonRuntime/NameUtils.fs (fef07d05a05e20c1801561ade0d611f661b0b300)
+    src/CommonRuntime/Pluralizer.fs (fef07d05a05e20c1801561ade0d611f661b0b300)
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (259244bd893f6f266f2f1c043cb6a52eba3cd3ce)
     src/ProvidedTypes.fsi (259244bd893f6f266f2f1c043cb6a52eba3cd3ce)

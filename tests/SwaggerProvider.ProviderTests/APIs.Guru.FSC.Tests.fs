@@ -1,4 +1,4 @@
-﻿module APIsGuruFSCS
+module APIsGuruFSCS
 
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open System
@@ -8,7 +8,7 @@ open Fake
 
 let assembliesList =
     let buildTarget name =
-        Path.Combine(__SOURCE_DIRECTORY__, "../../bin/SwaggerProvider/", name)
+        Path.Combine(__SOURCE_DIRECTORY__, "../../bin/", name)
         |> Path.GetFullPath
     [
         //yield typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
@@ -83,7 +83,7 @@ let referencedAssembliesFsi =
 let fsiTest fs _ =
     let args = "--noframework" :: referencedAssembliesFsi |> List.toArray
     let isOk, msgs =
-        executeBuildScriptWithArgsAndFsiArgsAndReturnMessages 
+        executeBuildScriptWithArgsAndFsiArgsAndReturnMessages
             fs [||] args false
     for msg in msgs do
         printfn "%s" msg.Message

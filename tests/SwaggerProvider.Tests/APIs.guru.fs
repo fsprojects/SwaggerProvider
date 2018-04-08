@@ -24,15 +24,27 @@ let private getApisGuruSchemas propertyName =
         | _ -> None
     apisGuruList.Value
     |> Seq.choose (fun x ->
+        // TODO: choose only latest version to speedup CI
         x |> getProp "versions"
         |> Option.bind (fun v ->
             let jObj = v :?> JObject
             jObj.Properties()
-            |> Seq.choose (fun y -> y.Value |> getProp propertyName)
+            |> Seq.map (fun y -> y.Value)
             |> Some)
        )
     |> Seq.concat
-    |> Seq.map (fun x->x.ToObject<string>())
+    |> Seq.choose (fun x ->
+        let version =
+          x |> getProp "info"
+          |> Option.bind (fun y -> y |> getProp "x-origin")
+          |> Option.map (fun y -> (y :?> JArray) |> Seq.head)
+          |> Option.bind (fun y -> y |> getProp "version")
+          |> Option.map (fun y -> y.ToObject<string>())
+        match version with
+        // TODO: support OpenAPI 3.0 schemas when OpenApi.NET will be ready
+        | Some("2.0") -> x |> getProp propertyName
+        | _ -> None)
+    |> Seq.map (fun x -> x.ToObject<string>())
     |> Seq.toArray
 
 let private apisGuruJsonSchemaUrls = getApisGuruSchemas "swaggerUrl"
@@ -60,22 +72,22 @@ let private skipIgnored (url:string) =
     |> not
 
 let private rnd = Random(int(DateTime.Now.Ticks))
-let shrink size (arr:'a[]) = 
+let shrink size (arr:'a[]) =
     Array.init size (fun _ -> arr.[rnd.Next(arr.Length)])
 
 let private shrinkOnCI arr =
     if not <| isNull (Environment.GetEnvironmentVariable "TRAVIS")
-    then arr |> shrink 80  
+    then arr |> shrink 80
     elif not <| isNull (Environment.GetEnvironmentVariable "APPVEYOR")
-    then arr |> shrink 500 
+    then arr |> shrink 500
     else arr
 
 let private filter = Array.filter skipIgnored >> shrinkOnCI
 
-let JsonSchemas = 
+let JsonSchemas =
     filter schemaUrls
     |> Array.distinct
-let YamlSchemas = 
+let YamlSchemas =
     filter apisGuruYamlSchemaUrls
     |> Array.distinct
 

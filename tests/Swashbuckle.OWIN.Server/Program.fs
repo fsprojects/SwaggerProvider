@@ -1,4 +1,6 @@
-﻿open Microsoft.Owin.Hosting
+﻿module Swashbuckle.OWIN.Server
+
+open Microsoft.Owin.Hosting
 open Owin
 open System
 open System.Web.Http

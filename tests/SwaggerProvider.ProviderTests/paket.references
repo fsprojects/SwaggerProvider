@@ -1,5 +1,4 @@
 Newtonsoft.Json
-Microsoft.Net.Http
 group Test
     Expecto
     FSharp.Compiler.Service

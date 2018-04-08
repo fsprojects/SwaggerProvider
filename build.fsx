@@ -27,42 +27,20 @@ open System.IO
 //  - to run tests and to publish documentation on GitHub gh-pages
 //  - for documentation, you also need to edit info in "docs/tools/generate.fsx"
 
-// The name of the project
-// (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "SwaggerProvider"
-
-// Short summary of the project
-// (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = "F# Type Provider for Swagger"
-
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
 let description = "F# Type Provider for Swagger"
 
-// List of author names (for NuGet package)
-let authors = [ "Sergey Tihon" ]
-
-// Tags for your project (for NuGet package)
-let tags = "F# sharp data typeprovider Swagger API REST"
-
-// File system information
-let solutionFile  = "SwaggerProvider.sln"
-
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = 
-   !! "tests/**/bin/Release/*Tests*.exe"
-     -- "tests/*.CSharp/bin/Release/*.exe"
+let testAssemblies =
+   !! "tests/**/bin/Release/net461/*Tests*.exe"
+     -- "tests/*.CSharp/bin/Release/net461/*.exe"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
 let gitOwner = "fsprojects"
-let gitHome = "https://github.com/" + gitOwner
-
 // The name of the project on GitHub
 let gitName = "SwaggerProvider"
-
-// The url for the raw files hosted
-let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fsprojects"
 
 // --------------------------------------------------------------------------------------
 // END TODO: The rest of the file includes standard build steps
@@ -70,14 +48,6 @@ let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/fsprojects"
 
 // Read additional information from the release notes document
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
-
-// Helper active pattern for project types
-let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
-    match projFileName with
-    | f when f.EndsWith("fsproj") -> Fsproj
-    | f when f.EndsWith("csproj") -> Csproj
-    | f when f.EndsWith("vbproj") -> Vbproj
-    | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
@@ -94,12 +64,13 @@ Target "AssemblyInfo" (fun _ ->
 // But keeps a subdirectory structure for each project in the
 // src folder to support multiple project outputs
 Target "CopyBinaries" (fun _ ->
-    !! "src/**/*.??proj"
-    |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin/Release", "bin" @@ (System.IO.Path.GetFileNameWithoutExtension f)))
-    |>  Seq.iter (fun (fromDir, toDir) -> CopyDir toDir fromDir (fun _ -> true))
-
-    // All Type Providers components should be in the same directory
-    CopyDir "bin/SwaggerProvider" "bin/SwaggerProvider.DesignTime" (fun _ -> true)
+    let setParam dir (p:DotNetCli.PublishParams) =
+        { p with
+            Output = "../../bin"
+            Framework = "net45"
+            WorkingDir = dir }
+    DotNetCli.Publish (setParam "src/SwaggerProvider/")
+    DotNetCli.Publish (setParam "src/SwaggerProvider.DesignTime/")
 )
 
 // --------------------------------------------------------------------------------------
@@ -116,22 +87,34 @@ Target "CleanDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
+let mutable dotnetExePath = "dotnet"
+let dotnetcliVersion = "2.1.101"
+
+Target "InstallDotNetCore" (fun _ ->
+    dotnetExePath <- DotNetCli.InstallDotNetSDK dotnetcliVersion
+    Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", dotnetExePath)
+)
+
 Target "Build" (fun _ ->
-    !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
+    DotNetCli.Build (fun c ->
+        { c with
+            Project = "SwaggerProvider.sln"
+            Configuration = "Release"
+            ToolPath = dotnetExePath })
 )
 
 Target "StartServer" (fun _ ->
     ProcessHelper.StartProcess (fun prInfo ->
-        prInfo.FileName <- "tests/Swashbuckle.OWIN.Server/bin/Release/Swashbuckle.OWIN.Server.exe")
+        prInfo.FileName <- "tests/Swashbuckle.OWIN.Server/bin/Release/net461/Swashbuckle.OWIN.Server.exe")
     System.Threading.Thread.Sleep(2000)
 )
 
 Target "BuildTests" (fun _ ->
-    !! "SwaggerProvider.TestsAndDocs.sln"
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
+    DotNetCli.Build (fun c ->
+        { c with
+            Project = "SwaggerProvider.TestsAndDocs.sln"
+            Configuration = "Release"
+            ToolPath = dotnetExePath })
 )
 
 // --------------------------------------------------------------------------------------
@@ -183,14 +166,14 @@ Target "PublishNuget" (fun _ ->
 module Fake =
     let fakePath = "packages" </> "build" </> "FAKE" </> "tools" </> "FAKE.exe"
     let fakeStartInfo script workingDirectory args fsiargs environmentVars =
-        (fun (info: System.Diagnostics.ProcessStartInfo) ->
-            info.FileName <- System.IO.Path.GetFullPath fakePath
+        (fun (info: Diagnostics.ProcessStartInfo) ->
+            info.FileName <- Path.GetFullPath fakePath
             info.Arguments <- sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
             info.WorkingDirectory <- workingDirectory
             let setVar k v = info.EnvironmentVariables.[k] <- v
             for (k, v) in environmentVars do setVar k v
             setVar "MSBuild" msBuildExe
-            setVar "GIT" Git.CommandHelper.gitPath
+            setVar "GIT" CommandHelper.gitPath
             setVar "FSI" fsiPath)
 
     /// Run the given buildscript with FAKE.exe
@@ -252,6 +235,7 @@ Target "BuildPackage" DoNothing
 Target "All" DoNothing
 
 "Clean"
+  ==> "InstallDotNetCore"
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "CopyBinaries"
