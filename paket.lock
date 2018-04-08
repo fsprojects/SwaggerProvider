@@ -1,18 +1,18 @@
-RESTRICTION: >= net45
+RESTRICTION: >= net461
 NUGET
   remote: https://www.nuget.org/api/v2
-    FSharp.Core (4.0.0.1)
-    Microsoft.OpenApi (1.0.0-beta016) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+    FSharp.Core (4.3.4)
+    Microsoft.OpenApi (1.0.0-beta016)
     Microsoft.OpenApi.Readers (1.0.0-beta016)
-      Microsoft.OpenApi (>= 1.0.0-beta016) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
-      SharpYaml (>= 1.6.1) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+      Microsoft.OpenApi (>= 1.0.0-beta016)
+      SharpYaml (>= 1.6.1)
     Newtonsoft.Json (11.0.2)
-    SharpYaml (1.6.2) - restriction: || (&& (>= net45) (>= netstandard2.0)) (>= net46)
+    SharpYaml (1.6.2)
     YamlDotNet (4.3.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/NameUtils.fs (9f44d02aa78801eb555864b2a159422e31aef6bc)
-    src/CommonRuntime/Pluralizer.fs (9f44d02aa78801eb555864b2a159422e31aef6bc)
+    src/CommonRuntime/NameUtils.fs (5d9cf265dc741cb5bff6b67f4ac16e829dc86156)
+    src/CommonRuntime/Pluralizer.fs (5d9cf265dc741cb5bff6b67f4ac16e829dc86156)
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (f0c4a6300db313eb2616c4f792cd6ae68c255e56)
     src/ProvidedTypes.fsi (f0c4a6300db313eb2616c4f792cd6ae68c255e56)

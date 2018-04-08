@@ -67,7 +67,7 @@ Target "CopyBinaries" (fun _ ->
     let setParam dir (p:DotNetCli.PublishParams) =
         { p with
             Output = "../../bin"
-            Framework = "net45"
+            Framework = "net461"
             WorkingDir = dir }
     DotNetCli.Publish (setParam "src/SwaggerProvider/")
     DotNetCli.Publish (setParam "src/SwaggerProvider.DesignTime/")

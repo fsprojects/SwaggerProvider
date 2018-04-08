@@ -1,8 +1,8 @@
 source https://nuget.org/api/v2
-framework: >= net45
+framework: >= net461
 
 nuget Newtonsoft.Json >= 9.0.1
-nuget FSharp.Core ~> 4.0.0
+nuget FSharp.Core ~> 4
 nuget YamlDotNet
 // New schema parser (experimental at the moment)
 nuget Microsoft.OpenApi.Readers prerelease
