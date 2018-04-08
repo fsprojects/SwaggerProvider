@@ -13,8 +13,9 @@ open System.Text.RegularExpressions
 open SwaggerProvider.Internal
 open System.Net.Http
 open System.Collections.Generic
-open System.Linq
 open System.Threading.Tasks
+open System.Security.AccessControl
+open SwaggerProvider.Internal.Configuration
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -73,6 +74,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                  )
 
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
+            Logging.logf "creating %s" methodName
             let thisTy = typeof<ProvidedSwaggerBaseType>
             let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
             let host = <@ (%this).Host @>
@@ -89,8 +91,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
             // Fit headers into quotation
             let headers =
-                let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
-                <@ let ctHeaderExist = %headers |> Array.exists (fun (h,_)->h="Content-Type")
+                let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt = "application/json")
+                <@ let ctHeaderExist = %headers |> Array.exists (fun (h, _)-> h = "Content-Type")
                    if not(ctHeaderExist) && jsonConsumable
                    then Array.append [|"Content-Type","application/json"|] %headers
                    else %headers @>
@@ -110,7 +112,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     | _  ->
                         failwithf "Function '%s' does not support functions as arguments." methodName
                     )
-
+            Logging.logf "found parameters: %A" (parameters |> List.map fst)
             // Makes argument a string // TODO: Make body an exception
             let coerceString defType (format : CollectionFormat) exp =
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
@@ -145,9 +147,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let sendFilesMultipart required (parts: Expr): (ParameterObjectLocation * SchemaObject * Expr) option =
               let asSeq =
                 if required
-                then <@ %%parts: seq<string*IO.Stream> @>
-                else <@ defaultArg (%%parts: seq<string*IO.Stream> option) Seq.empty @>
-              Some (FormData, File, asSeq.Raw)
+                then <@ %%parts : seq<string*IO.Stream> @>.Raw
+                else Expr.Coerce (<@ defaultArg (%%parts : seq<string * IO.Stream> option) Seq.empty @>, typeof<seq<string * IO.Stream>>)
+              Some (FormData, File, asSeq)
 
             // Partitions arguments based on their locations
             let (path, payload, queries, heads) =
@@ -174,12 +176,6 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
             let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
 
-            // let customizeHttpRequest =
-            //     <@ fun (request:HttpRequestMessage) ->
-            //          if httpMethod = Post.ToString() && request.Content <> null
-            //          then request.Content.Headers.ContentLength <- Nullable<_> 0L
-            //          (%customizeHttpRequest) request @>
-
             let innerReturnType = defaultArg retTy null
 
             let httpRequestMessage =
@@ -203,11 +199,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 match payload with
                 | None -> httpRequestMessage
                 | Some (FormData, File, b) ->
-                    <@  let parts = (%%b: seq<string*IO.Stream>)
+                    Logging.logf "they making me splice, yo: %A" b
+                    <@  let parts = %%b: seq<string*IO.Stream>
                         let content = new MultipartFormDataContent()
-                        parts |> Seq.iter (fun (name, data) ->
-                          content.Add(new StreamContent(data), name, name)
-                        )
+                        parts
+                        |> Seq.iter (fun (name, data) ->  content.Add(new StreamContent(data), name, name))
                         let msg = %httpRequestMessage
                         msg.Content <- content
                         msg @>
@@ -260,6 +256,23 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                    } @>
 
             let task t = <@ Async.StartAsTask(%t) @>
+
+            (* current error
+
+              unknown expression
+                'TryFinally (WhileLoop (Call (Some (enumerator), MoveNext, []),
+                  Let (forLoopVar,
+                    Call (Some (enumerator), get_Current, []),
+                      Let (name,
+                        Call (Some (forLoopVar), get_Item1, []),
+                        Let (data,
+                          Call (Some (forLoopVar), get_Item2, []),
+                            Call (Some (content), Add,
+                              [Coerce (NewObject (StreamContent, data), HttpContent), name, name]))))),
+                            IfThenElse (TypeTest (IDisposable, Coerce (enumerator, Object)),
+                              Call (Some (Call (None, UnboxGeneric, [Coerce (enumerator, Object)])), Dispose, []),
+                              Value (<null>)))
+             *)
 
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
             // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.

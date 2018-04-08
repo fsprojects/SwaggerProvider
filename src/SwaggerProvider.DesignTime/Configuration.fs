@@ -8,8 +8,9 @@ open System.Configuration
 open System.Collections.Generic
 
 type Logging() =
-  static member logf (s: string) =
-    () // File.AppendAllLines("swaggerlog", [|s|])
+  static member logf f =
+    Printf.kprintf (fun result -> File.AppendAllLines("swaggerlog", [|result|])) f
+
 
 /// Returns the Assembly object of SwaggerProvider.Runtime.dll (this needs to
 /// work when called from SwaggerProvider.DesignTime.dll)
@@ -51,13 +52,13 @@ let probingLocations =
   try
     let rootExe = getAssemblyLocation swaggerRuntimeAssy
     let rootDir = Path.GetDirectoryName rootExe
-    Logging.logf <| sprintf "Root %s" rootDir
+    Logging.logf "Root %s" rootDir
     let config = System.Configuration.ConfigurationManager.OpenExeConfiguration(rootExe)
     let pattern = config.AppSettings.Settings.["ProbingLocations"]
     if isNull pattern
     then []
     else
-      Logging.logf <| sprintf "Probing patterns %A" (pattern.Value.Split(';'))
+      Logging.logf "Probing patterns %A" (pattern.Value.Split(';'))
       let dirs =
         [ yield rootDir
           let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
@@ -66,7 +67,7 @@ let probingLocations =
             for dir in roots |> searchDirectories (List.ofSeq (pat.Split('/','\\'))) do
               if Directory.Exists(dir)
               then yield Path.GetFullPath(dir) ]
-      Logging.logf (sprintf "Found probing directories: %A" dirs)
+      Logging.logf "Found probing directories: %A" dirs
       dirs
   with :? ConfigurationErrorsException | :? KeyNotFoundException -> []
 
@@ -85,7 +86,7 @@ let resolveReferencedAssembly (asmName:string) =
     |> Seq.tryFind (fun a -> AssemblyName.ReferenceMatchesDefinition(fullName, a.GetName()))
   match loadedAsm with
   | Some asm ->
-    Logging.logf (sprintf "found assembly %s" asm.FullName)
+    Logging.logf "found assembly %s" asm.FullName
     asm
   | None ->
     // Otherwise, search the probing locations for a DLL file
@@ -96,7 +97,7 @@ let resolveReferencedAssembly (asmName:string) =
     let asm = probingLocations |> Seq.tryPick (fun dir ->
       let library = Path.Combine(dir, libraryName+".dll")
       if File.Exists(library) then
-        Logging.logf <| sprintf "Found assembly, checking version! (%s)" library
+        Logging.logf "Found assembly, checking version! (%s)" library
         // We do a ReflectionOnlyLoad so that we can check the version
         let refAssem = Assembly.ReflectionOnlyLoadFrom(library)
         // If it matches, we load the actual assembly
@@ -107,8 +108,8 @@ let resolveReferencedAssembly (asmName:string) =
           Logging.logf "...version mismatch, skipping"
           None
       else
-        Logging.logf <| sprintf "Didn't find library %s" libraryName
+        Logging.logf "Didn't find library %s" libraryName
         None)
 
-    if asm = None then Logging.logf <| sprintf "Assembly not found! %s" asmName
+    if asm = None then Logging.logf "Assembly not found! %s" asmName
     defaultArg asm null

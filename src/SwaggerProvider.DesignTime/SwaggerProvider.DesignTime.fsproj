@@ -63,10 +63,10 @@
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Utils.fs" />
+    <Compile Include="Configuration.fs" />
     <Compile Include="DefinitionCompiler.fs" />
     <Compile Include="OperationCompiler.fs" />
     <Compile Include="SwaggerProviderConfig.fs" />
-    <Compile Include="Configuration.fs" />
     <Compile Include="SwaggerProvider.fs" />
     <None Include="paket.references" />
   </ItemGroup>
