@@ -74,7 +74,7 @@ NUGET
     Expecto (7.0.1)
       Argu (>= 5.1)
       Mono.Cecil (>= 0.10)
-    FSharp.Compiler.Service (22.0.3)
+    FSharp.Compiler.Service (22.0.3) - redirects: force
       FSharp.Core (>= 4.1.18)
       Microsoft.DiaSymReader (>= 1.1)
       Microsoft.DiaSymReader.PortablePdb (>= 1.2)
@@ -82,9 +82,9 @@ NUGET
       System.Reflection.Metadata (>= 1.4.2)
       System.ValueTuple (>= 4.4)
     FSharp.Core (4.3.4) - redirects: force
-    Microsoft.DiaSymReader (1.2)
+    Microsoft.DiaSymReader (1.2) - redirects: force
       Microsoft.Net.Compilers (>= 2.3)
-    Microsoft.DiaSymReader.PortablePdb (1.4)
+    Microsoft.DiaSymReader.PortablePdb (1.4) - redirects: force
       Microsoft.DiaSymReader (>= 1.2)
       System.Collections (>= 4.3)
       System.Collections.Immutable (>= 1.3.1)
@@ -100,26 +100,26 @@ NUGET
       System.Runtime.InteropServices (>= 4.3)
       System.Text.Encoding (>= 4.3)
       System.Threading (>= 4.3)
-    Microsoft.Net.Compilers (2.7)
-    Microsoft.NETCore.Platforms (2.0.1)
+    Microsoft.Net.Compilers (2.7) - redirects: force
+    Microsoft.NETCore.Platforms (2.0.1) - redirects: force
     Mono.Cecil (0.10)
-    NETStandard.Library (2.0.2)
+    NETStandard.Library (2.0.2) - redirects: force
       Microsoft.NETCore.Platforms (>= 1.1)
-    System.Collections (4.3)
-    System.Collections.Immutable (1.4)
+    System.Collections (4.3) - redirects: force
+    System.Collections.Immutable (1.4) - redirects: force
       NETStandard.Library (>= 1.6.1)
-    System.Diagnostics.Debug (4.3)
-    System.Globalization (4.3)
-    System.IO (4.3)
-    System.Linq (4.3)
-    System.Reflection (4.3)
-    System.Reflection.Metadata (1.5)
+    System.Diagnostics.Debug (4.3) - redirects: force
+    System.Globalization (4.3) - redirects: force
+    System.IO (4.3) - redirects: force
+    System.Linq (4.3) - redirects: force
+    System.Reflection (4.3) - redirects: force
+    System.Reflection.Metadata (1.5) - redirects: force
       NETStandard.Library (>= 1.6.1)
       System.Collections.Immutable (>= 1.4)
-    System.Reflection.Primitives (4.3)
-    System.Runtime (4.3)
-    System.Runtime.Extensions (4.3)
-    System.Runtime.InteropServices (4.3)
-    System.Text.Encoding (4.3)
-    System.Threading (4.3)
-    System.ValueTuple (4.4)
+    System.Reflection.Primitives (4.3) - redirects: force
+    System.Runtime (4.3) - redirects: force
+    System.Runtime.Extensions (4.3) - redirects: force
+    System.Runtime.InteropServices (4.3) - redirects: force
+    System.Text.Encoding (4.3) - redirects: force
+    System.Threading (4.3) - redirects: force
+    System.ValueTuple (4.4) - redirects: force
