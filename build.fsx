@@ -78,6 +78,7 @@ Target "CopyBinaries" (fun _ ->
 
 Target "Clean" (fun _ ->
     CleanDirs ["bin"; "temp"]
+    try System.IO.File.Delete("swaggerlog") with | _ -> ()
 )
 
 Target "CleanDocs" (fun _ ->

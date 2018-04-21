@@ -23,7 +23,7 @@ summary
 description
     F# Type Provider for Swagger
 files
-    ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net45
+    ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net461
     SwaggerProvider.fsx ==> .
 dependencies
     FSharp.Core >= LOCKEDVERSION

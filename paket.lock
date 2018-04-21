@@ -21,7 +21,7 @@ GROUP Build
 RESTRICTION: == net461
 NUGET
   remote: https://www.nuget.org/api/v2
-    DotLiquid (2.0.254)
+    DotLiquid (2.0.262)
     FAKE (4.64.12)
     FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.3.4)
@@ -35,7 +35,7 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (b011a602d0b690fb80a30e5b97df53523d6c4b23)
+    modules/Octokit/Octokit.fsx (800579e69ce35b77345ee21923ddf117168067cd)
       Octokit (>= 0.20)
 GROUP OWIN
 RESTRICTION: == net461
