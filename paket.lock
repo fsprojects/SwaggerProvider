@@ -8,11 +8,12 @@ NUGET
       SharpYaml (>= 1.6.1)
     Newtonsoft.Json (11.0.2)
     SharpYaml (1.6.2)
+    System.Configuration.ConfigurationManager (4.4.1)
     YamlDotNet (4.3.1)
 GITHUB
   remote: fsharp/FSharp.Data
-    src/CommonRuntime/NameUtils.fs (5d9cf265dc741cb5bff6b67f4ac16e829dc86156)
-    src/CommonRuntime/Pluralizer.fs (5d9cf265dc741cb5bff6b67f4ac16e829dc86156)
+    src/CommonRuntime/NameUtils.fs (bccaab8303b9060090f158cee7f12ff5433f51cb)
+    src/CommonRuntime/Pluralizer.fs (bccaab8303b9060090f158cee7f12ff5433f51cb)
   remote: fsprojects/FSharp.TypeProviders.SDK
     src/ProvidedTypes.fs (f0c4a6300db313eb2616c4f792cd6ae68c255e56)
     src/ProvidedTypes.fsi (f0c4a6300db313eb2616c4f792cd6ae68c255e56)

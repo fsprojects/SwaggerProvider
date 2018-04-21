@@ -8,8 +8,8 @@ open System.Configuration
 open System.Collections.Generic
 
 type Logging() =
-  static member logf (s: string) =
-    () // File.AppendAllLines("swaggerlog", [|s|])
+  static member logf fmt =
+    Printf.kprintf (fun s ->  File.AppendAllLines("/Users/chethusk/oss/swaggerprovider/swaggerlog", [|s|])) fmt
 
 /// Returns the Assembly object of SwaggerProvider.Runtime.dll (this needs to
 /// work when called from SwaggerProvider.DesignTime.dll)
@@ -48,27 +48,34 @@ let getAssemblyLocation (assem:Assembly) =
 /// parameter from the configuration file. Resolves the directories and returns
 /// them as a list.
 let probingLocations =
-  try
-    let rootExe = getAssemblyLocation swaggerRuntimeAssy
-    let rootDir = Path.GetDirectoryName rootExe
-    Logging.logf <| sprintf "Root %s" rootDir
-    let config = System.Configuration.ConfigurationManager.OpenExeConfiguration(rootExe)
-    let pattern = config.AppSettings.Settings.["ProbingLocations"]
-    if isNull pattern
-    then []
-    else
-      Logging.logf <| sprintf "Probing patterns %A" (pattern.Value.Split(';'))
-      let dirs =
-        [ yield rootDir
-          let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
-          for pat in pattern do
-            let roots = [ rootDir ]
-            for dir in roots |> searchDirectories (List.ofSeq (pat.Split('/','\\'))) do
-              if Directory.Exists(dir)
-              then yield Path.GetFullPath(dir) ]
-      Logging.logf (sprintf "Found probing directories: %A" dirs)
-      dirs
-  with :? ConfigurationErrorsException | :? KeyNotFoundException -> []
+  let rootExe = getAssemblyLocation swaggerRuntimeAssy
+  let rootDir = Path.GetDirectoryName rootExe
+  Logging.logf "Root %s" rootDir
+
+  let config =
+    try
+      Some <| System.Configuration.ConfigurationManager.OpenExeConfiguration(rootExe)
+    with
+    | _ ->
+      Logging.logf "no App Exe found"
+      None
+
+  let pattern = config |> Option.map (fun config -> config.AppSettings.Settings.["ProbingLocations"])
+  match pattern with
+  | Some null
+  | None -> []
+  | Some pattern ->
+    Logging.logf "Probing patterns %A" (pattern.Value.Split(';'))
+    let dirs =
+      [ yield rootDir
+        let pattern = pattern.Value.Split(';', ',') |> List.ofSeq
+        for pat in pattern do
+          let roots = [ rootDir ]
+          for dir in roots |> searchDirectories (List.ofSeq (pat.Split('/','\\'))) do
+            if Directory.Exists(dir)
+            then yield Path.GetFullPath(dir) ]
+    Logging.logf "Found probing directories: %A" dirs
+    dirs
 
 /// Given an assembly name, try to find it in either assemblies
 /// loaded in the current AppDomain, or in one of the specified
@@ -85,7 +92,7 @@ let resolveReferencedAssembly (asmName:string) =
     |> Seq.tryFind (fun a -> AssemblyName.ReferenceMatchesDefinition(fullName, a.GetName()))
   match loadedAsm with
   | Some asm ->
-    Logging.logf (sprintf "found assembly %s" asm.FullName)
+    Logging.logf "found assembly %s" asm.FullName
     asm
   | None ->
     // Otherwise, search the probing locations for a DLL file
@@ -96,7 +103,7 @@ let resolveReferencedAssembly (asmName:string) =
     let asm = probingLocations |> Seq.tryPick (fun dir ->
       let library = Path.Combine(dir, libraryName+".dll")
       if File.Exists(library) then
-        Logging.logf <| sprintf "Found assembly, checking version! (%s)" library
+        Logging.logf "Found assembly, checking version! (%s)" library
         // We do a ReflectionOnlyLoad so that we can check the version
         let refAssem = Assembly.ReflectionOnlyLoadFrom(library)
         // If it matches, we load the actual assembly
@@ -107,8 +114,8 @@ let resolveReferencedAssembly (asmName:string) =
           Logging.logf "...version mismatch, skipping"
           None
       else
-        Logging.logf <| sprintf "Didn't find library %s" libraryName
+        Logging.logf "Didn't find library %s" libraryName
         None)
 
-    if asm = None then Logging.logf <| sprintf "Assembly not found! %s" asmName
+    if asm = None then Logging.logf "Assembly not found! %s" asmName
     defaultArg asm null

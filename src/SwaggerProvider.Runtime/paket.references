@@ -1,3 +1,4 @@
 FSharp.Core
 Newtonsoft.Json
 YamlDotNet
+System.Configuration.ConfigurationManager

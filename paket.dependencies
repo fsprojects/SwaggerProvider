@@ -6,6 +6,7 @@ nuget FSharp.Core ~> 4
 nuget YamlDotNet
 // New schema parser (experimental at the moment)
 nuget Microsoft.OpenApi.Readers prerelease
+nuget System.Configuration.ConfigurationManager
 
 github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
 github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs

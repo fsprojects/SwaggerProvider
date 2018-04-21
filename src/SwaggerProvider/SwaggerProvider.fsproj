@@ -5,10 +5,6 @@
     <TargetFrameworks>net461</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyName>SwaggerProvider</AssemblyName>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-  </PropertyGroup>
   <ItemGroup>
     <Compile Include="../Common/AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
