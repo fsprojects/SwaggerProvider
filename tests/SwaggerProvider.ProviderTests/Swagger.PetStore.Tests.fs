@@ -14,11 +14,9 @@ let petStoreTests =
   testList "All/TP PetStore Tests" [
 
     testCase "Test provided Host property" <| fun _ ->
-        Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io" "value from schema"
-        store.HttpClient.BaseAddress <- Uri "https://petstore.swagger.io"
-        Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io" "Modified value"
-        store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io"
-        Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io" "original value"
+        Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io/" "value from schema"
+        store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/"
+        Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io/" "Modified value"
 
     testCase "instantiate provided objects" <| fun _ ->
         let pet = PetStore.Pet(Name = "foo")

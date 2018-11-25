@@ -8,7 +8,7 @@ open Fake
 
 let assembliesList =
     let buildTarget name =
-        Path.Combine(__SOURCE_DIRECTORY__, "../../bin/", name)
+        Path.Combine(__SOURCE_DIRECTORY__, "../../src/SwaggerProvider.Runtime/bin/Release/net45", name)
         |> Path.GetFullPath
     [
         //yield typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
@@ -16,7 +16,6 @@ let assembliesList =
         yield typeof<System.Net.CookieContainer>.Assembly.Location
         yield typeof<System.Net.Http.HttpRequestMessage>.Assembly.Location
         yield buildTarget "SwaggerProvider.Runtime.dll"
-        yield buildTarget "SwaggerProvider.dll"
     ]
 let referencedAssemblies =
     typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
