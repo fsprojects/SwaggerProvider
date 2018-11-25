@@ -8,14 +8,15 @@ open Fake
 
 let assembliesList =
     let buildTarget name =
-        Path.Combine(__SOURCE_DIRECTORY__, "../../src/SwaggerProvider.Runtime/bin/Release/net45", name)
+        Path.Combine(__SOURCE_DIRECTORY__, name)
         |> Path.GetFullPath
     [
         //yield typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
         yield typeof<System.Int32>.Assembly.Location
         yield typeof<System.Net.CookieContainer>.Assembly.Location
         yield typeof<System.Net.Http.HttpRequestMessage>.Assembly.Location
-        yield buildTarget "SwaggerProvider.Runtime.dll"
+        yield buildTarget "../../src/SwaggerProvider.Runtime/bin/Release/net45/SwaggerProvider.Runtime.dll"
+        yield buildTarget "../../src/SwaggerProvider.Runtime/bin/Release/typeproviders/fsharp41/net45/Newtonsoft.Json.dll"
     ]
 let referencedAssemblies =
     typeof<FSharp.Core.AbstractClassAttribute>.Assembly.Location
@@ -38,7 +39,7 @@ let testTemplate url testBodyFunc =
     type ProvidedSwagger = SwaggerProvider<"%s">
     let instance = ProvidedSwagger.Client()
     #if INTERACTIVE
-    System.Console.WriteLine("Hello from FSI: {0}", instance.Host)
+    System.Console.WriteLine("Hello from FSI: {0}", instance.HttpClient.BaseAddress)
     #endif
     """ url)
 
