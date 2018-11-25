@@ -6,7 +6,6 @@ open SwaggerProvider.Internal.Compilers
 open Expecto
 open System
 open System.IO
-open System.Net.Http
 
 type ThisAssemblyPointer() = class end
 let root =
@@ -47,12 +46,10 @@ let petStoreTests =
             (schema.Definitions.Length)
             6 "only 6 objects in PetStore"
 
-        use client = new HttpClient()
+        use client = new Net.WebClient()
         let schemaOnline =
             "http://petstore.swagger.io/v2/swagger.json"
-            |> client.GetStringAsync
-            |> Async.AwaitTask
-            |> Async.RunSynchronously
+            |> client.DownloadString
             |> parseJson
 
         Expect.equal schemaOnline.BasePath schema.BasePath "same BasePath"
@@ -91,11 +88,9 @@ let parserTestBody formatParser (url:string) =
     let schemaStr = 
         match Uri.TryCreate(url, UriKind.Absolute) with
         | true, uri when url.IndexOf("http") >=0  -> 
-            let client = new HttpClient()
+            use client = new Net.WebClient()
             try
-                client.GetStringAsync(uri)
-                |> Async.AwaitTask
-                |> Async.RunSynchronously
+                client.DownloadString(uri)
             with e ->
                 Tests.skiptestf "Netowork issue %s" e.Message
         | _ when File.Exists(url) ->
