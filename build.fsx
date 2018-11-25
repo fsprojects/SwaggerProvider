@@ -60,19 +60,6 @@ Target "AssemblyInfo" (fun _ ->
         Attribute.FileVersion release.AssemblyVersion ]
 )
 
-// Copies binaries from default VS location to exepcted bin folder
-// But keeps a subdirectory structure for each project in the
-// src folder to support multiple project outputs
-Target "CopyBinaries" (fun _ ->
-    let setParam dir (p:DotNetCli.PublishParams) =
-        { p with
-            Output = "../../bin"
-            Framework = "net461"
-            WorkingDir = dir }
-    DotNetCli.Publish (setParam "src/SwaggerProvider/")
-    DotNetCli.Publish (setParam "src/SwaggerProvider.DesignTime/")
-)
-
 // --------------------------------------------------------------------------------------
 // Clean build results
 
@@ -89,7 +76,7 @@ Target "CleanDocs" (fun _ ->
 // Build library & test project
 
 let mutable dotnetExePath = "dotnet"
-let dotnetcliVersion = "2.1.101"
+let dotnetcliVersion = "2.1.401"
 
 Target "InstallDotNetCore" (fun _ ->
     dotnetExePath <- DotNetCli.InstallDotNetSDK dotnetcliVersion
@@ -239,7 +226,6 @@ Target "All" DoNothing
   ==> "InstallDotNetCore"
   ==> "AssemblyInfo"
   ==> "Build"
-  ==> "CopyBinaries"
   ==> "StartServer"
   ==> "BuildTests"
   ==> "RunUnitTests"

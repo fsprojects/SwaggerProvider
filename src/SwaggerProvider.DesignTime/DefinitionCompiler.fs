@@ -244,10 +244,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                                         then String.Format("\"{0}\"",v)
                                         elif vTy.IsArray
                                         then
-                                            let elements =
-                                                [| for x in (v :?> Collections.IEnumerable) do
-                                                     yield formatValue x 
-                                                |]
+                                            let elements = (v :?> seq<_>) |> Seq.map formatValue
                                             String.Format("[{0}]", String.Join("; ", elements))
                                         else v.ToString()
 
@@ -291,12 +288,13 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 | Object _  -> failwith "This case should be catched by other match statement"
         if isRequired then tyType
         else 
-            if provideNullable then 
-                if tyType.IsValueType
-                then ProvidedTypeBuilder.MakeGenericType(typedefof<Nullable<int>>, [tyType])
-                else tyType
-            else 
-                ProvidedTypeBuilder.MakeGenericType(typedefof<Option<obj>>, [tyType])
+            if tyType.IsValueType then 
+                let baseGenTy = 
+                    if provideNullable 
+                    then typedefof<Nullable<int>>
+                    else typedefof<Option<obj>>
+                ProvidedTypeBuilder.MakeGenericType(baseGenTy, [tyType])
+            else tyType
 
     // Precompile types defined in the `definitions` part of the schema
     do  schema.Definitions

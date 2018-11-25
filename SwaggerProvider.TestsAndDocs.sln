@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -28,6 +28,12 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.ProviderTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerProvider.ProviderTests.CSharp", "tests\SwaggerProvider.ProviderTests.CSharp\SwaggerProvider.ProviderTests.CSharp.csproj", "{2950E2AC-A436-452A-9524-04BE7C82FA05}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1D6B2F7D-FC4A-499B-B3D1-42A09F42AAAF}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.Runtime", "src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj", "{DC3E73AF-5B15-45AD-B3C5-B3707DCB0F81}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.DesignTime", "src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj", "{0598B4A4-3017-493E-8A64-293EAB4CFB95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +48,10 @@ Global
 		{2950E2AC-A436-452A-9524-04BE7C82FA05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2950E2AC-A436-452A-9524-04BE7C82FA05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2950E2AC-A436-452A-9524-04BE7C82FA05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0598B4A4-3017-493E-8A64-293EAB4CFB95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0598B4A4-3017-493E-8A64-293EAB4CFB95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0598B4A4-3017-493E-8A64-293EAB4CFB95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0598B4A4-3017-493E-8A64-293EAB4CFB95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -51,5 +61,7 @@ Global
 		{8E6D5255-776D-4B61-85F9-73C37AA1FB9A} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
 		{F26DFAA6-CB19-46EB-9FBD-F4A4DC46C3F5} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 		{2950E2AC-A436-452A-9524-04BE7C82FA05} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
+		{DC3E73AF-5B15-45AD-B3C5-B3707DCB0F81} = {1D6B2F7D-FC4A-499B-B3D1-42A09F42AAAF}
+		{0598B4A4-3017-493E-8A64-293EAB4CFB95} = {1D6B2F7D-FC4A-499B-B3D1-42A09F42AAAF}
 	EndGlobalSection
 EndGlobal

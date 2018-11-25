@@ -10,9 +10,10 @@ open System
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open System.Text.RegularExpressions
-open SwaggerProvider.Internal
 open System.Net.Http
 open System.Collections.Generic
+open SwaggerProvider.Internal
+open Swagger
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -21,34 +22,34 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             then failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
 
         let parameters =
-            /// handles deduping Swagger parameter names if the same parameter name 
+            /// handles deduping Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
-            let uniqueParamName existing (current: ParameterObject) = 
+            let uniqueParamName existing (current: ParameterObject) =
                 let name = niceCamelName current.Name
-                if Set.contains name existing 
+                if Set.contains name existing
                 then
                     Set.add current.UnambiguousName existing, current.UnambiguousName
                 else
-                    Set.add name existing, name                
-                
+                    Set.add name existing, name
+
             let required, optional = op.Parameters |> Array.partition (fun x->x.Required)
-            
+
             Array.append required optional
-            |> Array.fold (fun (names,parameters) current -> 
+            |> Array.fold (fun (names,parameters) current ->
                let (names, paramName) = uniqueParamName names current
                let paramType = defCompiler.CompileTy methodName paramName current.Type current.Required
-               let providedParam = 
+               let providedParam =
                    if current.Required then ProvidedParameter(paramName, paramType)
-                   else 
+                   else
                        let paramDefaultValue = defCompiler.GetDefaultValue paramType
                        ProvidedParameter(paramName, paramType, false, paramDefaultValue)
                (names, providedParam :: parameters)
             ) (Set.empty, [])
             |> snd
-            // because we built up our list in reverse order with the fold, 
+            // because we built up our list in reverse order with the fold,
             // reverse it again so that all required properties come first
             |> List.rev
-        
+
         // find the innner type value
         let retTy =
             let okResponse = // BUG :  wrong selector
@@ -63,34 +64,25 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
         let overallReturnType =
             ProvidedTypeBuilder.MakeGenericType(
-                    (if asAsync 
-                     then typedefof<Async<unit>> 
+                    (if asAsync
+                     then typedefof<Async<unit>>
                      else typedefof<System.Threading.Tasks.Task<unit>>),
                     [defaultArg retTy (typeof<unit>)]
                  )
 
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
-            let thisTy = typeof<ProvidedSwaggerBaseType>
-            let this = Expr.Coerce(args.[0], thisTy) |> Expr.Cast<ProvidedSwaggerBaseType>
-            let host = <@ (%this).Host @>
-            let headers = <@ (%this).Headers @>
-            let customizeHttpRequest = <@ (%this).CustomizeHttpRequest @> 
-            
-            let httpMethod = op.Type.ToString()
-            
-            let basePath =
-                let basePath = schema.BasePath
-                if String.IsNullOrWhiteSpace basePath
-                then host
-                else <@ RuntimeHelpers.combineUrl %host basePath @>
+            let this =
+                Expr.Coerce(args.[0], typeof<SwaggerApiClientBase>)
+                |> Expr.Cast<SwaggerApiClientBase>
 
-            // Fit headers into quotation
+            let httpMethod = op.Type.ToString()
+            let basePath = schema.BasePath
+
             let headers =
                 let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
-                <@ let ctHeaderExist = %headers |> Array.exists (fun (h,_)->h="Content-Type")
-                   if not(ctHeaderExist) && jsonConsumable
-                   then Array.append [|"Content-Type","application/json"|] %headers
-                   else %headers @>
+                <@ if jsonConsumable
+                   then [|"Content-Type","application/json"|]
+                   else [||] @>
 
             // Locates parameters matching the arguments
             let parameters =
@@ -99,7 +91,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     | ShapeVar sVar as expr ->
                         let param =
                             op.Parameters
-                            |> Array.find (fun x -> 
+                            |> Array.find (fun x ->
                                 // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
                                 let baseName = niceCamelName x.Name
                                 baseName = sVar.Name || x.UnambiguousName = sVar.Name )
@@ -147,46 +139,41 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                     fun (path, load, quer, head) (param : ParameterObject, exp) ->
                         let name = param.Name
                         match param.In with
-                        | Path   -> 
+                        | Path   ->
                             let value = coerceString param.Type param.CollectionFormat exp
                             (replacePathTemplate path name value, load, quer, head)
                         | FormData
                         | Body   -> (path, addPayload load param exp, quer, head)
                         | Query  -> (path, load, addQuery quer name exp, head)
-                        | Header -> 
+                        | Header ->
                             let value = coerceString param.Type param.CollectionFormat exp
                             (path, load, quer, addHeader head name value)
                     )
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
-            let address = <@ RuntimeHelpers.combineUrl %basePath %path @>
-
-            // let customizeHttpRequest =
-            //     <@ fun (request:HttpRequestMessage) ->
-            //          if httpMethod = Post.ToString() && request.Content <> null
-            //          then request.Content.Headers.ContentLength <- Nullable<_> 0L
-            //          (%customizeHttpRequest) request @>
+            let address = <@ RuntimeHelpers.combineUrl basePath %path @>
 
             let innerReturnType = defaultArg retTy null
-
-            let httpRequestMessage = 
+            let httpRequestMessage =
                 <@
-                    let requestUrl = 
-                        let uriB = UriBuilder %address
-                        let newQueries = 
-                            %queries 
-                            |> Seq.map (fun (name, value) -> 
+                    let requestUrl =
+                        let fakeHost = "http://fake-host/"
+                        let uri = RuntimeHelpers.combineUrl fakeHost %address
+                        let uriB = UriBuilder uri
+                        let newQueries =
+                            %queries
+                            |> Seq.map (fun (name, value) ->
                                 String.Format("{0}={1}", Uri.EscapeDataString name, Uri.EscapeDataString value))
                             |> String.concat "&"
                         if String.IsNullOrEmpty uriB.Query
                         then uriB.Query <- newQueries
                         else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
-                        uriB.Uri
-                    let method = HttpMethod(httpMethod) 
-                    new HttpRequestMessage(method, requestUrl)
+                        uriB.Uri.ToString().Substring(fakeHost.Length)
+                    let method = HttpMethod(httpMethod)
+                    new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
                 @>
 
-            let httpRequestMessageWithPayload = 
+            let httpRequestMessageWithPayload =
                 match payload with
                 | None -> httpRequestMessage
                 | Some (FormData, b) ->
@@ -195,38 +182,34 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                        msg.Content <- new FormUrlEncodedContent(keyValues)
                        msg @>
                 | Some (Body, b)     ->
-                    <@ let content = new StringContent(RuntimeHelpers.serialize (%%b: obj), Text.Encoding.UTF8, "application/json")
+                    <@ let valueStr = (%this).Serialize(%%b: obj)
+                       let content = RuntimeHelpers.toStringContent (valueStr)
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
                 | Some (x, _) -> failwith ("Payload should not be able to have type: " + string x)
-      
-            let action = 
+
+            let action =
                 <@
                     let msg = %httpRequestMessageWithPayload
-                    %heads
-                    |> Seq.iter (fun (name, value) ->
-                        if not <| msg.Headers.TryAddWithoutValidation(name, value) then
-                            let errMsg = String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
-                            if (name <> "Content-Type") then
-                                raise <| System.Exception(errMsg)
-                    )
-                    let msg = (%customizeHttpRequest) msg
-                    RuntimeHelpers.sendMessage msg
+                    RuntimeHelpers.fillHeaders msg %heads
+                    (%this).CallAsync(msg)
                 @>
-      
-            let responseObj = 
-                <@ async {
-                    let! response = %action
-                    return RuntimeHelpers.deserialize response innerReturnType
+
+            let responseObj =
+                <@ let x = %action
+                   async {
+                    let! response = x
+                    return (%this).Deserialize(response, innerReturnType)
                    } @>
 
             let responseUnit =
-                <@ async {
-                    let! _ = %action
+                <@ let x= %action
+                   async {
+                    let! _ = x
                     return ()
                    } @>
-            
+
             let task t = <@ Async.StartAsTask(%t) @>
 
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
@@ -262,7 +245,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
                 | array -> array.[0]
             sprintf "%s://%s" protocol schema.Host
-        let baseTy = Some typeof<ProvidedSwaggerBaseType>
+        let baseTy = Some typeof<SwaggerApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
 
         List.ofArray schema.Paths
@@ -274,18 +257,25 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 else x.OperationId.Substring(0, ind) )
         |> List.iter (fun (clientName, operations) ->
             let tyName = ns.ReserveUniqueName clientName "Client"
-            let ty = ProvidedTypeDefinition(tyName, baseTy, isErased = false, hideObjectMethods = true)
+            let ty = ProvidedTypeDefinition(tyName, baseTy, isErased = false, isSealed = false, hideObjectMethods = true)
             ns.RegisterType(tyName, ty)
             ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
 
-            ty.AddMember <|
+            [
                 ProvidedConstructor(
-                    [ProvidedParameter("host", typeof<string>, optionalValue = defaultHost)],
+                    [ProvidedParameter("httpClient", typeof<HttpClient>)],
                     invokeCode = (fun args ->
                         match args with
                         | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
                         | _ -> <@@ () @@>),
                     BaseConstructorCall = fun args -> (baseCtor, args))
+                ProvidedConstructor([],
+                    invokeCode = (fun args -> <@@ () @@>),
+                    BaseConstructorCall = fun args ->
+                        let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @>
+                        let args' = args @ [httpClient]
+                        (baseCtor, args'))
+            ] |> ty.AddMembers
 
             let methodNameScope = UniqueNameGenerator()
             operations |> List.map (fun op ->

@@ -2,14 +2,8 @@
 
 open System
 open Newtonsoft.Json
-open Swagger.Serialization
 open System.Threading.Tasks
 open System.Net.Http
-
-type ProvidedSwaggerBaseType (host:string) =
-    member val Host = host with get, set
-    member val Headers = Array.empty<string*string> with get, set
-    member val CustomizeHttpRequest = (id: HttpRequestMessage -> HttpRequestMessage) with get, set
 
 type AsyncExtensions () =
     static member cast<'t> asyncOp = async {
@@ -22,17 +16,6 @@ type TaskExtensions () =
     static member cast<'t> (task: Task<obj>): Task<'t> = task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)
 
 module RuntimeHelpers =
-    /// initialize a static httpclient because they are stateless as long as we don't mutate the DefaultHttpHeaders property. See https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/ and a billion other articles for why
-    ///
-    /// NOTE: DNS records for this HttpClient instance will remain stagnant once retrieved. This can be bad. We should probably convert this to some kind of factory function that swaps instances after a bit.
-    let httpClient = new HttpClient()
-
-    let sendMessage message = 
-        async {
-            let! response = httpClient.SendAsync(message) |> Async.AwaitTask
-            return! response.EnsureSuccessStatusCode().Content.ReadAsStringAsync() |> Async.AwaitTask
-        }
-
     let inline private toStrArray name values =
         values
         |> Array.map (fun value-> name, value.ToString())
@@ -80,29 +63,26 @@ module RuntimeHelpers =
             member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> Collections.Generic.IList<_>
             member __.NamedArguments = [||] :> Collections.Generic.IList<_> }
 
-    let serialize =
-        let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore)
-        settings.Converters.Add(OptionConverter () :> JsonConverter)
-        settings.Converters.Add(ByteArrayConverter () :> JsonConverter)
-        fun (value:obj) ->
-            JsonConvert.SerializeObject(value, settings)
+    let toStringContent (valueStr:string) =
+        new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
 
-    let deserialize =
-        let settings = JsonSerializerSettings(NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented)
-        settings.Converters.Add(OptionConverter () :> JsonConverter)
-        settings.Converters.Add(ByteArrayConverter () :> JsonConverter)
-        fun value (retTy:Type) ->
-            JsonConvert.DeserializeObject(value, retTy, settings)
+    let getDefaultHttpClient host =
+        new HttpClient(BaseAddress=Uri(host))
 
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
 
-    let asyncCast =
-        let castFn = typeof<AsyncExtensions>.GetMethod("cast")
-        fun runtimeTy (asyncOp: Async<obj>) ->
-            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|asyncOp|])
+    let fillHeaders (msg:HttpRequestMessage) (heads:(string*string) seq) =
+        for (name, value) in heads do
+            if not <| msg.Headers.TryAddWithoutValidation(name, value) then
+                let errMsg = String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
+                if (name <> "Content-Type") then
+                    raise <| System.Exception(errMsg)
 
-    let taskCast =
+    let asyncCast runtimeTy (asyncOp: Async<obj>) =
+        let castFn = typeof<AsyncExtensions>.GetMethod("cast")
+        castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|asyncOp|])
+
+    let taskCast runtimeTy (task: Task<obj>) =
         let castFn = typeof<TaskExtensions>.GetMethod("cast")
-        fun runtimeTy (task: Task<obj>) ->
-            castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])
+        castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])

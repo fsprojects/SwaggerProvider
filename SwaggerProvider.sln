@@ -28,8 +28,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Swashbuckle.OWIN.Server", "
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.DesignTime", "src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj", "{DBE9AA3E-AB4C-4FE3-915B-886CC6E6A88D}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider", "src\SwaggerProvider\SwaggerProvider.fsproj", "{F5FD2EFD-D6EC-4735-BEE7-DE1A9A35A6FD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,10 +50,6 @@ Global
 		{DBE9AA3E-AB4C-4FE3-915B-886CC6E6A88D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE9AA3E-AB4C-4FE3-915B-886CC6E6A88D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE9AA3E-AB4C-4FE3-915B-886CC6E6A88D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5FD2EFD-D6EC-4735-BEE7-DE1A9A35A6FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5FD2EFD-D6EC-4735-BEE7-DE1A9A35A6FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5FD2EFD-D6EC-4735-BEE7-DE1A9A35A6FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5FD2EFD-D6EC-4735-BEE7-DE1A9A35A6FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +59,5 @@ Global
 		{524FCCB2-CEA4-402B-BF6E-EE659966C853} = {3A51AC71-D3EF-46DE-A7F0-E2B46370C6EE}
 		{C2CD65DA-37A4-4A58-B450-C2AA7C8E8D2F} = {3A51AC71-D3EF-46DE-A7F0-E2B46370C6EE}
 		{DBE9AA3E-AB4C-4FE3-915B-886CC6E6A88D} = {727FB2BE-A8C5-4537-9C87-7083346E2865}
-		{F5FD2EFD-D6EC-4735-BEE7-DE1A9A35A6FD} = {727FB2BE-A8C5-4537-9C87-7083346E2865}
 	EndGlobalSection
 EndGlobal

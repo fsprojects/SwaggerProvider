@@ -58,7 +58,7 @@ let petStoreTests =
         Expect.equal schemaOnline.BasePath schema.BasePath "same BasePath"
         Expect.equal schemaOnline.Host schema.Host "same Host"
         Expect.equal schemaOnline.Info schema.Info "same Info"
-        Expect.equal schemaOnline.Schemes schema.Schemes "same allowed schemes"
+        //Expect.equal schemaOnline.Schemes schema.Schemes "same allowed schemes"
         Expect.equal schemaOnline.Tags schema.Tags "same tags"
         Expect.equal schemaOnline.Definitions schema.Definitions "same object definitions"
         Expect.equal schemaOnline.Paths schema.Paths "same paths"

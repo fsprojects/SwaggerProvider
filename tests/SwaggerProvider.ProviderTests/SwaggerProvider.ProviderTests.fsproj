@@ -4,6 +4,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net461</TargetFrameworks>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
@@ -35,29 +36,20 @@
       <Link>APIs.guru.fs</Link>
     </Compile>
     <Compile Include="APIs.Guru.FSC.Tests.fs" />
-    <Compile Include="..\SwaggerProvider.Tests\Program.fs">
-      <Link>Program.fs</Link>
-    </Compile>
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <Content Include="App.config" />
+    <Compile Include="..\SwaggerProvider.Tests\Program.fs">
+      <Link>Program.fs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.IO" />
     <Reference Include="System.Runtime" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="../../packages/build/FAKE/tools/FakeLib.dll" />
-    <Reference Include="../../bin/SwaggerProvider.dll" />
-    <Reference Include="../../bin/SwaggerProvider.Runtime.dll" />
-    <Reference Include="SwaggerProvider">
-      <HintPath>../../bin/SwaggerProvider.dll</HintPath>
-    </Reference>
-    <Reference Include="SwaggerProvider.Runtime">
-      <HintPath>../../bin/SwaggerProvider.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="SwaggerProvider.DesignTime">
-      <HintPath>../../bin/SwaggerProvider.DesignTime.dll</HintPath>
-    </Reference>
+    <Reference Include="..\..\packages\build\FAKE\tools\FakeLib.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

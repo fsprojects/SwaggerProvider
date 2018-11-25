@@ -133,7 +133,7 @@ let returnControllersTests =
     }
 
     testCaseAsync "Send and Receive object with byte[]" <| async {
-        let x = WebAPI.FileDescription(Name = Some "2.txt", Bytes = Some [|42uy|])
+        let x = WebAPI.FileDescription(Name = "2.txt", Bytes = [|42uy|])
         let! y = api.PostApiUpdateObjectFileDescriptionClass(x)
         x.Name |> shouldEqual y.Name
         x.Bytes|> shouldEqual y.Bytes
@@ -142,7 +142,7 @@ let returnControllersTests =
     testCaseAsync "Send byte[] in query" <| async {
         let bytes = [|42uy;24uy|]
         let! y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
-        y.Bytes |> shouldEqual (Some bytes)
+        y.Bytes |> shouldEqual (bytes)
     }
 
     testCaseAsync "Use Optional param Int" <| async {

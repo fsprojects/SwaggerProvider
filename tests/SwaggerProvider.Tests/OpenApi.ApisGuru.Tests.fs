@@ -8,19 +8,19 @@ open Microsoft.OpenApi.Readers
 open Microsoft.OpenApi
 
 let openApiTestBody (url:string) =
-    let stream = 
+    let stream =
         match Uri.TryCreate(url, UriKind.Absolute) with
-        | true, uri when url.IndexOf("http") >=0 -> 
+        | true, uri when url.IndexOf("http") >=0 ->
             let client = new HttpClient()
-            client.GetStreamAsync(uri)
+            client.GetStreamAsync(uri
             |> Async.AwaitTask
             |> Async.RunSynchronously
         | _ when File.Exists(url) ->
             new FileStream(url, FileMode.Open) :> Stream
-        | _ -> 
+        | _ ->
             failwithf "Cannot find schema '%s'" url
 
-    let (schema, diagnostic) = 
+    let (schema, diagnostic) =
         OpenApiStreamReader().Read(stream)
 
     Expect.equal (OpenApiSpecVersion.OpenApi2_0) (diagnostic.SpecificationVersion) "Expect v2.0 schemas"

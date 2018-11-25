@@ -1,13 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../netfx.props" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- See https://stackoverflow.com/questions/43921992/how-can-i-use-beforebuild-and-afterbuild-targets-with-visual-studio-2017 -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="..\..\netfx.props" />
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>netstandard2.0; net45</TargetFrameworks>
+    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
+    <DefineConstants>TP_RUNTIME</DefineConstants>
   </PropertyGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fsi">
+      <Paket>True</Paket>
+      <Link>paket-files/ProvidedTypes.fsi</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/ProvidedTypes.fs</Link>
+    </Compile>
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
+    <Compile Include="SwaggerProvider.Runtime.fs" />
     <Compile Include="Parser\Schema.fs" />
     <Compile Include="Parser\Parsers.fs" />
     <Compile Include="Parser\SwaggerParser.fs" />
@@ -17,7 +32,28 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Net.Http" />
+    <!-- Be explicit about the version of FSharp.Core since we mention it in the manual nuget package spec -->
+    <PackageReference Include="FSharp.Core" Version="4.3.4" />
   </ItemGroup>
+  <Target Name="BeforeBuild">
+    <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Restore" />
+    <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netcoreapp2.1" />
+    <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0" />
+    <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net45" />
+  </Target>
+  <Target Name="AfterBuild">
+    <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\netcoreapp2.1\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\netcoreapp2.1\*.pdb">
+      <Output TaskParameter="Include" ItemName="DesignTimeBinaries1" />
+    </CreateItem>
+    <Copy SourceFiles="@(DesignTimeBinaries1)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/netcoreapp2.1" />
+    <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\net45\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\net45\*.pdb">
+      <Output TaskParameter="Include" ItemName="DesignTimeBinaries2" />
+    </CreateItem>
+    <Copy SourceFiles="@(DesignTimeBinaries2)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/net45" />
+    <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.pdb">
+      <Output TaskParameter="Include" ItemName="DesignTimeBinaries3" />
+    </CreateItem>
+    <Copy SourceFiles="@(DesignTimeBinaries3)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/netstandard2.0" />
+  </Target>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

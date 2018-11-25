@@ -4,6 +4,8 @@ open System
 open Newtonsoft.Json
 open Microsoft.FSharp.Reflection
 
+#if TP_RUNTIME
+
 /// Serializer for serializing the F# option types.
 // https://github.com/eulerfx/JsonNet.FSharp
 type OptionConverter() =
@@ -40,3 +42,5 @@ type ByteArrayConverter() =
     override __.ReadJson(reader, _, _, serializer) =
         let value = serializer.Deserialize(reader, typeof<string>) :?> string
         Convert.FromBase64String(value) :> obj
+
+#endif

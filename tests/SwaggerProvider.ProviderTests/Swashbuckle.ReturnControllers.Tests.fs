@@ -143,13 +143,13 @@ let returnControllersTests =
 
     testCaseAsync "Return FileDescription GET Test" <| async {
         let! file = api.GetApiReturnFileDescription()
-        file.Name  |> shouldEqual (Some "1.txt")
-        file.Bytes  |> shouldEqual (Some [|1uy;2uy;3uy|])
+        file.Name  |> shouldEqual ("1.txt")
+        file.Bytes  |> shouldEqual ([|1uy;2uy;3uy|])
     }
 
     testCaseAsync "Return FileDescription POST Test" <| async {
         let! file = api.PostApiReturnFileDescription()
-        file.Name  |> shouldEqual (Some "1.txt")
-        file.Bytes  |> shouldEqual (Some [|1uy;2uy;3uy|])
+        file.Name  |> shouldEqual ("1.txt")
+        file.Bytes  |> shouldEqual ([|1uy;2uy;3uy|])
     }
   ]

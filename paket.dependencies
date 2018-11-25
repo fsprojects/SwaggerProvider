@@ -1,23 +1,27 @@
 source https://nuget.org/api/v2
-framework: >= net461
+frameworks: net45, netcoreapp2.1, netstandard2.0
 
-nuget Newtonsoft.Json >= 9.0.1
-nuget FSharp.Core ~> 4
+nuget FSharp.Core 4.3.4
+nuget System.Net.Http
+nuget Newtonsoft.Json
 nuget YamlDotNet
-// New schema parser (experimental at the moment)
-nuget Microsoft.OpenApi.Readers prerelease
-nuget System.Configuration.ConfigurationManager
+nuget NETStandard.Library.NETFramework
 
-github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
-github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
+// New schema parser (experimental at the moment)
+nuget Microsoft.OpenApi.Readers 
+
+# THis lines are used by Paket to get the latest version of the Type Provider SDK files
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
-group Build
-	framework: net461
-	source https://nuget.org/api/v2
+github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
+github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
 
-	nuget FAKE
+group Build
+	source https://nuget.org/api/v2
+	framework: net461
+
+	nuget FAKE ~> 4.64
 	nuget Suave
 	nuget DotLiquid
 	nuget FSharp.Formatting
@@ -25,17 +29,17 @@ group Build
 	github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group OWIN
-	framework: net461
 	source https://nuget.org/api/v2
+	framework: net461
 
 	nuget Microsoft.AspNet.WebApi.OwinSelfHost
 	nuget Swashbuckle.Core
 	nuget FSharp.Core redirects: force
 
 group Test
-	framework: net461
-
 	source https://nuget.org/api/v2
+	frameworks: net461
+
 	nuget FSharp.Compiler.Service redirects: force
 	nuget FSharp.Core redirects: force
 

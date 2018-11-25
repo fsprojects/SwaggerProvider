@@ -14,11 +14,11 @@ let petStoreTests =
   testList "All/TP PetStore Tests" [
 
     testCase "Test provided Host property" <| fun _ ->
-        Expect.equal store.Host "http://petstore.swagger.io" "value from schema"
-        store.Host <- "https://petstore.swagger.io"
-        Expect.equal store.Host "https://petstore.swagger.io" "Modified value"
-        store.Host <- "http://petstore.swagger.io"
-        Expect.equal store.Host "http://petstore.swagger.io" "original value"
+        Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io" "value from schema"
+        store.HttpClient.BaseAddress <- Uri "https://petstore.swagger.io"
+        Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io" "Modified value"
+        store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io"
+        Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io" "original value"
 
     testCase "instantiate provided objects" <| fun _ ->
         let pet = PetStore.Pet(Name = "foo")
@@ -30,11 +30,11 @@ let petStoreTests =
 
     testCaseAsync "call provided methods" <| async {
         try
-            do! store.DeletePet(1337L, Some apiKey)
+            do! store.DeletePet(1337L, apiKey)
         with
         | _ -> ()
 
-        let tag = PetStore.Tag(None, Some "foobar")
+        let tag = PetStore.Tag(None, "foobar")
         Expect.stringContains (tag.ToString()) "foobar" "ToString"
         let pet = PetStore.Pet("foo", [||], Some 1337L)
         Expect.stringContains (pet.ToString()) "1337" "ToString"

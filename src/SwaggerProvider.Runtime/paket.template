@@ -23,12 +23,15 @@ summary
 description
     F# Type Provider for Swagger
 files
-    ../../bin/SwaggerProvider/SwaggerProvider*.* ==> lib/net461
+    bin/Release/net45/SwaggerProvider.Runtime.* ==> lib/net45
+    bin/Release/netstandard2.0/SwaggerProvider.Runtime.* ==> lib/netstandard2.0
+    bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
+    bin/Release/typeproviders/fsharp41/netcoreapp2.1/*.dll ==> typeproviders/fsharp41/netcoreapp2.1
+    bin/Release/typeproviders/fsharp41/net45/*.dll ==> typeproviders/fsharp41/net45
     SwaggerProvider.fsx ==> .
+references
+    SwaggerProvider.Runtime.dll
 dependencies
     FSharp.Core >= LOCKEDVERSION
     Newtonsoft.Json ~> LOCKEDVERSION
-    YamlDotNet ~> LOCKEDVERSION
-references
-    SwaggerProvider.dll
-    SwaggerProvider.Runtime.dll
+    System.Net.Http ~> LOCKEDVERSION

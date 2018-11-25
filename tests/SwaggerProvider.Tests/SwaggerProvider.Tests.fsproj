@@ -26,18 +26,14 @@
     <Compile Include="Schema.PathsTests.fs" />
     <Compile Include="APIs.guru.fs" />
     <Compile Include="Schema.Parser.Tests.fs" />
-    <Compile Include="OpenApi.ApisGuru.Tests.fs" />
+    <!-- <Compile Include="OpenApi.ApisGuru.Tests.fs" /> -->
     <Compile Include="Program.fs" />
     <None Include="paket.references" />
     <Content Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.IO" />
     <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System.Net.Http" />
-    <ProjectReference Include="../../src/SwaggerProvider.Runtime/SwaggerProvider.Runtime.fsproj" />
-    <ProjectReference Include="../../src/SwaggerProvider.DesignTime/SwaggerProvider.DesignTime.fsproj" />
+    <ProjectReference Include="..\..\src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
