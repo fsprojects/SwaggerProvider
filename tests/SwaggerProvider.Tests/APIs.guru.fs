@@ -79,7 +79,7 @@ let private shrinkOnCI arr =
     if not <| isNull (Environment.GetEnvironmentVariable "TRAVIS")
     then arr |> shrink 80
     elif not <| isNull (Environment.GetEnvironmentVariable "APPVEYOR")
-    then arr |> shrink 500
+    then arr |> shrink 200
     else arr
 
 let private filter = Array.filter skipIgnored >> shrinkOnCI
