@@ -108,10 +108,13 @@ let parserTestBody formatParser (url:string) =
 
         //Number of generated types may be less than number of type definition in schema
         //TODO: Check if TPs are able to generate aliases like `type RandomInd = int`
-        let defCompiler = DefinitionCompiler(schema, false)
-        let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
-        opCompiler.CompileProvidedClients(defCompiler.Namespace)
-        ignore <| defCompiler.Namespace.GetProvidedTypes()
+        try
+            let defCompiler = DefinitionCompiler(schema, false)
+            let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+            opCompiler.CompileProvidedClients(defCompiler.Namespace)
+            ignore <| defCompiler.Namespace.GetProvidedTypes()
+        with
+        | e when e.Message.IndexOf("not supported yet") >= 0 -> ()
 
 let private schemasFromTPTests =
     let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")

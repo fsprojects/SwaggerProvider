@@ -6,17 +6,6 @@ open System.IO
 open Expecto
 open Fake
 
-let client = new Net.WebClient()
-let schemaIsSupportedByParser (url:string) =
-    try 
-        let _ =
-            client.DownloadString url
-            |> Swagger.Parser.SwaggerParser.parseSchema
-        true
-    with
-    | :? Swagger.Parser.Exceptions.SwaggerSchemaParseException ->
-        false
-
 let assembliesList =
     let buildTarget name =
         Path.Combine(__SOURCE_DIRECTORY__, name)
@@ -55,8 +44,10 @@ let testTemplate url testBodyFunc =
     """ url)
 
     try
-        if schemaIsSupportedByParser url
-        then testBodyFunc fs dll
+        try 
+            testBodyFunc fs dll
+        with
+        | e when e.Message.IndexOf("not supported yet") >= 0 -> () 
     finally
         [tempFile; fs; dll]
         |> List.filter File.Exists
