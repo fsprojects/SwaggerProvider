@@ -48,6 +48,7 @@ let testTemplate url testBodyFunc =
             testBodyFunc fs dll
         with
         | e when e.Message.IndexOf("not supported yet") >= 0 -> () 
+        | e when e.Message.IndexOf("An error occurred while sending the request") >= 0 -> ()
     finally
         [tempFile; fs; dll]
         |> List.filter File.Exists
