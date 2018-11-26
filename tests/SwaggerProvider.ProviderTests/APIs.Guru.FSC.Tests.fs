@@ -79,7 +79,7 @@ let compilerTests =
 
 let referencedAssembliesFsi =
     // FSI needs .optdata and .sigdata files near FSharp.Core.dll
-    Path.Combine(__SOURCE_DIRECTORY__, "../../packages/FSharp.Core/lib/net40/FSharp.Core.dll")
+    Path.Combine(__SOURCE_DIRECTORY__, "../../packages/FSharp.Core/lib/net45/FSharp.Core.dll")
      :: assembliesList
     |> List.map (fun x -> sprintf "-r:%s" x)
 
