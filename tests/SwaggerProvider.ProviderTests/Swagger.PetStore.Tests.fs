@@ -14,6 +14,7 @@ let petStoreTests =
   testList "All/TP PetStore Tests" [
 
     testCase "Test provided Host property" <| fun _ ->
+        let store = PetStore.Client()
         Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io/" "value from schema"
         store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/"
         Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io/" "Modified value"
