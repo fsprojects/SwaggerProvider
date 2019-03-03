@@ -5,30 +5,31 @@ open System.Reflection
 open ProviderImplementation.ProvidedTypes
 open UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
-open Swagger.Parser.Schema
 open Swagger.Internal
 open SwaggerProvider.Internal
 open Microsoft.FSharp.Quotations
+open Microsoft.OpenApi.Models
 
 type DefinitionPath =
-    { 
+    {
         Namespace: string list
         RequestedTypeName: string
         ProvidedTypeNameCandidate: string
     }
+    static member DefinitionPrefix = "#/components/schemas/"
     static member Parse (definition: string) =
-        let definitionPrefix, nsSeparator = "#/definitions/", '.'
-        if (not <| definition.StartsWith(definitionPrefix))
-            then failwithf "Definition path does not start with %s" definitionPrefix
-        let definitionPath = definition.Substring(definitionPrefix.Length)
+        let nsSeparator =  '.'
+        if (not <| definition.StartsWith(DefinitionPath.DefinitionPrefix))
+            then failwithf "Definition path ('%s') does not start with %s" definition DefinitionPath.DefinitionPrefix
+        let definitionPath = definition.Substring(DefinitionPath.DefinitionPrefix.Length)
         let rec getCharInTypeName ind =
             if ind = definitionPath.Length then ind-1
             elif Char.IsLetterOrDigit definitionPath.[ind] || definitionPath.[ind] = nsSeparator then getCharInTypeName (ind+1)
             else ind
         let lastDot = definitionPath.LastIndexOf(nsSeparator, getCharInTypeName 0)
-        if lastDot < 0 
+        if lastDot < 0
         then {Namespace = []; RequestedTypeName = definitionPath; ProvidedTypeNameCandidate = nicePascalName definitionPath}
-        else 
+        else
             let nsPath = definitionPath.Substring(0, lastDot).Split([|nsSeparator|], StringSplitOptions.RemoveEmptyEntries) |> List.ofArray
             let tyName = definitionPath.Substring(lastDot+1)
             {Namespace = nsPath; RequestedTypeName = tyName; ProvidedTypeNameCandidate = nicePascalName tyName}
@@ -43,9 +44,10 @@ and NamespaceAbstraction (name:string) =
     let providedTys = Collections.Generic.Dictionary<string,NamespaceEntry>()
     let updateReservation opName tyName updateFunc =
         match providedTys.TryGetValue tyName with
-        | true, Reservation -> updateFunc()
+        | true, Reservation
+        | true, NameAlias -> updateFunc()
         | false, _ -> failwithf "Cannot %s '%s' because name was not reserved" opName tyName
-        | _, value -> failwithf "Cannot %s '%s' because the slot is used by %A" opName tyName value 
+        | _, value -> failwithf "Cannot %s '%s' because the slot is used by %A" opName tyName value
 
     /// Namespace name
     member __.Name = name
@@ -54,9 +56,12 @@ and NamespaceAbstraction (name:string) =
         let rec findUniq prefix i =
             let newName = sprintf "%s%s" prefix (if i=0 then "" else i.ToString())
             if not <| providedTys.ContainsKey newName
-            then newName 
+            then newName
             else findUniq prefix (i+1)
-        let newName = findUniq (namePref+nameSuffix) 0
+        let newName =
+          let pref = if String.IsNullOrWhiteSpace nameSuffix
+                     then namePref else sprintf "%s_%s" namePref nameSuffix
+          findUniq pref 0
         providedTys.Add(newName, Reservation)
         newName
     /// Release previously reserved name
@@ -66,12 +71,17 @@ and NamespaceAbstraction (name:string) =
     member __.MarkTypeAsNameAlias tyName =
         updateReservation "mark as Alias type" tyName (fun() -> providedTys.[tyName] <- NameAlias)
     /// Associate ProvidedType with reserved type name
-    member __.RegisterType (tyName,ty) =
-        match providedTys.TryGetValue tyName with
-        | true, Reservation  -> providedTys.[tyName] <- ProvidedType ty
-        | true, Namespace ns -> providedTys.[tyName] <- NestedType(ty, ns)
-        | false, _ -> failwithf "Cannot register the type '%s' because name was not reserved" tyName
-        | _, value -> failwithf "Cannot register the type '%s' because the slot is used by %A" tyName value 
+    member __.RegisterType (tyName,ty: Type) =
+        match ty with
+        | :? ProvidedTypeDefinition as ty ->
+          match providedTys.TryGetValue tyName with
+          | true, Reservation  -> providedTys.[tyName] <- ProvidedType ty
+          | true, Namespace ns -> providedTys.[tyName] <- NestedType(ty, ns)
+          | true, ProvidedType pTy when pTy.Name = tyName -> ()
+          | false, _ -> providedTys.[tyName] <- ProvidedType ty
+              //failwithf "Cannot register the type '%s' because name was not reserved" tyName
+          | _, value -> failwithf "Cannot register the type '%s' because the slot is used by %A" tyName value
+        | _ -> () // Do nothing, TP should not provide real types
     /// Get or create sub-namespace
     member __.GetOrCreateNamespace name =
         match providedTys.TryGetValue name with
@@ -106,7 +116,7 @@ and NamespaceAbstraction (name:string) =
             | Namespace ns ->
                 let types = ns.GetProvidedTypes()
                 if types.Length = 0 then None
-                else 
+                else
                     let nsTy = ProvidedTypeDefinition(ns.Name, Some typeof<obj>, isErased = false)
                     nsTy.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>) // hack
                     nsTy.AddMembers <| types
@@ -116,15 +126,18 @@ and NamespaceAbstraction (name:string) =
                 Some ty)
 
 /// Object for compiling definitions.
-type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
-    let definitionToSchemaObject = Map.ofSeq schema.Definitions
-    let definitionToType = Collections.Generic.Dictionary<_,_>()
+type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
+    let pathToSchema =
+        schema.Components.Schemas
+        |> Seq.map (fun kv -> DefinitionPath.DefinitionPrefix + kv.Key, kv.Value)
+        |> Map.ofSeq
+    let pathToType = Collections.Generic.Dictionary<_,Type>()
     let nsRoot = NamespaceAbstraction("Root")
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"
 
     let generateProperty (scope:UniqueNameGenerator) propName ty =
         let propertyName = scope.MakeUnique <| nicePascalName propName
-        let providedField = 
+        let providedField =
             let fieldName = sprintf "_%c%s" (Char.ToLower propertyName.[0]) (propertyName.Substring(1))
             ProvidedField(fieldName, ty)
         let providedProperty =
@@ -135,54 +148,59 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
             providedProperty.AddCustomAttribute
                 <| RuntimeHelpers.getPropertyNameAttribute propName
         providedField, providedProperty
-    
-    let registerInNsAndInDef tyDefName (ns:NamespaceAbstraction) (name, ty: ProvidedTypeDefinition) =
-        if definitionToType.ContainsKey tyDefName
-        then failwithf "Second time compilation of type defition '%s'. This is a bug in DefinitionCompiler" tyDefName
-        else definitionToType.Add(tyDefName, ty)
-        ns.RegisterType(name, ty)
 
-    let rec compileDefinition (tyDefName:string) : Type=
-        match definitionToType.TryGetValue tyDefName with
-        | true, ty -> ty :> Type
+    let registerInNsAndInDef tyPath (ns:NamespaceAbstraction) (name, ty: Type) =
+        if not <| pathToType.ContainsKey tyPath
+        then pathToType.Add(tyPath, ty)
+          //else failwithf "Second time compilation of type defition '%s'. This is a bug in DefinitionCompiler" tyPath
+
+        match ty with
+        | :? ProvidedTypeDefinition as prTy ->
+            ns.RegisterType(name, prTy)
+        | _ -> ()
+
+    let rec compileByPath (tyPath:string) :Type=
+        match pathToType.TryGetValue tyPath with
+        | true, ty -> ty
         | false, _ ->
-            match definitionToSchemaObject.TryFind tyDefName with
-            | Some(def) ->
-                let ns, tyName = tyDefName |> DefinitionPath.Parse |> nsRoot.Resolve
-                let ty = compileSchemaObject ns tyName def true (registerInNsAndInDef tyDefName ns)
+            match pathToSchema.TryFind tyPath with
+            | Some def ->
+                let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
+                let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
                 ty :> Type
-            | None when tyDefName.StartsWith("#/definitions/") ->
-                failwithf "Cannot find definition '%s' in schema definitions %A" 
-                    tyDefName (definitionToType.Keys |> Seq.toArray)
+            | None when tyPath.StartsWith(DefinitionPath.DefinitionPrefix) ->
+                failwithf "Cannot find definition '%s' in schema definitions %A"
+                    tyPath (pathToType.Keys |> Seq.toArray)
             | None ->
-                failwithf "Cannot find definition '%s' (references to relative documents are not supported yet)"  tyDefName
-    and compileSchemaObject (ns:NamespaceAbstraction) tyName (schemaObj:SchemaObject) isRequired registerNew =
-        let compileNewObject (properties:DefinitionProperty[]) =
-            if properties.Length = 0 
-            then
+                failwithf "Cannot find definition '%s' (references to relative documents are not supported yet)"  tyPath
+    and compileBySchema (ns:NamespaceAbstraction) tyName (schemaObj:OpenApiSchema) isRequired registerNew fromByPathCompiler =
+        let compileNewObject () =
+            if schemaObj.Properties.Count = 0 then
                 if not <| isNull tyName then
-                    ns.MarkTypeAsNameAlias tyName 
+                    ns.MarkTypeAsNameAlias tyName
                 typeof<obj>
-            else
-              if isNull tyName then
+            elif isNull tyName then
                 failwithf "Swagger provider does not support anonymous types: %A" schemaObj
-              else
+            else
                 // Register every ProvidedTypeDefinition
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
-                registerNew(tyName,ty)
+                registerNew(tyName,ty :> Type)
 
                 // Generate fields and properties
                 let members =
                     let generateProperty = generateProperty (UniqueNameGenerator())
-                    List.ofArray properties
+                    List.ofSeq schemaObj.Properties
                     |> List.map (fun p ->
-                        if String.IsNullOrEmpty(p.Name)
+                        let propName, propSchema = p.Key, p.Value
+                        if String.IsNullOrEmpty(propName)
                             then failwithf "Property cannot be created with empty name. TypeName:%A; SchemaObj:%A" tyName schemaObj
 
-                        let pTy = compileSchemaObject ns (ns.ReserveUniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired ns.RegisterType
-                        let (pField, pProp) = generateProperty p.Name pTy
-                        if not <| String.IsNullOrWhiteSpace p.Description
-                            then pProp.AddXmlDoc p.Description
+                        let isRequired = schemaObj.Required.Contains(propName)
+                        let pTy = compileBySchema ns (ns.ReserveUniqueName tyName (nicePascalName propName)) propSchema isRequired ns.RegisterType false
+
+                        let (pField, pProp) = generateProperty propName pTy
+                        if not <| String.IsNullOrWhiteSpace propSchema.Description
+                            then pProp.AddXmlDoc propSchema.Description
                         pField, pProp
                     )
 
@@ -194,22 +212,23 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 ty.AddMember <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
                 // Add full-init constructor
                 let ctorParams, fields =
-                    let required, optional = 
-                        List.zip (List.ofArray properties) members
-                        |> List.partition (fun (x,_) -> x.IsRequired)
+                    let required, optional =
+                        List.zip (List.ofSeq schemaObj.Properties) members
+                        |> List.partition (fun (x,_) ->
+                          schemaObj.Required.Contains(x.Key))
                     (required @ optional)
-                    |> List.map(fun (x,(f,p)) -> 
+                    |> List.map(fun (x,(f,p)) ->
                         let paramName = niceCamelName p.Name
-                        let prParam = 
-                            if x.IsRequired
-                            then ProvidedParameter(paramName, f.FieldType) 
+                        let prParam =
+                            if schemaObj.Required.Contains(x.Key)
+                            then ProvidedParameter(paramName, f.FieldType)
                             else
                                 let paramDefaultValue = this.GetDefaultValue f.FieldType
                                 ProvidedParameter(paramName, f.FieldType, false, paramDefaultValue)
                         prParam, f)
                     |> List.unzip
                 ty.AddMember <| ProvidedConstructor(ctorParams, invokeCode = fun args ->
-                    let (this,args) = 
+                    let (this,args) =
                         match args with
                         | x::xs -> (x,xs)
                         | _ -> failwith "Wrong constructor arguments"
@@ -217,13 +236,13 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                     |> List.map (fun (arg, f) ->
                          Expr.FieldSetUnchecked(this, f, arg))
                     |> List.rev
-                    |> List.fold (fun a b -> 
+                    |> List.fold (fun a b ->
                         Expr.Sequential(a, b)) (<@@ () @@>)
                     )
 
                 // Override `.ToString()`
-                let toStr = 
-                    ProvidedMethod("ToString", [], typeof<string>, isStatic = false, 
+                let toStr =
+                    ProvidedMethod("ToString", [], typeof<string>, isStatic = false,
                         invokeCode = fun args ->
                             let this = args.[0]
                             let (pNames, pValues) =
@@ -261,52 +280,66 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 ty :> Type
         let tyType =
             match schemaObj with
-            | Reference path  ->
+            | null ->
+                failwithf "Cannot compile object '%s' when schema is 'null'" tyName
+            | _ when schemaObj.UnresolvedReference ->
+                failwithf "Cannot compile object '%s' based on unresolved reference '%O'" tyName schemaObj.Reference.ReferenceV3
+            //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
+            | _ when schemaObj.Reference <> null && not <| schemaObj.Reference.Id.EndsWith(tyName) ->
                 ns.ReleaseNameReservation tyName
-                compileDefinition path
-            | Object props -> 
-                compileNewObject props
+                compileByPath <| schemaObj.Reference.ReferenceV3
+            | _ when schemaObj.Type = null || schemaObj.Type = "object" -> // Object props ->
+                compileNewObject()
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
-                match schemaObj with
-                | Boolean   -> typeof<bool>
-                | Byte      -> typeof<byte>
-                | Int32     -> typeof<int32>
-                | Int64     -> typeof<int64>
-                | Float     -> typeof<float32>
-                | Double    -> typeof<double>
-                | String    -> typeof<string>
-                | Date | DateTime -> typeof<DateTime>
-                | File            -> typeof<byte>.MakeArrayType(1)
-                | Enum _          -> typeof<string> //NOTE: find better type
-                | Array eTy       -> 
-                    (compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy true ns.RegisterType).MakeArrayType(1)
-                | Dictionary eTy  -> 
-                    ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, 
-                        [typeof<string>; compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy false ns.RegisterType])
-                | Reference _ 
-                | Object _  -> failwith "This case should be catched by other match statement"
+                match schemaObj.Type, schemaObj.Format with
+                | "integer", "int64" -> typeof<int64>
+                | "integer", _       -> typeof<int32>
+                | "number", "double" -> typeof<double>
+                | "number", _        -> typeof<float32>
+                | "boolean", _       -> typeof<bool>
+                | "string", "byte"
+                | "string", "binary"
+                | "file", _  // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
+                   -> typeof<byte>.MakeArrayType(1)
+                | "string", "date"
+                | "string", "date-time"
+                   -> typeof<DateTime>
+                | "string", _ ->
+                    typeof<string>
+                | "array", _  ->
+                    ns.ReleaseNameReservation tyName
+                    let elSchema = schemaObj.Items
+                    let elTy = compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
+                    elTy.MakeArrayType(1)
+                //| Dictionary eTy  ->
+                //    ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>,
+                //        [typeof<string>; compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy false ns.RegisterType])
+                //| Enum _          -> typeof<string> //NOTE: find better type
+                | ty, format ->
+                    failwithf "Type %s(%s,%s) should be catched by other match statement (%A)" tyName ty format schemaObj.Type
+        if fromByPathCompiler then
+            registerNew(tyName, tyType)
+
         if isRequired then tyType
-        else 
-            if tyType.IsValueType then 
-                let baseGenTy = 
-                    if provideNullable 
+        else
+            if tyType.IsValueType then
+                let baseGenTy =
+                    if provideNullable
                     then typedefof<Nullable<int>>
                     else typedefof<Option<obj>>
                 ProvidedTypeBuilder.MakeGenericType(baseGenTy, [tyType])
             else tyType
 
     // Precompile types defined in the `definitions` part of the schema
-    do  schema.Definitions
-        |> Seq.iter (fun (name,_) ->
-            compileDefinition name |> ignore)
+    do pathToSchema |> Seq.iter (fun kv -> compileByPath kv.Key |> ignore)
 
     /// Namespace that represent provided type space
     member __.Namespace = nsRoot
 
     /// Method that allow OperationComplier to resolve object reference, compile basic and anonymous types.
     member __.CompileTy opName tyUseSuffix ty required =
-        compileSchemaObject nsOps (nsOps.ReserveUniqueName opName tyUseSuffix) ty required nsOps.RegisterType
+        compileBySchema nsOps (nsOps.ReserveUniqueName opName tyUseSuffix) ty required nsOps.RegisterType false
 
     /// Default value for optional parameters
     member __.GetDefaultValue _ =

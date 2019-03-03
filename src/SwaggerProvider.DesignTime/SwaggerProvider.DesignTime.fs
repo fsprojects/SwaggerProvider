@@ -5,9 +5,9 @@ open System.Reflection
 open System.Net.Http
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
+open Microsoft.OpenApi.Readers
 open SwaggerProvider.Internal.Compilers
 open Swagger
-open Swagger.Parser
 
 //module Handlers =
 
@@ -36,9 +36,9 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
     let asm = Assembly.GetExecutingAssembly()
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
-    do assert (typeof<SwaggerApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)  
+    do assert (typeof<SwaggerApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
 
-    let myParamType = 
+    let myParamType =
         let t = ProvidedTypeDefinition(asm, ns, "SwaggerProvider", Some typeof<obj>, isErased=false)
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
@@ -56,9 +56,9 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                <param name='ProvideNullable'>Provide `Nullable<_>` for not required properties, instread of `Option<_>`</param>
                <param name='PreferAsync'>PreferAsync tells the SwaggerProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
 
-        t.DefineStaticParameters( 
-          staticParams, 
-          fun typeName args -> 
+        t.DefineStaticParameters(
+          staticParams,
+          fun typeName args ->
             let schemaPathRaw = unbox<string> args.[0]
             let headersStr = unbox<string> args.[1]
             let ignoreOperationId = unbox<bool>  args.[2]
@@ -70,7 +70,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
 
             let (schema,tys) =
                 match Cache.providedTypes.TryRetrieve(cacheKey) with
-                | Some(x) -> x 
+                | Some(x) -> x
                 | None ->
                     let schemaData =
                         match schemaPathRaw.StartsWith("http", true, null) with
@@ -84,7 +84,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                                     else None
                                 )
                             let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
-                            for (name, value) in headers do 
+                            for (name, value) in headers do
                                 request.Headers.TryAddWithoutValidation(name, value) |> ignore
                             // using a custom handler means that we can set the default credentials.
                             use handler = new HttpClientHandler(UseDefaultCredentials = true)
@@ -95,19 +95,26 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                             } |> Async.RunSynchronously
                         | false ->
                             schemaPathRaw |> IO.File.ReadAllText
-                    let schema = SwaggerParser.parseSchema schemaData
-                    
+                    let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
+
+                    let (schema, diagnostic) = openApiReader.Read(schemaData)
+                    if diagnostic.Errors.Count > 0 then
+                        failwithf "Schema parse errors: %s"
+                            (diagnostic.Errors
+                             |> Seq.map (fun e -> e.Message)
+                             |> String.concat ";")
+
                     let defCompiler = DefinitionCompiler(schema, provideNullable)
                     let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
                     opCompiler.CompileProvidedClients(defCompiler.Namespace)
                     let tys = defCompiler.Namespace.GetProvidedTypes()
-                    
+
                     Cache.providedTypes.Set(cacheKey, (schema,tys))
                     (schema, tys)
 
             let tempAsm = ProvidedAssembly()
             let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
-            ty.AddXmlDoc ("Swagger Provider for " + schema.Host)
+            ty.AddXmlDoc ("Swagger Provider for " + schemaPathRaw)
 
             ty.AddMembers tys
             tempAsm.AddTypes [ty]

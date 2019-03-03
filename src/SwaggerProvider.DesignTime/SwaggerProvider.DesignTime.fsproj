@@ -3,7 +3,7 @@
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.1;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1;net46</TargetFrameworks>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
@@ -27,13 +27,9 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
-    <Compile Include="..\SwaggerProvider.Runtime\Parser\Schema.fs" />
-    <Compile Include="..\SwaggerProvider.Runtime\Parser\Parsers.fs" />
-    <Compile Include="..\SwaggerProvider.Runtime\Parser\SwaggerParser.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\Serialization.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\RuntimeHelpers.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\SwaggerApiClient.fs" />
-    <Compile Include="..\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fs" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
@@ -44,9 +40,13 @@
     <Compile Include="Caching.fs" />
     <Compile Include="SwaggerProvider.DesignTime.fs" />
     <None Include="paket.references" />
-    <None Include="..\..\packages\NETStandard.Library.NETFramework\build\net461\lib\netstandard.dll" Condition="'$(TargetFramework)' == 'net45'">
+    <None Include="..\..\packages\NETStandard.Library.NETFramework\build\net461\lib\netstandard.dll" Condition="'$(TargetFramework)' == 'net46'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Threading.Tasks" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

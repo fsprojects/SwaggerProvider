@@ -1,14 +1,11 @@
 source https://nuget.org/api/v2
-frameworks: net45, netcoreapp2.1, netstandard2.0
+frameworks: net46, netcoreapp2.1, netstandard2.0
 
 nuget FSharp.Core 4.3.4
 nuget System.Net.Http
 nuget Newtonsoft.Json
-nuget YamlDotNet
+nuget Microsoft.OpenApi.Readers
 nuget NETStandard.Library.NETFramework
-
-// New schema parser (experimental at the moment)
-nuget Microsoft.OpenApi.Readers 
 
 # THis lines are used by Paket to get the latest version of the Type Provider SDK files
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi

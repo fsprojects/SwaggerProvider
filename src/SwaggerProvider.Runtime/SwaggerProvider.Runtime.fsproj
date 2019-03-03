@@ -5,7 +5,7 @@
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0; net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0; net46</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <DefineConstants>TP_RUNTIME</DefineConstants>
   </PropertyGroup>
@@ -23,9 +23,6 @@
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="SwaggerProvider.Runtime.fs" />
-    <Compile Include="Parser\Schema.fs" />
-    <Compile Include="Parser\Parsers.fs" />
-    <Compile Include="Parser\SwaggerParser.fs" />
     <Compile Include="Serialization.fs" />
     <Compile Include="RuntimeHelpers.fs" />
     <Compile Include="SwaggerApiClient.fs" />
@@ -39,21 +36,25 @@
     <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Restore" />
     <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netcoreapp2.1" />
     <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=netstandard2.0" />
-    <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net45" />
+    <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net46" />
   </Target>
   <Target Name="AfterBuild">
     <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\netcoreapp2.1\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\netcoreapp2.1\*.pdb">
       <Output TaskParameter="Include" ItemName="DesignTimeBinaries1" />
     </CreateItem>
     <Copy SourceFiles="@(DesignTimeBinaries1)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/netcoreapp2.1" />
-    <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\net45\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\net45\*.pdb">
+    <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\net46\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\net46\*.pdb">
       <Output TaskParameter="Include" ItemName="DesignTimeBinaries2" />
     </CreateItem>
-    <Copy SourceFiles="@(DesignTimeBinaries2)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/net45" />
+    <Copy SourceFiles="@(DesignTimeBinaries2)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/net46" />
     <CreateItem Include="..\SwaggerProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.dll;..\SwaggerProvider.DesignTime\bin\$(Configuration)\netstandard2.0\*.pdb">
       <Output TaskParameter="Include" ItemName="DesignTimeBinaries3" />
     </CreateItem>
     <Copy SourceFiles="@(DesignTimeBinaries3)" DestinationFolder="$(OutputPath)/../typeproviders/fsharp41/netstandard2.0" />
   </Target>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Threading.Tasks" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

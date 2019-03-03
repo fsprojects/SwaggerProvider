@@ -65,9 +65,19 @@ module RuntimeHelpers =
 
     let toStringContent (valueStr:string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
+    let toMultipartFormDataContent (keyValues:seq<string*string>) =
+        let cnt = new MultipartFormDataContent()
+        for (k,v) in keyValues do
+            cnt.Add(toStringContent v, k)
+        cnt
+    let toFormUrlEncodedContent (keyValues:seq<string*string>) =
+        let keyValues = keyValues |> Seq.map Collections.Generic.KeyValuePair
+        new FormUrlEncodedContent(keyValues)
 
     let getDefaultHttpClient host =
-        new HttpClient(BaseAddress=Uri(host))
+        // Using default handler with UseCookies=true, HttpClient will not be able to set Cookie-based parameters
+        let handler = new HttpClientHandler (UseCookies = false)
+        new HttpClient(handler, true, BaseAddress=Uri(host))
 
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))

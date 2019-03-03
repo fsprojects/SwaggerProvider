@@ -1,6 +1,0 @@
-Newtonsoft.Json
-Microsoft.OpenApi.Readers
-System.Net.Http
-group Test
-    Expecto
-    FSharp.Core
