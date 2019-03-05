@@ -1,6 +1,9 @@
 language: csharp
 dotnet: 2.2.103
 
+sudo: required
+dist: xenial
+
 os:
   - linux
 #  - osx
@@ -10,8 +13,6 @@ mono:
 #  - beta
 #  - alpha
 #  - nightly
-
-sudo: false  # use the new container-based Travis infrastructure
 
 script:
   - chmod u+x ./build.sh
