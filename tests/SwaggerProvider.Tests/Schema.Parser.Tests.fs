@@ -5,17 +5,17 @@ open Expecto
 open System
 open System.IO
 
-let parserTestBody (path:string) =
-    let schemaStr = 
+let parserTestBody (path:string) = async {
+    let! schemaStr = 
         match Uri.TryCreate(path, UriKind.Absolute) with
         | true, uri when path.IndexOf("http") >=0  -> 
-            use client = new Net.WebClient()
             try
-                client.DownloadString(uri)
+                APIsGuru.httpClient.GetStringAsync(uri)
+                |> Async.AwaitTask
             with e ->
                 Tests.skiptestf "Network issue. Cannot download %s" e.Message
         | _ when File.Exists(path) ->
-            File.ReadAllText path
+            async { return File.ReadAllText path}
         | _ -> 
             failwithf "Cannot find schema '%s'" path
 
@@ -36,6 +36,7 @@ let parserTestBody (path:string) =
             ignore <| defCompiler.Namespace.GetProvidedTypes()
         with
         | e when e.Message.IndexOf("not supported yet") >= 0 -> ()
+    }
 
 [<Tests>]
 let petStoreTests =
@@ -44,23 +45,22 @@ let petStoreTests =
     |> List.ofArray
     |> List.filter (fun s -> s.IndexOf("ignored") < 0)
     |> List.map (fun file ->
-        testCase
-            (sprintf "Parse schema %s" file)
-            (fun _ -> parserTestBody file)
+        testCaseAsync
+            (sprintf "Parse schema %s" <| Path.GetFullPath(file))
+            (parserTestBody file)
        )
     |> testList "All/Schema"
 
 (*
-
 [<Tests>]
 let parseJsonSchemaTests =
     APIsGuru.Schemas.Value
     |> List.ofArray
     |> List.map (fun url ->
-        testCase
+        testCaseAsync
             (sprintf "Parse schema %s" url)
-            (fun _ -> parserTestBody url)
+            (parserTestBody url)
        )
     |> testList "Integration/Schema"
-
 *)
+
