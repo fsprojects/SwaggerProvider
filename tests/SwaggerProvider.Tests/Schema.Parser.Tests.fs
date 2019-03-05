@@ -23,6 +23,7 @@ let parserTestBody (path:string) = async {
         let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
         let (schema, diagnostic) = openApiReader.Read(schemaStr)
+        // TODO: Should we ignore `diagnostic` or fails?
         //if diagnostic.Errors.Count > 0 then
         //    failwithf "Schema parse errors: %s"
         //        (diagnostic.Errors
