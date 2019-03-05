@@ -52,3 +52,4 @@ group Test
 	nuget FSharp.Core redirects: force
 
 	nuget Expecto
+    nuget Expecto.TestResults

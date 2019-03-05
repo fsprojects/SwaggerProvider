@@ -3,4 +3,5 @@ Microsoft.OpenApi.Readers
 System.Net.Http
 group Test
     Expecto
+    Expecto.TestResults
     FSharp.Core

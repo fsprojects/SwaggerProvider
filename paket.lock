@@ -1221,6 +1221,9 @@ NUGET
     Expecto (8.9.1)
       FSharp.Core (>= 4.3.4)
       Mono.Cecil (>= 0.10.3)
+    Expecto.TestResults (8.9.1)
+      Expecto (>= 8.9.1)
+      FSharp.Core (>= 4.3.4)
     FSharp.Compiler.Service (27.0.1) - redirects: force
       FSharp.Core (>= 4.5.2)
       System.Collections.Immutable (>= 1.5)

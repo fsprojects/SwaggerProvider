@@ -2,5 +2,6 @@ Newtonsoft.Json
 System.Net.Http
 group Test
     Expecto
+    Expecto.TestResults
     FSharp.Compiler.Service
     FSharp.Core

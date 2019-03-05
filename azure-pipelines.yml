@@ -19,3 +19,9 @@ steps:
   displayName: 'dotnet restore build.proj'
 - script: dotnet fake run build.fsx target All
   displayName: 'dotnet fake run build.fsx target All'
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: 'bin/TestResults-*.xml' 
+    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+    mergeTestResults: true
