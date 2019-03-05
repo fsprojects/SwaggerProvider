@@ -1,0 +1,21 @@
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-16.04'
+    mac:
+      imageName: 'macos-10.13'
+    windows:
+      imageName: 'vs2017-win2016' # windows-2019
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    packageType: 'sdk' # Options: runtime, sdk
+    version: '2.2.103'
+- script: dotnet restore build.proj
+  displayName: 'restore fake'
+- script: dotnet fake run build.fsx target All
+  displayName: './build.sh All'
