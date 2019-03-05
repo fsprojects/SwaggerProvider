@@ -70,7 +70,7 @@ let inline withWorkDir wd = DotNet.Options.lift dotnetSdk.Value >> DotNet.Option
 let inline dotnetSimple arg = DotNet.Options.lift dotnetSdk.Value arg
 
 Target.create "Build" (fun _ ->
-    DotNet.exec dotnetSimple "build" "SwaggerProvider.sln" |> ignore
+    DotNet.exec dotnetSimple "build" "SwaggerProvider.sln -c Release" |> ignore
 )
 
 Target.create "StartServer" (fun _ ->
@@ -91,14 +91,31 @@ Target.create "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-let runExpectoTests filter = (fun _ ->
-    !! testAssemblies
-    |> Expecto.run (fun p ->
-        { p with Filter = filter})
+Target.create "RunUnitTests" (fun _ ->
+    // !! ("tests/SwaggerProvider.Tests/bin/Release" </> "**" </> "*Tests*.exe")
+    // |> Expecto.run  (fun p ->
+    //     { p with Summary = true})
+
+    let xs = ["tests/SwaggerProvider.Tests/bin/Release/net461/SwaggerProvider.Tests.exe";
+              "--fail-on-focused-tests"; "--sequenced"; "--version"]
+    let cmd, parameters =
+        if Environment.isWindows 
+        then List.head xs, List.tail xs
+        else "mono", xs
+
+    CreateProcess.fromRawCommand cmd parameters
+    |> CreateProcess.redirectOutput
+    |> CreateProcess.withOutputEventsNotNull Trace.trace Trace.traceError
+    |> CreateProcess.ensureExitCode
+    |> Proc.run
+    |> ignore 
 )
 
-Target.create "RunUnitTests" (runExpectoTests "All/")
-Target.create "RunIntegrationTests" (runExpectoTests "Integration/")
+Target.create "RunIntegrationTests" (fun _ ->
+    !! testAssemblies
+    |> Expecto.run (fun p ->
+        { p with Filter = "Integration/"})
+)
 
 Target.createFinal "StopServer" (fun _ ->
     Process.killAllByName "Swashbuckle.OWIN.Server"
@@ -211,15 +228,15 @@ Target.create "All" ignore
 "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
+  ==> "RunUnitTests"
   ==> "StartServer"
   //==> "BuildTests"
-  //==> "RunUnitTests"
   //=?> ("RunIntegrationTests", not <| (Environment.hasEnvironVar "skipTests"))
   ==> "StopServer"
   //==> "RunTests"
   //=?> ("GenerateDocs", BuildServer.isLocalBuild)
-  ==> "All"
   ==> "NuGet"
+  ==> "All"
   ==> "BuildPackage"
   ==> "PublishNuget"
   ==> "Release"
