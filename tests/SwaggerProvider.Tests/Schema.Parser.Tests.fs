@@ -41,13 +41,15 @@ let parserTestBody (path:string) = async {
 
 [<Tests>]
 let petStoreTests =
-    let folder = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
-    Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories)
+    let root = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
+               |> Path.GetFullPath
+    Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
     |> List.ofArray
     |> List.filter (fun s -> s.IndexOf("ignored") < 0)
     |> List.map (fun file ->
+        let path = Path.GetFullPath(file).Substring(root.Length)
         testCaseAsync
-            (sprintf "Parse schema %s" <| Path.GetFullPath(file))
+            (sprintf "Parse schema %s" path)
             (parserTestBody file)
        )
     |> testList "All/Schema"
