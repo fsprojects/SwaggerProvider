@@ -4,8 +4,7 @@
 
 This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 
-[![Travis build status](https://travis-ci.org/fsprojects/SwaggerProvider.svg)](https://travis-ci.org/fsprojects/SwaggerProvider)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/tcahkn4b1tayh39u?svg=true)](https://ci.appveyor.com/project/sergey-tihon/swaggerprovider)
+[![Build Status](https://sergeytihon.visualstudio.com/SwaggerProvider/_apis/build/status/fsprojects.SwaggerProvider?branchName=master)](https://sergeytihon.visualstudio.com/SwaggerProvider/_build/latest?definitionId=2&branchName=master)
 [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru)
 
 Documentation:  http://fsprojects.github.io/SwaggerProvider/ 
