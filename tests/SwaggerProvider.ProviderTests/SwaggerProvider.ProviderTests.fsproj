@@ -12,18 +12,6 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Schemas\GitHub.json">
-      <Link>Schemas/GitHub.json</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Schemas\Instagram.json">
-      <Link>Schemas/Instagram.json</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Schemas\i0027.json">
-      <Link>Schemas/i0027.json</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Compile Include="Swagger.PetStore.Tests.fs" />
     <Compile Include="Swagger.GitHub.Tests.fs" />
     <Compile Include="Swagger.Instagram.Tests.fs" />
@@ -35,18 +23,17 @@
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
     </Compile>
+    <Compile Include="..\SwaggerProvider.Tests\Program.fs">
+      <Link>Program.fs</Link>
+    </Compile>
     <Compile Include="APIs.Guru.FSC.Tests.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <Content Include="App.config" />
-    <Compile Include="..\SwaggerProvider.Tests\Program.fs">
-      <Link>Program.fs</Link>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.IO" />
     <Reference Include="System.Runtime" />
-    <Reference Include="..\..\packages\build\FAKE\tools\FakeLib.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj" />

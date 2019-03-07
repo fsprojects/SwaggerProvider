@@ -25,15 +25,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD-2B06-4030-9F0F-DC548F98E1C4}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SwaggerProvider.ProviderTests", "tests\SwaggerProvider.ProviderTests\SwaggerProvider.ProviderTests.fsproj", "{F26DFAA6-CB19-46EB-9FBD-F4A4DC46C3F5}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.ProviderTests", "tests\SwaggerProvider.ProviderTests\SwaggerProvider.ProviderTests.fsproj", "{F26DFAA6-CB19-46EB-9FBD-F4A4DC46C3F5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SwaggerProvider.ProviderTests.CSharp", "tests\SwaggerProvider.ProviderTests.CSharp\SwaggerProvider.ProviderTests.CSharp.csproj", "{2950E2AC-A436-452A-9524-04BE7C82FA05}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1D6B2F7D-FC4A-499B-B3D1-42A09F42AAAF}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SwaggerProvider.Runtime", "src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj", "{DC3E73AF-5B15-45AD-B3C5-B3707DCB0F81}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.Runtime", "src\SwaggerProvider.Runtime\SwaggerProvider.Runtime.fsproj", "{DC3E73AF-5B15-45AD-B3C5-B3707DCB0F81}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "SwaggerProvider.DesignTime", "src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj", "{0598B4A4-3017-493E-8A64-293EAB4CFB95}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.DesignTime", "src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj", "{0598B4A4-3017-493E-8A64-293EAB4CFB95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

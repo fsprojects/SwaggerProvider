@@ -2,7 +2,10 @@ module Swagger.Namespaces.Tests
 
 open SwaggerProvider
 
-type GI = SwaggerProvider<"https://api.apis.guru/v2/specs/gettyimages.com/3/swagger.json", IgnoreControllerPrefix = false>
+// https://github.com/Microsoft/OpenAPI.NET/issues/253
+
+let [<Literal>] SchemaGI = __SOURCE_DIRECTORY__ + "/Schemas/v2/gettyimages.com.json"
+type GI = SwaggerProvider<SchemaGI, IgnoreControllerPrefix = false>
 
 let c1 = GI.ArtistsClient()
 let c2 = GI.UsageClient()
@@ -10,7 +13,8 @@ let c2 = GI.UsageClient()
 let x = GI.GettyImages.Models.Customers()
 let y = GI.GettyImages.Models()
 
-type CM = SwaggerProvider<"https://api.apis.guru/v2/specs/clickmeter.com/v2/swagger.json">
+let [<Literal>] SchemaCM = __SOURCE_DIRECTORY__ + "/Schemas/v2/clickmeter.com.json"
+type CM = SwaggerProvider<SchemaCM>
 let cm = CM.Client()
 
 let a = CM.Api.Core.Dto.ClickStream()

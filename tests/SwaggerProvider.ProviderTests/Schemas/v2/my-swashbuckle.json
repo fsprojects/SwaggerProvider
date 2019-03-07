@@ -1,0 +1,1487 @@
+{
+  "swagger": "2.0",
+  "info": { "version": "v1", "title": "Test Controllers for SwaggerProvider" },
+  "host": "localhost:8735",
+  "schemes": ["http"],
+  "paths": {
+    "/api/ResourceStringString/{key}": {
+      "get": {
+        "tags": ["ResourceStringString"],
+        "operationId": "ResourceStringString_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          { "name": "key", "in": "path", "required": true, "type": "string" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } }
+        }
+      },
+      "put": {
+        "tags": ["ResourceStringString"],
+        "operationId": "ResourceStringString_Put",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [],
+        "parameters": [
+          { "name": "key", "in": "path", "required": true, "type": "string" },
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "post": {
+        "tags": ["ResourceStringString"],
+        "operationId": "ResourceStringString_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [],
+        "parameters": [
+          { "name": "key", "in": "path", "required": true, "type": "string" },
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "delete": {
+        "tags": ["ResourceStringString"],
+        "operationId": "ResourceStringString_Delete",
+        "consumes": [],
+        "produces": [],
+        "parameters": [
+          { "name": "key", "in": "path", "required": true, "type": "string" }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/ReturnArrayEnum": {
+      "get": {
+        "tags": ["ReturnArrayEnum"],
+        "operationId": "ReturnArrayEnum_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "format": "int32",
+                "enum": [0, 1, 2],
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnArrayEnum"],
+        "operationId": "ReturnArrayEnum_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "format": "int32",
+                "enum": [0, 1, 2],
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ReturnArrayInt": {
+      "get": {
+        "tags": ["ReturnArrayInt"],
+        "operationId": "ReturnArrayInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnArrayInt"],
+        "operationId": "ReturnArrayInt_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "/api/ReturnBoolean": {
+      "get": {
+        "tags": ["ReturnBoolean"],
+        "operationId": "ReturnBoolean_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "boolean" } }
+        }
+      },
+      "post": {
+        "tags": ["ReturnBoolean"],
+        "operationId": "ReturnBoolean_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "boolean" } }
+        }
+      }
+    },
+    "/api/ReturnDateTime": {
+      "get": {
+        "tags": ["ReturnDateTime"],
+        "operationId": "ReturnDateTime_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "date-time", "type": "string" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnDateTime"],
+        "operationId": "ReturnDateTime_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "date-time", "type": "string" }
+          }
+        }
+      }
+    },
+    "/api/ReturnDouble": {
+      "get": {
+        "tags": ["ReturnDouble"],
+        "operationId": "ReturnDouble_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "double", "type": "number" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnDouble"],
+        "operationId": "ReturnDouble_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "double", "type": "number" }
+          }
+        }
+      }
+    },
+    "/api/ReturnEnum": {
+      "get": {
+        "tags": ["ReturnEnum"],
+        "operationId": "ReturnEnum_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "format": "int32",
+              "enum": [0, 1, 2],
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnEnum"],
+        "operationId": "ReturnEnum_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "format": "int32",
+              "enum": [0, 1, 2],
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "/api/ReturnFileDescription": {
+      "get": {
+        "tags": ["ReturnFileDescription"],
+        "operationId": "ReturnFileDescription_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/FileDescription" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnFileDescription"],
+        "operationId": "ReturnFileDescription_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/FileDescription" }
+          }
+        }
+      }
+    },
+    "/api/ReturnFloat": {
+      "get": {
+        "tags": ["ReturnFloat"],
+        "operationId": "ReturnFloat_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "float", "type": "number" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnFloat"],
+        "operationId": "ReturnFloat_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "float", "type": "number" }
+          }
+        }
+      }
+    },
+    "/api/ReturnInt32": {
+      "get": {
+        "tags": ["ReturnInt32"],
+        "operationId": "ReturnInt32_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnInt32"],
+        "operationId": "ReturnInt32_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        }
+      }
+    },
+    "/api/ReturnInt64": {
+      "get": {
+        "tags": ["ReturnInt64"],
+        "operationId": "ReturnInt64_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int64", "type": "integer" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnInt64"],
+        "operationId": "ReturnInt64_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int64", "type": "integer" }
+          }
+        }
+      }
+    },
+    "/api/ReturnListInt": {
+      "get": {
+        "tags": ["ReturnListInt"],
+        "operationId": "ReturnListInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnListInt"],
+        "operationId": "ReturnListInt_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "/api/ReturnObjectPointClass": {
+      "get": {
+        "tags": ["ReturnObjectPointClass"],
+        "operationId": "ReturnObjectPointClass_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/PointClass" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnObjectPointClass"],
+        "operationId": "ReturnObjectPointClass_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/PointClass" }
+          }
+        }
+      }
+    },
+    "/api/ReturnSeqInt": {
+      "get": {
+        "tags": ["ReturnSeqInt"],
+        "operationId": "ReturnSeqInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ReturnSeqInt"],
+        "operationId": "ReturnSeqInt_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "/api/ReturnString": {
+      "get": {
+        "tags": ["ReturnString"],
+        "operationId": "ReturnString_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } }
+        }
+      },
+      "post": {
+        "tags": ["ReturnString"],
+        "operationId": "ReturnString_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } }
+        }
+      }
+    },
+    "/api/UpdateArrayEnum": {
+      "get": {
+        "tags": ["UpdateArrayEnum"],
+        "operationId": "UpdateArrayEnum_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32",
+              "enum": [0, 1, 2]
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "format": "int32",
+                "enum": [0, 1, 2],
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateArrayEnum"],
+        "operationId": "UpdateArrayEnum_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "format": "int32",
+                "enum": [0, 1, 2],
+                "type": "integer"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "format": "int32",
+                "enum": [0, 1, 2],
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/UpdateArrayInt": {
+      "get": {
+        "tags": ["UpdateArrayInt"],
+        "operationId": "UpdateArrayInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateArrayInt"],
+        "operationId": "UpdateArrayInt_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "/api/UpdateBool": {
+      "get": {
+        "tags": ["UpdateBool"],
+        "operationId": "UpdateBool_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          { "name": "x", "in": "query", "required": true, "type": "boolean" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "boolean" } }
+        }
+      },
+      "post": {
+        "tags": ["UpdateBool"],
+        "operationId": "UpdateBool_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          { "name": "x", "in": "query", "required": true, "type": "boolean" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "boolean" } }
+        }
+      }
+    },
+    "/api/UpdateDateTime": {
+      "get": {
+        "tags": ["UpdateDateTime"],
+        "operationId": "UpdateDateTime_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "date-time", "type": "string" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateDateTime"],
+        "operationId": "UpdateDateTime_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "date-time", "type": "string" }
+          }
+        }
+      }
+    },
+    "/api/UpdateDouble": {
+      "get": {
+        "tags": ["UpdateDouble"],
+        "operationId": "UpdateDouble_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "double", "type": "number" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateDouble"],
+        "operationId": "UpdateDouble_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "double", "type": "number" }
+          }
+        }
+      }
+    },
+    "/api/UpdateEnum": {
+      "get": {
+        "tags": ["UpdateEnum"],
+        "operationId": "UpdateEnum_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "enum": [0, 1, 2]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "format": "int32",
+              "enum": [0, 1, 2],
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateEnum"],
+        "operationId": "UpdateEnum_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "enum": [0, 1, 2]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "format": "int32",
+              "enum": [0, 1, 2],
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "/api/UpdateFloat": {
+      "get": {
+        "tags": ["UpdateFloat"],
+        "operationId": "UpdateFloat_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "float", "type": "number" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateFloat"],
+        "operationId": "UpdateFloat_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "float", "type": "number" }
+          }
+        }
+      }
+    },
+    "/api/UpdateInt32": {
+      "get": {
+        "tags": ["UpdateInt32"],
+        "operationId": "UpdateInt32_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateInt32"],
+        "operationId": "UpdateInt32_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        }
+      }
+    },
+    "/api/UpdateInt64": {
+      "get": {
+        "tags": ["UpdateInt64"],
+        "operationId": "UpdateInt64_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int64", "type": "integer" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateInt64"],
+        "operationId": "UpdateInt64_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int64", "type": "integer" }
+          }
+        }
+      }
+    },
+    "/api/UpdateListInt": {
+      "get": {
+        "tags": ["UpdateListInt"],
+        "operationId": "UpdateListInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateListInt"],
+        "operationId": "UpdateListInt_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "/api/UpdateObjectFileDescriptionClass": {
+      "get": {
+        "tags": ["UpdateObjectFileDescriptionClass"],
+        "operationId": "UpdateObjectFileDescriptionClass_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "format": "byte"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/FileDescription" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateObjectFileDescriptionClass"],
+        "operationId": "UpdateObjectFileDescriptionClass_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/FileDescription" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/FileDescription" }
+          }
+        }
+      }
+    },
+    "/api/UpdateObjectPointClass": {
+      "get": {
+        "tags": ["UpdateObjectPointClass"],
+        "operationId": "UpdateObjectPointClass_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x.x",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "x.y",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/PointClass" }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateObjectPointClass"],
+        "operationId": "UpdateObjectPointClass_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/PointClass" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/PointClass" }
+          }
+        }
+      }
+    },
+    "/api/UpdateSeqInt": {
+      "get": {
+        "tags": ["UpdateSeqInt"],
+        "operationId": "UpdateSeqInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "array",
+            "items": { "type": "integer", "format": "int32" },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["UpdateSeqInt"],
+        "operationId": "UpdateSeqInt_Post",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": { "format": "int32", "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "/api/UpdateString": {
+      "get": {
+        "tags": ["UpdateString"],
+        "operationId": "UpdateString_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          { "name": "x", "in": "query", "required": true, "type": "string" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } }
+        }
+      },
+      "post": {
+        "tags": ["UpdateString"],
+        "operationId": "UpdateString_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          { "name": "x", "in": "query", "required": true, "type": "string" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "schema": { "type": "string" } }
+        }
+      }
+    },
+    "/api/UpdateWithOptionalInt": {
+      "get": {
+        "tags": ["UpdateWithOptionalInt"],
+        "operationId": "UpdateWithOptionalInt_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "x",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "y",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FileDescription": {
+      "type": "object",
+      "properties": {
+        "Name": { "type": "string" },
+        "Bytes": { "format": "byte", "type": "string" }
+      }
+    },
+    "PointClass": {
+      "type": "object",
+      "properties": {
+        "X": { "format": "int32", "type": "integer" },
+        "Y": { "format": "int32", "type": "integer" }
+      }
+    }
+  }
+}

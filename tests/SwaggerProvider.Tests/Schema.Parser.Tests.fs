@@ -23,12 +23,11 @@ let parserTestBody (path:string) = async {
         let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
         let (schema, diagnostic) = openApiReader.Read(schemaStr)
-        // TODO: Should we ignore `diagnostic` or fails?
-        //if diagnostic.Errors.Count > 0 then
-        //    failwithf "Schema parse errors: %s"
-        //        (diagnostic.Errors
-        //         |> Seq.map (fun e -> e.Message)
-        //         |> String.concat ";")
+        if diagnostic.Errors.Count > 0 then
+           failwithf "Schema parse errors:\n- %s"
+               (diagnostic.Errors
+                |> Seq.map (fun e -> e.Message)
+                |> String.concat ";\n- ")
 
         try
             let defCompiler = DefinitionCompiler(schema, false)
@@ -49,7 +48,7 @@ let petStoreTests =
     |> List.map (fun file ->
         let path = Path.GetFullPath(file).Substring(root.Length)
         testCaseAsync
-            (sprintf "Parse schema %s" path)
+            (sprintf "Parse%s" path)
             (parserTestBody file)
        )
     |> testList "All/Schema"
@@ -61,7 +60,7 @@ let parseJsonSchemaTests =
     |> List.ofArray
     |> List.map (fun url ->
         testCaseAsync
-            (sprintf "Parse schema %s" url)
+            (sprintf "Parse %s" url)
             (parserTestBody url)
        )
     |> testList "Integration/Schema"

@@ -1,11 +1,11 @@
-﻿module Swagger.GitHub.Tests
+module Swagger.GitHub.Tests
 
 open SwaggerProvider
 open Expecto
 open System
 open System.Net.Http
 
-let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/GitHub.json"
+let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/v2/GitHub.json"
 let [<Literal>] Host = "https://api.github.com"
 type GitHub = SwaggerProvider<Schema, PreferAsync = true>
 let github() =
