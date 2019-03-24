@@ -21,6 +21,26 @@ open Swagger
 // Probably related to https://github.com/fsprojects/FSharp.TypeProviders.SDK/issues/274
 type ApiCall = string*OpenApiPathItem*OperationType
 
+type PayloadType =
+    | NoBody
+    | Body
+    | FormData
+    | FormUrlEncoded
+
+    override x.ToString() =
+        match x with 
+        | NoBody -> "noBody"
+        | Body -> "body"
+        | FormData -> "formData"
+        | FormUrlEncoded -> "formUrlEncoded"
+    static member TryParse = 
+        function
+        | "noBody" -> Some NoBody
+        | "body" -> Some Body
+        | "formData" -> Some FormData
+        | "formUrlEncoded" -> Some FormUrlEncoded
+        | _ -> None
+
 /// Object for compiling operations.
 type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (providedMethodName:string) (apiCall:ApiCall) =
@@ -65,21 +85,21 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             let bodyParam =
                 if isNull operation.RequestBody then None
                 else
-                    let param name schema=
+                    let param (payloadType:PayloadType) schema=
                         OpenApiParameter(
                             In = Nullable<_>(), // In Body parameter indicator
-                            Name = name,
+                            Name = payloadType.ToString(),
                             Schema  = schema,
                             Required  = operation.RequestBody.Required
                         ) |> Some
                     match operation.RequestBody with
-                    | ApplicationJson mediaTyObj   -> param "body" mediaTyObj.Schema
-                    | MultipartFormData mediaTyObj -> param "form-data" mediaTyObj.Schema
-                    | FormUrlEncodedContent mediaTyObj -> param "form-urlencoded" mediaTyObj.Schema
+                    | ApplicationJson mediaTyObj   -> param Body mediaTyObj.Schema
+                    | MultipartFormData mediaTyObj -> param FormData mediaTyObj.Schema
+                    | FormUrlEncodedContent mediaTyObj -> param FormUrlEncoded mediaTyObj.Schema
                     | NoMediaType ->
                         // Assume that server treat it as `applicationJson`
                         let defSchema = OpenApiSchema() // todo: we need to test it
-                        param "body" defSchema
+                        param NoBody defSchema
                     // TODO: application/octet-stream
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
@@ -152,17 +172,27 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                    else [] @>
 
             // Locates parameters matching the arguments
+            let mutable payloadExp = None
             let parameters =
                 List.tail args // skip `this` param
-                |> List.map (function
+                |> List.choose (function
                     | ShapeVar sVar as expr ->
                         let param =
                             operation.Parameters
-                            |> Seq.find (fun x ->
+                            |> Seq.tryFind (fun x ->
                                 // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
                                 let baseName = niceCamelName x.Name
                                 baseName = sVar.Name || (unambiguousName x) = sVar.Name )
-                        param, expr
+                        match param with
+                        | Some(par) -> Some(par, expr)
+                        | _ -> 
+                            match PayloadType.TryParse sVar.Name with
+                            | Some (ty) ->
+                                if payloadExp.IsNone
+                                then payloadExp <- Some(ty, expr); None
+                                else failwithf "More than one payload parameter is specified: '%A' & '%A'" ty (payloadExp.Value |> fst)
+                            | None ->
+                                failwithf "Cannot find param for '%s'" sVar.Name
                     | _  ->
                         failwithf "Function '%s' does not support functions as arguments." providedMethodName
                     )
@@ -204,7 +234,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                                     let cookies' = <@ (name, %value)::(%cookies) @>
                                     (path, query, headers, cookies', payload)
                                 | x -> failwithf "Unsupported parameter location '%A'" x
-                            else // Body parameter
+                            else 
+                                // TODO: parse from payload expr
                                 if payload.IsSome then
                                     failwith "Operation should contain only one body/payload parameter"
                                 let payload' = Some (param.Name, Expr.Coerce (valueExpr, typeof<obj>))

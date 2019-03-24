@@ -59,8 +59,9 @@ and NamespaceAbstraction (name:string) =
             then newName
             else findUniq prefix (i+1)
         let newName =
-          let pref = if String.IsNullOrWhiteSpace nameSuffix
-                     then namePref else sprintf "%s_%s" namePref nameSuffix
+          let pref = if String.IsNullOrWhiteSpace nameSuffix then namePref 
+                     elif String.IsNullOrWhiteSpace namePref then nameSuffix 
+                     else sprintf "%s_%s" namePref nameSuffix
           findUniq pref 0
         providedTys.Add(newName, Reservation)
         newName

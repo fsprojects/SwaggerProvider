@@ -68,7 +68,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
 
             let cacheKey =(schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, provideNullable, asAsync)
 
-            let (schema,tys) =
+            let tys =
                 match Cache.providedTypes.TryRetrieve(cacheKey) with
                 | Some(x) -> x
                 | None ->
@@ -109,8 +109,8 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     opCompiler.CompileProvidedClients(defCompiler.Namespace)
                     let tys = defCompiler.Namespace.GetProvidedTypes()
 
-                    Cache.providedTypes.Set(cacheKey, (schema,tys))
-                    (schema, tys)
+                    Cache.providedTypes.Set(cacheKey, tys)
+                    tys
 
             let tempAsm = ProvidedAssembly()
             let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)

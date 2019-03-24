@@ -4,8 +4,9 @@ open SwaggerProvider
 open Expecto
 open System
 
-type PetStore = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", PreferAsync = true>
-type PetStoreNullable = SwaggerProvider<"http://petstore.swagger.io/v2/swagger.json", ProvideNullable = true>
+let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/v2/petstore.json"
+type PetStore = SwaggerProvider<Schema, PreferAsync = true>
+type PetStoreNullable = SwaggerProvider<Schema, ProvideNullable = true>
 let store = PetStore.Client()
 let apiKey = "test-key"
 
@@ -48,7 +49,7 @@ let petStoreTests =
 
         let! pet2 = store.GetPetById(1337L)
         Expect.equal pet.Name     pet2.Name     "same Name"
-        Expect.equal pet.Id       pet.Id        "same Id"
+        Expect.equal pet.Id       pet2.Id        "same Id"
         Expect.equal pet.Category pet2.Category "same Category"
         Expect.equal pet.Status   pet2.Status   "same Status"
         Expect.notEqual pet pet2 "different objects"
