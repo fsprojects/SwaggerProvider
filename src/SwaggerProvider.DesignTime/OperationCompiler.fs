@@ -190,6 +190,19 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
     /// Compiles the operation.
     member __.CompilePaths(ignoreOperationId) =
         let methodNameScope = UniqueNameGenerator()
+        let eliminateArgs path =
+            let (|Arg|_|) (str : string) = 
+                if str.StartsWith("{") then Some ()
+                else None
+            path
+            |> List.ofArray
+            |> List.map List.singleton
+            |> List.reduceBack (fun x y -> 
+                match x, y with
+                | [Arg as arg], Arg :: rest -> arg :: rest
+                | [word], Arg :: rest -> singularize word :: rest
+                | list1, list2 -> list1 @ list2
+            )
         let pathToName opType (opPath:String) =
             String.Join("_",
                 [|
@@ -197,7 +210,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler) =
                     yield!
                         opPath.Split('/')
                         |> Array.filter (fun x ->
-                            not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
+                            not <| (String.IsNullOrEmpty(x)))
+                        |> eliminateArgs
                 |])
         let getMethodNameCandidate (op:OperationObject) =
             if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)

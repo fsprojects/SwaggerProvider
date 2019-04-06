@@ -15,7 +15,7 @@ let petStoreTests =
   testList "All/TP PetStore Tests" [
 
     testCase "Test provided Host property" <| fun _ ->
-        Expect.equal store.Host "http://petstore.swagger.io" "value from schema"
+        Expect.equal store.Host "https://petstore.swagger.io" "value from schema"
         store.Host <- "https://petstore.swagger.io"
         Expect.equal store.Host "https://petstore.swagger.io" "Modified value"
         store.Host <- "http://petstore.swagger.io"
