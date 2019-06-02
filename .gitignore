@@ -178,8 +178,6 @@ nuget/*.nupkg
 release.cmd
 release.sh
 localpackages/
-paket-files
-.paket/load/
 *.orig
 docs/content/license.md
 docs/content/release-notes.md
@@ -188,3 +186,7 @@ docs/content/release-notes.md
 .vs/
 *.svclog
 TestResult.xml
+
+# Paket dependency manager
+.paket/
+paket-files/

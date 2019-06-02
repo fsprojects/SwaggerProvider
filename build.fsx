@@ -1,24 +1,38 @@
-// --------------------------------------------------------------------------------------
-// FAKE build script
-// --------------------------------------------------------------------------------------
+#r @"paket:
+source https://nuget.org/api/v2
+framework netstandard2.0
+nuget Fake.Core.Target
+nuget Fake.Core.Process
+nuget Fake.Core.ReleaseNotes 
+nuget Fake.IO.FileSystem
+nuget Fake.DotNet.Cli
+nuget Fake.DotNet.MSBuild
+nuget Fake.DotNet.AssemblyInfoFile
+nuget Fake.DotNet.Paket
+nuget Fake.DotNet.Testing.Expecto 
+nuget Fake.DotNet.FSFormatting 
+nuget Fake.Tools.Git
+nuget Fake.Api.GitHub //"
 
-// Added to allow building the script from F# interactive. If the build fails F#
-// interactive allows you to review the full log, unlike the Windows Command Prompt.
-#if INTERACTIVE
-System.IO.Directory.SetCurrentDirectory(__SOURCE_DIRECTORY__)
+#if !FAKE
+#load "./.fake/build.fsx/intellisense.fsx"
+#r "netstandard" // Temp fix for https://github.com/fsharp/FAKE/issues/1985
 #endif
 
-#r "paket: groupref Build //"
-#load "./.fake/build.fsx/intellisense.fsx"
-
-open Fake.Core
+open Fake 
 open Fake.Core.TargetOperators
-open Fake.DotNet
+open Fake.Core 
 open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
+open Fake.DotNet
 open Fake.DotNet.Testing
 open Fake.Tools
+open Fake.Tools.Git
+open System
+open System.IO
+
+Target.initEnvironment()
 
 // --------------------------------------------------------------------------------------
 
@@ -225,15 +239,19 @@ Target.create "BuildPackage" ignore
 
 Target.create "All" ignore
 
+// https://github.com/fsharp/FAKE/issues/2283
+let skipTests = Environment.environVarAsBoolOrDefault "skipTests" false
+
+
 "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
-  ==> "RunUnitTests"
+  //==> "RunUnitTests"
   ==> "StartServer"
-  //==> "BuildTests"
-  //=?> ("RunIntegrationTests", not <| (Environment.hasEnvironVar "skipTests"))
+  ==> "BuildTests"
+  =?> ("RunIntegrationTests", not skipTests)
   ==> "StopServer"
-  //==> "RunTests"
+  ==> "RunTests"
   //=?> ("GenerateDocs", BuildServer.isLocalBuild)
   ==> "NuGet"
   ==> "All"

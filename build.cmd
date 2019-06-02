@@ -1,5 +1,10 @@
 @echo off
-cls
+dotnet tool install fake-cli --tool-path .fake --version 5.13.7
+dotnet tool install paket --tool-path .paket
 
-dotnet restore build.proj
-dotnet fake run build.fsx target %*
+.paket\paket.exe restore
+if errorlevel 1 (
+  exit /b %errorlevel%
+)
+
+.fake\fake.exe run build.fsx %*

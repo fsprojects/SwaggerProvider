@@ -15,27 +15,6 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
 github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
 
-group Build
-	source https://api.nuget.org/v3/index.json
-
-	//nuget FAKE
-	//nuget Suave
-	//nuget DotLiquid
-	//nuget FSharp.Formatting
-
-    nuget Fake.Core.Target
-    nuget Fake.Core.Process
-    nuget Fake.Core.ReleaseNotes 
-    nuget Fake.IO.FileSystem
-    nuget Fake.DotNet.Cli
-    nuget Fake.DotNet.MSBuild
-    nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.DotNet.Paket
-    nuget Fake.DotNet.Testing.Expecto 
-    nuget Fake.DotNet.FSFormatting 
-    nuget Fake.Tools.Git
-    nuget Fake.Api.GitHub
-
 group OWIN
 	source https://api.nuget.org/v3/index.json
 	framework: net461
