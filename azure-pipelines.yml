@@ -15,10 +15,10 @@ steps:
   inputs:
     packageType: 'sdk' # Options: runtime, sdk
     version: '2.2.103'
-- script: dotnet restore build.proj
-  displayName: 'dotnet restore build.proj'
-- script: dotnet fake run build.fsx target All
-  displayName: 'dotnet fake run build.fsx target All'
+- bash: ./build.sh
+  displayName: 'build.sh'
+- powershell: .\build.cmd
+  displayName: 'build.cmd'
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'NUnit'
