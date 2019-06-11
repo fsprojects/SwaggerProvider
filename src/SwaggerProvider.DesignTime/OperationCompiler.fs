@@ -95,7 +95,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                                 // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
                                 let baseName = niceCamelName x.Name
                                 baseName = sVar.Name || x.UnambiguousName = sVar.Name )
-                        param, expr
+                        let providedParam =
+                            parameters |> List.find (fun x -> x.Name = sVar.Name)
+                        (param, providedParam), expr
                     | _  ->
                         failwithf "Function '%s' does not support functions as arguments." methodName
                     )
@@ -128,15 +130,21 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 let listValues = corceQueryString name exp
                 <@ List.append %quer %listValues @>
 
-            let addHeader (heads: Expr<(string * string) []>) name (value: Expr<string>) =
-                <@ Array.append %heads [|name, %value|] @>
+            let addHeader (heads: Expr<(string * string) []>) name (param : ParameterObject) (providedParam : ProvidedParameter) (exp : Expr) =
+                let value = coerceString param.Type param.CollectionFormat exp
+                if param.Required then
+                    <@ Array.append %heads [|name, %value|] @>
+                else
+                    let paramDefaultValue = providedParam.DefaultValue
+                    let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
+                    <@ Array.append %heads (if %obj = paramDefaultValue then [||] else [|name, %value|]) @>
 
             // Partitions arguments based on their locations
             let (path, payload, queries, heads) =
                 let mPath = op.Path
                 parameters
                 |> List.fold (
-                    fun (path, load, quer, head) (param : ParameterObject, exp) ->
+                    fun (path, load, quer, head) ((param, providedParam), exp) ->
                         let name = param.Name
                         match param.In with
                         | Path   ->
@@ -145,9 +153,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                         | FormData
                         | Body   -> (path, addPayload load param exp, quer, head)
                         | Query  -> (path, load, addQuery quer name exp, head)
-                        | Header ->
-                            let value = coerceString param.Type param.CollectionFormat exp
-                            (path, load, quer, addHeader head name value)
+                        | Header -> (path, load, quer, addHeader head name param providedParam exp)
                     )
                     ( <@ mPath @>, None, <@ [] @>, headers)
 
