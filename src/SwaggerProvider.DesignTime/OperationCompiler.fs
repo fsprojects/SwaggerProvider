@@ -135,7 +135,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 if param.Required then
                     <@ Array.append %heads [|name, %value|] @>
                 else
-                    let paramDefaultValue = providedParam.DefaultValue
+                    let paramDefaultValue = providedParam.RawDefaultValue
                     let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
                     <@ Array.append %heads (if %obj = paramDefaultValue then [||] else [|name, %value|]) @>
 
