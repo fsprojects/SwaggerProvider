@@ -1,14 +1,14 @@
-module SwaggerProvider.Tests
+module SwaggerProvider.Tests.v3
 
-open SwaggerProvider.Internal.Compilers
+open SwaggerProvider.Internal.v3.Compilers
 open Expecto
 open System
 open System.IO
 
 let parserTestBody (path:string) = async {
-    let! schemaStr = 
+    let! schemaStr =
         match Uri.TryCreate(path, UriKind.Absolute) with
-        | true, uri when path.IndexOf("http") >=0  -> 
+        | true, uri when path.IndexOf("http") >=0  ->
             try
                 APIsGuru.httpClient.GetStringAsync(uri)
                 |> Async.AwaitTask
@@ -16,18 +16,18 @@ let parserTestBody (path:string) = async {
                 Tests.skiptestf "Network issue. Cannot download %s" e.Message
         | _ when File.Exists(path) ->
             async { return File.ReadAllText path}
-        | _ -> 
+        | _ ->
             failwithf "Cannot find schema '%s'" path
 
     if not <| System.String.IsNullOrEmpty(schemaStr) then
         let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
         let (schema, diagnostic) = openApiReader.Read(schemaStr)
-        if diagnostic.Errors.Count > 0 then
+(*        if diagnostic.Errors.Count > 0 then
            failwithf "Schema parse errors:\n- %s"
                (diagnostic.Errors
                 |> Seq.map (fun e -> e.Message)
-                |> String.concat ";\n- ")
+                |> String.concat ";\n- ")*)
 
         try
             let defCompiler = DefinitionCompiler(schema, false)
@@ -39,7 +39,7 @@ let parserTestBody (path:string) = async {
     }
 
 [<Tests>]
-let petStoreTests =
+let knownSchemaTests =
     let root = Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
                |> Path.GetFullPath
     Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
@@ -52,6 +52,11 @@ let petStoreTests =
             (parserTestBody file)
        )
     |> testList "All/Schema"
+
+[<Tests>]
+let petstoreTest =
+    testCaseAsync "Parse PetStore"
+        (parserTestBody (__SOURCE_DIRECTORY__ + "/../SwaggerProvider.ProviderTests/Schemas/v2/petstore.json"))
 
 (*
 [<Tests>]

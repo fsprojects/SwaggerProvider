@@ -14,7 +14,7 @@ steps:
 - task: DotNetCoreInstaller@0
   inputs:
     packageType: 'sdk' # Options: runtime, sdk
-    version: '2.2.103'
+    version: '2.2.301'
 - bash: ./build.sh
   condition: or( eq( variables['Agent.OS'], 'Darwin' ), eq( variables['Agent.OS'], 'Linux' ))
   displayName: 'build.sh'

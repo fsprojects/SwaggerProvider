@@ -184,6 +184,7 @@ docs/content/release-notes.md
 .fake/
 .idea/
 .vs/
+.ionide/
 *.svclog
 TestResult.xml
 

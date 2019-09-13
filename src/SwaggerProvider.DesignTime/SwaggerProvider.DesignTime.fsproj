@@ -29,16 +29,22 @@
     </Compile>
     <Compile Include="..\SwaggerProvider.Runtime\Serialization.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\RuntimeHelpers.fs" />
-    <Compile Include="..\SwaggerProvider.Runtime\SwaggerApiClient.fs" />
+    <Compile Include="..\SwaggerProvider.Runtime\OpenApiClientBase.fs" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Utils.fs" />
-    <Compile Include="DefinitionCompiler.fs" />
-    <Compile Include="OperationCompiler.fs" />
-    <Compile Include="Configuration.fs" />
+    <Compile Include="v2\Parser\Schema.fs" />
+    <Compile Include="v2\Parser\SchemaParserExceptions.fs" />
+    <Compile Include="v2\Parser\Parsers.fs" />
+    <Compile Include="v2\Parser\SwaggerParser.fs" />
+    <Compile Include="v2\DefinitionCompiler.fs" />
+    <Compile Include="v2\OperationCompiler.fs" />
+    <Compile Include="v3\DefinitionCompiler.fs" />
+    <Compile Include="v3\OperationCompiler.fs" />
     <Compile Include="Caching.fs" />
-    <Compile Include="SwaggerProvider.DesignTime.fs" />
+    <Compile Include="Provider.OpenApiClient.fs" />
+    <Compile Include="Provider.SwaggerClient.fs" />
     <None Include="paket.references" />
     <None Include="..\..\packages\NETStandard.Library.NETFramework\build\net461\lib\netstandard.dll" Condition="'$(TargetFramework)' == 'net46'">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

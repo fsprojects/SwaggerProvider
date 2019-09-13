@@ -22,10 +22,10 @@
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
-    <Compile Include="SwaggerProvider.Runtime.fs" />
+    <Compile Include="Runtime.fs" />
     <Compile Include="Serialization.fs" />
     <Compile Include="RuntimeHelpers.fs" />
-    <Compile Include="SwaggerApiClient.fs" />
+    <Compile Include="OpenApiClientBase.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace SwaggerProvider.Internal.Compilers
+﻿namespace SwaggerProvider.Internal.v3.Compilers
 
 open System
 open System.Collections.Generic
@@ -28,12 +28,12 @@ type PayloadType =
     | FormUrlEncoded
 
     override x.ToString() =
-        match x with 
+        match x with
         | NoBody -> "noBody"
         | Body -> "body"
         | FormData -> "formData"
         | FormUrlEncoded -> "formUrlEncoded"
-    static member TryParse = 
+    static member TryParse =
         function
         | "noBody" -> Some NoBody
         | "body" -> Some Body
@@ -133,7 +133,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             // reverse it again so that all required properties come first
             |> List.rev
 
-        // find the innner type value
+        // find the inner type value
         let retTy =
             let okResponse = // BUG :  wrong selector
                 operation.Responses
@@ -159,8 +159,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
         let m = ProvidedMethod(providedMethodName, parameters, overallReturnType, invokeCode = fun args ->
             let this =
-                Expr.Coerce(args.[0], typeof<SwaggerApiClientBase>)
-                |> Expr.Cast<SwaggerApiClientBase>
+                Expr.Coerce(args.[0], typeof<OpenApiClientBase>)
+                |> Expr.Cast<OpenApiClientBase>
 
             let httpMethod = opTy.ToString()
 
@@ -185,7 +185,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                                 baseName = sVar.Name || (unambiguousName x) = sVar.Name )
                         match param with
                         | Some(par) -> Some(par, expr)
-                        | _ -> 
+                        | _ ->
                             match PayloadType.TryParse sVar.Name with
                             | Some (ty) ->
                                 if payloadExp.IsNone
@@ -202,7 +202,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
                 <@ (%obj).ToString() @>
 
-            let rec corceQueryString name expr =
+            let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
                 <@ let o = (%%obj : obj)
                    RuntimeHelpers.toQueryParams name o @>
@@ -222,7 +222,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                                     let path' = <@ Regex.Replace(%path, pattern, %value) @>
                                     (path', query, headers, cookies, payload)
                                 | ParameterLocation.Query ->
-                                    let listValues = corceQueryString name valueExpr
+                                    let listValues = coerceQueryString name valueExpr
                                     let quer' = <@ List.append %query %listValues @>
                                     (path, quer', headers, cookies, payload)
                                 | ParameterLocation.Header ->
@@ -234,7 +234,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                                     let cookies' = <@ (name, %value)::(%cookies) @>
                                     (path, query, headers, cookies', payload)
                                 | x -> failwithf "Unsupported parameter location '%A'" x
-                            else 
+                            else
                                 // TODO: parse from payload expr
                                 if payload.IsSome then
                                     failwith "Operation should contain only one body/payload parameter"
@@ -345,7 +345,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
     member __.CompileProvidedClients(ns:NamespaceAbstraction) =
         let defaultHost = schema.Servers.[0].Url
-        let baseTy = Some typeof<SwaggerApiClientBase>
+        let baseTy = Some typeof<OpenApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
 
         List.ofSeq schema.Paths

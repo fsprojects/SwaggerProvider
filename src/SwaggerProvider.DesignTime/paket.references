@@ -8,3 +8,5 @@ FSharp.Core
 System.Net.Http
 Newtonsoft.Json
 Microsoft.OpenApi.Readers
+
+YamlDotNet

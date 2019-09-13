@@ -14,6 +14,10 @@
     <Reference Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="v2\Schema.DefinitionsTests.fs" />
+    <Compile Include="v2\Schema.PathsTests.fs" />
+    <Compile Include="v2\Schema.Spec.Json.Tests.fs" />
+    <Compile Include="v2\Schema.Spec.Yaml.Tests.fs" />
     <Compile Include="APIs.guru.fs" />
     <Compile Include="Schema.Parser.Tests.fs" />
     <Compile Include="Program.fs" />

@@ -7,7 +7,7 @@ open Newtonsoft.Json
 
 open Swagger.Serialization
 
-type SwaggerApiClientBase(httpClient: HttpClient) =
+type OpenApiClientBase(httpClient: HttpClient) =
     let jsonSerializerSettings = 
         let settings = 
             JsonSerializerSettings(
