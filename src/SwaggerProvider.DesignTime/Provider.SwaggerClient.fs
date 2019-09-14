@@ -36,7 +36,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
     do assert (typeof<OpenApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
 
     let myParamType =
-        let t = ProvidedTypeDefinition(asm, ns, "SwaggerProvider", Some typeof<obj>, isErased=false)
+        let t = ProvidedTypeDefinition(asm, ns, "SwaggerClientProvider", Some typeof<obj>, isErased=false)
         let staticParams =
             [ ProvidedStaticParameter("Schema", typeof<string>)
               ProvidedStaticParameter("Headers", typeof<string>, "")
@@ -48,10 +48,10 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
             """<summary>Statically typed Swagger provider.</summary>
                <param name='Schema'>Url or Path to Swagger schema file.</param>
                <param name='Headers'>Headers that will be used to access the schema.</param>
-               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
-               <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
+               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerClientProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
+               <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerClientProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
                <param name='ProvideNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`</param>
-               <param name='PreferAsync'>PreferAsync tells the SwaggerProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
+               <param name='PreferAsync'>PreferAsync tells the SwaggerClientProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
 
         t.DefineStaticParameters(
             staticParams,

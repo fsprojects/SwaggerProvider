@@ -8,7 +8,7 @@ Start by loading the swagger provider.
     open SwaggerProvider
 
     let [<Literal>]schema = "http://petstore.swagger.io/v2/swagger.json"
-    type PetStore = SwaggerProvider<schema> // Provided Types
+    type PetStore = SwaggerClientProvider<schema> // Provided Types
     let petStore = PetStore() // Instance for communication
 
 ### SwaggerProvider

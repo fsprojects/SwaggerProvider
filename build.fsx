@@ -88,7 +88,10 @@ Target.create "Build" (fun _ ->
 )
 
 Target.create "StartServer" (fun _ ->
+    Target.activateFinal "StopServer"
+
     CreateProcess.fromRawCommandLine "tests/Swashbuckle.OWIN.Server/bin/Release/net461/Swashbuckle.OWIN.Server.exe" ""
+    |> CreateProcess.withFramework
     |> Proc.start // start with the above configuration
     |> ignore // ignore exit code
     // Process.start (fun p ->
@@ -96,6 +99,10 @@ Target.create "StartServer" (fun _ ->
     //         FileName = "tests/Swashbuckle.OWIN.Server/bin/Release/net461/Swashbuckle.OWIN.Server.exe"
     //     })
     System.Threading.Thread.Sleep(2000)
+)
+
+Target.createFinal "StopServer" (fun _ ->
+    Process.killAllByName "Swashbuckle.OWIN.Server"
 )
 
 Target.create "BuildTests" (fun _ ->
@@ -129,10 +136,6 @@ Target.create "RunIntegrationTests" (fun _ ->
     !! testAssemblies
     |> Expecto.run (fun p ->
         { p with Filter = "Integration/"})
-)
-
-Target.createFinal "StopServer" (fun _ ->
-    Process.killAllByName "Swashbuckle.OWIN.Server"
 )
 
 Target.create "RunTests" ignore
@@ -246,7 +249,7 @@ let skipTests = Environment.environVarAsBoolOrDefault "skipTests" false
 "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
-  //==> "RunUnitTests"
+  ==> "RunUnitTests"
   ==> "StartServer"
   ==> "BuildTests"
   =?> ("RunIntegrationTests", not skipTests)
