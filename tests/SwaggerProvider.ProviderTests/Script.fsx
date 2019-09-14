@@ -5,7 +5,7 @@ open SwaggerProvider
 // Petstore
 [<Literal>]
 let path = __SOURCE_DIRECTORY__ + "/../SwaggerProvider.Tests/Schemas/PetStore.Swagger.json"
-type PetStore = SwaggerProvider<path, "Content-Type,application/json">
+type PetStore = SwaggerClientProvider<path, "Content-Type,application/json">
 
 // Types
 let tag = PetStore.Definitions.Tag()

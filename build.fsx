@@ -90,8 +90,8 @@ Target.create "Build" (fun _ ->
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
-    CreateProcess.fromRawCommandLine "tests/Swashbuckle.OWIN.Server/bin/Release/net461/Swashbuckle.OWIN.Server.exe" ""
-    |> CreateProcess.withFramework
+    CreateProcess.fromRawCommandLine "dotnet" "tests/NSwag.WebApi.Server/bin/Release/netcoreapp2.1/NSwag.WebApi.Server.dll"
+    //|> CreateProcess.withFramework
     |> Proc.start // start with the above configuration
     |> ignore // ignore exit code
     // Process.start (fun p ->
@@ -102,7 +102,9 @@ Target.create "StartServer" (fun _ ->
 )
 
 Target.createFinal "StopServer" (fun _ ->
-    Process.killAllByName "Swashbuckle.OWIN.Server"
+    //Process.killAllCreatedProcesses()
+    // TODO: Kill only one dotnet process with test api
+    Process.killAllByName "dotnet"
 )
 
 Target.create "BuildTests" (fun _ ->

@@ -1,4 +1,0 @@
-﻿group OWIN
-    Microsoft.AspNet.WebApi.OwinSelfHost
-    Swashbuckle.Core
-    FSharp.Core

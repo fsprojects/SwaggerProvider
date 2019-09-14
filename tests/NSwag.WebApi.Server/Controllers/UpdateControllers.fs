@@ -1,14 +1,19 @@
-﻿namespace Controllers
+﻿namespace NSwag.WebApi.Server.Controllers
 
 open System
-open System.Web.Http
+open Microsoft.AspNetCore.Mvc
 open System.Runtime.InteropServices
 
+[<Route("api/[controller]")>]
+[<ApiController>]
 type UpdateController<'T>(f:'T->'T) =
-    inherit ApiController()
-
-    member this.Get ([<FromUri>]x) = f x // Should be fixed soon https://github.com/domaindrivendev/Swashbuckle/pull/547
-    member this.Post x = f x
+    inherit ControllerBase()
+    [<HttpGet>]
+    member this.Get ([<FromQuery>]x) =
+      f x |> ActionResult<_>
+    [<HttpPost>]
+    member this.Post x =
+      f x |> ActionResult<_>
 
 type UpdateBoolController () =
     inherit UpdateController<bool>(not)
@@ -51,15 +56,22 @@ type UpdateObjectPointClassController () =
     inherit UpdateController<Types.PointClass>
         (fun p -> Types.PointClass(p.Y, p.X))
 
+[<Route("api/[controller]")>]
+[<ApiController>]
 type UpdateObjectFileDescriptionClassController () =
-    inherit ApiController()
+    inherit ControllerBase()
+    [<HttpGet>]
+    member this.Get ([<FromQuery>]x) =
+        Types.FileDescription("1.txt", x)
+        |> ActionResult<_>
+    [<HttpPost>]
+    member this.Post (x:Types.FileDescription) =
+        ActionResult<_>(x)
 
-    member this.Get ([<FromUri>]x) = Types.FileDescription("1.txt", x)
-    member this.Post (x:Types.FileDescription) = x
-
-
+[<Route("api/[controller]")>]
+[<ApiController>]
 type UpdateWithOptionalIntController() =
-    inherit ApiController()
-
-    member this.Get ([<FromUri>]x, [<FromUri; Optional; DefaultParameterValue(1)>]y:int) =
-        x+y
+    inherit ControllerBase()
+    [<HttpGet>]
+    member this.Get ([<FromQuery>]x, [<FromQuery; Optional; DefaultParameterValue(1)>]y:int) =
+        x+y |> ActionResult<_>

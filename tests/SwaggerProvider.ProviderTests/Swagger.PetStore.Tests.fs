@@ -5,8 +5,8 @@ open Expecto
 open System
 
 let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/v2/petstore.json"
-type PetStore = SwaggerProvider<Schema, PreferAsync = true>
-type PetStoreNullable = SwaggerProvider<Schema, ProvideNullable = true>
+type PetStore = SwaggerClientProvider<Schema, PreferAsync = true>
+type PetStoreNullable = SwaggerClientProvider<Schema, ProvideNullable = true>
 let store = PetStore.Client()
 let apiKey = "test-key"
 

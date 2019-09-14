@@ -1,99 +1,99 @@
-﻿module SwashbuckleUpdateControllersTests
+﻿module NSwagUpdateControllersTests
 
 open Expecto
 open System
-open SwashbuckleReturnControllersTests
+open NSwagReturnControllersTests
 
 [<Tests>]
 let returnControllersTests =
   testList "All/Swashbuckle.UpdateControllers.Tests" [
 
-    testCaseAsync "Update Bool GET Test" <| 
+    testCaseAsync "Update Bool GET Test" <|
         (api.GetApiUpdateBool(true)
          |> asyncEqual false)
 
-    testCaseAsync "Update Bool POST Test" <| 
+    testCaseAsync "Update Bool POST Test" <|
         (api.PostApiUpdateBool(false)
          |> asyncEqual true)
 
 
-    testCaseAsync "Update Int32 GET Test" <| 
+    testCaseAsync "Update Int32 GET Test" <|
         (api.GetApiUpdateInt32(0)
          |> asyncEqual 1)
 
-    testCaseAsync "Update Int32 POST Test" <| 
+    testCaseAsync "Update Int32 POST Test" <|
         (api.PostApiUpdateInt32(0)
          |> asyncEqual 1)
 
 
-    testCaseAsync "Update Int64 GET Test" <| 
+    testCaseAsync "Update Int64 GET Test" <|
         (api.GetApiUpdateInt64(10L)
          |> asyncEqual 11L)
 
-    testCaseAsync "Update Int64 POST Test" <| 
+    testCaseAsync "Update Int64 POST Test" <|
         (api.PostApiUpdateInt64(10L)
          |> asyncEqual 11L)
 
 
-    testCaseAsync "Update Float GET Test" <| 
+    testCaseAsync "Update Float GET Test" <|
         (api.GetApiUpdateFloat(1.0f)
          |> asyncEqual 2.0f)
 
-    testCaseAsync "Update Float POST Test" <| 
+    testCaseAsync "Update Float POST Test" <|
         (api.PostApiUpdateFloat(1.0f)
          |> asyncEqual 2.0f)
 
 
-    testCaseAsync "Update Double GET Test" <| 
+    testCaseAsync "Update Double GET Test" <|
         (api.GetApiUpdateDouble(2.0)
          |> asyncEqual 3.0)
 
-    testCaseAsync "Update Double POST Test" <| 
+    testCaseAsync "Update Double POST Test" <|
         (api.PostApiUpdateDouble(2.0)
          |> asyncEqual 3.0)
 
 
-    testCaseAsync "Update String GET Test" <| 
+    testCaseAsync "Update String GET Test" <|
         (api.GetApiUpdateString("Serge")
          |> asyncEqual "Hello, Serge")
 
-    testCaseAsync "Update String POST Test" <| 
+    testCaseAsync "Update String POST Test" <|
         (api.PostApiUpdateString("Serge")
          |> asyncEqual "Hello, Serge")
 
 
-    testCaseAsync "Update DateTime GET Test" <| 
+    testCaseAsync "Update DateTime GET Test" <|
         (api.GetApiUpdateDateTime(DateTime(2015,1,1))
          |> asyncEqual (DateTime(2015,1,2)))
 
-    testCaseAsync "Update DateTime POST Test" <| 
+    testCaseAsync "Update DateTime POST Test" <|
         (api.PostApiUpdateDateTime(DateTime(2015,1,1))
          |> asyncEqual (DateTime(2015,1,2)))
 
 
-    testCaseAsync "Update Enum GET Test" <| 
+    testCaseAsync "Update Enum GET Test" <|
         (api.GetApiUpdateEnum("1")
          |> asyncEqual "1")
 
-    testCaseAsync "Update Enum POST Test" <| 
+    testCaseAsync "Update Enum POST Test" <|
         (api.PostApiUpdateEnum("1")
          |> asyncEqual "1")
 
 
-    testCaseAsync "Update Array Int GET Test" <| 
+    testCaseAsync "Update Array Int GET Test" <|
         (api.GetApiUpdateArrayInt([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
-    testCaseAsync "Update Array Int POST Test" <| 
+    testCaseAsync "Update Array Int POST Test" <|
         (api.PostApiUpdateArrayInt([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
 
-    testCaseAsync "Update Array Enum GET Test" <| 
+    testCaseAsync "Update Array Enum GET Test" <|
         (api.GetApiUpdateArrayEnum([|"2";"1"|])
          |> asyncEqual [|"1";"2"|])
 
-    testCaseAsync "Update Array Enum POST Test" <| 
+    testCaseAsync "Update Array Enum POST Test" <|
         (api.PostApiUpdateArrayEnum([|"2";"1"|])
          |> asyncEqual [|"1";"2"|])
 
@@ -103,33 +103,33 @@ let returnControllersTests =
 //    WebAPI.UpdateListInt.Get([|3;2;1|])
 //    |> asyncEqual [|1;2;3|]
 
-    testCaseAsync "Update List Int POST Test" <| 
+    testCaseAsync "Update List Int POST Test" <|
         (api.PostApiUpdateListInt([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
 
-    testCaseAsync "Update Seq Int GET Test" <| 
+    testCaseAsync "Update Seq Int GET Test" <|
         (api.GetApiUpdateSeqInt([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
-    testCaseAsync "Update Seq Int POST Test" <| 
+    testCaseAsync "Update Seq Int POST Test" <|
         (api.PostApiUpdateSeqInt([|3;2;1|])
          |> asyncEqual [|1;2;3|])
 
 
     testCaseAsync "Update Object Point GET Test" <| async {
-        let! point = api.GetApiUpdateObjectPointClass(xX = Some 1, xY = Some 2)
-        point.X |> shouldEqual (Some 2)
-        point.Y |> shouldEqual (Some 1)
+        let! point = api.GetApiUpdateObjectPointClass(x = Some 1, y = Some 2)
+        point.X |> shouldEqual 2
+        point.Y |> shouldEqual 1
     }
 
     testCaseAsync "Update Object Point POST Test" <| async {
         let p = WebAPI.PointClass()
-        p.X <- Some 1
-        p.Y <- Some 2
+        p.X <- 1
+        p.Y <- 2
         let! point = api.PostApiUpdateObjectPointClass(p)
-        point.X |> shouldEqual (Some 2)
-        point.Y |> shouldEqual (Some 1)
+        point.X |> shouldEqual 2
+        point.Y |> shouldEqual 1
     }
 
     testCaseAsync "Send and Receive object with byte[]" <| async {
@@ -146,7 +146,7 @@ let returnControllersTests =
     }
 
     testCaseAsync "Use Optional param Int" <| async {
-        do! api.GetApiUpdateWithOptionalInt(1) |> asyncEqual 2
-        do! api.GetApiUpdateWithOptionalInt(1, Some(2)) |> asyncEqual 3
+        do! api.GetApiUpdateWithOptionalInt(Some 1) |> asyncEqual 2
+        do! api.GetApiUpdateWithOptionalInt(Some 1, Some 2 ) |> asyncEqual 3
     }
   ]

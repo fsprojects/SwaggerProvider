@@ -1,13 +1,16 @@
-﻿namespace Controllers
+﻿namespace NSwag.WebApi.Server.Controllers
 
 open System
-open System.Web.Http
+open Microsoft.AspNetCore.Mvc
 
+[<Route("api/[controller]")>]
+[<ApiController>]
 type ReturnController<'T>(value:'T) =
-    inherit ApiController()
-
-    member this.Get () = value
-    member this.Post () = value
+    inherit ControllerBase()
+    [<HttpGet>]
+    member this.Get () = value |> ActionResult<_>
+    [<HttpPost>]
+    member this.Post () = value |> ActionResult<_>
 
 
 type ReturnBooleanController () =

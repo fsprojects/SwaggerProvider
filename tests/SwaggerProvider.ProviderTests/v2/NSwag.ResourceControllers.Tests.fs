@@ -1,8 +1,8 @@
-﻿module SwashbuckleResourceControllersTests
+﻿module NSwagResourceControllersTests
 
 open Expecto
 open System
-open SwashbuckleReturnControllersTests
+open NSwagReturnControllersTests
 
 [<Tests>]
 let resourceControllersTests =

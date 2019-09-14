@@ -1,0 +1,6 @@
+﻿group Server
+    Microsoft.AspNetCore
+    Microsoft.AspNetCore.Mvc
+    Microsoft.AspNetCore.HttpsPolicy
+    NSwag.AspNetCore
+    FSharp.Core

@@ -18,20 +18,22 @@ github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
 github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
 
-group OWIN
-	source https://api.nuget.org/v3/index.json
-	framework: net461
+group Server
+    source https://api.nuget.org/v3/index.json
+    framework: netcoreapp2.1
 
-	nuget Microsoft.AspNet.WebApi.OwinSelfHost
-	nuget Swashbuckle.Core
-	nuget FSharp.Core redirects: force
+    nuget Microsoft.AspNetCore
+    nuget Microsoft.AspNetCore.Mvc
+    nuget Microsoft.AspNetCore.HttpsPolicy
+    nuget NSwag.AspNetCore
+    nuget FSharp.Core
 
 group Test
-	source https://api.nuget.org/v3/index.json
-	frameworks: net461
+    source https://api.nuget.org/v3/index.json
+    frameworks: net461
 
-	nuget FSharp.Compiler.Service redirects: force
-	nuget FSharp.Core redirects: force
+    nuget FSharp.Compiler.Service redirects: force
+    nuget FSharp.Core redirects: force
 
-	nuget Expecto
+    nuget Expecto
     nuget Expecto.TestResults
