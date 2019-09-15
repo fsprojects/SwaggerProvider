@@ -20,7 +20,16 @@ module Program =
 
     [<EntryPoint>]
     let main args =
+        let webHost = CreateWebHostBuilder(args).Build()
+        let _ = webHost.RunAsync()
+
         printfn "Swagger UI is running on %s" (Routes.Root)
-        CreateWebHostBuilder(args).Build().Run()
+        printfn "Send <something> to input stream to shut down."
+        Console.Read() |> ignore
+
+        printfn "Stopping WebApi ..."
+        webHost.StopAsync()
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
 
         exitCode

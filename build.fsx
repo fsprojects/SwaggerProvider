@@ -87,24 +87,23 @@ Target.create "Build" (fun _ ->
     DotNet.exec dotnetSimple "build" "SwaggerProvider.sln -c Release" |> ignore
 )
 
+let webApiInputStream = StreamRef.Empty
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
     CreateProcess.fromRawCommandLine "dotnet" "tests/NSwag.WebApi.Server/bin/Release/netcoreapp2.1/NSwag.WebApi.Server.dll"
-    //|> CreateProcess.withFramework
-    |> Proc.start // start with the above configuration
-    |> ignore // ignore exit code
-    // Process.start (fun p ->
-    //     { p with
-    //         FileName = "tests/Swashbuckle.OWIN.Server/bin/Release/net461/Swashbuckle.OWIN.Server.exe"
-    //     })
+    |> CreateProcess.withStandardInput (CreatePipe webApiInputStream)
+    |> Proc.start
+    |> ignore
+    
+    // We need delay to guarantee that server is bootstrapped
     System.Threading.Thread.Sleep(2000)
 )
 
 Target.createFinal "StopServer" (fun _ ->
-    //Process.killAllCreatedProcesses()
-    // TODO: Kill only one dotnet process with test api
-    Process.killAllByName "dotnet"
+    // Write something to input stream to stop server
+    webApiInputStream.Value.Write([|0uy|],0,1)
+    //Process.killAllByName "dotnet"
 )
 
 Target.create "BuildTests" (fun _ ->
