@@ -5,9 +5,9 @@ open Expecto
 open System
 open System.Net.Http
 
-let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/Schemas/v2/GitHub.json"
+let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/GitHub.json"
 let [<Literal>] Host = "https://api.github.com"
-type GitHub = SwaggerProvider<Schema, PreferAsync = true>
+type GitHub = SwaggerClientProvider<Schema, PreferAsync = true>
 let github() =
     let client = GitHub.Client()
     client.HttpClient.BaseAddress <- Uri Host
@@ -19,7 +19,7 @@ let github() =
 
 
 
-type TaskGitHub = SwaggerProvider<Schema>
+type TaskGitHub = SwaggerClientProvider<Schema>
 let taskGitHub() =
     let client = TaskGitHub.Client()
     client.HttpClient.BaseAddress <- Uri Host

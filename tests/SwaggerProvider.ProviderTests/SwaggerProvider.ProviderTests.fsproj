@@ -15,11 +15,11 @@
     <Compile Include="v2\NSwag.ReturnControllers.Tests.fs" />
     <Compile Include="v2\NSwag.UpdateControllers.Tests.fs" />
     <Compile Include="v2\NSwag.ResourceControllers.Tests.fs" />
-    <Compile Include="Swagger.PetStore.Tests.fs" />
-    <Compile Include="Swagger.GitHub.Tests.fs" />
-    <Compile Include="Swagger.Instagram.Tests.fs" />
-    <Compile Include="Swagger.i0027.Tests.fs" />
-    <Compile Include="Swagger.Namespaces.Tests.fs" />
+    <Compile Include="v2\Swagger.PetStore.Tests.fs" />
+    <Compile Include="v2\Swagger.GitHub.Tests.fs" />
+    <Compile Include="v2\Swagger.Instagram.Tests.fs" />
+    <Compile Include="v2\Swagger.i0027.Tests.fs" />
+    <Compile Include="v2\Swagger.Namespaces.Tests.fs" />
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
     </Compile>

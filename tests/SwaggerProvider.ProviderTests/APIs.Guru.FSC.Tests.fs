@@ -1,5 +1,5 @@
 module APIsGuruFSCS
-
+(*
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open System
 open System.IO
@@ -36,7 +36,7 @@ let testTemplate url testBodyFunc =
     File.WriteAllText(fs, sprintf """
     module TestModule
     open SwaggerProvider
-    type ProvidedSwagger = SwaggerProvider<"%s">
+    type ProvidedSwagger = SwaggerClientProvider<"%s">
     let instance = ProvidedSwagger.Client()
     #if INTERACTIVE
     System.Console.WriteLine("Hello from FSI: {0}", instance.HttpClient.BaseAddress)
@@ -44,10 +44,10 @@ let testTemplate url testBodyFunc =
     """ url)
 
     try
-        try 
+        try
             testBodyFunc fs dll
         with
-        | e when e.Message.IndexOf("not supported yet") >= 0 -> () 
+        | e when e.Message.IndexOf("not supported yet") >= 0 -> ()
         | e when e.Message.IndexOf("An error occurred while sending the request") >= 0 -> ()
     finally
         [tempFile; fs; dll]
@@ -111,3 +111,4 @@ let fsiTests =
        )
     |> testList "Integration/Load TP in FSI"
     |> testSequenced
+*)
