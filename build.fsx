@@ -107,7 +107,7 @@ Target.createFinal "StopServer" (fun _ ->
 )
 
 Target.create "BuildTests" (fun _ ->
-    DotNet.exec dotnetSimple "build" "SwaggerProvider.TestsAndDocs.sln" |> ignore
+    DotNet.exec dotnetSimple "build" "SwaggerProvider.TestsAndDocs.sln -c Release" |> ignore
 )
 
 // --------------------------------------------------------------------------------------
@@ -134,9 +134,23 @@ Target.create "RunUnitTests" (fun _ ->
 )
 
 Target.create "RunIntegrationTests" (fun _ ->
-    !! testAssemblies
-    |> Expecto.run (fun p ->
-        { p with Filter = "Integration/"})
+    // !! testAssemblies
+    // |> Expecto.run (fun p ->
+    //     { p with Filter = "Integration/"})
+
+    let xs = ["tests/SwaggerProvider.ProviderTests/bin/Release/net461/SwaggerProvider.ProviderTests.exe";
+              "--fail-on-focused-tests"; "--sequenced"; "--version"]
+    let cmd, parameters =
+        if Environment.isWindows 
+        then List.head xs, List.tail xs
+        else "mono", xs
+
+    CreateProcess.fromRawCommand cmd parameters
+    |> CreateProcess.redirectOutput
+    |> CreateProcess.withOutputEventsNotNull Trace.trace Trace.traceError
+    |> CreateProcess.ensureExitCode
+    |> Proc.run
+    |> ignore 
 )
 
 Target.create "RunTests" ignore
