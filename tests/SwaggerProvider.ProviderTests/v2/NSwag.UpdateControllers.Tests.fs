@@ -9,48 +9,48 @@ let returnControllersTests =
   testList "All/Swashbuckle.UpdateControllers.Tests" [
 
     testCaseAsync "Update Bool GET Test" <|
-        (api.GetApiUpdateBool(true)
+        (api.GetApiUpdateBool(Some true)
          |> asyncEqual false)
 
     testCaseAsync "Update Bool POST Test" <|
-        (api.PostApiUpdateBool(false)
+        (api.PostApiUpdateBool(Some false)
          |> asyncEqual true)
 
 
     testCaseAsync "Update Int32 GET Test" <|
-        (api.GetApiUpdateInt32(0)
+        (api.GetApiUpdateInt32(Some 0)
          |> asyncEqual 1)
 
     testCaseAsync "Update Int32 POST Test" <|
-        (api.PostApiUpdateInt32(0)
+        (api.PostApiUpdateInt32(Some 0)
          |> asyncEqual 1)
 
 
     testCaseAsync "Update Int64 GET Test" <|
-        (api.GetApiUpdateInt64(10L)
+        (api.GetApiUpdateInt64(Some 10L)
          |> asyncEqual 11L)
 
     testCaseAsync "Update Int64 POST Test" <|
-        (api.PostApiUpdateInt64(10L)
+        (api.PostApiUpdateInt64(Some 10L)
          |> asyncEqual 11L)
 
     // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Update Float GET Test" <|
-        (api.GetApiUpdateFloat(1.0)
+        (api.GetApiUpdateFloat(Some 1.0)
          |> asyncEqual 2.0)
 
     // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Update Float POST Test" <|
-        (api.PostApiUpdateFloat(1.0)
+        (api.PostApiUpdateFloat(Some 1.0)
          |> asyncEqual 2.0)
 
 
     testCaseAsync "Update Double GET Test" <|
-        (api.GetApiUpdateDouble(2.0)
+        (api.GetApiUpdateDouble(Some 2.0)
          |> asyncEqual 3.0)
 
     testCaseAsync "Update Double POST Test" <|
-        (api.PostApiUpdateDouble(2.0)
+        (api.PostApiUpdateDouble(Some 2.0)
          |> asyncEqual 3.0)
 
 
@@ -64,11 +64,11 @@ let returnControllersTests =
 
 
     testCaseAsync "Update DateTime GET Test" <|
-        (api.GetApiUpdateDateTime(DateTime(2015,1,1))
+        (api.GetApiUpdateDateTime(Some <| DateTime(2015,1,1))
          |> asyncEqual (DateTime(2015,1,2)))
 
     testCaseAsync "Update DateTime POST Test" <|
-        (api.PostApiUpdateDateTime(DateTime(2015,1,1))
+        (api.PostApiUpdateDateTime(Some <| DateTime(2015,1,1))
          |> asyncEqual (DateTime(2015,1,2)))
 
 
@@ -119,7 +119,7 @@ let returnControllersTests =
 
 
     testCaseAsync "Update Object Point GET Test" <| async {
-        let! point = api.GetApiUpdateObjectPointClass(x = 1, y = 2)
+        let! point = api.GetApiUpdateObjectPointClass(x = Some 1, y = Some 2)
         point.X |> shouldEqual 2
         point.Y |> shouldEqual 1
     }
@@ -147,7 +147,8 @@ let returnControllersTests =
     }
 
     testCaseAsync "Use Optional param Int" <| async {
-        do! api.GetApiUpdateWithOptionalInt(1) |> asyncEqual 2
-        do! api.GetApiUpdateWithOptionalInt(1, 2) |> asyncEqual 3
+        // bug: NSwag does not mark 2nd param as optional
+        //do! api.GetApiUpdateWithOptionalInt(1) |> asyncEqual 2
+        do! api.GetApiUpdateWithOptionalInt(Some 1, Some 2) |> asyncEqual 3
     }
   ]
