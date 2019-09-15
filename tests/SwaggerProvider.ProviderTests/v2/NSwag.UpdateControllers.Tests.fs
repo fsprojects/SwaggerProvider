@@ -34,14 +34,15 @@ let returnControllersTests =
         (api.PostApiUpdateInt64(10L)
          |> asyncEqual 11L)
 
-
+    // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Update Float GET Test" <|
-        (api.GetApiUpdateFloat(1.0f)
-         |> asyncEqual 2.0f)
+        (api.GetApiUpdateFloat(1.0)
+         |> asyncEqual 2.0)
 
+    // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Update Float POST Test" <|
-        (api.PostApiUpdateFloat(1.0f)
-         |> asyncEqual 2.0f)
+        (api.PostApiUpdateFloat(1.0)
+         |> asyncEqual 2.0)
 
 
     testCaseAsync "Update Double GET Test" <|
@@ -118,7 +119,7 @@ let returnControllersTests =
 
 
     testCaseAsync "Update Object Point GET Test" <| async {
-        let! point = api.GetApiUpdateObjectPointClass(x = Some 1, y = Some 2)
+        let! point = api.GetApiUpdateObjectPointClass(x = 1, y = 2)
         point.X |> shouldEqual 2
         point.Y |> shouldEqual 1
     }
@@ -146,7 +147,7 @@ let returnControllersTests =
     }
 
     testCaseAsync "Use Optional param Int" <| async {
-        do! api.GetApiUpdateWithOptionalInt(Some 1) |> asyncEqual 2
-        do! api.GetApiUpdateWithOptionalInt(Some 1, Some 2 ) |> asyncEqual 3
+        do! api.GetApiUpdateWithOptionalInt(1) |> asyncEqual 2
+        do! api.GetApiUpdateWithOptionalInt(1, 2) |> asyncEqual 3
     }
   ]

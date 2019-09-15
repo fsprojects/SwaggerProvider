@@ -1,9 +1,39 @@
 module SwaggerProvider.Tests.v3
 
-open SwaggerProvider.Internal.v3.Compilers
 open Expecto
 open System
 open System.IO
+
+module V2 =
+    open SwaggerProvider.Internal.v2.Compilers
+    open SwaggerProvider.Internal.v2.Parser
+    let testSchema schemaStr =
+        let schema = SwaggerParser.parseSchema schemaStr
+
+        let defCompiler = DefinitionCompiler(schema, false)
+        let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+        opCompiler.CompileProvidedClients(defCompiler.Namespace)
+        ignore <|  defCompiler.Namespace.GetProvidedTypes()
+
+module V3 =
+    open SwaggerProvider.Internal.v3.Compilers
+    let testSchema schemaStr =
+        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
+
+        let (schema, diagnostic) = openApiReader.Read(schemaStr)
+    (*        if diagnostic.Errors.Count > 0 then
+               failwithf "Schema parse errors:\n- %s"
+                   (diagnostic.Errors
+                    |> Seq.map (fun e -> e.Message)
+                    |> String.concat ";\n- ")*)
+
+        try
+            let defCompiler = DefinitionCompiler(schema, false)
+            let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+            opCompiler.CompileProvidedClients(defCompiler.Namespace)
+            ignore <| defCompiler.Namespace.GetProvidedTypes()
+        with
+        | e when e.Message.IndexOf("not supported yet") >= 0 -> ()
 
 let parserTestBody (path:string) = async {
     let! schemaStr =
@@ -20,22 +50,9 @@ let parserTestBody (path:string) = async {
             failwithf "Cannot find schema '%s'" path
 
     if not <| System.String.IsNullOrEmpty(schemaStr) then
-        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
-
-        let (schema, diagnostic) = openApiReader.Read(schemaStr)
-(*        if diagnostic.Errors.Count > 0 then
-           failwithf "Schema parse errors:\n- %s"
-               (diagnostic.Errors
-                |> Seq.map (fun e -> e.Message)
-                |> String.concat ";\n- ")*)
-
-        try
-            let defCompiler = DefinitionCompiler(schema, false)
-            let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
-            opCompiler.CompileProvidedClients(defCompiler.Namespace)
-            ignore <| defCompiler.Namespace.GetProvidedTypes()
-        with
-        | e when e.Message.IndexOf("not supported yet") >= 0 -> ()
+        if path.IndexOf("v2") >= 0
+        then V2.testSchema schemaStr
+        else V3.testSchema schemaStr
     }
 
 [<Tests>]

@@ -46,14 +46,14 @@ let returnControllersTests =
         (api.PostApiReturnInt64()
          |> asyncEqual 42L)
 
-
+    // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Return Float GET Test" <|
         (api.GetApiReturnFloat()
-         |> asyncEqual 42.0f)
+         |> asyncEqual 42.0)
 
     testCaseAsync "Return Float POST Test" <|
         (api.PostApiReturnFloat()
-         |> asyncEqual 42.0f)
+         |> asyncEqual 42.0)
 
 
     testCaseAsync "Return Double GET Test" <|
