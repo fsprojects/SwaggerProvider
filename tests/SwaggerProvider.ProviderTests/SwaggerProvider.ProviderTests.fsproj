@@ -12,9 +12,9 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="v2\NSwag.ReturnControllers.Tests.fs" />
-    <Compile Include="v2\NSwag.UpdateControllers.Tests.fs" />
-    <Compile Include="v2\NSwag.ResourceControllers.Tests.fs" />
+    <Compile Include="v2\Swashbuckle.ReturnControllers.Tests.fs" />
+    <Compile Include="v2\Swashbuckle.UpdateControllers.Tests.fs" />
+    <Compile Include="v2\Swashbuckle.ResourceControllers.Tests.fs" />
     <Compile Include="v2\Swagger.PetStore.Tests.fs" />
     <Compile Include="v2\Swagger.GitHub.Tests.fs" />
     <Compile Include="v2\Swagger.Instagram.Tests.fs" />

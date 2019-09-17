@@ -2,7 +2,7 @@ version 5.198.0
 source https://api.nuget.org/v3/index.json
 frameworks: net46, netcoreapp2.1, netstandard2.0
 
-nuget FSharp.Core
+nuget FSharp.Core 4.3.4
 nuget System.Net.Http
 nuget Newtonsoft.Json
 nuget Microsoft.OpenApi.Readers
@@ -25,7 +25,8 @@ group Server
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
-    nuget NSwag.AspNetCore
+    nuget Swashbuckle.AspNetCore prerelease
+    nuget Microsoft.OpenApi
     nuget FSharp.Core
 
 group Test

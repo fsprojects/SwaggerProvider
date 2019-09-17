@@ -1,8 +1,8 @@
-﻿module NSwagUpdateControllersTests
+﻿module SwashbuckleUpdateControllersTests
 
 open Expecto
 open System
-open NSwagReturnControllersTests
+open SwashbuckleReturnControllersTests
 
 [<Tests>]
 let returnControllersTests =
@@ -34,15 +34,13 @@ let returnControllersTests =
         (api.PostApiUpdateInt64(Some 10L)
          |> asyncEqual 11L)
 
-    // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Update Float GET Test" <|
-        (api.GetApiUpdateFloat(Some 1.0)
-         |> asyncEqual 2.0)
+        (api.GetApiUpdateFloat(Some 1.0f)
+         |> asyncEqual 2.0f)
 
-    // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Update Float POST Test" <|
-        (api.PostApiUpdateFloat(Some 1.0)
-         |> asyncEqual 2.0)
+        (api.PostApiUpdateFloat(Some 1.0f)
+         |> asyncEqual 2.0f)
 
 
     testCaseAsync "Update Double GET Test" <|
@@ -120,17 +118,17 @@ let returnControllersTests =
 
     testCaseAsync "Update Object Point GET Test" <| async {
         let! point = api.GetApiUpdateObjectPointClass(x = Some 1, y = Some 2)
-        point.X |> shouldEqual 2
-        point.Y |> shouldEqual 1
+        point.X |> shouldEqual (Some 2)
+        point.Y |> shouldEqual (Some 1)
     }
 
     testCaseAsync "Update Object Point POST Test" <| async {
         let p = WebAPI.PointClass()
-        p.X <- 1
-        p.Y <- 2
+        p.X <- Some 1
+        p.Y <- Some 2
         let! point = api.PostApiUpdateObjectPointClass(p)
-        point.X |> shouldEqual 2
-        point.Y |> shouldEqual 1
+        point.X |> shouldEqual (Some 2)
+        point.Y |> shouldEqual (Some 1)
     }
 
     testCaseAsync "Send and Receive object with byte[]" <| async {
@@ -147,8 +145,7 @@ let returnControllersTests =
     }
 
     testCaseAsync "Use Optional param Int" <| async {
-        // bug: NSwag does not mark 2nd param as optional
-        //do! api.GetApiUpdateWithOptionalInt(1) |> asyncEqual 2
+        do! api.GetApiUpdateWithOptionalInt(Some 1) |> asyncEqual 2
         do! api.GetApiUpdateWithOptionalInt(Some 1, Some 2) |> asyncEqual 3
     }
   ]

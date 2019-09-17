@@ -1,4 +1,4 @@
-namespace NSwag.WebApi.Server
+namespace Swashbuckle.WebApi.Server
 
 open System
 open System.Collections.Generic
@@ -10,13 +10,7 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
-
-module Routes =
-    let Root = "/swagger"
-    let SwaggerDocumentName = "Swagger"
-    let SwaggerPath = Root + "/v1/swagger.json"
-    let OpenApiDocumentName = "OpenApi"
-    let OpenApiPath = Root + "/v1/openapi.json"
+open Microsoft.OpenApi.Models
 
 type Startup private () =
     new (configuration: IConfiguration) as this =
@@ -27,15 +21,9 @@ type Startup private () =
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
         services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2) |> ignore
-         // Register the Swagger & OpenApi services
-        services.AddSwaggerDocument(fun config ->
-            config.DocumentName <- Routes.SwaggerDocumentName
-            config.PostProcess <- fun document ->
-                document.Info.Title <- "Test WebAPI Server (v2 / Swagger)"
-        ).AddOpenApiDocument(fun config ->
-            config.DocumentName <- Routes.OpenApiDocumentName
-            config.PostProcess <- fun document ->
-                document.Info.Title <- "Test WebAPI Server (v3 / OpenApi)"
+        // Register the Swagger & OpenApi services
+        services.AddSwaggerGen(fun c ->
+            c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"));
         ) |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,17 +35,11 @@ type Startup private () =
             app.UseHsts() |> ignore
 
         // Register the Swagger generator and the Swagger UI middlewares
-        app.UseOpenApi(fun options ->
-            options.DocumentName <- Routes.SwaggerDocumentName
-            options.Path <- Routes.SwaggerPath
-        ).UseOpenApi(fun options ->
-            options.DocumentName <- Routes.OpenApiDocumentName
-            options.Path <- Routes.OpenApiPath
-        ).UseSwaggerUi3(fun options ->
-            options.SwaggerRoutes.Add(NSwag.AspNetCore.SwaggerUi3Route(Routes.SwaggerDocumentName, Routes.SwaggerPath))
-            options.SwaggerRoutes.Add(NSwag.AspNetCore.SwaggerUi3Route(Routes.OpenApiDocumentName, Routes.OpenApiPath))
-
-            options.Path <- Routes.Root
+        app.UseSwagger(fun c ->
+            c.SerializeAsV2 <- true
+        ) |> ignore
+        app.UseSwaggerUI(fun c ->
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
         ) |> ignore
 
         app.UseHttpsRedirection() |> ignore

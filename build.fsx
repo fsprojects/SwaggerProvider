@@ -91,7 +91,7 @@ let webApiInputStream = StreamRef.Empty
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
-    CreateProcess.fromRawCommandLine "dotnet" "tests/NSwag.WebApi.Server/bin/Release/netcoreapp2.1/NSwag.WebApi.Server.dll"
+    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/netcoreapp2.1/Swashbuckle.WebApi.Server.dll"
     |> CreateProcess.withStandardInput (CreatePipe webApiInputStream)
     |> Proc.start
     |> ignore

@@ -1,4 +1,4 @@
-﻿namespace NSwag.WebApi.Server.Controllers
+﻿namespace Swashbuckle.WebApi.Server.Controllers
 
 open System
 open System.Collections.Generic

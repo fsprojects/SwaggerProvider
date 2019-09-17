@@ -1,4 +1,4 @@
-namespace NSwag.WebApi.Server
+namespace Swashbuckle.WebApi.Server
 
 open System
 open System.Collections.Generic
@@ -23,7 +23,7 @@ module Program =
         let webHost = CreateWebHostBuilder(args).Build()
         let _ = webHost.RunAsync()
 
-        printfn "Swagger UI is running on %s" (Routes.Root)
+        printfn "Swagger UI is running on /swagger"
         printfn "Send <something> to input stream to shut down."
         Console.Read() |> ignore
 

@@ -26,7 +26,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.DesignTime"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwaggerProvider.Tests", "tests\SwaggerProvider.Tests\SwaggerProvider.Tests.fsproj", "{358F1AB1-0F38-4D7D-B022-24F4E9EB5673}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "NSwag.WebApi.Server", "tests\NSwag.WebApi.Server\NSwag.WebApi.Server.fsproj", "{112C445E-959B-4193-836A-78F36FB9F36E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Swashbuckle.WebApi.Server", "tests\Swashbuckle.WebApi.Server\Swashbuckle.WebApi.Server.fsproj", "{112C445E-959B-4193-836A-78F36FB9F36E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

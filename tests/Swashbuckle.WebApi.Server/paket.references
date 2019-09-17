@@ -2,5 +2,6 @@
     Microsoft.AspNetCore
     Microsoft.AspNetCore.Mvc
     Microsoft.AspNetCore.HttpsPolicy
-    NSwag.AspNetCore
+    Swashbuckle.AspNetCore
+    Microsoft.OpenApi
     FSharp.Core

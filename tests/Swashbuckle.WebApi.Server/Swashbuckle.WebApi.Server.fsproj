@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Swashbuckle.WebApi.Server</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Controllers\Types.fs" />

@@ -1,11 +1,15 @@
-﻿module NSwagReturnControllersTests
+﻿module SwashbuckleReturnControllersTests
 
 open Expecto
 open SwaggerProvider
 open System
+open System.Net.Http
 
 type WebAPI = SwaggerClientProvider<"https://localhost:5001/swagger/v1/swagger.json", IgnoreOperationId=true, PreferAsync = true>
-let api = WebAPI.Client()
+let api =
+    let handler = new HttpClientHandler (UseCookies = false)
+    let client = new HttpClient(handler, true, BaseAddress=Uri("https://localhost:5001"))
+    WebAPI.Client(client)
 
 let shouldEqual expected actual =
     Expect.equal actual expected "return value"
@@ -46,14 +50,13 @@ let returnControllersTests =
         (api.PostApiReturnInt64()
          |> asyncEqual 42L)
 
-    // bug: https://github.com/RicoSuter/NSwag/issues/1122
     testCaseAsync "Return Float GET Test" <|
         (api.GetApiReturnFloat()
-         |> asyncEqual 42.0)
+         |> asyncEqual 42.0f)
 
     testCaseAsync "Return Float POST Test" <|
         (api.PostApiReturnFloat()
-         |> asyncEqual 42.0)
+         |> asyncEqual 42.0f)
 
 
     testCaseAsync "Return Double GET Test" <|
@@ -130,14 +133,14 @@ let returnControllersTests =
 
     testCaseAsync "Return Object Point GET Test" <| async {
         let! point = api.GetApiReturnObjectPointClass()
-        point.X  |> shouldEqual 0
-        point.Y  |> shouldEqual 0
+        point.X  |> shouldEqual (Some 0)
+        point.Y  |> shouldEqual (Some 0)
     }
 
     testCaseAsync "Return Object Point POST Test" <| async {
         let! point = api.PostApiReturnObjectPointClass()
-        point.X  |> shouldEqual 0
-        point.Y  |> shouldEqual 0
+        point.X  |> shouldEqual (Some 0)
+        point.Y  |> shouldEqual (Some 0)
     }
 
 
