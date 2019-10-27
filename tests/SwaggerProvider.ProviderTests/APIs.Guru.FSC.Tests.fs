@@ -1,6 +1,6 @@
 module APIsGuruFSCS
 (*
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.SourceCodeServices
 open System
 open System.IO
 open Expecto

@@ -26,7 +26,6 @@ module V3 =
                    (diagnostic.Errors
                     |> Seq.map (fun e -> e.Message)
                     |> String.concat ";\n- ")*)
-
         try
             let defCompiler = DefinitionCompiler(schema, false)
             let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
