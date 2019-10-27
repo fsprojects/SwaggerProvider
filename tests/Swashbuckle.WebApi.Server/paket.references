@@ -5,4 +5,4 @@
     Swashbuckle.AspNetCore
     Microsoft.OpenApi
     FSharp.Core
-    FSharp.SystemTextJson
+    Microsoft.AspNetCore.Mvc.NewtonsoftJson

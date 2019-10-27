@@ -28,7 +28,7 @@ group Server
     nuget Swashbuckle.AspNetCore prerelease
     nuget Microsoft.OpenApi
     nuget FSharp.Core
-    nuget FSharp.SystemTextJson
+    nuget Microsoft.AspNetCore.Mvc.NewtonsoftJson
 
 group Test
     source https://api.nuget.org/v3/index.json
