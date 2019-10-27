@@ -69,7 +69,7 @@ Target.create "AssemblyInfo" (fun _ ->
 
 Target.create "Clean" (fun _ ->
     Shell.cleanDirs ["bin"; "temp"]
-    try System.IO.File.Delete("swaggerlog") with | _ -> ()
+    try File.Delete("swaggerlog") with | _ -> ()
 )
 
 Target.create "CleanDocs" (fun _ ->
@@ -79,12 +79,8 @@ Target.create "CleanDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
-let dotnetSdk = lazy DotNet.install DotNet.Versions.FromGlobalJson
-let inline withWorkDir wd = DotNet.Options.lift dotnetSdk.Value >> DotNet.Options.withWorkingDirectory wd
-let inline dotnetSimple arg = DotNet.Options.lift dotnetSdk.Value arg
-
 Target.create "Build" (fun _ ->
-    DotNet.exec dotnetSimple "build" "SwaggerProvider.sln -c Release" |> ignore
+    DotNet.exec id "build" "SwaggerProvider.sln -c Release" |> ignore
 )
 
 let webApiInputStream = StreamRef.Empty
@@ -107,7 +103,7 @@ Target.createFinal "StopServer" (fun _ ->
 )
 
 Target.create "BuildTests" (fun _ ->
-    DotNet.exec dotnetSimple "build" "SwaggerProvider.TestsAndDocs.sln -c Release" |> ignore
+    DotNet.exec id "build" "SwaggerProvider.TestsAndDocs.sln -c Release" |> ignore
 )
 
 // --------------------------------------------------------------------------------------
@@ -161,6 +157,7 @@ Target.create "RunTests" ignore
 Target.create "NuGet" (fun _ ->
     Paket.pack(fun p ->
         { p with
+            ToolType = ToolType.CreateLocalTool()
             OutputPath = "bin"
             Version = release.NugetVersion
             ReleaseNotes = String.toLines release.Notes})
@@ -169,6 +166,7 @@ Target.create "NuGet" (fun _ ->
 Target.create "PublishNuget" (fun _ ->
     Paket.push(fun p ->
         { p with
+            ToolType = ToolType.CreateLocalTool()
             WorkingDir = "bin" })
 )
 
