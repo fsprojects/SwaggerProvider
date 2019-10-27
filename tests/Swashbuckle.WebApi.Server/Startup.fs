@@ -43,7 +43,7 @@ type Startup private () =
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
         ) |> ignore
 
-        app.UseHttpsRedirection() |> ignore
+        //app.UseHttpsRedirection() |> ignore
         app.UseMvc() |> ignore
 
     member val Configuration : IConfiguration = null with get, set

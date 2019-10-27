@@ -7,7 +7,7 @@ open Microsoft.AspNetCore.Mvc
 type ResourceController<'a,'b when 'a: equality> (dict:System.Collections.Generic.Dictionary<'a,'b>)=
     inherit ControllerBase()
     [<HttpGet>]
-    member __.Get key = dict.[key] |> ActionResult<_>
+    member __.Get key = dict.[key] |> JsonResult
     [<HttpDelete>]
     member __.Delete key = dict.Remove(key) |> ignore
     [<HttpPut>]

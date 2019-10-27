@@ -10,10 +10,10 @@ type UpdateController<'T>(f:'T->'T) =
     inherit ControllerBase()
     [<HttpGet>]
     member this.Get ([<FromQuery>]x) =
-      f x |> ActionResult<_>
+      f x |> JsonResult
     [<HttpPost>]
     member this.Post x =
-      f x |> ActionResult<_>
+      f x |> JsonResult
 
 type UpdateBoolController () =
     inherit UpdateController<bool>(not)

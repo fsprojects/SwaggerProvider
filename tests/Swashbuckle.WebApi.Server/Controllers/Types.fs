@@ -12,6 +12,7 @@ type PointClass(x:int, y:int) =
 
 [<DataContract>]
 type FileDescription(name:string, bytes:byte[]) =
+    new () = FileDescription("",[||])
     [<DataMember>]
     member val Name = name with get, set
     [<DataMember>]

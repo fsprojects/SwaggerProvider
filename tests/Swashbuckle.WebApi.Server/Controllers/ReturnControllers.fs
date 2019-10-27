@@ -8,9 +8,9 @@ open Microsoft.AspNetCore.Mvc
 type ReturnController<'T>(value:'T) =
     inherit ControllerBase()
     [<HttpGet>]
-    member this.Get () = value |> ActionResult<_>
+    member this.Get () = value |> JsonResult
     [<HttpPost>]
-    member this.Post () = value |> ActionResult<_>
+    member this.Post () = value |> JsonResult
 
 
 type ReturnBooleanController () =

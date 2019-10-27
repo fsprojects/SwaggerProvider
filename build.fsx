@@ -117,14 +117,9 @@ let runTests assembly =
             FailOnFocusedTests = true
             PrintVersion = true
             Parallel = false
-            Summary =  true})
-
-    //CreateProcess.fromRawCommandLine "dotnet" "tests/SwaggerProvider.ProviderTests/bin/Release/netcoreapp3.0/SwaggerProvider.ProviderTests.dll --fail-on-focused-tests --sequenced --version"
-    //|> CreateProcess.redirectOutput
-    //|> CreateProcess.withOutputEventsNotNull Trace.trace Trace.traceError
-    //|> CreateProcess.ensureExitCode
-    //|> Proc.run
-    //|> ignore 
+            Summary =  true
+            Debug = false
+        })
 
 Target.create "RunUnitTests" (fun _ ->
     runTests "tests/SwaggerProvider.Tests/bin/Release/netcoreapp3.0/SwaggerProvider.Tests.dll"
