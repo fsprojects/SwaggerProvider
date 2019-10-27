@@ -5,7 +5,7 @@ open Expecto
 open System
 open System.Net.Http
 
-let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/GitHub.json"
+let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/github.json"
 let [<Literal>] Host = "https://api.github.com"
 type GitHub = SwaggerClientProvider<Schema, PreferAsync = true>
 let github() =
