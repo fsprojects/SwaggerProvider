@@ -32,7 +32,7 @@ let petStoreTests =
         let expectedInfo =
             {
                 Title = "Swagger Petstore"
-                Version = "1.0.0"
+                Version = "1.0.3"
                 Description = "This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters."
             }
         Expect.equal (schema.Info) expectedInfo "PetStore schema info"

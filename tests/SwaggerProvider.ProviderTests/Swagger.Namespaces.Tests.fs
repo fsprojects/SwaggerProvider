@@ -5,7 +5,7 @@ open SwaggerProvider
 type GI = SwaggerProvider<"https://api.apis.guru/v2/specs/gettyimages.com/3/swagger.json", IgnoreControllerPrefix = false>
 
 let c1 = GI.ArtistsClient()
-let c2 = GI.UsageClient()
+let c2 = GI.ImagesClient()
 
 let x = GI.GettyImages.Models.Customers()
 let y = GI.GettyImages.Models()
