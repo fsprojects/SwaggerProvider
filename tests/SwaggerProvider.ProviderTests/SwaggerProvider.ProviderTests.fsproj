@@ -20,6 +20,9 @@
     <Compile Include="v2\Swagger.Instagram.Tests.fs" />
     <Compile Include="v2\Swagger.i0027.Tests.fs" />
     <Compile Include="v2\Swagger.Namespaces.Tests.fs" />
+    <!-- <Compile Include="v3\NSwag.ReturnControllers.Tests.fs" />
+    <Compile Include="v3\NSwag.UpdateControllers.Tests.fs" />
+    <Compile Include="v3\NSwag.ResourceControllers.Tests.fs" /> -->
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
     </Compile>
