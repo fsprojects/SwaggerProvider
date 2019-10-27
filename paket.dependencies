@@ -1,6 +1,6 @@
 version 5.198.0
 source https://api.nuget.org/v3/index.json
-frameworks: net46, netcoreapp2.1, netstandard2.0
+frameworks: net46, netcoreapp3.0, netstandard2.0
 
 nuget FSharp.Core 4.3.4
 nuget System.Net.Http
@@ -20,7 +20,7 @@ github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
 
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: netcoreapp2.1
+    framework: netcoreapp3.0
 
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
