@@ -6,14 +6,14 @@ open System.Runtime.InteropServices
 
 [<Route("api/[controller]")>]
 [<ApiController>]
-type UpdateController<'T>(f:'T->'T) =
+type UpdateController<'a>(f:'a->'a) =
     inherit ControllerBase()
-    [<HttpGet>]
+    [<HttpGet; Consumes("application/json"); Produces("application/json")>]
     member this.Get ([<FromQuery>]x) =
-      f x |> JsonResult
-    [<HttpPost>]
+      f x |> ActionResult<'a> 
+    [<HttpPost; Consumes("application/json"); Produces("application/json")>]
     member this.Post x =
-      f x |> JsonResult
+      f x |> ActionResult<'a> 
 
 type UpdateBoolController () =
     inherit UpdateController<bool>(not)

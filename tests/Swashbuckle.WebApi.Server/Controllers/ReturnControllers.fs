@@ -5,12 +5,13 @@ open Microsoft.AspNetCore.Mvc
 
 [<Route("api/[controller]")>]
 [<ApiController>]
-type ReturnController<'T>(value:'T) =
+type ReturnController<'a>(value:'a) =
     inherit ControllerBase()
-    [<HttpGet>]
-    member this.Get () = value |> JsonResult
-    [<HttpPost>]
-    member this.Post () = value |> JsonResult
+    [<HttpGet; Consumes("application/json"); Produces("application/json")>]
+    member this.Get () = value |> ActionResult<'a> 
+      
+    [<HttpPost; Consumes("application/json"); Produces("application/json")>]
+    member this.Post () = value |> ActionResult<'a> 
 
 
 type ReturnBooleanController () =
