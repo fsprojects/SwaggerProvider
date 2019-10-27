@@ -297,6 +297,8 @@ RESTRICTION: == netcoreapp3.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (4.7)
+    FSharp.SystemTextJson (0.6.2)
+      FSharp.Core (>= 4.7)
     Microsoft.AspNetCore (2.2)
       Microsoft.AspNetCore.Diagnostics (>= 2.2)
       Microsoft.AspNetCore.HostFiltering (>= 2.2)
