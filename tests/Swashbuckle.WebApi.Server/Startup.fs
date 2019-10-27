@@ -20,19 +20,20 @@ type Startup private () =
     // This method gets called by the runtime. Use this method to add services to the container.
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
-        services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2) |> ignore
+        services
+          .AddMvc(fun option -> option.EnableEndpointRouting <- false)
+          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0) 
+        |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
             c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"));
         ) |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    member this.Configure(app: IApplicationBuilder, env: IHostingEnvironment) =
-        if (env.IsDevelopment()) then
-            app.UseDeveloperExceptionPage() |> ignore
-        else
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts() |> ignore
+    member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
+        app.UseDeveloperExceptionPage() |> ignore
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        //app.UseHsts() |> ignore
 
         // Register the Swagger generator and the Swagger UI middlewares
         app.UseSwagger(fun c ->

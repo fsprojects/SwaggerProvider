@@ -5,7 +5,7 @@ open SwaggerProvider
 open System
 open System.Net.Http
 
-type WebAPI = SwaggerClientProvider<"https://localhost:5001/swagger/v1/swagger.json", IgnoreOperationId=true, PreferAsync = true>
+type WebAPI = SwaggerClientProvider<"http://localhost:5000/swagger/v1/swagger.json", IgnoreOperationId=true, PreferAsync = true>
 let api =
     let handler = new HttpClientHandler (UseCookies = false)
     let client = new HttpClient(handler, true, BaseAddress=Uri("https://localhost:5001"))
