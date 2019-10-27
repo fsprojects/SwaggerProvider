@@ -109,44 +109,29 @@ Target.create "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
+let runTests assembly =
+    [Path.Combine(__SOURCE_DIRECTORY__, assembly)]
+    |> Testing.Expecto.run (fun p ->
+        { p with 
+            WorkingDirectory = __SOURCE_DIRECTORY__
+            FailOnFocusedTests = true
+            PrintVersion = true
+            Parallel = false
+            Summary =  true})
+
+    //CreateProcess.fromRawCommandLine "dotnet" "tests/SwaggerProvider.ProviderTests/bin/Release/netcoreapp3.0/SwaggerProvider.ProviderTests.dll --fail-on-focused-tests --sequenced --version"
+    //|> CreateProcess.redirectOutput
+    //|> CreateProcess.withOutputEventsNotNull Trace.trace Trace.traceError
+    //|> CreateProcess.ensureExitCode
+    //|> Proc.run
+    //|> ignore 
+
 Target.create "RunUnitTests" (fun _ ->
-    // !! ("tests/SwaggerProvider.Tests/bin/Release" </> "**" </> "*Tests*.exe")
-    // |> Expecto.run  (fun p ->
-    //     { p with Summary = true})
-
-    let xs = ["tests/SwaggerProvider.Tests/bin/Release/net461/SwaggerProvider.Tests.exe";
-              "--fail-on-focused-tests"; "--sequenced"; "--version"]
-    let cmd, parameters =
-        if Environment.isWindows 
-        then List.head xs, List.tail xs
-        else "mono", xs
-
-    CreateProcess.fromRawCommand cmd parameters
-    |> CreateProcess.redirectOutput
-    |> CreateProcess.withOutputEventsNotNull Trace.trace Trace.traceError
-    |> CreateProcess.ensureExitCode
-    |> Proc.run
-    |> ignore 
+    runTests "tests/SwaggerProvider.Tests/bin/Release/netcoreapp3.0/SwaggerProvider.Tests.dll"
 )
 
 Target.create "RunIntegrationTests" (fun _ ->
-    // !! testAssemblies
-    // |> Expecto.run (fun p ->
-    //     { p with Filter = "Integration/"})
-
-    let xs = ["tests/SwaggerProvider.ProviderTests/bin/Release/net461/SwaggerProvider.ProviderTests.exe";
-              "--fail-on-focused-tests"; "--sequenced"; "--version"]
-    let cmd, parameters =
-        if Environment.isWindows 
-        then List.head xs, List.tail xs
-        else "mono", xs
-
-    CreateProcess.fromRawCommand cmd parameters
-    |> CreateProcess.redirectOutput
-    |> CreateProcess.withOutputEventsNotNull Trace.trace Trace.traceError
-    |> CreateProcess.ensureExitCode
-    |> Proc.run
-    |> ignore 
+    runTests "tests/SwaggerProvider.ProviderTests/bin/Release/netcoreapp3.0/SwaggerProvider.ProviderTests.dll"
 )
 
 Target.create "RunTests" ignore

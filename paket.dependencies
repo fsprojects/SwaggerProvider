@@ -31,7 +31,7 @@ group Server
 
 group Test
     source https://api.nuget.org/v3/index.json
-    frameworks: net461
+    frameworks: netcoreapp3.0
 
     nuget FSharp.Compiler.Service redirects: force
     nuget FSharp.Core redirects: force
