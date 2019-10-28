@@ -98,7 +98,10 @@ Target.create "StartServer" (fun _ ->
 
 Target.createFinal "StopServer" (fun _ ->
     // Write something to input stream to stop server
-    webApiInputStream.Value.Write([|0uy|],0,1)
+    try
+        webApiInputStream.Value.Write([|0uy|],0,1)
+    with
+    | e -> printfn "%s" e.Message
     //Process.killAllByName "dotnet"
 )
 
