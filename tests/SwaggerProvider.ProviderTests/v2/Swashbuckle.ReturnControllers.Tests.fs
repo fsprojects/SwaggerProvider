@@ -1,4 +1,4 @@
-﻿module SwashbuckleReturnControllersTests
+﻿module Swashbuckle.v2.ReturnControllersTests
 
 open Expecto
 open SwaggerProvider
@@ -24,7 +24,7 @@ let asyncEqual expected actual =
 
 [<Tests>]
 let returnControllersTests =
-  testList "All/Swashbuckle.ReturnControllers.Tests" [
+  testList "All/v2/Swashbuckle.ReturnControllers.Tests" [
 
     testCaseAsync "Return Bool GET Test" <|
         (api.GetApiReturnBoolean()

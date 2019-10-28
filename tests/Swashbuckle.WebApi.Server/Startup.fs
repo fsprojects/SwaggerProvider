@@ -39,7 +39,7 @@ type Startup private () =
 
         // Register the Swagger generator and the Swagger UI middlewares
         app.UseSwagger(fun c ->
-            c.SerializeAsV2 <- true
+            c.SerializeAsV2 <- false // false = v3 = OpenApi
         ) |> ignore
         app.UseSwaggerUI(fun c ->
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");

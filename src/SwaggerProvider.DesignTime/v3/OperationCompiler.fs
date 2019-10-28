@@ -344,7 +344,10 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
         |> nicePascalName
 
     member __.CompileProvidedClients(ns:NamespaceAbstraction) =
-        let defaultHost = schema.Servers.[0].Url
+        let defaultHost = 
+            if schema.Servers.Count = 0 then null
+            else schema.Servers.[0].Url
+
         let baseTy = Some typeof<OpenApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
 

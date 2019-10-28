@@ -1,12 +1,12 @@
-﻿module SwashbuckleUpdateControllersTests
+﻿module Swashbuckle.v2.UpdateControllersTests
 
 open Expecto
 open System
-open SwashbuckleReturnControllersTests
+open Swashbuckle.v2.ReturnControllersTests
 
 [<Tests>]
 let returnControllersTests =
-  testList "All/Swashbuckle.UpdateControllers.Tests" [
+  testList "All/v2/Swashbuckle.UpdateControllers.Tests" [
 
     testCaseAsync "Update Bool GET Test" <|
         (api.GetApiUpdateBool(Some true)

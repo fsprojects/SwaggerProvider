@@ -1,12 +1,12 @@
-﻿module SwashbuckleResourceControllersTestsv3
+﻿module Swashbuckle.v3.ResourceControllersTests
 
 open Expecto
 open System
-open SwashbuckleReturnControllersTests
+open Swashbuckle.v3.ReturnControllersTests
 
 [<Tests>]
 let resourceControllersTests =
-  testList "All/Swashbuckle.ResourceControllers.Tests" [
+  testList "All/v3/Swashbuckle.ResourceControllers.Tests" [
 
     testCaseAsync "ResourceStringString Add and get from resource dictionary" <| async {
         do! api.PutApiResourceStringString("lang", "F#")

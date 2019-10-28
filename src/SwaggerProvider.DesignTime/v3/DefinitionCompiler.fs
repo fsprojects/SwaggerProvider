@@ -284,7 +284,11 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
             | null ->
                 failwithf "Cannot compile object '%s' when schema is 'null'" tyName
             | _ when schemaObj.UnresolvedReference ->
-                failwithf "Cannot compile object '%s' based on unresolved reference '%O'" tyName schemaObj.Reference.ReferenceV3
+                match pathToType.TryGetValue schemaObj.Reference.ReferenceV3 with
+                | true, ty ->
+                    ns.ReleaseNameReservation tyName
+                    ty
+                | _ -> failwithf "Cannot compile object '%s' based on unresolved reference '%O'" tyName schemaObj.Reference.ReferenceV3
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when schemaObj.Reference <> null && not <| schemaObj.Reference.Id.EndsWith(tyName) ->
                 ns.ReleaseNameReservation tyName

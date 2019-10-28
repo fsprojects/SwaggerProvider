@@ -68,6 +68,9 @@ Target.create "AssemblyInfo" (fun _ ->
 // Clean build results
 
 Target.create "Clean" (fun _ ->
+    !! "**/**/bin/" 
+    |> Shell.cleanDirs
+    
     Shell.cleanDirs ["bin"; "temp"]
     try File.Delete("swaggerlog") with | _ -> ()
 )

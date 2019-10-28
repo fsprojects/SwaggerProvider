@@ -77,7 +77,9 @@ module RuntimeHelpers =
     let getDefaultHttpClient host =
         // Using default handler with UseCookies=true, HttpClient will not be able to set Cookie-based parameters
         let handler = new HttpClientHandler (UseCookies = false)
-        new HttpClient(handler, true, BaseAddress=Uri(host))
+        if isNull host 
+        then new HttpClient(handler, true)
+        else new HttpClient(handler, true, BaseAddress=Uri(host))
 
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
