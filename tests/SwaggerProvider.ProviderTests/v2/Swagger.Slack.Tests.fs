@@ -4,7 +4,7 @@ open SwaggerProvider
 open Expecto
 open System
 
-let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/Slack.json"
+let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/slack.json"
 let [<Literal>] Host = "https://slack.com"
 type Slack = SwaggerClientProvider<Schema, PreferAsync = true>
 
