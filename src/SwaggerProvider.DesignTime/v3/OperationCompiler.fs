@@ -189,7 +189,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                             let payloadType = PayloadType.Parse sVar.Name
                             match payloadExp with
                             | None ->
-                                payloadExp <- Some(payloadType, expr)
+                                payloadExp <- Some(payloadType, Expr.Coerce (expr, typeof<obj>))
                                 None
                             | Some(_) ->
                                 failwithf "More than one payload parameter is specified: '%A' & '%A'" payloadType (payloadExp.Value |> fst)
@@ -208,11 +208,11 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                    RuntimeHelpers.toQueryParams name o @>
 
             // Partitions arguments based on their locations
-            let (path, queryParams, headers, payload) =
-                let (path, queryParams, headers, cookies, payload) =
-                    (( <@ path @>, <@ [] @>, headers, <@ [] @>, None), parameters)
+            let (path, queryParams, headers) =
+                let (path, queryParams, headers, cookies) =
+                    (( <@ path @>, <@ [] @>, headers, <@ [] @>), parameters)
                     ||> List.fold (
-                        fun (path, query, headers, cookies, payload) (param : OpenApiParameter, valueExpr) ->
+                        fun (path, query, headers, cookies) (param : OpenApiParameter, valueExpr) ->
                             if param.In.HasValue then
                                 let name = param.Name
                                 match param.In.Value with
@@ -220,26 +220,22 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                                     let value = coerceString valueExpr
                                     let pattern = sprintf "{%s}" name
                                     let path' = <@ Regex.Replace(%path, pattern, %value) @>
-                                    (path', query, headers, cookies, payload)
+                                    (path', query, headers, cookies)
                                 | ParameterLocation.Query ->
                                     let listValues = coerceQueryString name valueExpr
                                     let quer' = <@ List.append %query %listValues @>
-                                    (path, quer', headers, cookies, payload)
+                                    (path, quer', headers, cookies)
                                 | ParameterLocation.Header ->
                                     let value = coerceString valueExpr
                                     let headers' = <@ (name, %value)::(%headers) @>
-                                    (path, query, headers', cookies, payload)
+                                    (path, query, headers', cookies)
                                 | ParameterLocation.Cookie ->
                                     let value = coerceString valueExpr
                                     let cookies' = <@ (name, %value)::(%cookies) @>
-                                    (path, query, headers, cookies', payload)
+                                    (path, query, headers, cookies')
                                 | x -> failwithf "Unsupported parameter location '%A'" x
                             else
-                                // TODO: parse from payload expr
-                                if payload.IsSome then
-                                    failwith "Operation should contain only one body/payload parameter"
-                                let payload' = Some (param.Name, Expr.Coerce (valueExpr, typeof<obj>))
-                                (path, query, headers, cookies, payload')
+                                failwithf "This should not happen, payload expression is already parsed"
                         )
                 let headers' =
                     <@
@@ -249,7 +245,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                           |> String.concat ";"
                       ("Cookie", cookieHeader)::(%headers)
                     @>
-                (path, queryParams, headers', payload)
+                (path, queryParams, headers')
 
 
             let httpRequestMessage =
@@ -274,11 +270,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                 @>
 
             let httpRequestMessageWithPayload =
-                let payload' =
-                    payload |> Option.map (fun (name, value) ->
-                        (PayloadType.Parse name, value)
-                    )
-                match payload' with
+                match payloadExp with
                 | None -> httpRequestMessage
                 | Some(NoBody, _) -> httpRequestMessage
                 | Some(Body, body) ->
