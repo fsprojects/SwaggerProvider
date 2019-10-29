@@ -33,13 +33,13 @@ type PayloadType =
         | Body -> "body"
         | FormData -> "formData"
         | FormUrlEncoded -> "formUrlEncoded"
-    static member TryParse =
+    static member Parse =
         function
-        | "noBody" -> Some NoBody
-        | "body" -> Some Body
-        | "formData" -> Some FormData
-        | "formUrlEncoded" -> Some FormUrlEncoded
-        | _ -> None
+        | "noBody" -> NoBody
+        | "body" -> Body
+        | "formData" -> FormData
+        | "formUrlEncoded" -> FormUrlEncoded
+        | name -> failwithf "Payload '%s' is not supported" name
 
 /// Object for compiling operations.
 type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -90,7 +90,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                             In = Nullable<_>(), // In Body parameter indicator
                             Name = payloadType.ToString(),
                             Schema  = schema,
-                            Required  = operation.RequestBody.Required
+                            Required  = true //operation.RequestBody.Required
                         ) |> Some
                     match operation.RequestBody with
                     | ApplicationJson mediaTyObj   -> param Body mediaTyObj.Schema
@@ -186,13 +186,13 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                         match param with
                         | Some(par) -> Some(par, expr)
                         | _ ->
-                            match PayloadType.TryParse sVar.Name with
-                            | Some (ty) ->
-                                if payloadExp.IsNone
-                                then payloadExp <- Some(ty, expr); None
-                                else failwithf "More than one payload parameter is specified: '%A' & '%A'" ty (payloadExp.Value |> fst)
+                            let payloadType = PayloadType.Parse sVar.Name
+                            match payloadExp with
                             | None ->
-                                failwithf "Cannot find param for '%s'" sVar.Name
+                                payloadExp <- Some(payloadType, expr)
+                                None
+                            | Some(_) ->
+                                failwithf "More than one payload parameter is specified: '%A' & '%A'" payloadType (payloadExp.Value |> fst)
                     | _  ->
                         failwithf "Function '%s' does not support functions as arguments." providedMethodName
                     )
@@ -274,28 +274,31 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                 @>
 
             let httpRequestMessageWithPayload =
-                match payload with
+                let payload' =
+                    payload |> Option.map (fun (name, value) ->
+                        (PayloadType.Parse name, value)
+                    )
+                match payload' with
                 | None -> httpRequestMessage
-                | Some ("body", body)     ->
+                | Some(NoBody, _) -> httpRequestMessage
+                | Some(Body, body) ->
                     <@ let valueStr = (%this).Serialize(%%body: obj)
                        let content = RuntimeHelpers.toStringContent (valueStr)
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
-                | Some ("form-data", formData) ->
+                | Some(FormData, formData) ->
                     <@ let data = Seq.empty<string*string> // TODO: create keyValue pairs from `formData` object
                        let content = RuntimeHelpers.toMultipartFormDataContent (data)
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
-                | Some("form-urlencoded", formData) ->
-                    <@ let data = Seq.empty<string*string> // TODO: create keyValue pairs from `formData` object
+                | Some(FormUrlEncoded, formUrlEncoded) ->
+                    <@ let data = Seq.empty<string*string> // TODO: create keyValue pairs from `value` object
                        let content = RuntimeHelpers.toFormUrlEncodedContent (data)
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
-                | Some(name, _) ->
-                    failwithf "Payload '%s' is not supported" name
 
             let action =
                 <@ (%this).CallAsync(%httpRequestMessageWithPayload) @>
@@ -344,7 +347,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
         |> nicePascalName
 
     member __.CompileProvidedClients(ns:NamespaceAbstraction) =
-        let defaultHost = 
+        let defaultHost =
             if schema.Servers.Count = 0 then null
             else schema.Servers.[0].Url
 
