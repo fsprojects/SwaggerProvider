@@ -8,7 +8,7 @@ let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/slack.json"
 let [<Literal>] Host = "https://slack.com"
 type Slack = SwaggerClientProvider<Schema, PreferAsync = true>
 
-//[<Tests>]
+[<Tests>]
 let slackTests =
   let slack = Slack.Client()
   slack.HttpClient.BaseAddress <- Uri Host

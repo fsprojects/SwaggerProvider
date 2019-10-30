@@ -103,7 +103,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             // Makes argument a string // TODO: Make body an exception
             let coerceString defType (format : CollectionFormat) exp =
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                <@ (%obj).ToString() @>
+                <@ let x = (%obj)
+                   if isNull x then null else x.ToString() @>
 
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
@@ -155,31 +156,15 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
             let innerReturnType = defaultArg retTy null
             let httpRequestMessage =
-                <@
-                    let requestUrl =
-                        let fakeHost = "http://fake-host/"
-                        let uri = RuntimeHelpers.combineUrl fakeHost %address
-                        let uriB = UriBuilder uri
-                        let newQueries =
-                            %queries
-                            |> Seq.map (fun (name, value) ->
-                                String.Format("{0}={1}", Uri.EscapeDataString name, Uri.EscapeDataString value))
-                            |> String.concat "&"
-                        if String.IsNullOrEmpty uriB.Query
-                        then uriB.Query <- newQueries
-                        else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
-                        uriB.Uri.ToString().Substring(fakeHost.Length)
-                    let method = HttpMethod(httpMethod)
-                    new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
-                @>
+                <@ RuntimeHelpers.createHttpRequest httpMethod %address %queries @>
 
             let httpRequestMessageWithPayload =
                 match payload with
                 | None -> httpRequestMessage
                 | Some (FormData, b) ->
-                    <@ let keyValues = (%%b: seq<string*string>) |> Seq.map KeyValuePair
+                    <@ let content = RuntimeHelpers.toFormUrlEncodedContent (%%b: seq<string*string>)
                        let msg = %httpRequestMessage
-                       msg.Content <- new FormUrlEncodedContent(keyValues)
+                       msg.Content <- content
                        msg @>
                 | Some (Body, b)     ->
                     <@ let valueStr = (%this).Serialize(%%b: obj)

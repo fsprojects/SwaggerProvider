@@ -68,10 +68,14 @@ module RuntimeHelpers =
     let toMultipartFormDataContent (keyValues:seq<string*string>) =
         let cnt = new MultipartFormDataContent()
         for (k,v) in keyValues do
-            cnt.Add(toStringContent v, k)
+            if not<| isNull v
+            then cnt.Add(toStringContent v, k)
         cnt
     let toFormUrlEncodedContent (keyValues:seq<string*string>) =
-        let keyValues = keyValues |> Seq.map Collections.Generic.KeyValuePair
+        let keyValues = 
+            keyValues 
+            |> Seq.filter (snd >> isNull >> not)
+            |> Seq.map Collections.Generic.KeyValuePair
         new FormUrlEncodedContent(keyValues)
 
     let getDefaultHttpClient host =
@@ -83,6 +87,23 @@ module RuntimeHelpers =
 
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
+
+    let createHttpRequest httpMethod address queryParams =
+        let requestUrl =
+            let fakeHost = "http://fake-host/"
+            let uri = combineUrl fakeHost address
+            let uriB = UriBuilder uri
+            let newQueries =
+                queryParams
+                |> Seq.map (fun (name, value) ->
+                    String.Format("{0}={1}", Uri.EscapeDataString name, Uri.EscapeDataString value))
+                |> String.concat "&"
+            if String.IsNullOrEmpty uriB.Query
+            then uriB.Query <- newQueries
+            else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
+            uriB.Uri.ToString().Substring(fakeHost.Length)
+        let method = HttpMethod(httpMethod)
+        new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
     let fillHeaders (msg:HttpRequestMessage) (heads:(string*string) seq) =
         for (name, value) in heads do

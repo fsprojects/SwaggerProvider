@@ -200,7 +200,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             // Makes argument a string // TODO: Make body an exception
             let coerceString exp =
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                <@ (%obj).ToString() @>
+                <@ let x = (%obj)
+                   if isNull x then null else x.ToString() @>
 
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
@@ -249,24 +250,10 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
 
             let httpRequestMessage =
-                <@
-                    let requestUrl =
-                        let fakeHost = "http://fake-host/"
-                        let uri = RuntimeHelpers.combineUrl fakeHost %path
-                        let uriB = UriBuilder uri
-                        let newQueries =
-                            %queryParams
-                            |> Seq.map (fun (name, value) ->
-                                String.Format("{0}={1}", Uri.EscapeDataString name, Uri.EscapeDataString value))
-                            |> String.concat "&"
-                        if String.IsNullOrEmpty uriB.Query
-                        then uriB.Query <- newQueries
-                        else uriB.Query <- String.Format("{0}&{1}", uriB.Query, newQueries)
-                        uriB.Uri.ToString().Substring(fakeHost.Length)
-                    let method = HttpMethod(httpMethod)
-                    let msg = new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
+                <@  
+                    let msg = RuntimeHelpers.createHttpRequest httpMethod %path %queryParams
                     RuntimeHelpers.fillHeaders msg %headers
-                    msg
+                    msg 
                 @>
 
             let httpRequestMessageWithPayload =
