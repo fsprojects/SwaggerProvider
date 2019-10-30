@@ -26,17 +26,18 @@ type OpenApiClientBase(httpClient: HttpClient) =
     
     abstract member Serialize: obj -> string
     abstract member Deserialize: string * Type -> obj
-    // TODO: CallAsync should return Task<HttpResponseMessage>
-    abstract member CallAsync: HttpRequestMessage -> Async<string> 
+    abstract member SendAsync: HttpRequestMessage -> Task<HttpResponseMessage>
 
     default __.Serialize(value:obj): string =
         JsonConvert.SerializeObject(value, jsonSerializerSettings)
-
     default __.Deserialize(value, retTy:Type): obj =
         JsonConvert.DeserializeObject(value, retTy, jsonSerializerSettings)
+    default this.SendAsync(request) =
+        this.HttpClient.SendAsync(request)
 
-    default this.CallAsync(request: HttpRequestMessage) : Async<string> =
+    /// This code may change in the future, especially when task{} become part of FSharp.Core.dll
+    member this.CallAsync(request: HttpRequestMessage) : Async<string> =
         async {
-            let! response = this.HttpClient.SendAsync(request) |> Async.AwaitTask
+            let! response = this.SendAsync(request) |> Async.AwaitTask
             return! response.EnsureSuccessStatusCode().Content.ReadAsStringAsync() |> Async.AwaitTask
         }
