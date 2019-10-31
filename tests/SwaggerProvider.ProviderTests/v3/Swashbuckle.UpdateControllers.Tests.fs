@@ -96,11 +96,10 @@ let returnControllersTests =
         (api.PostApiUpdateArrayEnum([|2;1|])
          |> asyncEqual [|1;2|])
 
-
-//TODO:   testCaseAsync "Update Bool GET Test" <|  // "ExceptionMessage":"No parameterless constructor defined for this object."
-//let ``Update List Int GET Test`` () =
-//    WebAPI.UpdateListInt.Get([|3;2;1|])
-//    |> asyncEqual [|1;2;3|]
+    //TODO: System.InvalidOperationException: Could not create an instance of type 'Microsoft.FSharp.Collections.FSharpList`1[[System.Int32, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'. Model bound complex types must not be abstract or value types and must have a parameterless constructor. Alternatively, give the 'x' parameter a non-null default value.
+    // testCaseAsync "Update List Int GET Test" <|
+    //     (api.GetApiUpdateListInt([|3;2;1|])
+    //      |> asyncEqual [|1;2;3|])
 
     testCaseAsync "Update List Int POST Test" <|
         (api.PostApiUpdateListInt([|3;2;1|])

@@ -53,6 +53,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
     <Reference Include="System.Text.Encoding" />
     <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
