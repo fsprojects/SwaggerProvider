@@ -224,8 +224,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                                     (path', query, headers, cookies)
                                 | ParameterLocation.Query ->
                                     let listValues = coerceQueryString name valueExpr
-                                    let quer' = <@ List.append %query %listValues @>
-                                    (path, quer', headers, cookies)
+                                    let query' = <@ List.append %query %listValues @>
+                                    (path, query', headers, cookies)
                                 | ParameterLocation.Header ->
                                     let value = coerceString valueExpr
                                     let headers' = <@ (name, %value)::(%headers) @>
@@ -250,10 +250,10 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
 
             let httpRequestMessage =
-                <@  
+                <@
                     let msg = RuntimeHelpers.createHttpRequest httpMethod %path %queryParams
                     RuntimeHelpers.fillHeaders msg %headers
-                    msg 
+                    msg
                 @>
 
             let httpRequestMessageWithPayload =
