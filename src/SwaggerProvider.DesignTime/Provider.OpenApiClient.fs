@@ -20,7 +20,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
     let asm = Assembly.GetExecutingAssembly()
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
-    do assert (typeof<OpenApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
+    do assert (typeof<ProvidedApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
 
     let myParamType =
         let t = ProvidedTypeDefinition(asm, ns, "OpenApiClientProvider", Some typeof<obj>, isErased=false)

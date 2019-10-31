@@ -159,8 +159,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
         let m = ProvidedMethod(providedMethodName, parameters, overallReturnType, invokeCode = fun args ->
             let this =
-                Expr.Coerce(args.[0], typeof<OpenApiClientBase>)
-                |> Expr.Cast<OpenApiClientBase>
+                Expr.Coerce(args.[0], typeof<ProvidedApiClientBase>)
+                |> Expr.Cast<ProvidedApiClientBase>
 
             let httpMethod = opTy.ToString()
 
@@ -330,7 +330,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             if schema.Servers.Count = 0 then null
             else schema.Servers.[0].Url
 
-        let baseTy = Some typeof<OpenApiClientBase>
+        let baseTy = Some typeof<ProvidedApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
 
         List.ofSeq schema.Paths

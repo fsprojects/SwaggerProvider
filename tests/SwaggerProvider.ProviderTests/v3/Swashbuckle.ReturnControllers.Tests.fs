@@ -5,11 +5,17 @@ open SwaggerProvider
 open System
 open System.Net.Http
 
+type CallLoggingHandler(messageHandler) =
+    inherit DelegatingHandler(messageHandler)
+    override __.SendAsync(request, cancellationToken) =
+        printfn "[SendAsync]: %A" request.RequestUri
+        base.SendAsync(request, cancellationToken)
+
 type WebAPI = OpenApiClientProvider<"http://localhost:5000/swagger/v1/swagger.json", IgnoreOperationId=true, PreferAsync = true>
 let api =
     let handler = new HttpClientHandler (UseCookies = false)
-    handler.ServerCertificateCustomValidationCallback <- 
-        Func<_,_,_,_,_>(fun a b c d -> true)
+    //handler.ServerCertificateCustomValidationCallback <- Func<_,_,_,_,_>(fun a b c d -> true)
+    let handler = new CallLoggingHandler(handler)
     let client = new HttpClient(handler, true, BaseAddress=Uri("http://localhost:5000"))
     WebAPI.Client(client)
 

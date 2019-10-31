@@ -29,7 +29,7 @@
     </Compile>
     <Compile Include="..\SwaggerProvider.Runtime\Serialization.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\RuntimeHelpers.fs" />
-    <Compile Include="..\SwaggerProvider.Runtime\OpenApiClientBase.fs" />
+    <Compile Include="..\SwaggerProvider.Runtime\ProvidedApiClientBase.fs" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>

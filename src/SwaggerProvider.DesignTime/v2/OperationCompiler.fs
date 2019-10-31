@@ -72,8 +72,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
         let m = ProvidedMethod(methodName, parameters, overallReturnType, invokeCode = fun args ->
             let this =
-                Expr.Coerce(args.[0], typeof<OpenApiClientBase>)
-                |> Expr.Cast<OpenApiClientBase>
+                Expr.Coerce(args.[0], typeof<ProvidedApiClientBase>)
+                |> Expr.Cast<ProvidedApiClientBase>
 
             let httpMethod = op.Type.ToString()
             let basePath = schema.BasePath
@@ -230,7 +230,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 | [||]  -> "http" // Should use the scheme used to access the Swagger definition itself.
                 | array -> array.[0]
             sprintf "%s://%s" protocol schema.Host
-        let baseTy = Some typeof<OpenApiClientBase>
+        let baseTy = Some typeof<ProvidedApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
 
         List.ofArray schema.Paths
