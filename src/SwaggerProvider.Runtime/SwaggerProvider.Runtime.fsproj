@@ -24,8 +24,8 @@
     </Compile>
     <Compile Include="Runtime.fs" />
     <Compile Include="Serialization.fs" />
-    <Compile Include="RuntimeHelpers.fs" />
     <Compile Include="ProvidedApiClientBase.fs" />
+    <Compile Include="RuntimeHelpers.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

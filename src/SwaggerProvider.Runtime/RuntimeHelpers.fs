@@ -31,9 +31,9 @@ module RuntimeHelpers =
         | Some(x) -> [name, x.ToString()]
         | None ->[]
 
-    let toQueryParams (name:string) (obj:obj) =
+    let toQueryParams (name:string) (obj:obj) (client:Swagger.ProvidedApiClientBase) =
         match obj with
-        | :? array<byte> as xs -> xs |> toStrArray name
+        | :? array<byte> as xs -> [name, (client.Serialize xs).Trim('\"')] // TODO: Need to verify how servers parse byte[] from query string
         | :? array<bool> as xs -> xs |> toStrArray name
         | :? array<int32> as xs -> xs |> toStrArray name
         | :? array<int64> as xs -> xs |> toStrArray name

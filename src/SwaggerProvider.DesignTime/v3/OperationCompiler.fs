@@ -206,7 +206,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
                 <@ let o = (%%obj : obj)
-                   RuntimeHelpers.toQueryParams name o @>
+                   RuntimeHelpers.toQueryParams name o (%this) @>
 
             // Partitions arguments based on their locations
             let (path, queryParams, headers) =

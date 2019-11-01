@@ -109,7 +109,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
                 <@ let o = (%%obj : obj)
-                   RuntimeHelpers.toQueryParams name o @>
+                   RuntimeHelpers.toQueryParams name o (%this) @>
 
             let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
                 let pattern = sprintf "{%s}" name
