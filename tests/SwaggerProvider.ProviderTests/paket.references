@@ -5,3 +5,4 @@ group Test
     Expecto.TestResults
     FSharp.Compiler.Service
     FSharp.Core
+    Microsoft.AspNet.WebApi.Client

@@ -36,6 +36,7 @@ group Test
 
     nuget FSharp.Compiler.Service redirects: force
     nuget FSharp.Core redirects: force
+    nuget Microsoft.AspNet.WebApi.Client
 
     nuget Expecto
     nuget Expecto.TestResults
