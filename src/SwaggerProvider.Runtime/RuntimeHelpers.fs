@@ -94,7 +94,8 @@ module RuntimeHelpers =
             let builder = UriBuilder (combineUrl fakeHost address)
             let query = System.Web.HttpUtility.ParseQueryString(builder.Query)
             for (name, value) in queryParams do
-                query.Add(name, value)
+                if not <| isNull value
+                then query.Add(name, value)
             builder.Query <- query.ToString()
             builder.Uri.PathAndQuery
 
