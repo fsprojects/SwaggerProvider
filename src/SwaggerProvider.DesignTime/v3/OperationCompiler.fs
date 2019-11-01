@@ -267,13 +267,13 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                        msg.Content <- content
                        msg @>
                 | Some(FormData, formData) ->
-                    <@ let data = Seq.empty<string*string> // TODO: create keyValue pairs from `formData` object
+                    <@ let data = RuntimeHelpers.getPropertyValues (%%formData: obj)
                        let content = RuntimeHelpers.toMultipartFormDataContent (data)
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
                 | Some(FormUrlEncoded, formUrlEncoded) ->
-                    <@ let data = Seq.empty<string*string> // TODO: create keyValue pairs from `value` object
+                    <@ let data = RuntimeHelpers.getPropertyValues (%%formUrlEncoded: obj)
                        let content = RuntimeHelpers.toFormUrlEncodedContent (data)
                        let msg = %httpRequestMessage
                        msg.Content <- content

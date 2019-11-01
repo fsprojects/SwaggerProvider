@@ -65,6 +65,16 @@ module RuntimeHelpers =
 
     let toStringContent (valueStr:string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
+
+    let getPropertyValues (object:obj) =
+        if isNull object then Seq.empty
+        else
+            object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
+            |> Seq.choose (fun prop ->
+                let value = prop.GetValue(object)
+                if isNull value then None
+                else Some (prop.Name, value.ToString()) // Serialize?
+            )
     let toMultipartFormDataContent (keyValues:seq<string*string>) =
         let cnt = new MultipartFormDataContent()
         for (k,v) in keyValues do
