@@ -21,6 +21,7 @@
     <Compile Include="v2\Swagger.i0027.Tests.fs" />
     <Compile Include="v2\Swagger.Namespaces.Tests.fs" />
     <Compile Include="v2\Swagger.Slack.Tests.fs" />
+    <Compile Include="v3\Swagger.PetStore.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ReturnControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ResourceControllers.Tests.fs" />

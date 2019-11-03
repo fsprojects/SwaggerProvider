@@ -88,12 +88,14 @@ module RuntimeHelpers =
             |> Seq.map Collections.Generic.KeyValuePair
         new FormUrlEncodedContent(keyValues)
 
-    let getDefaultHttpClient host =
+    let getDefaultHttpClient (host:string) =
         // Using default handler with UseCookies=true, HttpClient will not be able to set Cookie-based parameters
         let handler = new HttpClientHandler (UseCookies = false)
         if isNull host
         then new HttpClient(handler, true)
-        else new HttpClient(handler, true, BaseAddress=Uri(host))
+        else 
+            let host = if host.EndsWith("/") then host else host+"/"
+            new HttpClient(handler, true, BaseAddress=Uri(host))
 
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
@@ -107,7 +109,7 @@ module RuntimeHelpers =
                 if not <| isNull value
                 then query.Add(name, value)
             builder.Query <- query.ToString()
-            builder.Uri.PathAndQuery
+            builder.Uri.PathAndQuery.TrimStart('/')
 
         let method = HttpMethod(httpMethod)
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
