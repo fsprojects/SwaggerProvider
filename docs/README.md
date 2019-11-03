@@ -47,6 +47,6 @@ in the console you should see printed inventory from the server.
 
 Intellisense should work in you favorite IDE.
 
-<ImageZoom src="/files/img/OpenApiClientProvider.png" />
+<ImageZoom src="files/img/OpenApiClientProvider.png" />
 
 On the screenshot you see [VS Code](https://code.visualstudio.com) with [Ionide](http://ionide.io).
