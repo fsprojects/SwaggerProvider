@@ -51,7 +51,7 @@ let gitName = "SwaggerProvider"
 // --------------------------------------------------------------------------------------
 
 // Read additional information from the release notes document
-let release = ReleaseNotes.load "RELEASE_NOTES.md"
+let release = ReleaseNotes.load "docs/RELEASE_NOTES.md"
 
 // Generate assembly info files with the right version & up-to-date information
 Target.create "AssemblyInfo" (fun _ ->
@@ -181,10 +181,10 @@ Target.create "PublishNuget" (fun _ ->
 //         System.Threading.Thread.Sleep 1000
 //         exitCode
 
-// Target.create "BrowseDocs" (fun _ ->
-//     let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "BrowseDocs"]
-//     if exit <> 0 then failwith "Browsing documentation failed"
-// )
+Target.create "BrowseDocs" (fun _ ->
+    CreateProcess.fromRawCommandLine "dotnet" "serve -o -d ./docs"
+    |> (Proc.run >> ignore)
+)
 
 // Target.create "GenerateDocs" (fun _ ->
 //     let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "GenerateDocs"]

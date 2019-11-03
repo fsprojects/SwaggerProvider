@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>SwaggerProvider</title>
+  <link rel="stylesheet" href="https://unpkg.com/docute@4/dist/docute.css">
+  <style>
+    @import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css);
+
+    .page-content code { font-family: 'Fira Code', monospace; }
+    @supports (font-variation-settings: normal) {
+      .page-content code { font-family: 'Fira Code VF', monospace; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="docute"></div>
+  <script src="https://unpkg.com/docute@4/dist/docute.js"></script>
+  <script>
+    new Docute({
+      title: "Swagger and OpenApi Type Providers",
+      logo: `
+        <div>
+          <img src="/files/img/logo.png" alt="logo" height="30" width="30">
+          <span style="vertical-align: super;">{{ $store.getters.config.title }}</span>
+        </div>`,
+      nav: [
+        {
+          title: 'Home',
+          link: '/'
+        },
+        {
+          title: 'GitHub',
+          link: 'https://github.com/fsprojects/SwaggerProvider'
+        }
+      ],
+      sidebar: [
+        {
+          title: 'Getting Started',
+          link: '/'
+        },
+        {
+          title: 'OpenApiClientProvider',
+          link: '/OpenApiClientProvider/'
+        },
+        {
+          title: 'SwaggerClientProvider',
+          link: '/SwaggerClientProvider/',
+        },
+        {
+          title: 'Advanced',
+          childer: [
+            {
+
+            }
+          ]
+        },
+        {
+          title: 'References',
+          link: '/references'
+        },
+        {
+          title: 'Release Notes',
+          link: '/release_notes'
+        }
+      ],
+      theme: 'dark',
+      //darkThemeToggler: true,
+      layout: 'narrow',
+      highlight: ['fsharp'],
+      target: '#docute'
+    })
+  </script>
+</body>
+
+</html>
