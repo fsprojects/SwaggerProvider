@@ -6,7 +6,7 @@ open System
 
 let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/petstore.json"
 type PetStore = SwaggerClientProvider<Schema, PreferAsync = true>
-type PetStoreNullable = SwaggerClientProvider<Schema, ProvideNullable = true>
+type PetStoreNullable = SwaggerClientProvider<Schema, PreferNullable = true>
 let store = PetStore.Client()
 let apiKey = "test-key"
 

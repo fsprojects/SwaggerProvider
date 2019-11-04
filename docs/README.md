@@ -45,12 +45,12 @@ in the console you should see printed inventory from the server.
 
 ### Intellisense 
 
-Intellisense works in you favorite IDE.
+Intellisense works in your favorite IDE.
 
-| [VS Code](https://code.visualstudio.com) + [Ionide](http://ionide.io) | [Rider](https://www.jetbrains.com/help/rider/F_Sharp.html) |
+| [Visual Studio Code](https://code.visualstudio.com) + [Ionide](http://ionide.io) | [Rider](https://www.jetbrains.com/help/rider/F_Sharp.html) |
 |-----------|-------------|
 | <ImageZoom src="files/OpenApiClientProvider_Ionide.png" /> | <ImageZoom src="files/OpenApiClientProvider_Rider.png" /> | 
 
-| [VS for Mac](https://visualstudio.microsoft.com/vs/mac/) | [Visual Studio](https://visualstudio.microsoft.com/vs/) |
+| [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) | [Visual Studio](https://visualstudio.microsoft.com/vs/) |
 |-----------|-------------|
-| <ImageZoom src="files/OpenApiClientProvider_VS4Mac.png" /> | <ImageZoom src="files/OpenApiClientProvider_VS4Mac.png" /> | 
+| <ImageZoom src="files/OpenApiClientProvider_VS4Mac.png" /> | <ImageZoom src="files/OpenApiClientProvider_VS.png" /> | 
