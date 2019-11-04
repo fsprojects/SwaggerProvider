@@ -42,16 +42,16 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
               ProvidedStaticParameter("Headers", typeof<string>, "")
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-              ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)
+              ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
               ProvidedStaticParameter("PreferAsync", typeof<bool>, false)]
         t.AddXmlDoc
             """<summary>Statically typed Swagger provider.</summary>
                <param name='Schema'>Url or Path to Swagger schema file.</param>
-               <param name='Headers'>Headers that will be used to access the schema.</param>
-               <param name='IgnoreOperationId'>IgnoreOperationId tells SwaggerClientProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
-               <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells SwaggerClientProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
-               <param name='ProvideNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`</param>
-               <param name='PreferAsync'>PreferAsync tells the SwaggerClientProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
+               <param name='Headers'>HTTP Headers requiried to access the schema.</param>
+               <param name='IgnoreOperationId'>Do not use `operationsId` and generate method names using `path` only. Default value `false`.</param>
+               <param name='IgnoreControllerPrefix'>Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`.</param>
+               <param name='PreferNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`.</param>
+               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>"""
 
         t.DefineStaticParameters(
             staticParams,
@@ -60,11 +60,11 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                 let headersStr = unbox<string> args.[1]
                 let ignoreOperationId = unbox<bool>  args.[2]
                 let ignoreControllerPrefix = unbox<bool>  args.[3]
-                let provideNullable = unbox<bool>  args.[4]
-                let asAsync = unbox<bool>  args.[5]
+                let preferNullable = unbox<bool>  args.[4]
+                let preferAsync = unbox<bool>  args.[5]
 
                 let cacheKey =
-                    (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, provideNullable, asAsync)
+                    (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
                 let tys =
@@ -96,8 +96,8 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                                 schemaPathRaw |> IO.File.ReadAllText
                         let schema = SwaggerParser.parseSchema schemaData
 
-                        let defCompiler = DefinitionCompiler(schema, provideNullable)
-                        let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
+                        let defCompiler = DefinitionCompiler(schema, preferNullable)
+                        let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
                         opCompiler.CompileProvidedClients(defCompiler.Namespace)
                         let tys = defCompiler.Namespace.GetProvidedTypes()
 

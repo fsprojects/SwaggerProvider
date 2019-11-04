@@ -1,3 +1,0 @@
-# OpenApi Client Provider
-
-TODO

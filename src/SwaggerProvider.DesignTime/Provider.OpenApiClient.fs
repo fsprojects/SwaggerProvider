@@ -28,15 +28,15 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
             [ ProvidedStaticParameter("Schema", typeof<string>)
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-              ProvidedStaticParameter("ProvideNullable", typeof<bool>, false)
+              ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
               ProvidedStaticParameter("PreferAsync", typeof<bool>, false)]
         t.AddXmlDoc
-            """<summary>Statically typed OpenAPI Provider.</summary>
+            """<summary>Statically typed OpenAPI provider.</summary>
                <param name='Schema'>Url or Path to OpenAPI schema file.</param>
-               <param name='IgnoreOperationId'>IgnoreOperationId tells OpenApiClientProvider not to use `operationsId` and generate method names using `path` only. Default value `false`</param>
-               <param name='IgnoreControllerPrefix'>IgnoreControllerPrefix tells OpenApiClientProvider not to parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`</param>
-               <param name='ProvideNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`</param>
-               <param name='PreferAsync'>PreferAsync tells the OpenApiClientProvider to generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults to `false`</param>"""
+               <param name='IgnoreOperationId'>Do not use `operationsId` and generate method names using `path` only. Default value `false`.</param>
+               <param name='IgnoreControllerPrefix'>Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`.</param>
+               <param name='PreferNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`.</param>
+               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>"""
 
         t.DefineStaticParameters(
             staticParams,
@@ -44,11 +44,11 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                 let schemaPathRaw = unbox<string> args.[0]
                 let ignoreOperationId = unbox<bool>  args.[1]
                 let ignoreControllerPrefix = unbox<bool>  args.[2]
-                let provideNullable = unbox<bool>  args.[3]
-                let asAsync = unbox<bool>  args.[4]
+                let preferNullable = unbox<bool>  args.[3]
+                let preferAsync = unbox<bool>  args.[4]
 
                 let cacheKey =
-                    (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, provideNullable, asAsync)
+                    (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
                 let tys =
@@ -77,8 +77,8 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                                  |> Seq.map (fun e -> e.Message)
                                  |> String.concat ";")
 
-                        let defCompiler = DefinitionCompiler(schema, provideNullable)
-                        let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
+                        let defCompiler = DefinitionCompiler(schema, preferNullable)
+                        let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
                         opCompiler.CompileProvidedClients(defCompiler.Namespace)
                         let tys = defCompiler.Namespace.GetProvidedTypes()
 

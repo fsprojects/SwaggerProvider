@@ -39,28 +39,34 @@
       ],
       sidebar: [
         {
-          title: 'Getting Started',
-          link: '/'
-        },
-        {
-          title: 'OpenApiClientProvider',
-          link: '/OpenApiClientProvider/'
-        },
-        {
-          title: 'SwaggerClientProvider',
-          link: '/SwaggerClientProvider/',
-        },
-        {
-          title: 'Advanced',
-          childer: [
+          title: 'Guide',
+          children: [
             {
-
+              title: 'Getting Started',
+              link: '/',
+            },
+            {
+              title: 'OpenApiClientProvider',
+              link: '/OpenApiClientProvider'
+            },
+            {
+              title: 'SwaggerClientProvider',
+              link: '/SwaggerClientProvider',
             }
           ]
         },
         {
-          title: 'References',
-          link: '/References'
+          title: 'Advanced',
+          children: [
+            {
+              title: 'Customization',
+              link: '/Customization'
+            },
+            {
+              title: 'References',
+              link: '/References'
+            }
+          ]
         },
         {
           title: 'Release Notes',
@@ -68,9 +74,10 @@
         }
       ],
       theme: 'dark',
+      //detectSystemDarkTheme: true,
       //darkThemeToggler: true,
       layout: 'narrow',
-      highlight: ['fsharp'],
+      highlight: ['fsharp', 'bash'],
       target: '#docute'
     })
   </script>

@@ -1,5 +1,5 @@
 #### 0.10.0-beta08 - November 3, 2019
-- Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88)
+- Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88) [#125](https://github.com/fsprojects/SwaggerProvider/pull/125)
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
 - Added runtime dependency on YamlDotNet
 - Removed dependency on FSharp.Data/JsonValue (replaced by JSON.NET)
@@ -11,10 +11,8 @@
 - Supported parsing of schemas with inheritance in types defined inside operation parameters
 - Added Async & Task-based calls for the Operations [#21](https://github.com/fsprojects/SwaggerProvider/issues/21)
 - Do not reference design-time assembly when install from nuget [#104](https://github.com/fsprojects/SwaggerProvider/pull/104)
-- Migration to `HttpClient`-based communication [#105](https://github.com/fsprojects/SwaggerProvider/pull/105)
-- TP SDK update - [#125](https://github.com/fsprojects/SwaggerProvider/pull/125)
+- Migration to `HttpClient`-based communication [#105](https://github.com/fsprojects/SwaggerProvider/pull/105) [#100](https://github.com/fsprojects/SwaggerProvider/issues/100)
 - Fixed null reference in query params [#126](https://github.com/fsprojects/SwaggerProvider/issues/126)
-- HttpClient is used for all calls [#100](https://github.com/fsprojects/SwaggerProvider/issues/100)
 - OpenApiClientProvider [#117](https://github.com/fsprojects/SwaggerProvider/pull/117)
 
 #### 0.8.2 - January 19, 2017
