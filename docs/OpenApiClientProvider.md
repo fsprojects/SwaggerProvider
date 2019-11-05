@@ -1,4 +1,4 @@
-# OpenApi Client Provider
+# OpenAPI Client Provider
 
 OpenApiClientProvider is generative F# Type Provider, build on top of [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) schema parser that supports 3.0 and 2.0 schema formats.
 

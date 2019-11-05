@@ -15,4 +15,4 @@
 - [Application contracts with Swagger powered APIs for .NET or Why SwaggerProvider](https://sergeytihon.wordpress.com/2015/12/07/application-contracts-with-swagger-powered-apis-for-net-or-why-swaggerprovider/) - Sergey Tihon
 - [Swagger for F# Web Apps](https://sergeytihon.wordpress.com/2015/09/06/swagger-for-f-web-apps/) - Sergey Tihon
 
-Written something about SwaggerProvider? [Send a pull request](https://github.com/fsprojects/SwaggerProvider/tree/master/docs)!
+Written something about OpenApi, Swagger or SwaggerProvider? [Send a pull request](https://github.com/fsprojects/SwaggerProvider/tree/master/docs)!

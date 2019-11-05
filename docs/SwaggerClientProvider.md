@@ -33,76 +33,28 @@ More configuration scenarios are described in [Customization section](/Customiza
 
 ## Sample
 
-<Note type="warning">
-
-The rest of the page is outdated
-
-</Note>
-
-Instantiate the types provided by the SwaggerProvider.
+The usage is very similar to [OpenApiClientProvider](/OpenApiClientProvider#sample)
 
 ```fsharp
-let tag = PetStore.Tag()
-tag.Id <- Some 1337L
-tag.Name <- "foobar"
+open SwaggerProvider
 
-let category = new PetStore.Category()
-category.Id <- Some 1337L
-category.Name <- "dog"
+let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
+// Explicitly request Async<'a> methods instead of Task<'a> 
+type PetStore = SwaggerClientProvider<Schema, PreferAsync=true>
 
-let pet = new PetStore.Pet (Name = "foo", Id = Some 1337L)
-pet.Name <- "bar" // Overwrites "foo"
-pet.Category <- category
-pet.Status <- "sold"
-pet.Tags <- [|tag|]
+[<EntryPoint>]
+let main argv =
+    // Type Provider creates HttpClient for you under the hood
+    let client = PetStore.Client()
+    async {
+        // Create new instance of provided type and add to store
+        let pet = PetStore.Pet(Id = Some(24L), Name = "Shani")
+        do! client.AddPet(pet)
 
-let user = new PetStore.User()
-user.Id <- Some 1337L
-user.FirstName <- "Firstname"
-user.LastName <- "Lastname"
-user.Email <- "e-mail"
-user.Password <- "password"
-user.Phone <- "12345678"
-user.Username <- "user_name"
-```
-
-Invoke the Swagger operations using `petStore` instance.
-
-```fsharp
-async {
-    let! f = petStore.GetPetById(6L)
-    f.Category <- PetStore.Category(Id = Some 1337L, Name = "dog")
-    f.Name <- "Hans"
-    f.Tags <- Array.append f.Tags [|tag|]
-
-    let! pet = petStore.AddPet(pet)
-    let! x = petStore.FindPetsByTags([|"tag1"|])
-    Array.length x
-
-    do! petStore.UpdatePetWithForm(-1L, "name", "sold")
-    let! leetPet = petStore.GetPetById(1337L)
-
-    let! h = petStore.FindPetsByStatus([|"pending";"sold"|])
-    h.ToString()
-    let! i = petStore.FindPetsByTags([|"tag2"|])
-    i.ToString()
-
-    let! inventory = petStore.GetInventory()
-    inventory.ToString()
-    let! order = petStore.GetOrderById(3L)
-    order.ToString()
-
-    let! ``14`` = petStore.GetPetById(14L)
-    ``14``.ToString()
-    do! petStore.DeletePet(14L, "no-key")
-    // throws, the pet no longer exists!
-    let! pet = petStore.GetPetById(14L)
-
-    let! ``14`` = PetStore.Pet.GetPetById(14L)
-    ``14``.ToString()
-    // throws, the pet no longer exists!
-    do! PetStore.Pet.DeletePet(14L, "no-key")
-    let! ``14`` = PetStore.Pet.GetPetById(14L)
-    ``14``.ToString()
-}
+        // Request data back and deserialize to provided type
+        let! myPet = client.GetPetById(24L)
+        printfn "Waw, my name is %A" myPet.Name
+    }
+    |> Async.RunSynchronously
+    0
 ```
