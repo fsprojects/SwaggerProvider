@@ -7,6 +7,11 @@ open System
 
 let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
 type PetStore = OpenApiClientProvider<Schema, PreferAsync=true>
+
+type PetStoreNullable = OpenApiClientProvider<Schema, PreferNullable = true>
+type PetStoreOperationId = OpenApiClientProvider<Schema, IgnoreOperationId = true>
+type PetStoreControllerPrefix = OpenApiClientProvider<Schema, IgnoreControllerPrefix = false>
+
 let store = PetStore.Client()
 let apiKey = "test-key"
 

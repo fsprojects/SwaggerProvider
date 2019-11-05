@@ -1,3 +1,6 @@
+#### 0.10.0-beta09 - November 3, 2019
+- TP parameter names are unified [#129](https://github.com/fsprojects/SwaggerProvider/pull/129)
+
 #### 0.10.0-beta08 - November 3, 2019
 - Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88) [#125](https://github.com/fsprojects/SwaggerProvider/pull/125)
 - SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
