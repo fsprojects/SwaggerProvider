@@ -26,4 +26,40 @@ More configuration scenarios are described in [Customization section](/Customiza
 
 ## Sample
 
-TODO:
+Sample uses [TaskBuilder.fs](https://github.com/rspeele/TaskBuilder.fs) (F# computation expression builder for System.Threading.Tasks) that will become part of [Fsharp.Core.dll] one day [[WIP, RFC FS-1072] task support](https://github.com/dotnet/fsharp/pull/6811).
+
+```fsharp
+open System
+open System.Net.Http
+open FSharp.Control.Tasks.V2
+open SwaggerProvider
+
+let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
+// By default provided methods return Task<'a> 
+// and uses Option<'a> for optional params
+type PetStore = OpenApiClientProvider<Schema>
+
+[<EntryPoint>]
+let main argv =
+    // `UseCookies = false` is required if you use Cookie Parameters
+    let handler = new HttpClientHandler (UseCookies = false)
+    // `BaseAddress` uri should ends with '/' because TP generate relative uri
+    let baseUri = Uri("https://petstore.swagger.io/v2/")
+    use httpClient = new HttpClient(handler, true, BaseAddress=baseUri)
+    // You can provide your instance of `HttpClient` to provided api client
+    // or change it any time in runtime using `client.HttpClient` property
+    let client = PetStore.Client(httpClient)
+
+    task {
+        // Create new instance of provided type and add to store
+        let pet = PetStore.Pet(Id = Some(24L), Name = "Shani")
+        do! client.AddPet(pet)
+
+        // Request data back and deserialize to provided type
+        let! myPet = client.GetPetById(24L)
+        printfn "Waw, my name is %A" myPet.Name
+    }
+    |> Async.AwaitTask
+    |> Async.RunSynchronously
+    0
+```
