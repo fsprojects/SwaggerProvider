@@ -100,7 +100,7 @@ module RuntimeHelpers =
     let combineUrl (urlA:string) (urlB:string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
 
-    let createHttpRequest httpMethod address queryParams =
+    let createHttpRequest (httpMethod:string) address queryParams =
         let requestUrl =
             let fakeHost = "http://fake-host/"
             let builder = UriBuilder (combineUrl fakeHost address)
@@ -111,7 +111,7 @@ module RuntimeHelpers =
             builder.Query <- query.ToString()
             builder.Uri.PathAndQuery.TrimStart('/')
 
-        let method = HttpMethod(httpMethod)
+        let method = HttpMethod(httpMethod.ToUpper())
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
     let fillHeaders (msg:HttpRequestMessage) (headers:(string*string) seq) =

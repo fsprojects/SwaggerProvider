@@ -1,8 +1,11 @@
+#### 0.10.0-beta11 - November XX, 2019
+- Delete method incorrectly cased [#120](https://github.com/fsprojects/SwaggerProvider/issues/120)
+
 #### 0.10.0-beta10 - November 6, 2019
 - Support REST convention with pluralized entities in mode with IgnoreOperationId=true [#121](https://github.com/fsprojects/SwaggerProvider/pull/121)
 - Fixed null refs in optional headers [#123](https://github.com/fsprojects/SwaggerProvider/pull/123)
 
-#### 0.10.0-beta09 - November 3, 2019
+#### 0.10.0-beta09 - November 5, 2019
 - TP parameter names are unified [#129](https://github.com/fsprojects/SwaggerProvider/pull/129)
 
 #### 0.10.0-beta08 - November 3, 2019
