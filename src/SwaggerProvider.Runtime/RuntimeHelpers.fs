@@ -55,7 +55,7 @@ module RuntimeHelpers =
         | :? Option<double> as x -> x |> toStrOpt name
         | :? Option<string> as x -> x |> toStrOpt name
         | :? Option<DateTime> as x -> x |> toStrOpt name
-        | _ -> [name, obj.ToString()]
+        | _ -> [name, if isNull obj then null else obj.ToString()]
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
@@ -114,12 +114,15 @@ module RuntimeHelpers =
         let method = HttpMethod(httpMethod)
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
-    let fillHeaders (msg:HttpRequestMessage) (heads:(string*string) seq) =
-        for (name, value) in heads do
+    let fillHeaders (msg:HttpRequestMessage) (headers:(string*string) seq) =
+        headers
+        |> Seq.filter (snd >> isNull >> not)
+        |> Seq.iter (fun (name, value) ->
             if not <| msg.Headers.TryAddWithoutValidation(name, value) then
                 let errMsg = String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
                 if (name <> "Content-Type") then
-                    raise <| System.Exception(errMsg)
+                    raise <| Exception(errMsg)
+        )
 
     let asyncCast runtimeTy (asyncOp: Async<obj>) =
         let castFn = typeof<AsyncExtensions>.GetMethod("cast")
