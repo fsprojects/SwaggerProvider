@@ -317,12 +317,13 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
         let operation = pathItem.Operations.[opTy]
         if ignoreOperationId || String.IsNullOrWhiteSpace(operation.OperationId)
         then
-            [|  yield opTy.ToString()
-                yield!
-                    path.Split('/')
-                    |> Array.filter (fun x ->
-                        not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
-            |] |> fun arr -> String.Join("_", arr)
+            let (_, pathParts) =
+                (path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries), (false, []))
+                ||> Array.foldBack (fun x (nextIsArg, pathParts) -> 
+                    if x.StartsWith("{") then (true, pathParts)
+                    else (false, (if nextIsArg then singularize x else x) :: pathParts)
+                )
+            String.Join("_", (opTy.ToString())::pathParts)
         else operation.OperationId.Substring(skipLength)
         |> nicePascalName
 
@@ -352,7 +353,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             let tyName = ns.ReserveUniqueName clientName "Client"
             let ty = ProvidedTypeDefinition(tyName, baseTy, isErased = false, isSealed = false, hideObjectMethods = true)
             ns.RegisterType(tyName, ty)
-            ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
+            if not <| String.IsNullOrEmpty clientName
+            then ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
 
             [
                 ProvidedConstructor(

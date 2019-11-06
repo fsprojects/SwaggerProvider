@@ -214,12 +214,13 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
     static member GetMethodNameCandidate (op:OperationObject) skipLength ignoreOperationId =
         if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId)
         then
-            [|  yield op.Type.ToString()
-                yield!
-                    op.Path.Split('/')
-                    |> Array.filter (fun x ->
-                        not <| (String.IsNullOrEmpty(x) || x.StartsWith("{")))
-            |] |> fun arr -> String.Join("_", arr)
+            let (_, pathParts) =
+                (op.Path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries), (false, []))
+                ||> Array.foldBack (fun x (nextIsArg, pathParts) -> 
+                    if x.StartsWith("{") then (true, pathParts)
+                    else (false, (if nextIsArg then singularize x else x) :: pathParts)
+                )
+            String.Join("_", (op.Type.ToString())::pathParts)
         else op.OperationId.Substring(skipLength)
         |> nicePascalName
 
@@ -244,7 +245,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let tyName = ns.ReserveUniqueName clientName "Client"
             let ty = ProvidedTypeDefinition(tyName, baseTy, isErased = false, isSealed = false, hideObjectMethods = true)
             ns.RegisterType(tyName, ty)
-            ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
+            if not <| String.IsNullOrEmpty clientName
+            then ty.AddXmlDoc (sprintf "Client for '%s_*' operations" clientName)
 
             [
                 ProvidedConstructor(
