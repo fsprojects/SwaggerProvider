@@ -304,9 +304,10 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
                 | "number", _        -> typeof<float32>
                 | "boolean", _       -> typeof<bool>
                 | "string", "byte"
+                   -> typeof<byte>.MakeArrayType(1)
                 | "string", "binary"
                 | "file", _  // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
-                   -> typeof<byte>.MakeArrayType(1)
+                   -> typeof<IO.Stream>
                 | "string", "date"
                 | "string", "date-time"
                    -> typeof<DateTime>

@@ -1,20 +1,19 @@
 ﻿namespace SwaggerProvider.Internal.v3.Compilers
 
 open System
-open System.Collections.Generic
+open System.Net.Http
+open System.Threading.Tasks
 open System.Text.RegularExpressions
+
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open ProviderImplementation.ProvidedTypes
-
-open System.Net.Http
+open FSharp.Data.Runtime.NameUtils
 open Microsoft.OpenApi.Models
 
-open System.IO
-open FSharp.Data.Runtime.NameUtils
-open Swagger.Internal
 open SwaggerProvider.Internal
 open Swagger
+open Swagger.Internal
 
 // We cannot use record here
 // TP cannot load DTC with OpenApiPathItem/OperationType props (from 3rd party assembly)
@@ -145,7 +144,12 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                 | true, mediaTy ->
                     if isNull mediaTy.Schema then Some <| typeof<unit>
                     else Some <| defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
-                | false, _ -> None
+                | false, _ ->
+                    match kv.Value.Content.TryGetValue MediaTypes.ApplicationOctetStream with
+                    | true, mediaTy -> // The only really expected type here is IO.Stream
+                        if isNull mediaTy.Schema then Some <| typeof<IO.Stream>
+                        else Some <| defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
+                    | false, _ -> None
             | None -> None
 
         let overallReturnType =
@@ -281,6 +285,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
             let action =
                 <@ (%this).CallAsync(%httpRequestMessageWithPayload) @>
+
             let responseObj =
                 let innerReturnType = defaultArg retTy null
                 <@ let x = %action
@@ -289,6 +294,13 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                     let! content = response.ReadAsStringAsync() |> Async.AwaitTask
                     return (%this).Deserialize(content, innerReturnType)
                    } @>
+            let responseStream =
+                <@ let x = %action
+                   async {
+                    let! response = x
+                    let! data = response.ReadAsStreamAsync() |> Async.AwaitTask
+                    return data
+                  } @>
             let responseUnit =
                 <@ let x= %action
                    async {
@@ -296,15 +308,19 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                     return ()
                    } @>
 
-            let task t = <@ Async.StartAsTask(%t) @>
-
             // if we're an async method, then we can just return the above, coerced to the overallReturnType.
             // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
-            match asAsync, retTy with
-            | true, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
-            | true, None -> responseUnit.Raw
-            | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
-            | false, None -> (task responseUnit).Raw
+            if asAsync then
+                match retTy with
+                | None -> responseUnit.Raw
+                | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
+                | Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
+            else
+                let task t = <@ Async.StartAsTask(%t) @>
+                match retTy with
+                | None -> (task responseUnit).Raw
+                | Some t when t = typeof<IO.Stream> -> <@ %(task responseStream) @>.Raw
+                | Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
             )
         if not <| String.IsNullOrEmpty(operation.Summary)
             then m.AddXmlDoc(operation.Summary) // TODO: Use description of parameters in docs
