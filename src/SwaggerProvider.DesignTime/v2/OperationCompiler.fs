@@ -186,7 +186,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 <@ let x = %action
                    async {
                     let! response = x
-                    return (%this).Deserialize(response, innerReturnType)
+                    let! content = response.ReadAsStringAsync() |> Async.AwaitTask
+                    return (%this).Deserialize(content, innerReturnType)
                    } @>
 
             let responseUnit =

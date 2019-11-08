@@ -34,8 +34,8 @@ type ProvidedApiClientBase(httpClient: HttpClient) =
         JsonConvert.DeserializeObject(value, retTy, jsonSerializerSettings)
 
     // This code may change in the future, especially when task{} become part of FSharp.Core.dll
-    member this.CallAsync(request: HttpRequestMessage) : Async<string> =
+    member this.CallAsync(request: HttpRequestMessage) : Async<HttpContent> =
         async {
             let! response = this.HttpClient.SendAsync(request) |> Async.AwaitTask
-            return! response.EnsureSuccessStatusCode().Content.ReadAsStringAsync() |> Async.AwaitTask
+            return response.EnsureSuccessStatusCode().Content
         }
