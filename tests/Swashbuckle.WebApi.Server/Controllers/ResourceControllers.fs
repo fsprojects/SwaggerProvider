@@ -2,12 +2,13 @@
 
 open System.Collections.Generic
 open Microsoft.AspNetCore.Mvc
+open Swagger.Internal
 
 [<ApiController>]
 type ResourceController<'a,'b when 'a: equality> (dict:System.Collections.Generic.Dictionary<'a,'b>)=
     inherit ControllerBase()
-    [<HttpGet; Consumes(Application.Json); Produces(Application.Json)>]
-    member __.Get key = dict.[key] |> ActionResult<'b> 
+    [<HttpGet; Consumes(MediaTypes.ApplicationJson); Produces(MediaTypes.ApplicationJson)>]
+    member __.Get key = dict.[key] |> ActionResult<'b>
     [<HttpDelete>]
     member __.Delete key = dict.Remove(key) |> ignore
     [<HttpPut>]

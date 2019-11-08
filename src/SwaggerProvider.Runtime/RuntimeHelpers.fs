@@ -5,6 +5,10 @@ open Newtonsoft.Json
 open System.Threading.Tasks
 open System.Net.Http
 
+module MediaTypes =
+    let [<Literal>] ApplicationJson = "application/json"
+    let [<Literal>] ApplicationOctetStream = "application/octet-stream"
+
 type AsyncExtensions () =
     static member cast<'t> asyncOp = async {
         let! ret = asyncOp
@@ -93,7 +97,7 @@ module RuntimeHelpers =
         let handler = new HttpClientHandler (UseCookies = false)
         if isNull host
         then new HttpClient(handler, true)
-        else 
+        else
             let host = if host.EndsWith("/") then host else host+"/"
             new HttpClient(handler, true, BaseAddress=Uri(host))
 

@@ -14,6 +14,7 @@ open System.Net.Http
 open System.Collections.Generic
 open SwaggerProvider.Internal
 open Swagger
+open Swagger.Internal
 
 /// Object for compiling operations.
 type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -79,9 +80,9 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let basePath = schema.BasePath
 
             let headers =
-                let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt="application/json")
+                let jsonConsumable = op.Consumes |> Seq.exists (fun mt -> mt=MediaTypes.ApplicationJson)
                 <@ if jsonConsumable
-                   then [|"Content-Type","application/json"|]
+                   then [|"Content-Type",MediaTypes.ApplicationJson|]
                    else [||] @>
 
             // Locates parameters matching the arguments
@@ -216,7 +217,7 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
         then
             let (_, pathParts) =
                 (op.Path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries), (false, []))
-                ||> Array.foldBack (fun x (nextIsArg, pathParts) -> 
+                ||> Array.foldBack (fun x (nextIsArg, pathParts) ->
                     if x.StartsWith("{") then (true, pathParts)
                     else (false, (if nextIsArg then singularize x else x) :: pathParts)
                 )

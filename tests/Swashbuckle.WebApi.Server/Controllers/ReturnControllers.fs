@@ -2,16 +2,17 @@
 
 open System
 open Microsoft.AspNetCore.Mvc
+open Swagger.Internal
 
 [<Route("api/[controller]")>]
 [<ApiController>]
 type ReturnController<'a>(value:'a) =
     inherit ControllerBase()
-    [<HttpGet; Consumes(Application.Json); Produces(Application.Json)>]
-    member this.Get () = value |> ActionResult<'a> 
-      
-    [<HttpPost; Consumes(Application.Json); Produces(Application.Json)>]
-    member this.Post () = value |> ActionResult<'a> 
+    [<HttpGet; Consumes(MediaTypes.ApplicationJson); Produces(MediaTypes.ApplicationJson)>]
+    member this.Get () = value |> ActionResult<'a>
+
+    [<HttpPost; Consumes(MediaTypes.ApplicationJson); Produces(MediaTypes.ApplicationJson)>]
+    member this.Post () = value |> ActionResult<'a>
 
 
 type ReturnBooleanController () =
