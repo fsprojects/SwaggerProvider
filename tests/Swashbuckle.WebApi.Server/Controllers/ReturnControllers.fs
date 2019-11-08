@@ -7,10 +7,10 @@ open Microsoft.AspNetCore.Mvc
 [<ApiController>]
 type ReturnController<'a>(value:'a) =
     inherit ControllerBase()
-    [<HttpGet; Consumes("application/json"); Produces("application/json")>]
+    [<HttpGet; Consumes(Application.Json); Produces(Application.Json)>]
     member this.Get () = value |> ActionResult<'a> 
       
-    [<HttpPost; Consumes("application/json"); Produces("application/json")>]
+    [<HttpPost; Consumes(Application.Json); Produces(Application.Json)>]
     member this.Post () = value |> ActionResult<'a> 
 
 

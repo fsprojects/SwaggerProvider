@@ -8,10 +8,10 @@ open System.Runtime.InteropServices
 [<ApiController>]
 type UpdateController<'a>(f:'a->'a) =
     inherit ControllerBase()
-    [<HttpGet; Consumes("application/json"); Produces("application/json")>]
+    [<HttpGet; Consumes(Application.Json); Produces(Application.Json)>]
     member this.Get ([<FromQuery>]x) =
       f x |> ActionResult<'a> 
-    [<HttpPost; Consumes("application/json"); Produces("application/json")>]
+    [<HttpPost; Consumes(Application.Json); Produces(Application.Json)>]
     member this.Post x =
       f x |> ActionResult<'a> 
 

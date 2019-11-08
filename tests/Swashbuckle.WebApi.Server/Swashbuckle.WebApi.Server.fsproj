@@ -7,7 +7,7 @@
     <RootNamespace>Swashbuckle.WebApi.Server</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Controllers\Types.fs" />
+    <Compile Include="Controllers\Common.fs" />
     <Compile Include="Controllers\ReturnControllers.fs" />
     <Compile Include="Controllers\UpdateControllers.fs" />
     <Compile Include="Controllers\ResourceControllers.fs" />
