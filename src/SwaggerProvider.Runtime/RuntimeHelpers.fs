@@ -5,6 +5,10 @@ open Newtonsoft.Json
 open System.Threading.Tasks
 open System.Net.Http
 
+module MediaTypes =
+    let [<Literal>] ApplicationJson = "application/json"
+    let [<Literal>] ApplicationOctetStream = "application/octet-stream"
+
 type AsyncExtensions () =
     static member cast<'t> asyncOp = async {
         let! ret = asyncOp

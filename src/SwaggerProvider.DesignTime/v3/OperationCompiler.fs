@@ -44,7 +44,6 @@ type PayloadType =
 /// Object for compiling operations.
 type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (providedMethodName:string) (apiCall:ApiCall) =
-        let applicationJson = "application/json"
         let (path, pathItem, opTy) = apiCall
         let operation = pathItem.Operations.[opTy]
 
@@ -68,8 +67,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             let (|ApplicationJson|_|) (requestBody:OpenApiRequestBody) =
                 let bestKey =
                     requestBody.Content.Keys
-                    |> Seq.tryFind (fun s -> s.StartsWith(applicationJson, StringComparison.InvariantCultureIgnoreCase))
-                    |> Option.defaultValue applicationJson
+                    |> Seq.tryFind (fun s -> s.StartsWith(MediaTypes.ApplicationJson, StringComparison.InvariantCultureIgnoreCase))
+                    |> Option.defaultValue MediaTypes.ApplicationJson
                 match requestBody.Content.TryGetValue bestKey with
                 | true, mediaTyObj -> Some(mediaTyObj) | _ -> None
             let (|FormUrlEncodedContent|_|) (requestBody:OpenApiRequestBody) =
@@ -142,7 +141,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             match okResponse with
             | Some (kv) ->
                 // TODO: FTW media type ?
-                match kv.Value.Content.TryGetValue applicationJson with
+                match kv.Value.Content.TryGetValue MediaTypes.ApplicationJson with
                 | true, mediaTy ->
                     if isNull mediaTy.Schema then Some <| typeof<unit>
                     else Some <| defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
@@ -168,7 +167,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                 let jsonConsumable = true // TODO: take a look at media types
                   // op.Consumes |> Seq.exists (fun mt -> mt="application/json")
                 <@ if jsonConsumable
-                   then ["Content-Type","application/json"]
+                   then ["Content-Type",MediaTypes.ApplicationJson]
                    else [] @>
 
             // Locates parameters matching the arguments
@@ -319,7 +318,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
         then
             let (_, pathParts) =
                 (path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries), (false, []))
-                ||> Array.foldBack (fun x (nextIsArg, pathParts) -> 
+                ||> Array.foldBack (fun x (nextIsArg, pathParts) ->
                     if x.StartsWith("{") then (true, pathParts)
                     else (false, (if nextIsArg then singularize x else x) :: pathParts)
                 )

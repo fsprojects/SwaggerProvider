@@ -3,17 +3,18 @@
 open System
 open Microsoft.AspNetCore.Mvc
 open System.Runtime.InteropServices
+open Swagger.Internal
 
 [<Route("api/[controller]")>]
 [<ApiController>]
 type UpdateController<'a>(f:'a->'a) =
     inherit ControllerBase()
-    [<HttpGet; Consumes(Application.Json); Produces(Application.Json)>]
+    [<HttpGet; Consumes(MediaTypes.ApplicationJson); Produces(MediaTypes.ApplicationJson)>]
     member this.Get ([<FromQuery>]x) =
-      f x |> ActionResult<'a> 
-    [<HttpPost; Consumes(Application.Json); Produces(Application.Json)>]
+      f x |> ActionResult<'a>
+    [<HttpPost; Consumes(MediaTypes.ApplicationJson); Produces(MediaTypes.ApplicationJson)>]
     member this.Post x =
-      f x |> ActionResult<'a> 
+      f x |> ActionResult<'a>
 
 type UpdateBoolController () =
     inherit UpdateController<bool>(not)
