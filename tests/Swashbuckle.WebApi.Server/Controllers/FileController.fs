@@ -1,5 +1,6 @@
 namespace Swashbuckle.WebApi.Server.Controllers
 
+open System
 open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Http
 open Swagger.Internal
@@ -21,7 +22,8 @@ type ReturnFileController () =
 
     [<HttpPost("single"); Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
     member this.PostFile (file:IFormFile) :FileResult =
-        this.File(file.OpenReadStream(), MediaTypes.ApplicationOctetStream, file.Name) :> FileResult
+        if isNull file then raise <| NullReferenceException("file is null")
+        this.File(file.OpenReadStream(), MediaTypes.ApplicationOctetStream, file.FileName) :> FileResult
 
     [<HttpPost("multiple"); Produces(MediaTypes.ApplicationJson, Type=typeof<int>)>]
     member this.PostFiles (files:IFormFileCollection) =

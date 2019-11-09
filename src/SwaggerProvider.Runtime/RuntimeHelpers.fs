@@ -1,6 +1,7 @@
 ﻿namespace Swagger.Internal
 
 open System
+open System
 open Newtonsoft.Json
 open System.Threading.Tasks
 open System.Net.Http
@@ -84,6 +85,26 @@ module RuntimeHelpers =
         for (k,v) in keyValues do
             if not<| isNull v
             then cnt.Add(toStringContent v, k)
+        cnt
+
+    let multipartFormDataContentFromObject (object:obj) =
+        let cnt = new MultipartFormDataContent()
+        if not <| isNull object then
+            object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
+            |> Seq.iter (fun prop ->
+                let name =
+                    match prop.GetCustomAttributes(typeof<JsonPropertyAttribute>, false) with
+                    | [|x|] -> (x :?> JsonPropertyAttribute).PropertyName
+                    | _ -> prop.Name
+                match prop.GetValue(object) with
+                | null -> ()
+                | :? IO.Stream as stream ->
+                    let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
+                    cnt.Add(new StreamContent(stream), name, filename)
+                | x ->
+                    let strValue = x.ToString() // TODO: serialize?
+                    cnt.Add(toStringContent strValue, name)
+            )
         cnt
     let toFormUrlEncodedContent (keyValues:seq<string*string>) =
         let keyValues =
