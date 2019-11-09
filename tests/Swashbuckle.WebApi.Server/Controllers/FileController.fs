@@ -27,6 +27,7 @@ type ReturnFileController () =
 
     [<HttpPost("multiple"); Produces(MediaTypes.ApplicationJson, Type=typeof<int>)>]
     member this.PostFiles (files:IFormFileCollection) =
+        if isNull files then raise <| NullReferenceException("files is null")
         files.Count // ??? 0
 
     [<HttpPost("form-with-file"); Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
