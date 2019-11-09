@@ -146,8 +146,8 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
                 getterCode = (function | [this] -> Expr.FieldGetUnchecked (this, providedField) | _ -> failwith "invalid property getter params"),
                 setterCode = (function | [this;v] -> Expr.FieldSetUnchecked(this, providedField, v) | _ -> failwith "invalid property setter params"))
         if propName <> propertyName then
-            providedProperty.AddCustomAttribute
-                <| RuntimeHelpers.getPropertyNameAttribute propName
+            // Override the serialized name by setting a Json-serialization attribute to control the name
+            providedProperty.AddCustomAttribute <| RuntimeHelpers.getPropertyNameAttribute propName
         providedField, providedProperty
 
     let registerInNsAndInDef tyPath (ns:NamespaceAbstraction) (name, ty: Type) =
