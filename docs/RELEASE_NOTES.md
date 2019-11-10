@@ -1,5 +1,7 @@
 #### 0.10.0-beta11 - November XX, 2019
 - Delete method incorrectly cased [#120](https://github.com/fsprojects/SwaggerProvider/issues/120)
+- File handling - upload/download files as `IO.Stream` [#131](https://github.com/fsprojects/SwaggerProvider/pull/131)
+- DateTimeOffset as a default `date-time` type [#133](https://github.com/fsprojects/SwaggerProvider/pull/133)
 
 #### 0.10.0-beta10 - November 6, 2019
 - Support REST convention with pluralized entities in mode with IgnoreOperationId=true [#121](https://github.com/fsprojects/SwaggerProvider/pull/121)
