@@ -48,6 +48,7 @@ module RuntimeHelpers =
         | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<DateTime>> as xs -> xs |> toStrArray name
+        | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArray name
         | :? Option<bool> as x -> x |> toStrOpt name
         | :? Option<int32> as x -> x |> toStrOpt name
         | :? Option<int64> as x -> x |> toStrOpt name
@@ -55,6 +56,7 @@ module RuntimeHelpers =
         | :? Option<double> as x -> x |> toStrOpt name
         | :? Option<string> as x -> x |> toStrOpt name
         | :? Option<DateTime> as x -> x |> toStrOpt name
+        | :? Option<DateTimeOffset> as x -> x |> toStrOpt name
         | _ -> [name, if isNull obj then null else obj.ToString()]
 
     let getPropertyNameAttribute name =
@@ -93,7 +95,7 @@ module RuntimeHelpers =
         let handler = new HttpClientHandler (UseCookies = false)
         if isNull host
         then new HttpClient(handler, true)
-        else 
+        else
             let host = if host.EndsWith("/") then host else host+"/"
             new HttpClient(handler, true, BaseAddress=Uri(host))
 
