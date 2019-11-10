@@ -1,6 +1,7 @@
 ﻿module Swagger.v3.PetStore.Tests
 
 open SwaggerProvider
+open Swagger
 open Expecto
 open System
 
@@ -33,6 +34,15 @@ let petStoreTests =
         Expect.equal pet.Name "bar" "access modified value"
         Expect.stringContains (pet.ToString()) "bar" "ToString"
 
+    testCaseAsync "throw custom exceptions" <| async {
+        try 
+            let! __ = store.GetPetById(-100L)
+            failwith "Call should fail"
+        with
+        | :? Swagger.OpenApiException as ex ->
+            Expect.equal ex.Description "Pet not found" "invalid error message"
+    }
+
     testCaseAsync "call provided methods" <| async {
         try
             do! store.DeletePet(1337L, apiKey)
@@ -48,13 +58,13 @@ let petStoreTests =
             do! store.AddPet(pet)
         with
         | exn ->
-            let msg = if exn.InnerException = null then exn.Message
+            let msg = if isNull exn.InnerException then exn.Message
                       else exn.InnerException.Message
             failwithf "Adding pet failed with message: %s" msg
 
         let! pet2 = store.GetPetById(1337L)
         Expect.equal pet.Name     pet2.Name     "same Name"
-        Expect.equal pet.Id       pet2.Id        "same Id"
+        Expect.equal pet.Id       pet2.Id       "same Id"
         Expect.equal pet.Category pet2.Category "same Category"
         Expect.equal pet.Status   pet2.Status   "same Status"
         Expect.notEqual pet pet2 "different objects"

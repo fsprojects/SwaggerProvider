@@ -180,7 +180,10 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 <@
                     let msg = %httpRequestMessageWithPayload
                     RuntimeHelpers.fillHeaders msg %heads
-                    (%this).CallAsync(msg)
+                    async {
+                        let! response = (%this).HttpClient.SendAsync(msg) |> Async.AwaitTask
+                        return response.EnsureSuccessStatusCode().Content
+                    }
                 @>
 
             let responseObj =

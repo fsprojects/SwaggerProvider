@@ -2,11 +2,14 @@ namespace Swagger
 
 open System
 open System.Net.Http
-open System.Threading.Tasks
 open Newtonsoft.Json
 
 open Swagger.Serialization
 
+type OpenApiException(code:int, description:string) =
+    inherit Exception(description)
+    member __.StatusCode = code
+    member __.Description = description
 
 type ProvidedApiClientBase(httpClient: HttpClient) =
     let jsonSerializerSettings =
@@ -34,8 +37,20 @@ type ProvidedApiClientBase(httpClient: HttpClient) =
         JsonConvert.DeserializeObject(value, retTy, jsonSerializerSettings)
 
     // This code may change in the future, especially when task{} become part of FSharp.Core.dll
-    member this.CallAsync(request: HttpRequestMessage) : Async<HttpContent> =
+    member this.CallAsync(request: HttpRequestMessage, errorCodes:string[], errorDescriptions:string[]) : Async<HttpContent> =
         async {
             let! response = this.HttpClient.SendAsync(request) |> Async.AwaitTask
-            return response.EnsureSuccessStatusCode().Content
+            if response.IsSuccessStatusCode
+            then return response.Content
+            else
+                let code = response.StatusCode |> int
+                let codeStr = code |> string
+                errorCodes
+                |> Array.tryFindIndex((=)codeStr)
+                |> Option.iter (fun idx ->
+                    let desc = errorDescriptions.[idx]
+                    raise (OpenApiException(code, desc)))
+
+                // fail with HttpRequestException if we do not know error description
+                return response.EnsureSuccessStatusCode().Content
         }

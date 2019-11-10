@@ -160,6 +160,16 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                     [defaultArg retTy (typeof<unit>)]
                  )
 
+        let (errorCodes,errorDescriptions) =
+            operation.Responses
+            |> Seq.choose (fun x->
+                let code = x.Key
+                if code.StartsWith("2") then None
+                else Option.ofObj x.Value.Description
+                     |> Option.map (fun desc -> (code, desc)))
+            |> Seq.toArray
+            |> Array.unzip
+
         let m = ProvidedMethod(providedMethodName, parameters, overallReturnType, invokeCode = fun args ->
             let this =
                 Expr.Coerce(args.[0], typeof<ProvidedApiClientBase>)
@@ -284,7 +294,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                        msg @>
 
             let action =
-                <@ (%this).CallAsync(%httpRequestMessageWithPayload) @>
+                <@ (%this).CallAsync(%httpRequestMessageWithPayload, errorCodes, errorDescriptions) @>
 
             let responseObj =
                 let innerReturnType = defaultArg retTy null
