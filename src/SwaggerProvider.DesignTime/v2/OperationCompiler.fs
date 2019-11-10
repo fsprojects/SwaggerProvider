@@ -163,7 +163,8 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
                 match payload with
                 | None -> httpRequestMessage
                 | Some (FormData, b) ->
-                    <@ let content = RuntimeHelpers.toFormUrlEncodedContent (%%b: seq<string*string>)
+                    <@ let data = (%%b: seq<string*string>) |> Seq.map (fun (k,v) -> (k,box v))
+                       let content = RuntimeHelpers.toFormUrlEncodedContent data
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>
