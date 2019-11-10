@@ -14,7 +14,7 @@ Create new F# `netcoreapp3.0` project and add reference to latest [SwaggerProvid
 ```bash
 dotnet new console --name apiclient --language F#
 cd apiclient
-dotnet add package SwaggerProvider --version 0.10.0-beta10
+dotnet add package SwaggerProvider --version 0.10.0-beta11
 ```
 
 replace content of `Program.fs` file by
