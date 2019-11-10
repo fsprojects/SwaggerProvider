@@ -62,12 +62,12 @@ let returnControllersTests =
 
 
     testCaseAsync "Update DateTime GET Test" <|
-        (api.GetApiUpdateDateTime(Some <| DateTime(2015,1,1))
-         |> asyncEqual (DateTime(2015,1,2)))
+        (api.GetApiUpdateDateTime(Some(DateTimeOffset<| DateTime(2015,1,1)))
+         |> asyncEqual (DateTimeOffset<|DateTime(2015,1,2)))
 
     testCaseAsync "Update DateTime POST Test" <|
-        (api.PostApiUpdateDateTime(Some <| DateTime(2015,1,1))
-         |> asyncEqual (DateTime(2015,1,2)))
+        (api.PostApiUpdateDateTime(Some(DateTimeOffset<| DateTime(2015,1,1)))
+         |> asyncEqual (DateTimeOffset<|DateTime(2015,1,2)))
 
 
     testCaseAsync "Update Enum GET Test" <|

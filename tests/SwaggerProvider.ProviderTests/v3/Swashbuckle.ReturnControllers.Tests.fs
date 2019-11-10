@@ -87,11 +87,11 @@ let returnControllersTests =
 
     testCaseAsync "Return DateTime GET Test" <|
         (api.GetApiReturnDateTime()
-         |> asyncEqual (DateTime(2015,1,1)))
+         |> asyncEqual (DateTimeOffset<|DateTime(2015,1,1)))
 
     testCaseAsync "Return DateTime POST Test" <|
         (api.PostApiReturnDateTime()
-         |> asyncEqual (DateTime(2015,1,1)))
+         |> asyncEqual (DateTimeOffset<|DateTime(2015,1,1)))
 
 
     testCaseAsync "Return Enum GET Test" <|

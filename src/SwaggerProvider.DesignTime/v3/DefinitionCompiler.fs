@@ -309,7 +309,7 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
                    -> typeof<byte>.MakeArrayType(1)
                 | "string", "date"
                 | "string", "date-time"
-                   -> typeof<DateTime>
+                   -> typeof<DateTimeOffset>
                 | "string", _ ->
                     typeof<string>
                 | "array", _  ->
