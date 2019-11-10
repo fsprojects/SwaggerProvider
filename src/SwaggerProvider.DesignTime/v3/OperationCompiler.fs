@@ -271,7 +271,8 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                        msg.Content <- content
                        msg @>
                 | Some(FormData, formData) ->
-                    <@ let content = RuntimeHelpers.multipartFormDataContentFromObject (%%formData: obj)
+                    <@ let data = RuntimeHelpers.getPropertyValues (%%formData: obj)
+                       let content = RuntimeHelpers.toMultipartFormDataContent data
                        let msg = %httpRequestMessage
                        msg.Content <- content
                        msg @>

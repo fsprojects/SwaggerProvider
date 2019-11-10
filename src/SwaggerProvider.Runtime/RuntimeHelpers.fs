@@ -78,43 +78,36 @@ module RuntimeHelpers =
         else
             object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
             |> Seq.choose (fun prop ->
-                let value = prop.GetValue(object)
-                if isNull value then None
-                else Some (prop.Name, value.ToString()) // Serialize?
-            )
-    let toMultipartFormDataContent (keyValues:seq<string*string>) =
-        let cnt = new MultipartFormDataContent()
-        for (k,v) in keyValues do
-            if not<| isNull v
-            then cnt.Add(toStringContent v, k)
-        cnt
-
-    let multipartFormDataContentFromObject (object:obj) =
-        let cnt = new MultipartFormDataContent()
-        let addFileStream name (stream:IO.Stream) =
-            let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
-            cnt.Add(new StreamContent(stream), name, filename)
-        if not <| isNull object then
-            object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
-            |> Seq.iter (fun prop ->
                 let name =
                     match prop.GetCustomAttributes(typeof<JsonPropertyAttribute>, false) with
                     | [|x|] -> (x :?> JsonPropertyAttribute).PropertyName
                     | _ -> prop.Name
-                match prop.GetValue(object) with
-                | null -> ()
-                | :? IO.Stream as stream -> addFileStream name stream
-                | :? (IO.Stream[]) as streams -> streams |> Seq.iter (addFileStream name)
-                | x ->
-                    let strValue = x.ToString() // TODO: serialize? does not work with arrays probably
-                    cnt.Add(toStringContent strValue, name)
+                prop.GetValue(object)
+                |> Option.ofObj
+                |> Option.map(fun value -> (name, value))
             )
+
+    let toMultipartFormDataContent (keyValues:seq<string*obj>) =
+        let cnt = new MultipartFormDataContent()
+        let addFileStream name (stream:IO.Stream) =
+            let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
+            cnt.Add(new StreamContent(stream), name, filename)
+        for (name,value) in keyValues do
+            match value with
+            | null -> ()
+            | :? IO.Stream as stream -> addFileStream name stream
+            | :? (IO.Stream[]) as streams -> streams |> Seq.iter (addFileStream name)
+            | x ->
+                let strValue = x.ToString() // TODO: serialize? does not work with arrays probably
+                cnt.Add(toStringContent strValue, name)
         cnt
-    let toFormUrlEncodedContent (keyValues:seq<string*string>) =
+
+    let toFormUrlEncodedContent (keyValues:seq<string*obj>) =
         let keyValues =
             keyValues
             |> Seq.filter (snd >> isNull >> not)
-            |> Seq.map Collections.Generic.KeyValuePair
+            |> Seq.map (fun (k,v) ->
+                Collections.Generic.KeyValuePair(k, v.ToString()))
         new FormUrlEncodedContent(keyValues)
 
     let getDefaultHttpClient (host:string) =
