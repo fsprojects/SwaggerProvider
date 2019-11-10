@@ -91,6 +91,9 @@ module RuntimeHelpers =
 
     let multipartFormDataContentFromObject (object:obj) =
         let cnt = new MultipartFormDataContent()
+        let addFileStream name (stream:IO.Stream) =
+            let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
+            cnt.Add(new StreamContent(stream), name, filename)
         if not <| isNull object then
             object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
             |> Seq.iter (fun prop ->
@@ -100,11 +103,10 @@ module RuntimeHelpers =
                     | _ -> prop.Name
                 match prop.GetValue(object) with
                 | null -> ()
-                | :? IO.Stream as stream ->
-                    let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
-                    cnt.Add(new StreamContent(stream), name, filename)
+                | :? IO.Stream as stream -> addFileStream name stream
+                | :? (IO.Stream[]) as streams -> streams |> Seq.iter (addFileStream name)
                 | x ->
-                    let strValue = x.ToString() // TODO: serialize?
+                    let strValue = x.ToString() // TODO: serialize? does not work with arrays probably
                     cnt.Add(toStringContent strValue, name)
             )
         cnt
