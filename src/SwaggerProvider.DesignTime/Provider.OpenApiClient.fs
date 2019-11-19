@@ -72,10 +72,10 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
 
                         let (schema, diagnostic) = openApiReader.Read(schemaData)
                         if diagnostic.Errors.Count > 0 then
-                            failwithf "Schema parse errors: %s"
+                            failwithf "Schema parse errors:\n%s"
                                 (diagnostic.Errors
                                  |> Seq.map (fun e -> e.Message)
-                                 |> String.concat ";")
+                                 |> String.concat "\n")
 
                         let defCompiler = DefinitionCompiler(schema, preferNullable)
                         let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)

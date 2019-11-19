@@ -129,9 +129,12 @@ and NamespaceAbstraction (name:string) =
 /// Object for compiling definitions.
 type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
     let pathToSchema =
-        schema.Components.Schemas
-        |> Seq.map (fun kv -> DefinitionPath.DefinitionPrefix + kv.Key, kv.Value)
-        |> Map.ofSeq
+        if isNull schema.Components
+        then Map.empty
+        else
+            schema.Components.Schemas
+            |> Seq.map (fun kv -> DefinitionPath.DefinitionPrefix + kv.Key, kv.Value)
+            |> Map.ofSeq
     let pathToType = Collections.Generic.Dictionary<_,Type>()
     let nsRoot = NamespaceAbstraction("Root")
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"

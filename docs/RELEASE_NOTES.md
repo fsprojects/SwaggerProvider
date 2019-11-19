@@ -1,3 +1,6 @@
+#### 0.10.0-beta12 - November 19, 2019
+- Fixed null reference for schemas without Components definitions
+
 #### 0.10.0-beta11 - November 10, 2019
 - Delete method incorrectly cased [#120](https://github.com/fsprojects/SwaggerProvider/issues/120)
 - File handling - upload/download files as `IO.Stream` [#131](https://github.com/fsprojects/SwaggerProvider/pull/131)

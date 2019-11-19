@@ -1,0 +1,59 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": " ",
+      "description": " "
+    },
+    "host": "myserver.com",
+    "basePath": "/",
+    "schemes": ["https"],
+    "paths": {
+      "/SomeEndpoint": {
+        "get": {
+          "tags": [],
+          "summary": "an operation",
+          "operationId": "MyOperation",
+          "consumes": ["application/json"],
+          "produces": [],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Success",
+              "schema": {
+                "description": "a success object",
+                "type": "object",
+                "properties": {
+                  "Value1": { "type": "integer" },
+                  "Value2": { "type": "string" }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "schema": {
+                "description": "invalid request response",
+                "type": "object",
+                "properties": {
+                  "ValidationMessages": { 
+                    "type": "array", 
+                    "items": { "type": "string" } 
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "schema": {
+                "description": "forbidden request response",
+                "type": "object",
+                "properties": {
+                  "ErrorMessage": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
