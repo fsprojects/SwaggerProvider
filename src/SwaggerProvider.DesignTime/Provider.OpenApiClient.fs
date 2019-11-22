@@ -74,7 +74,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                         if diagnostic.Errors.Count > 0 then
                             failwithf "Schema parse errors:\n%s"
                                 (diagnostic.Errors
-                                 |> Seq.map (fun e -> e.Message)
+                                 |> Seq.map (fun e -> sprintf "%s @ %s" e.Message e.Pointer)
                                  |> String.concat "\n")
 
                         let defCompiler = DefinitionCompiler(schema, preferNullable)
