@@ -1,3 +1,7 @@
+#### 0.10.0 - December 8, 2019
+- OpenApiClientProvider
+- .NET Core 3.1 support
+
 #### 0.10.0-beta13 - December 8, 2019
 - UUID/Guid support [#138](https://github.com/fsprojects/SwaggerProvider/issues/138)
 
