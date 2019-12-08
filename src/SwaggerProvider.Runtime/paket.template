@@ -28,7 +28,6 @@ files
     bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
     bin/Release/typeproviders/fsharp41/netcoreapp3.0/*.dll ==> typeproviders/fsharp41/netcoreapp3.0
     bin/Release/typeproviders/fsharp41/net46/*.dll ==> typeproviders/fsharp41/net46
-    SwaggerProvider.fsx ==> .
 references
     SwaggerProvider.Runtime.dll
 dependencies

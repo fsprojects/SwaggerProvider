@@ -93,6 +93,13 @@ let returnControllersTests =
         (api.PostApiReturnDateTime()
          |> asyncEqual (DateTimeOffset<|DateTime(2015,1,1)))
 
+    testCaseAsync "Return Guid GET Test" <|
+        (api.GetApiReturnGuid()
+         |> asyncEqual (Guid.Empty))
+
+    testCaseAsync "Return Guid POST Test" <|
+        (api.PostApiReturnGuid()
+         |> asyncEqual (Guid.Empty))
 
     testCaseAsync "Return Enum GET Test" <|
         (api.GetApiReturnEnum()

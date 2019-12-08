@@ -36,6 +36,9 @@ type ReturnStringController () =
 type ReturnDateTimeController () =
     inherit ReturnController<DateTime>(DateTime(2015,1,1))
 
+type ReturnGuidController () =
+    inherit ReturnController<Guid>(Guid.Empty)
+
 type ReturnEnumController () =
     inherit ReturnController<UriKind>(UriKind.Absolute)
 

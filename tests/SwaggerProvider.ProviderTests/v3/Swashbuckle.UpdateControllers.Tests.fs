@@ -6,6 +6,7 @@ open Swashbuckle.v3.ReturnControllersTests
 
 [<Tests>]
 let returnControllersTests =
+  let guid = Guid.NewGuid()
   testList "All/v3/Swashbuckle.UpdateControllers.Tests" [
 
     testCaseAsync "Update Bool GET Test" <|
@@ -69,6 +70,13 @@ let returnControllersTests =
         (api.PostApiUpdateDateTime(Some(DateTimeOffset<| DateTime(2015,1,1)))
          |> asyncEqual (DateTimeOffset<|DateTime(2015,1,2)))
 
+    testCaseAsync "Update Guid GET Test" <|
+        (api.GetApiUpdateGuid(Some(guid))
+         |> asyncEqual guid)
+
+    testCaseAsync "Update Guid POST Test" <|
+        (api.PostApiUpdateGuid(Some(guid))
+         |> asyncEqual guid)
 
     testCaseAsync "Update Enum GET Test" <|
         (api.GetApiUpdateEnum(Some 1)

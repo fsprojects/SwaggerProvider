@@ -55,6 +55,7 @@ module RuntimeHelpers =
         | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<DateTime>> as xs -> xs |> toStrArray name
         | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArray name
+        | :? array<Option<Guid>> as xs -> xs |> toStrArray name
         | :? Option<bool> as x -> x |> toStrOpt name
         | :? Option<int32> as x -> x |> toStrOpt name
         | :? Option<int64> as x -> x |> toStrOpt name
@@ -63,6 +64,7 @@ module RuntimeHelpers =
         | :? Option<string> as x -> x |> toStrOpt name
         | :? Option<DateTime> as x -> x |> toStrOpt name
         | :? Option<DateTimeOffset> as x -> x |> toStrOpt name
+        | :? Option<Guid> as x -> x |> toStrOpt name
         | _ -> [name, if isNull obj then null else obj.ToString()]
 
     let getPropertyNameAttribute name =

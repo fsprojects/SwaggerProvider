@@ -314,8 +314,8 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
                 | "string", "date"
                 | "string", "date-time"
                    -> typeof<DateTimeOffset>
-                | "string", _ ->
-                    typeof<string>
+                | "string", "uuid" -> typeof<Guid>
+                | "string", _ -> typeof<string>
                 | "array", _  ->
                     ns.ReleaseNameReservation tyName
                     let elSchema = schemaObj.Items

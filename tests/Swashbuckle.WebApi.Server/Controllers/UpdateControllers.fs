@@ -38,6 +38,9 @@ type UpdateDateTimeController () =
     inherit UpdateController<DateTime>
         (fun x -> x.AddDays(1.0))
 
+type UpdateGuidController () =
+    inherit UpdateController<Guid>(id)
+
 type UpdateEnumController () =
     inherit UpdateController<UriKind>(id)
 
