@@ -5,11 +5,11 @@
 - [OpenApiClientProvider](/OpenApiClientProvider) <Badge type="success">New</Badge> - uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse schema. Support both OpenApi ans Swagger schemas, but Swagger support is limited.
 - [SwaggerClientProvider](/SwaggerClientProvider) - uses custom old good Swagger 2.0 schema parser and tested on several hundreds schemas available in [APIs.guru](https://apis.guru/openapi-directory/) (Wikipedia for WEB APIs)
 
-Type Providers support schemas in `JSON` & `YAML` formats and runs on `netcoreapp3.0` and `net46`.
+Type Providers support schemas in `JSON` & `YAML` formats and runs on `netcoreapp3.1` and `net46`.
 
 ### Getting started
 
-Create new F# `netcoreapp3.0` project and add reference to latest [SwaggerProvider](https://www.nuget.org/packages/SwaggerProvider) NuGet package
+Create new F# `netcoreapp3.1` project and add reference to latest [SwaggerProvider](https://www.nuget.org/packages/SwaggerProvider) NuGet package
  
 ```bash
 dotnet new console --name apiclient --language F#
