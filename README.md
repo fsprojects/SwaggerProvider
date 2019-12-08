@@ -4,7 +4,7 @@
 
 This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 
-[![Build Status](https://sergeytihon.visualstudio.com/SwaggerProvider/_apis/build/status/fsprojects.SwaggerProvider?branchName=master)](https://sergeytihon.visualstudio.com/SwaggerProvider/_build/latest?definitionId=2&branchName=master)
+[![Build Status](https://github.com/fsprojects/SwaggerProvider/workflows/Build%20and%20Test/badge.svg?branch=master)](https://github.com/fsprojects/SwaggerProvider/actions?query=branch%3Amaster)
 [![Tested on APIs.guru](https://api.apis.guru/badges/tested_on.svg)](https://APIs.guru)
 
 Documentation:  http://fsprojects.github.io/SwaggerProvider/ 
