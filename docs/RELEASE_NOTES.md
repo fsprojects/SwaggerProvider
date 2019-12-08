@@ -1,5 +1,5 @@
 #### 0.10.0-beta13 - December 8, 2019
-- UUID/Guid support [#137](https://github.com/fsprojects/SwaggerProvider/issues/137)
+- UUID/Guid support [#138](https://github.com/fsprojects/SwaggerProvider/issues/138)
 
 #### 0.10.0-beta12 - November 19, 2019
 - Fixed null reference for schemas without Components definitions
