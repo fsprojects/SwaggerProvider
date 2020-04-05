@@ -37,5 +37,4 @@ group Test
     nuget FSharp.Compiler.Service redirects: force
     nuget FSharp.Core redirects: force
 
-    nuget Expecto 8.13.1
-    nuget Expecto.TestResults 8.13.1
+    nuget Expecto
