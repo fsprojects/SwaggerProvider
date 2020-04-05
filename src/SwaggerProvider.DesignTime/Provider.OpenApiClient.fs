@@ -9,7 +9,7 @@ open Swagger
 open SwaggerProvider.Internal.v3.Compilers
 
 module Cache =
-    let providedTypes = Caching.createInMemoryCache (TimeSpan.FromMinutes 5.)
+    let providedTypes = Caching.createInMemoryCache (TimeSpan.FromSeconds 30.0)
 
 /// The Open API Provider.
 [<TypeProvider>]
@@ -51,47 +51,45 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
-                let tys =
-                    match Cache.providedTypes.TryRetrieve(cacheKey) with
-                    | Some(x) -> x
-                    | None ->
-                        let schemaData =
-                            match schemaPathRaw.StartsWith("http", true, null) with
-                            | true  ->
-                                let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
-                                // using a custom handler means that we can set the default credentials.
-                                use handler = new HttpClientHandler(UseDefaultCredentials = true)
-                                use client = new HttpClient(handler)
-                                async {
-                                    let! response = client.SendAsync(request) |> Async.AwaitTask
-                                    return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                                } |> Async.RunSynchronously
-                            | false ->
-                                schemaPathRaw |> IO.File.ReadAllText
-                        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
-                        let (schema, diagnostic) = openApiReader.Read(schemaData)
-                        if diagnostic.Errors.Count > 0 then
-                            failwithf "Schema parse errors:\n%s"
-                                (diagnostic.Errors
-                                 |> Seq.map (fun e -> sprintf "%s @ %s" e.Message e.Pointer)
-                                 |> String.concat "\n")
+                match Cache.providedTypes.TryRetrieve(cacheKey) with
+                | Some(ty) -> ty
+                | None ->
+                    let schemaData =
+                        match schemaPathRaw.StartsWith("http", true, null) with
+                        | true  ->
+                            let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
+                            // using a custom handler means that we can set the default credentials.
+                            use handler = new HttpClientHandler(UseDefaultCredentials = true)
+                            use client = new HttpClient(handler)
+                            async {
+                                let! response = client.SendAsync(request) |> Async.AwaitTask
+                                return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                            } |> Async.RunSynchronously
+                        | false ->
+                            schemaPathRaw |> IO.File.ReadAllText
+                    let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
-                        let defCompiler = DefinitionCompiler(schema, preferNullable)
-                        let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
-                        opCompiler.CompileProvidedClients(defCompiler.Namespace)
-                        let tys = defCompiler.Namespace.GetProvidedTypes()
+                    let (schema, diagnostic) = openApiReader.Read(schemaData)
+                    if diagnostic.Errors.Count > 0 then
+                        failwithf "Schema parse errors:\n%s"
+                            (diagnostic.Errors
+                             |> Seq.map (fun e -> sprintf "%s @ %s" e.Message e.Pointer)
+                             |> String.concat "\n")
 
-                        Cache.providedTypes.Set(cacheKey, tys)
-                        tys
+                    let defCompiler = DefinitionCompiler(schema, preferNullable)
+                    let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
+                    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+                    let tys = defCompiler.Namespace.GetProvidedTypes()
 
-                let tempAsm = ProvidedAssembly()
-                let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
-                ty.AddXmlDoc ("OpenAPI Provider for " + schemaPathRaw)
+                    let tempAsm = ProvidedAssembly()
+                    let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
+                    ty.AddXmlDoc ("OpenAPI Provider for " + schemaPathRaw)
+                    ty.AddMembers tys
+                    tempAsm.AddTypes [ty]
 
-                ty.AddMembers tys
-                tempAsm.AddTypes [ty]
-                ty
+                    Cache.providedTypes.Set(cacheKey, ty)
+                    ty
         )
         t
     do

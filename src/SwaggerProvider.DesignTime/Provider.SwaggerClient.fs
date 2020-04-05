@@ -67,50 +67,47 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
-                let tys =
-                    match Cache.providedTypes.TryRetrieve(cacheKey) with
-                    | Some(x) -> x
-                    | None ->
-                        let schemaData =
-                            match schemaPathRaw.StartsWith("http", true, null) with
-                            | true  ->
-                                let headers =
-                                    headersStr.Split('|')
-                                    |> Seq.choose (fun x ->
-                                        let pair = x.Split('=')
-                                        if (pair.Length = 2)
-                                        then Some (pair.[0],pair.[1])
-                                        else None
-                                    )
-                                let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
-                                for (name, value) in headers do
-                                    request.Headers.TryAddWithoutValidation(name, value) |> ignore
-                                // using a custom handler means that we can set the default credentials.
-                                use handler = new HttpClientHandler(UseDefaultCredentials = true)
-                                use client = new HttpClient(handler)
-                                async {
-                                    let! response = client.SendAsync(request) |> Async.AwaitTask
-                                    return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                                } |> Async.RunSynchronously
-                            | false ->
-                                schemaPathRaw |> IO.File.ReadAllText
-                        let schema = SwaggerParser.parseSchema schemaData
+                match Cache.providedTypes.TryRetrieve(cacheKey) with
+                | Some(ty) -> ty
+                | None ->
+                    let schemaData =
+                        match schemaPathRaw.StartsWith("http", true, null) with
+                        | true  ->
+                            let headers =
+                                headersStr.Split('|')
+                                |> Seq.choose (fun x ->
+                                    let pair = x.Split('=')
+                                    if (pair.Length = 2)
+                                    then Some (pair.[0],pair.[1])
+                                    else None
+                                )
+                            let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
+                            for (name, value) in headers do
+                                request.Headers.TryAddWithoutValidation(name, value) |> ignore
+                            // using a custom handler means that we can set the default credentials.
+                            use handler = new HttpClientHandler(UseDefaultCredentials = true)
+                            use client = new HttpClient(handler)
+                            async {
+                                let! response = client.SendAsync(request) |> Async.AwaitTask
+                                return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                            } |> Async.RunSynchronously
+                        | false ->
+                            schemaPathRaw |> IO.File.ReadAllText
+                    let schema = SwaggerParser.parseSchema schemaData
 
-                        let defCompiler = DefinitionCompiler(schema, preferNullable)
-                        let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
-                        opCompiler.CompileProvidedClients(defCompiler.Namespace)
-                        let tys = defCompiler.Namespace.GetProvidedTypes()
+                    let defCompiler = DefinitionCompiler(schema, preferNullable)
+                    let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
+                    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+                    let tys = defCompiler.Namespace.GetProvidedTypes()
 
-                        Cache.providedTypes.Set(cacheKey, tys)
-                        tys
+                    let tempAsm = ProvidedAssembly()
+                    let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
+                    ty.AddXmlDoc ("Swagger Provider for " + schemaPathRaw)
+                    ty.AddMembers tys
+                    tempAsm.AddTypes [ty]
 
-                let tempAsm = ProvidedAssembly()
-                let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
-                ty.AddXmlDoc ("Swagger Provider for " + schemaPathRaw)
-
-                ty.AddMembers tys
-                tempAsm.AddTypes [ty]
-                ty
+                    Cache.providedTypes.Set(cacheKey, ty)
+                    ty
         )
         t
     do
