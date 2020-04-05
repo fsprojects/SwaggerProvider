@@ -1,5 +1,9 @@
+#### 0.10.2 - April 5, 2020
+- Caching update [#144](https://github.com/fsprojects/SwaggerProvider/pull/144)
+- Better autocomplete in IDEs
+
 #### 0.10.1 - April 5, 2020
-- Dependencies update
+- Dependencies update [#143](https://github.com/fsprojects/SwaggerProvider/pull/143)
 
 #### 0.10.0 - December 8, 2019
 - OpenApiClientProvider
@@ -26,7 +30,7 @@
 
 #### 0.10.0-beta08 - November 3, 2019
 - Migration to new Type Provider SDK [#88](https://github.com/fsprojects/SwaggerProvider/pull/88) [#125](https://github.com/fsprojects/SwaggerProvider/pull/125)
-- SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90) 
+- SwaggerParser moved to runtime assembly (and exposed as API to library users) - [#90](https://github.com/fsprojects/SwaggerProvider/pull/90)
 - Added runtime dependency on YamlDotNet
 - Removed dependency on FSharp.Data/JsonValue (replaced by JSON.NET)
 - Added full-init constructor for provided types [#91](https://github.com/fsprojects/SwaggerProvider/pull/91)
