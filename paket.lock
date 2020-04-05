@@ -740,12 +740,12 @@ GROUP Test
 RESTRICTION: == netcoreapp3.1
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    Expecto (9.0)
-      FSharp.Core (>= 4.6)
-      Mono.Cecil (>= 0.11.2)
-    Expecto.TestResults (8.13.2)
-      Expecto (>= 8.13.2)
-      FSharp.Core (>= 4.6)
+    Expecto (8.13.1)
+      FSharp.Core (>= 4.3.4)
+      Mono.Cecil (>= 0.11)
+    Expecto.TestResults (8.13.1)
+      Expecto (>= 8.13.1)
+      FSharp.Core (>= 4.3.4)
     FSharp.Compiler.Service (34.1.1) - redirects: force
       FSharp.Core (>= 4.6.2)
       System.Buffers (>= 4.5)
