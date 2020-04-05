@@ -1,3 +1,6 @@
+#### 0.10.1 - April 5, 2020
+- Dependencies update
+
 #### 0.10.0 - December 8, 2019
 - OpenApiClientProvider
 - .NET Core 3.1 support

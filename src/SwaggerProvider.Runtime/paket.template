@@ -15,7 +15,7 @@ licenseUrl
 requireLicenseAcceptance
     false
 copyright
-    Copyright 2015-2019
+    Copyright 2015-2020
 tags
     F# fsharp data typeprovider Swagger API REST OpenAPI
 summary
