@@ -74,6 +74,7 @@ type ICache<'TKey, 'TValue> =
   abstract Set : key:'TKey * value:'TValue -> unit
   abstract TryRetrieve : key:'TKey * ?extendCacheExpiration:bool -> 'TValue option
   abstract Remove : key:'TKey -> unit
+  abstract GetOrAdd : key:'TKey * valueFactory:(unit -> 'TValue) -> 'TValue
 
 /// Creates a cache that uses in-memory collection
 let createInMemoryCache (expiration:TimeSpan) = 
@@ -106,4 +107,8 @@ let createInMemoryCache (expiration:TimeSpan) =
             match dict.TryRemove(key) with
             | true, _ -> log (sprintf "Explicitly removed from cache: %O" key)
             | _ -> ()
+        member __.GetOrAdd(key, valueFactory) =
+            let res, _ = dict.GetOrAdd(key, fun k -> valueFactory(), DateTime.UtcNow)
+            invalidationFunction key |> Async.Start
+            res
     }
