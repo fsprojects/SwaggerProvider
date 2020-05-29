@@ -412,7 +412,20 @@ module Parsers =
             | "options" -> Some <| parseOperationObject context path Options obj
             | "head"    -> Some <| parseOperationObject context path Head obj
             | "patch"   -> Some <| parseOperationObject context path Patch obj
-            | "$ref"    -> failwith "External definition of this path item is not supported yet"
+            | "$ref"    ->
+                let fileName = obj.AsString()
+                let path =
+                    // If path is empty:
+                    // We could match something like interactive __SOURCE_DIRECTORY__
+                    // or else (System.Reflection.Assembly.GetExecutingAssembly().Location |> System.IO.Path.GetDirectoryName)
+                    obj.GetStringSafe("basePath")
+                let filePath = System.IO.Path.Combine [| path; (if fileName.Contains("#") then fileName.Split('#').[0] else fileName) |]
+
+                let schemaData =
+                    SwaggerProvider.Internal.SchemaReader.readSchemaPath "" filePath
+                    |> Async.RunSynchronously
+                
+                failwith "External definition of this path item is not supported yet"
             | _ -> None
         let updateContext (pathItemObj:SchemaNode) =
             match pathItemObj.TryGetProperty("parameters") with

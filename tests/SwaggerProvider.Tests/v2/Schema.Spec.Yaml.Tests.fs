@@ -821,4 +821,16 @@ GeneralError:
                     }
                 |] |> Map.ofArray)
             Expect.equal actual expected "Responses Definitions Object"
+
+
+    ptestCase "External reference test" <| fun _ -> // Ignore("Not supported")
+    """
+# What should be the relative path? e.g. $ref: ../v2/token.yaml#/token
+/tokens:
+    $ref: ./tests/SwaggerProvider.Tests/v2/token.yaml#/token
+"""
+    |> SwaggerParser.parseYaml
+    |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+    |> fun actual ->
+        Expect.equal (actual.ToString()) "token" "External reference test"
   ]
