@@ -49,7 +49,8 @@ version: 1.0.1
             $ref: '#/definitions/pet'
         """
         |> SwaggerParser.parseYaml
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+        |> Parsers.parsePathsObject false SwaggerParser.parseYaml Parsers.ParserContext.Empty
+        |> Array.choose(fun (pa,_) -> pa)
         |> fun actual ->
             let expected =
                 [|{
@@ -103,7 +104,8 @@ version: 1.0.1
     collectionFormat: csv
         """
         |> SwaggerParser.parseYaml
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+        |> Parsers.parsePathsObject false SwaggerParser.parseYaml Parsers.ParserContext.Empty
+        |> Array.choose(fun (pa,_) -> pa)
         |> fun actual ->
             let expected =
                 [|{
@@ -827,10 +829,11 @@ GeneralError:
     """
 # What should be the relative path? e.g. $ref: ../v2/token.yaml#/token
 /tokens:
-    $ref: ./tests/SwaggerProvider.Tests/v2/token.yaml#/token
+    $ref: ../v2/token.yaml#/token
 """
     |> SwaggerParser.parseYaml
-    |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+    |> Parsers.parsePathsObject true SwaggerParser.parseYaml Parsers.ParserContext.Empty
+    |> Array.choose(fun (_,e) -> e)
     |> fun actual ->
         Expect.equal (actual.ToString()) "token" "External reference test"
   ]

@@ -57,7 +57,8 @@ let jsonSpecTests =
             }
         }"""
         |> SwaggerParser.parseJson
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+        |> Parsers.parsePathsObject false SwaggerParser.parseJson Parsers.ParserContext.Empty
+        |> Array.choose(fun (pa,_) -> pa)
         |> fun actual ->
             let expected =
                 [|{
@@ -121,7 +122,8 @@ let jsonSpecTests =
           ]
         }}"""
         |> SwaggerParser.parseJson
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+        |> Parsers.parsePathsObject false SwaggerParser.parseJson Parsers.ParserContext.Empty
+        |> Array.choose(fun (pa,_) -> pa)
         |> fun actual ->
             let expected =
                 [|{

@@ -8,7 +8,7 @@ module V2 =
     open SwaggerProvider.Internal.v2.Compilers
     open SwaggerProvider.Internal.v2.Parser
     let testSchema schemaStr =
-        let schema = SwaggerParser.parseSchema schemaStr
+        let schema = SwaggerParser.parseSchema true schemaStr
 
         let defCompiler = DefinitionCompiler(schema, false)
         let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)

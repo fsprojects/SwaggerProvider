@@ -146,8 +146,8 @@ module SwaggerParser =
     let parseYaml schema =
         (YamlAdapter.parse schema) :> SchemaNode
 
-    let parseSchema (schema:string) : SwaggerObject =
-        let parse =
+    let parseSchema (resolveReferences:bool) (schema:string) : SwaggerObject =
+        let parser =
             if schema.Trim().StartsWith("{")
             then parseJson else parseYaml
-        parse schema  |> Parsers.parseSwaggerObject
+        parser schema |> Parsers.parseSwaggerObject resolveReferences parser

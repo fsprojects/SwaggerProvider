@@ -226,4 +226,6 @@ type SwaggerObject =
       Definitions: (string*SchemaObject)[]
       /// A list of tags used by the specification with additional metadata.
       Tags: TagObject[]
+      /// External Schema objects
+      SwaggerObjects: SwaggerObject[]
     }
