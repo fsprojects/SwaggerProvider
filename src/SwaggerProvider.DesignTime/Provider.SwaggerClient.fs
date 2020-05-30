@@ -69,9 +69,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, resolveReferences)
                     |> sprintf "%A"
 
-                match Cache.providedTypes.TryRetrieve(cacheKey) with
-                | Some(ty) -> ty
-                | None ->
+                let addCache() =
                     let schemaData =
                         SwaggerProvider.Internal.SchemaReader.readSchemaPath headersStr schemaPathRaw
                         |> Async.RunSynchronously
@@ -100,8 +98,8 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                         ty.AddMembers externalTys
                     tempAsm.AddTypes [ty]
 
-                    Cache.providedTypes.Set(cacheKey, ty)
                     ty
+                Cache.providedTypes.GetOrAdd(cacheKey, addCache)
         )
         t
     do
