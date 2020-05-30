@@ -22,8 +22,21 @@ module SchemaReader =
             // using a custom handler means that we can set the default credentials.
             use handler = new HttpClientHandler(UseDefaultCredentials = true)
             use client = new HttpClient(handler)
-            let! response = client.SendAsync(request) |> Async.AwaitTask
-            return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+            let! res =
+              async {
+                  let! response = client.SendAsync(request) |> Async.AwaitTask
+                  return! response.Content.ReadAsStringAsync() |> Async.AwaitTask 
+              } |> Async.Catch
+            match res with
+            | Choice1Of2 x -> return x
+            | Choice2Of2 (:? System.Net.WebException as wex) ->
+                use stream = wex.Response.GetResponseStream()
+                use reader = new System.IO.StreamReader(stream)
+                let err = reader.ReadToEnd()
+                return 
+                  if String.IsNullOrEmpty err then raise wex
+                  else err.ToString()
+            | Choice2Of2 e -> return failwith(e.ToString())
         | false ->
             return schemaPathRaw |> IO.File.ReadAllText
     }
