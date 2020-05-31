@@ -56,6 +56,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
 
 
                 let addCache() =
+                  lazy
                     let schemaData =
                         SwaggerProvider.Internal.SchemaReader.readSchemaPath "" schemaPathRaw
                         |> Async.RunSynchronously
@@ -89,7 +90,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     tempAsm.AddTypes [ty]
 
                     ty
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache)
+                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
         t
     do
