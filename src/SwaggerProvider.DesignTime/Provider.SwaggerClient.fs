@@ -1,4 +1,4 @@
-﻿namespace SwaggerProvider
+namespace SwaggerProvider
 
 open System
 open System.Reflection
@@ -68,6 +68,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     |> sprintf "%A"
 
                 let addCache() =
+                  lazy
                     let schemaData =
                         match schemaPathRaw.StartsWith("http", true, null) with
                         | true  ->
@@ -105,7 +106,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     tempAsm.AddTypes [ty]
 
                     ty
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache)
+                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
         t
     do
