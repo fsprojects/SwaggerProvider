@@ -1,3 +1,6 @@
+#### 0.10.4 - May 31, 2020
+- Cache fix part 2 [#155](https://github.com/fsprojects/SwaggerProvider/pull/155)
+
 #### 0.10.3 - May 30, 2020
 - Fixed caching [#153](https://github.com/fsprojects/SwaggerProvider/pull/153)
 - Dependencies update [#154](https://github.com/fsprojects/SwaggerProvider/pull/154)
