@@ -53,6 +53,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
 
 
                 let addCache() =
+                  lazy
                     let schemaData =
                         match schemaPathRaw.StartsWith("http", true, null) with
                         | true  ->
@@ -87,7 +88,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     tempAsm.AddTypes [ty]
 
                     ty
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache)
+                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
         t
     do
