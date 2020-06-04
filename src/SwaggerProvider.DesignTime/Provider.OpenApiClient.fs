@@ -88,7 +88,10 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     tempAsm.AddTypes [ty]
 
                     ty
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                try Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                with | _ ->
+                  Cache.providedTypes.Remove(cacheKey) |> ignore
+                  Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
         t
     do
