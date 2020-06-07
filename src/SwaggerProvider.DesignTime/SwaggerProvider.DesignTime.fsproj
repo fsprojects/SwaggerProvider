@@ -9,6 +9,7 @@
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <OutputPath>..\SwaggerProvider.Runtime\bin\$(Configuration)\typeproviders\fsharp41\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\Pluralizer.fs">

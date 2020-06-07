@@ -10,7 +10,7 @@
 *.userprefs
 
 # Build results
-
+/src/Common/AssemblyInfo.fs
 [Dd]ebug/
 [Rr]elease/
 x64/

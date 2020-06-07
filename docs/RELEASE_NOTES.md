@@ -1,3 +1,6 @@
+#### 0.10.5 - June 4, 2020
+- Cache, yet one more fix... [#158](https://github.com/fsprojects/SwaggerProvider/pull/158)
+
 #### 0.10.4 - May 31, 2020
 - Cache fix part 2 [#155](https://github.com/fsprojects/SwaggerProvider/pull/155)
 
