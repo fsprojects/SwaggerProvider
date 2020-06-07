@@ -2,7 +2,6 @@ namespace SwaggerProvider
 
 open System
 open System.Reflection
-open System.Net.Http
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
 open Swagger
@@ -70,28 +69,8 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                 let addCache() =
                   lazy
                     let schemaData =
-                        match schemaPathRaw.StartsWith("http", true, null) with
-                        | true  ->
-                            let headers =
-                                headersStr.Split('|')
-                                |> Seq.choose (fun x ->
-                                    let pair = x.Split('=')
-                                    if (pair.Length = 2)
-                                    then Some (pair.[0],pair.[1])
-                                    else None
-                                )
-                            let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
-                            for (name, value) in headers do
-                                request.Headers.TryAddWithoutValidation(name, value) |> ignore
-                            // using a custom handler means that we can set the default credentials.
-                            use handler = new HttpClientHandler(UseDefaultCredentials = true)
-                            use client = new HttpClient(handler)
-                            async {
-                                let! response = client.SendAsync(request) |> Async.AwaitTask
-                                return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                            } |> Async.RunSynchronously
-                        | false ->
-                            schemaPathRaw |> IO.File.ReadAllText
+                        SwaggerProvider.Internal.SchemaReader.readSchemaPath headersStr schemaPathRaw
+                        |> Async.RunSynchronously
                     let schema = SwaggerParser.parseSchema schemaData
 
                     let defCompiler = DefinitionCompiler(schema, preferNullable)
