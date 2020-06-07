@@ -55,18 +55,8 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                 let addCache() =
                   lazy
                     let schemaData =
-                        match schemaPathRaw.StartsWith("http", true, null) with
-                        | true  ->
-                            let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
-                            // using a custom handler means that we can set the default credentials.
-                            use handler = new HttpClientHandler(UseDefaultCredentials = true)
-                            use client = new HttpClient(handler)
-                            async {
-                                let! response = client.SendAsync(request) |> Async.AwaitTask
-                                return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                            } |> Async.RunSynchronously
-                        | false ->
-                            schemaPathRaw |> IO.File.ReadAllText
+                        SwaggerProvider.Internal.SchemaReader.readSchemaPath "" schemaPathRaw
+                        |> Async.RunSynchronously
                     let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
                     let (schema, diagnostic) = openApiReader.Read(schemaData)
