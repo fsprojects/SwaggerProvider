@@ -52,9 +52,8 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     |> sprintf "%A"
 
 
-                match Cache.providedTypes.TryRetrieve(cacheKey) with
-                | Some(ty) -> ty
-                | None ->
+                let addCache() =
+                  lazy
                     let schemaData =
                         SwaggerProvider.Internal.SchemaReader.readSchemaPath "" schemaPathRaw
                         |> Async.RunSynchronously
@@ -78,8 +77,11 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     ty.AddMembers tys
                     tempAsm.AddTypes [ty]
 
-                    Cache.providedTypes.Set(cacheKey, ty)
                     ty
+                try Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                with | _ ->
+                  Cache.providedTypes.Remove(cacheKey) |> ignore
+                  Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
         t
     do

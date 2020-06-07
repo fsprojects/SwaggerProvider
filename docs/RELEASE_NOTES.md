@@ -1,3 +1,13 @@
+#### 0.10.5 - June 4, 2020
+- Cache, yet one more fix... [#158](https://github.com/fsprojects/SwaggerProvider/pull/158)
+
+#### 0.10.4 - May 31, 2020
+- Cache fix part 2 [#155](https://github.com/fsprojects/SwaggerProvider/pull/155)
+
+#### 0.10.3 - May 30, 2020
+- Fixed caching [#153](https://github.com/fsprojects/SwaggerProvider/pull/153)
+- Dependencies update [#154](https://github.com/fsprojects/SwaggerProvider/pull/154)
+
 #### 0.10.2 - April 5, 2020
 - Caching update [#144](https://github.com/fsprojects/SwaggerProvider/pull/144)
 - Better autocomplete in IDEs

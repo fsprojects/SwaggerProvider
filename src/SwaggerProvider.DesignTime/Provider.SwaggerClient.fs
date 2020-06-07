@@ -67,6 +67,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     |> sprintf "%A"
 
                 let addCache() =
+                  lazy
                     let schemaData =
                         SwaggerProvider.Internal.SchemaReader.readSchemaPath headersStr schemaPathRaw
                         |> Async.RunSynchronously
@@ -84,7 +85,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                     tempAsm.AddTypes [ty]
 
                     ty
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache)
+                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
         t
     do
