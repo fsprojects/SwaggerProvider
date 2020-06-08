@@ -1,3 +1,6 @@
+#### 0.10.6 - June 8, 2020
+- WebException handling [#161](https://github.com/fsprojects/SwaggerProvider/pull/161)
+
 #### 0.10.5 - June 4, 2020
 - Cache, yet one more fix... [#158](https://github.com/fsprojects/SwaggerProvider/pull/158)
 
