@@ -29,7 +29,7 @@ module SchemaReader =
               } |> Async.Catch
             match res with
             | Choice1Of2 x -> return x
-            | Choice2Of2 (:? System.Net.WebException as wex) ->
+            | Choice2Of2 (:? System.Net.WebException as wex) when wex.Response <> null ->
                 use stream = wex.Response.GetResponseStream()
                 use reader = new System.IO.StreamReader(stream)
                 let err = reader.ReadToEnd()
