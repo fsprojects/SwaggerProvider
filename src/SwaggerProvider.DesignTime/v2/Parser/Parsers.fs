@@ -401,49 +401,6 @@ module Parsers =
                    context.ApplicableParameters
         }
 
-    /// Parse the SchemaNode as a PathItemObject[]
-    let parsePathsObject (context:ParserContext) (obj:SchemaNode) : OperationObject[] =
-        let parsePathItemObject (context:ParserContext) path (field, obj) =
-            match field with
-            | "get"     -> Some <| parseOperationObject context path Get obj
-            | "put"     -> Some <| parseOperationObject context path Put obj
-            | "post"    -> Some <| parseOperationObject context path Post obj
-            | "delete"  -> Some <| parseOperationObject context path Delete obj
-            | "options" -> Some <| parseOperationObject context path Options obj
-            | "head"    -> Some <| parseOperationObject context path Head obj
-            | "patch"   -> Some <| parseOperationObject context path Patch obj
-            | "$ref"    -> failwith "External definition of this path item is not supported yet"
-            | _ -> None
-        let updateContext (pathItemObj:SchemaNode) =
-            match pathItemObj.TryGetProperty("parameters") with
-            | None -> context
-            | Some(parameters) ->
-                {
-                context with
-                    ApplicableParameters =
-                        parameters.AsArray()
-                        |> Array.map (fun paramObj ->
-                            match context.ResolveParameterObject paramObj with
-                            | Some(param) -> param
-                            | None -> parseParameterObject context.Definitions paramObj
-                        )
-                }
-
-        obj.Properties()
-        |> Array.filter(fun (path,_) -> not <| isSwaggerSchemaExtensionName path)
-        |> Array.collect (fun (path, pathItemObj) ->
-            let newContext = updateContext pathItemObj
-            pathItemObj.Properties()
-            |> Array.choose (parsePathItemObject newContext path)
-           )
-
-    /// Parse the SchemaNode as a SchemaObject[]
-    let parseDefinitionsObject (obj:SchemaNode) : Dictionary<string,Lazy<SchemaObject>> =
-        let defs = Dictionary<string,Lazy<SchemaObject>>()
-        obj.Properties() |> Array.iter (fun (name, schemaObj) ->
-            defs.Add("#/definitions/"+name, lazy(parseSchemaObject defs schemaObj)))
-        defs
-
     /// Parses the SchemaNode as an InfoObject.
     let parseInfoObject (obj:SchemaNode) : InfoObject =
         let spec = "http://swagger.io/specification/#infoObject"
@@ -461,8 +418,83 @@ module Parsers =
             Description = obj.GetStringSafe("description")
         }
 
+    /// Parse the SchemaNode as a PathItemObject[]
+    let rec parsePathsObject (resolveReferences:bool) (parser:string->SchemaNode) (context:ParserContext) (obj:SchemaNode) : (OperationObject option*SwaggerObject option)[] =
+        let parsePathItemObject (context:ParserContext) path (field, obj) =
+            match field with
+            | "get"     -> Some <| (Some <| parseOperationObject context path Get obj, None)
+            | "put"     -> Some <| (Some <| parseOperationObject context path Put obj, None)
+            | "post"    -> Some <| (Some <| parseOperationObject context path Post obj, None)
+            | "delete"  -> Some <| (Some <| parseOperationObject context path Delete obj, None)
+            | "options" -> Some <| (Some <| parseOperationObject context path Options obj, None)
+            | "head"    -> Some <| (Some <| parseOperationObject context path Head obj, None)
+            | "patch"   -> Some <| (Some <| parseOperationObject context path Patch obj, None)
+            | "$ref"    ->
+                if not resolveReferences then
+                    failwith "SwaggerProvider static parameter ResolveReferences has to be set true to parse External definition of this path item"
+                else
+                let fileName =
+                    let fname = obj.AsString()
+                    (if fname.Contains("#") then fname.Split('#').[0] else fname)
+                let execAssembly =
+#if INTERACTIVE
+                    "" //not supported
+#else
+                    System.Reflection.Assembly.GetExecutingAssembly().Location
+#endif
+                let tryPaths =
+                    [ fileName;
+                      System.IO.Path.Combine [| obj.GetStringSafe("basePath"); fileName |];
+                      System.IO.Path.Combine [| __SOURCE_DIRECTORY__; fileName |];
+                      System.IO.Path.Combine [| __SOURCE_DIRECTORY__; ".."; fileName |];
+                      System.IO.Path.Combine [| execAssembly; fileName |];
+                      System.IO.Path.Combine [| execAssembly; "..";fileName |];
+                      System.IO.Path.Combine [| execAssembly; ".."; ".."; fileName |];
+                    ] |> List.tryFind(fun f ->
+                            try System.IO.File.Exists f
+                            with _ -> false)
+
+                let filePath =
+                    match tryPaths with
+                    | Some x -> x
+                    | None -> fileName
+
+                let schemaData =
+                    SwaggerProvider.Internal.SchemaReader.readSchemaPath "" filePath
+                    |> Async.RunSynchronously
+                let res = parser schemaData |> parseSwaggerObject true parser
+                Some(None, Some res)
+            | _ -> None
+        let updateContext (pathItemObj:SchemaNode) =
+            match pathItemObj.TryGetProperty("parameters") with
+            | None -> context
+            | Some(parameters) ->
+                {
+                context with
+                    ApplicableParameters =
+                        parameters.AsArray()
+                        |> Array.map (fun paramObj ->
+                            match context.ResolveParameterObject paramObj with
+                            | Some(param) -> param
+                            | None -> parseParameterObject context.Definitions paramObj
+                        )
+                }
+        obj.Properties()
+        |> Array.filter(fun (path,_) -> not <| isSwaggerSchemaExtensionName path)
+        |> Array.collect (fun (path, pathItemObj) ->
+            let newContext = updateContext pathItemObj
+            pathItemObj.Properties()
+            |> Array.choose (parsePathItemObject newContext path)
+            )
+
+    /// Parse the SchemaNode as a SchemaObject[]
+    and parseDefinitionsObject (obj:SchemaNode) : Dictionary<string,Lazy<SchemaObject>> =
+        let defs = Dictionary<string,Lazy<SchemaObject>>()
+        obj.Properties() |> Array.iter (fun (name, schemaObj) ->
+            defs.Add("#/definitions/"+name, lazy(parseSchemaObject defs schemaObj)))
+        defs
     /// Parses the SchemaNode as a SwaggerSchema.
-    let parseSwaggerObject (obj:SchemaNode) : SwaggerObject =
+    and parseSwaggerObject (resolveReferences:bool) (parser:string->SchemaNode) (obj:SchemaNode) : SwaggerObject =
         let spec = "http://swagger.io/specification/#swaggerObject"
 
         let swaggerVersion = obj.GetRequiredField("swagger", spec).AsString()
@@ -487,7 +519,13 @@ module Parsers =
                         | None -> Map.empty<_,_>
                         | Some(responses) -> parseResponsesDefinition responses
             }
-
+        let parsedPaths =
+            obj.GetRequiredField("paths", spec)
+            |> (parsePathsObject resolveReferences parser context)
+        let directPaths =
+            parsedPaths |> Array.choose(fun (p,_) -> p)
+        let externalSchemas =
+            parsedPaths |> Array.choose(fun (_,s) -> s)
         {
             Info = parseInfoObject(obj.GetRequiredField("info", spec))
             Host = obj.GetStringSafe("host")
@@ -498,12 +536,11 @@ module Parsers =
                 | None -> [||]
                 | Some(tags) ->
                     tags.AsArray() |> Array.map parseTagObject
-            Paths =
-                obj.GetRequiredField("paths", spec)
-                |> (parsePathsObject context)
+            Paths = directPaths
             Definitions =
                 context.Definitions
                 |> Seq.map (fun x -> x.Key, x.Value.Value)
                 |> Seq.sortBy (id)
                 |> Array.ofSeq
+            SwaggerObjects = externalSchemas
         }

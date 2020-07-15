@@ -49,7 +49,8 @@ version: 1.0.1
             $ref: '#/definitions/pet'
         """
         |> SwaggerParser.parseYaml
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+        |> Parsers.parsePathsObject false SwaggerParser.parseYaml Parsers.ParserContext.Empty
+        |> Array.choose(fun (pa,_) -> pa)
         |> fun actual ->
             let expected =
                 [|{
@@ -103,7 +104,8 @@ version: 1.0.1
     collectionFormat: csv
         """
         |> SwaggerParser.parseYaml
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+        |> Parsers.parsePathsObject false SwaggerParser.parseYaml Parsers.ParserContext.Empty
+        |> Array.choose(fun (pa,_) -> pa)
         |> fun actual ->
             let expected =
                 [|{
@@ -821,4 +823,17 @@ GeneralError:
                     }
                 |] |> Map.ofArray)
             Expect.equal actual expected "Responses Definitions Object"
+
+
+    ptestCase "External reference test" <| fun _ -> // Ignore("Not supported")
+    """
+# What should be the relative path? e.g. $ref: ../v2/token.yaml#/token
+/tokens:
+    $ref: ../v2/token.yaml#/token
+"""
+    |> SwaggerParser.parseYaml
+    |> Parsers.parsePathsObject true SwaggerParser.parseYaml Parsers.ParserContext.Empty
+    |> Array.choose(fun (_,e) -> e)
+    |> fun actual ->
+        Expect.equal (actual.ToString()) "token" "External reference test"
   ]

@@ -29,14 +29,16 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
               ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)]
+              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
+              ProvidedStaticParameter("ResolveReferences", typeof<bool>, false)]
         t.AddXmlDoc
             """<summary>Statically typed OpenAPI provider.</summary>
                <param name='Schema'>Url or Path to OpenAPI schema file.</param>
                <param name='IgnoreOperationId'>Do not use `operationsId` and generate method names using `path` only. Default value `false`.</param>
                <param name='IgnoreControllerPrefix'>Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`.</param>
                <param name='PreferNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`.</param>
-               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>"""
+               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>
+               <param name='ResolveReferences'>Try resolving external references. Defaults value `false`.</param>"""
 
         t.DefineStaticParameters(
             staticParams,
@@ -46,9 +48,10 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                 let ignoreControllerPrefix = unbox<bool>  args.[2]
                 let preferNullable = unbox<bool>  args.[3]
                 let preferAsync = unbox<bool>  args.[4]
+                let resolveReferences = unbox<bool>  args.[5]
 
                 let cacheKey =
-                    (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
+                    (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, resolveReferences)
                     |> sprintf "%A"
 
 
@@ -57,7 +60,16 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
                     let schemaData =
                         SwaggerProvider.Internal.SchemaReader.readSchemaPath "" schemaPathRaw
                         |> Async.RunSynchronously
-                    let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
+                    let openApiReader =
+                        if resolveReferences then
+                            let settings =
+                                // Note 1: Microsoft.OpenApi.Readers should be updated: https://github.com/microsoft/OpenAPI.NET/issues/288
+                                // Note 2: ReferenceResolutionSetting.ResolveAllReferences:
+                                //         Cannot resolve remote references automatically in a syncronous call.
+                                Microsoft.OpenApi.Readers.OpenApiReaderSettings(ReferenceResolution =
+                                    Microsoft.OpenApi.Readers.ReferenceResolutionSetting.ResolveLocalReferences)
+                            Microsoft.OpenApi.Readers.OpenApiStringReader settings
+                        else Microsoft.OpenApi.Readers.OpenApiStringReader()
 
                     let (schema, diagnostic) = openApiReader.Read(schemaData)
                     if diagnostic.Errors.Count > 0 then

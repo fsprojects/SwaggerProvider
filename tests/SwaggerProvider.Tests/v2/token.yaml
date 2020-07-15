@@ -1,0 +1,19 @@
+  token:
+    post:
+      summary: Just a test
+      operationId: test_token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../v2/token.yaml
+      responses:
+        "200":
+          description: Generated
+          content:
+            application/json:
+              schema:
+                $ref: ../v2/token.yaml
+        default:
+          $ref: ../error.yaml
