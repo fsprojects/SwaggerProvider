@@ -1,3 +1,7 @@
+#### 0.10.7 - July 15, 2020
+- Avoid NullReferenceException on rare case that response is nothing. [#162](https://github.com/fsprojects/SwaggerProvider/pull/162)
+- Dependencies update
+
 #### 0.10.6 - June 8, 2020
 - WebException handling [#161](https://github.com/fsprojects/SwaggerProvider/pull/161)
 

@@ -3,19 +3,19 @@
   "isRoot": true,
   "tools": {
     "paket": {
-      "version": "5.245.2",
+      "version": "5.247.4",
       "commands": [
         "paket"
       ]
     },
     "fake-cli": {
-      "version": "5.20.0",
+      "version": "5.20.2",
       "commands": [
         "fake"
       ]
     },
     "dotnet-serve": {
-      "version": "1.7.125",
+      "version": "1.7.131",
       "commands": [
         "dotnet-serve"
       ]
