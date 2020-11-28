@@ -1,16 +1,17 @@
 #r @"paket:
 source https://nuget.org/api/v2
 framework netstandard2.0
+nuget FSharp.Core 4.7.2
 nuget Fake.Core.Target
 nuget Fake.Core.Process
-nuget Fake.Core.ReleaseNotes 
+nuget Fake.Core.ReleaseNotes
 nuget Fake.IO.FileSystem
 nuget Fake.DotNet.Cli
 nuget Fake.DotNet.MSBuild
 nuget Fake.DotNet.AssemblyInfoFile
 nuget Fake.DotNet.Paket
-nuget Fake.DotNet.Testing.Expecto 
-nuget Fake.DotNet.FSFormatting 
+nuget Fake.DotNet.Testing.Expecto
+nuget Fake.DotNet.FSFormatting
 nuget Fake.Tools.Git
 nuget Fake.Api.GitHub //"
 
@@ -19,9 +20,9 @@ nuget Fake.Api.GitHub //"
 #r "netstandard" // Temp fix for https://github.com/fsharp/FAKE/issues/1985
 #endif
 
-open Fake 
+open Fake
 open Fake.Core.TargetOperators
-open Fake.Core 
+open Fake.Core
 open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
@@ -70,7 +71,7 @@ Target.create "AssemblyInfo" (fun _ ->
 Target.create "Clean" (fun _ ->
     !! "**/**/bin/" |> Shell.cleanDirs
     //!! "**/**/obj/" |> Shell.cleanDirs
-    
+
     Shell.cleanDirs ["bin"; "temp"]
     try File.Delete("swaggerlog") with | _ -> ()
 )
@@ -90,11 +91,11 @@ let webApiInputStream = StreamRef.Empty
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
-    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/netcoreapp3.1/Swashbuckle.WebApi.Server.dll"
+    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/net5.0/Swashbuckle.WebApi.Server.dll"
     |> CreateProcess.withStandardInput (CreatePipe webApiInputStream)
     |> Proc.start
     |> ignore
-    
+
     // We need delay to guarantee that server is bootstrapped
     System.Threading.Thread.Sleep(2000)
 )
@@ -118,7 +119,7 @@ Target.create "BuildTests" (fun _ ->
 let runTests assembly =
     [Path.Combine(__SOURCE_DIRECTORY__, assembly)]
     |> Testing.Expecto.run (fun p ->
-        { p with 
+        { p with
             WorkingDirectory = __SOURCE_DIRECTORY__
             FailOnFocusedTests = true
             PrintVersion = true
@@ -128,11 +129,11 @@ let runTests assembly =
         })
 
 Target.create "RunUnitTests" (fun _ ->
-    runTests "tests/SwaggerProvider.Tests/bin/Release/netcoreapp3.1/SwaggerProvider.Tests.dll"
+    runTests "tests/SwaggerProvider.Tests/bin/Release/net5.0/SwaggerProvider.Tests.dll"
 )
 
 Target.create "RunIntegrationTests" (fun _ ->
-    runTests "tests/SwaggerProvider.ProviderTests/bin/Release/netcoreapp3.1/SwaggerProvider.ProviderTests.dll"
+    runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net5.0/SwaggerProvider.ProviderTests.dll"
 )
 
 Target.create "RunTests" ignore
@@ -209,7 +210,7 @@ Target.create "BrowseDocs" (fun _ ->
 
 Target.create "Release" (fun _ ->
     // not fully converted from  FAKE 4
-    
+
     // StageAll ""
     // Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
     // Branches.push ""

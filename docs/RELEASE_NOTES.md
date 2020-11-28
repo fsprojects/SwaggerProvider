@@ -1,3 +1,6 @@
+#### 0.11.0 - Nov 28, 2020
+- Build with .NET 5
+
 #### 0.10.7 - July 15, 2020
 - Avoid NullReferenceException on rare case that response is nothing. [#162](https://github.com/fsprojects/SwaggerProvider/pull/162)
 - Dependencies update
