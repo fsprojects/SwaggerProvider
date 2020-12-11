@@ -105,7 +105,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             let coerceString defType (format : CollectionFormat) exp =
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
                 <@ let x = (%obj)
-                   if isNull x then null else x.ToString() @>
+                   match x with
+                   | :? DateTime as dt -> dt.ToString("O")
+                   | :? DateTimeOffset as dto -> dto.ToString("O")
+                   | null -> null
+                   | _ -> x.ToString() @>
 
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)

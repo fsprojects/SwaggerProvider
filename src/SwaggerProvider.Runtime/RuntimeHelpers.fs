@@ -1,4 +1,4 @@
-﻿namespace Swagger.Internal
+namespace Swagger.Internal
 
 open System
 open System
@@ -26,15 +26,47 @@ module RuntimeHelpers =
         |> Array.map (fun value-> name, value.ToString())
         |> Array.toList
 
+    let inline private toStrArrayDateTime name (values: DateTime array) =
+        values
+        |> Array.map (fun value-> name, value.ToString("O"))
+        |> Array.toList
+
+    let inline private toStrArrayDateTimeOffset name (values: DateTimeOffset array) =
+        values
+        |> Array.map (fun value-> name, value.ToString("O"))
+        |> Array.toList
+
     let inline private toStrArrayOpt name values =
         values
         |> Array.choose (id)
         |> toStrArray name
 
+    let inline private toStrArrayDateTimeOpt name values =
+        values
+        |> Array.choose (id)
+        |> toStrArrayDateTime name
+
+    let inline private toStrArrayDateTimeOffsetOpt name values =
+        values
+        |> Array.choose (id)
+        |> toStrArrayDateTimeOffset name
+
+
     let inline private toStrOpt name value =
         match value with
         | Some(x) -> [name, x.ToString()]
         | None ->[]
+
+    let inline private toStrDateTimeOpt name (value : DateTime option) =
+        match value with
+        | Some(x) -> [name, x.ToString("O")]
+        | None ->[]
+
+    let inline private toStrDateTimeOffsetOpt name (value : DateTimeOffset option) =
+        match value with
+        | Some(x) -> [name, x.ToString("O")]
+        | None ->[]
+
 
     let toQueryParams (name:string) (obj:obj) (client:Swagger.ProvidedApiClientBase) =
         match obj with
@@ -45,16 +77,16 @@ module RuntimeHelpers =
         | :? array<float32> as xs -> xs |> toStrArray name
         | :? array<double> as xs -> xs |> toStrArray name
         | :? array<string> as xs -> xs |> toStrArray name
-        | :? array<DateTime> as xs -> xs |> toStrArray name
-        | :? array<DateTimeOffset> as xs -> xs |> toStrArray name
+        | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
+        | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
         | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<float32>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<DateTime>> as xs -> xs |> toStrArray name
-        | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArray name
+        | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
+        | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
         | :? array<Option<Guid>> as xs -> xs |> toStrArray name
         | :? Option<bool> as x -> x |> toStrOpt name
         | :? Option<int32> as x -> x |> toStrOpt name
@@ -62,8 +94,8 @@ module RuntimeHelpers =
         | :? Option<float32> as x -> x |> toStrOpt name
         | :? Option<double> as x -> x |> toStrOpt name
         | :? Option<string> as x -> x |> toStrOpt name
-        | :? Option<DateTime> as x -> x |> toStrOpt name
-        | :? Option<DateTimeOffset> as x -> x |> toStrOpt name
+        | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
+        | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
         | :? Option<Guid> as x -> x |> toStrOpt name
         | _ -> [name, if isNull obj then null else obj.ToString()]
 
