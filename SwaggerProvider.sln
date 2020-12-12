@@ -18,6 +18,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{302BCCA4-51B8-475C-9131-548CDC824026}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		global.json = global.json
 		README.md = README.md
 		docs\RELEASE_NOTES.md = docs\RELEASE_NOTES.md
 	EndProjectSection

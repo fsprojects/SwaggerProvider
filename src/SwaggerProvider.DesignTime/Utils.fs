@@ -2,12 +2,21 @@ namespace SwaggerProvider.Internal
 
 module SchemaReader =
   open System
+  open System.IO
+  open System.Net
   open System.Net.Http
+
+  let getAbsolutePath (resolutionFolder:string) (schemaPathRaw:string) =
+    let uri = Uri(schemaPathRaw, UriKind.RelativeOrAbsolute)
+    if uri.IsAbsoluteUri then schemaPathRaw
+    elif Path.IsPathRooted schemaPathRaw
+    then Path.Combine(Path.GetPathRoot(resolutionFolder), schemaPathRaw.Substring(1))
+    else Path.Combine(resolutionFolder, schemaPathRaw)
 
   let readSchemaPath (headersStr:string) (schemaPathRaw:string) =
     async {
-        match schemaPathRaw.StartsWith("http", true, null) with
-        | true  ->
+        match Uri(schemaPathRaw).Scheme with
+        | "https" | "http" ->
             let headers =
                 headersStr.Split('|')
                 |> Seq.choose (fun x ->
@@ -25,20 +34,22 @@ module SchemaReader =
             let! res =
               async {
                   let! response = client.SendAsync(request) |> Async.AwaitTask
-                  return! response.Content.ReadAsStringAsync() |> Async.AwaitTask 
+                  return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
               } |> Async.Catch
             match res with
             | Choice1Of2 x -> return x
-            | Choice2Of2 (:? System.Net.WebException as wex) when wex.Response <> null ->
+            | Choice2Of2 (:? System.Net.WebException as wex) when not <| isNull wex.Response ->
                 use stream = wex.Response.GetResponseStream()
-                use reader = new System.IO.StreamReader(stream)
+                use reader = new StreamReader(stream)
                 let err = reader.ReadToEnd()
-                return 
+                return
                   if String.IsNullOrEmpty err then raise wex
                   else err.ToString()
             | Choice2Of2 e -> return failwith(e.ToString())
-        | false ->
-            use sr = new System.IO.StreamReader(schemaPathRaw)
+        | _ ->
+            let request = WebRequest.Create(schemaPathRaw)
+            use! response = request.GetResponseAsync() |> Async.AwaitTask
+            use sr = new StreamReader(response.GetResponseStream())
             return! sr.ReadToEndAsync() |> Async.AwaitTask
     }
 

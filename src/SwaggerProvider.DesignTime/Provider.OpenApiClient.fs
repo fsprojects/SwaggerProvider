@@ -2,10 +2,10 @@ namespace SwaggerProvider
 
 open System
 open System.Reflection
-open System.Net.Http
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
 open Swagger
+open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v3.Compilers
 
 module Cache =
@@ -41,21 +41,23 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
         t.DefineStaticParameters(
             staticParams,
             fun typeName args ->
-                let schemaPathRaw = unbox<string> args.[0]
+                let schemaPath =
+                    let schemaPathRaw = unbox<string> args.[0]
+                    SchemaReader.getAbsolutePath cfg.ResolutionFolder schemaPathRaw
                 let ignoreOperationId = unbox<bool>  args.[1]
                 let ignoreControllerPrefix = unbox<bool>  args.[2]
                 let preferNullable = unbox<bool>  args.[3]
                 let preferAsync = unbox<bool>  args.[4]
 
                 let cacheKey =
-                    (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
+                    (schemaPath, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
 
                 let addCache() =
                   lazy
                     let schemaData =
-                        SwaggerProvider.Internal.SchemaReader.readSchemaPath "" schemaPathRaw
+                        SchemaReader.readSchemaPath "" schemaPath
                         |> Async.RunSynchronously
                     let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
@@ -73,7 +75,7 @@ type public OpenApiClientTypeProvider(cfg : TypeProviderConfig) as this =
 
                     let tempAsm = ProvidedAssembly()
                     let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
-                    ty.AddXmlDoc ("OpenAPI Provider for " + schemaPathRaw)
+                    ty.AddXmlDoc ("OpenAPI Provider for " + schemaPath)
                     ty.AddMembers tys
                     tempAsm.AddTypes [ty]
 
