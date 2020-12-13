@@ -1,3 +1,7 @@
+#### 0.11.0 - Dec 13, 2020
+- Relative path fix [#171](https://github.com/fsprojects/SwaggerProvider/pull/171)
+- DateTime formatted as round-trip [#170](https://github.com/fsprojects/SwaggerProvider/pull/170)
+
 #### 0.10.7 - July 15, 2020
 - Avoid NullReferenceException on rare case that response is nothing. [#162](https://github.com/fsprojects/SwaggerProvider/pull/162)
 - Dependencies update
