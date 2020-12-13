@@ -67,6 +67,12 @@ module RuntimeHelpers =
         | Some(x) -> [name, x.ToString("O")]
         | None ->[]
 
+    let toParam (obj:obj) =
+        match obj with
+        | :? DateTime as dt -> dt.ToString("O")
+        | :? DateTimeOffset as dto -> dto.ToString("O")
+        | null -> null
+        | _ -> obj.ToString()
 
     let toQueryParams (name:string) (obj:obj) (client:Swagger.ProvidedApiClientBase) =
         match obj with
