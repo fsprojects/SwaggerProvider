@@ -1,4 +1,4 @@
-﻿namespace SwaggerProvider.Internal.v3.Compilers
+namespace SwaggerProvider.Internal.v3.Compilers
 
 open System
 open System.Reflection
@@ -296,6 +296,12 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
             | _ when schemaObj.Reference <> null && not <| schemaObj.Reference.Id.EndsWith(tyName) ->
                 ns.ReleaseNameReservation tyName
                 compileByPath <| schemaObj.Reference.ReferenceV3
+            | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Map ->
+                let elSchema = schemaObj.AdditionalProperties
+                ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [
+                    typeof<string>
+                    compileBySchema ns tyName elSchema true ns.RegisterType false
+                ])
             | _ when schemaObj.Type = null || schemaObj.Type = "object" -> // Object props ->
                 compileNewObject()
             | _ ->

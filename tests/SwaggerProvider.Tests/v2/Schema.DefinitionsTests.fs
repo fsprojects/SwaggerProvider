@@ -105,4 +105,22 @@ let definitionsTests =
             }
         }"""
         |> shouldBeEqual (Array String)
+
+    testCase "parse map of definitions" <| fun _ ->
+        """{
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/Tag"
+            }
+        }"""
+        |> shouldBeEqual (Dictionary (Reference "#/definitions/Tag"))
+
+    testCase "parse map of string" <| fun _ ->
+        """{
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        }"""
+        |> shouldBeEqual (Dictionary String)
   ]

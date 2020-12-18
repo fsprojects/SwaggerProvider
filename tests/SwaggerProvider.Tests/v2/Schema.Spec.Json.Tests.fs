@@ -923,4 +923,31 @@ let jsonSpecTests =
                     }
                 |] |> Map.ofArray)
             Expect.equal actual expected "parse Responses Definitions Object"
+
+    testCase "Parameter Map Examples: Body Parameters Map" <| fun _ ->
+        """{
+          "name": "user",
+          "in": "body",
+          "description": "user to add to the system",
+          "required": true,
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }"""
+        |> SwaggerParser.parseJson
+        |> Parsers.parseParameterObject Parsers.emptyDict
+        |> fun actual ->
+            let expected =
+                {
+                    Name = "user"
+                    In = Body
+                    Description = "user to add to the system"
+                    Required = true
+                    Type = Dictionary String
+                    CollectionFormat = Csv
+                }
+            Expect.equal actual expected "parse body params array"
     ]
