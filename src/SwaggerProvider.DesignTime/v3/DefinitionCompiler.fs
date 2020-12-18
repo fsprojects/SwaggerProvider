@@ -296,7 +296,7 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
             | _ when schemaObj.Reference <> null && not <| schemaObj.Reference.Id.EndsWith(tyName) ->
                 ns.ReleaseNameReservation tyName
                 compileByPath <| schemaObj.Reference.ReferenceV3
-            | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Map ->
+            | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
                 let elSchema = schemaObj.AdditionalProperties
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [
                     typeof<string>
