@@ -1,4 +1,4 @@
-﻿module Swashbuckle.v3.ReturnControllersTests
+module Swashbuckle.v3.ReturnControllersTests
 
 open Expecto
 open SwaggerProvider
@@ -169,5 +169,18 @@ let returnControllersTests =
         let! file = api.PostApiReturnFileDescription()
         file.Name  |> shouldEqual ("1.txt")
         file.Bytes  |> shouldEqual ([|1uy;2uy;3uy|])
+    }
+
+    testCaseAsync "Return String Dictionary GET Test" <| async {
+        let! dict = api.GetApiReturnStringDictionary()
+        dict |> shouldEqual (Map ["hello", "world"])
+    }
+
+    testCaseAsync "Return Object Point Dictionary GET Test" <| async {
+        let! dict = api.GetApiReturnObjectPointClassDictionary()
+        dict.ContainsKey "point" |> shouldEqual true
+        let point = dict.["point"]
+        point.X  |> shouldEqual (Some 0)
+        point.Y  |> shouldEqual (Some 0)
     }
   ]

@@ -60,8 +60,8 @@ type ReturnObjectPointClassController () =
 type ReturnFileDescriptionController () =
     inherit ReturnController<Types.FileDescription>(Types.FileDescription("1.txt",[|1uy;2uy;3uy|]))
 
-type ReturnMapController () =
+type ReturnStringDictionaryController () =
     inherit ReturnController<Map<string, string>>(Map ["hello","world"])
 
-type ReturnMapObjectController () =
-    inherit ReturnController<Map<string, Types.PointClass>>(Map ["pt",Types.PointClass(0,0)])
+type ReturnObjectPointClassDictionaryController () =
+    inherit ReturnController<Map<string, Types.PointClass>>(Map ["point",Types.PointClass(0,0)])
