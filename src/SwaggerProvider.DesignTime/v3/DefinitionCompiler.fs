@@ -1,4 +1,4 @@
-﻿namespace SwaggerProvider.Internal.v3.Compilers
+namespace SwaggerProvider.Internal.v3.Compilers
 
 open System
 open System.Reflection
@@ -286,6 +286,9 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
             match schemaObj with
             | null ->
                 failwithf "Cannot compile object '%s' when schema is 'null'" tyName
+            | _ when schemaObj.Reference <> null && not <| schemaObj.Reference.Id.EndsWith(tyName) ->
+                ns.ReleaseNameReservation tyName
+                compileByPath <| schemaObj.Reference.ReferenceV3
             | _ when schemaObj.UnresolvedReference ->
                 match pathToType.TryGetValue schemaObj.Reference.ReferenceV3 with
                 | true, ty ->
@@ -293,9 +296,11 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
                     ty
                 | _ -> failwithf "Cannot compile object '%s' based on unresolved reference '%O'" tyName schemaObj.Reference.ReferenceV3
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
-            | _ when schemaObj.Reference <> null && not <| schemaObj.Reference.Id.EndsWith(tyName) ->
+            | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
-                compileByPath <| schemaObj.Reference.ReferenceV3
+                let elSchema = schemaObj.AdditionalProperties
+                let elTy = compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
+                ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [typeof<string>; elTy])
             | _ when schemaObj.Type = null || schemaObj.Type = "object" -> // Object props ->
                 compileNewObject()
             | _ ->
@@ -321,9 +326,6 @@ type DefinitionCompiler (schema:OpenApiDocument, provideNullable) as this =
                     let elSchema = schemaObj.Items
                     let elTy = compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
                     elTy.MakeArrayType(1)
-                //| Dictionary eTy  ->
-                //    ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>,
-                //        [typeof<string>; compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy false ns.RegisterType])
                 //| Enum _          -> typeof<string> //NOTE: find better type
                 | ty, format ->
                     failwithf "Type %s(%s,%s) should be caught by other match statement (%A)" tyName ty format schemaObj.Type

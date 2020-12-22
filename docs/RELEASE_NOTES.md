@@ -1,5 +1,12 @@
-#### 0.11.0 - Nov 28, 2020
+#### 0.13.0 - Jan 6, 2021
 - Build with .NET 5
+
+#### 0.12.0 - Dec 22, 2020
+- OpenApiProvider: Dictionary support [#174](https://github.com/fsprojects/SwaggerProvider/pull/174)
+
+#### 0.11.0 - Dec 13, 2020
+- Relative path fix [#171](https://github.com/fsprojects/SwaggerProvider/pull/171)
+- DateTime formatted as round-trip [#170](https://github.com/fsprojects/SwaggerProvider/pull/170)
 
 #### 0.10.7 - July 15, 2020
 - Avoid NullReferenceException on rare case that response is nothing. [#162](https://github.com/fsprojects/SwaggerProvider/pull/162)

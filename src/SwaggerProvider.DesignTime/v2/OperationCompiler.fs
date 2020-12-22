@@ -104,13 +104,11 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
             // Makes argument a string // TODO: Make body an exception
             let coerceString defType (format : CollectionFormat) exp =
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                <@ let x = (%obj)
-                   if isNull x then null else x.ToString() @>
+                <@ let x = (%obj) in RuntimeHelpers.toParam x @>
 
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
-                <@ let o = (%%obj : obj)
-                   RuntimeHelpers.toQueryParams name o (%this) @>
+                <@ let o = (%%obj : obj) in RuntimeHelpers.toQueryParams name o (%this) @>
 
             let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
                 let pattern = sprintf "{%s}" name

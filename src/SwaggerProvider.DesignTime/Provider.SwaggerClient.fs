@@ -5,6 +5,7 @@ open System.Reflection
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
 open Swagger
+open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v2.Parser
 open SwaggerProvider.Internal.v2.Compilers
 
@@ -55,7 +56,9 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
         t.DefineStaticParameters(
             staticParams,
             fun typeName args ->
-                let schemaPathRaw = unbox<string> args.[0]
+                let schemaPath =
+                    let schemaPathRaw = unbox<string> args.[0]
+                    SchemaReader.getAbsolutePath cfg.ResolutionFolder schemaPathRaw
                 let headersStr = unbox<string> args.[1]
                 let ignoreOperationId = unbox<bool>  args.[2]
                 let ignoreControllerPrefix = unbox<bool>  args.[3]
@@ -63,13 +66,13 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                 let preferAsync = unbox<bool>  args.[5]
 
                 let cacheKey =
-                    (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
+                    (schemaPath, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
                 let addCache() =
                   lazy
                     let schemaData =
-                        SwaggerProvider.Internal.SchemaReader.readSchemaPath headersStr schemaPathRaw
+                        SchemaReader.readSchemaPath headersStr schemaPath
                         |> Async.RunSynchronously
                     let schema = SwaggerParser.parseSchema schemaData
 
@@ -80,7 +83,7 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
 
                     let tempAsm = ProvidedAssembly()
                     let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
-                    ty.AddXmlDoc ("Swagger Provider for " + schemaPathRaw)
+                    ty.AddXmlDoc ("Swagger Provider for " + schemaPath)
                     ty.AddMembers tys
                     tempAsm.AddTypes [ty]
 

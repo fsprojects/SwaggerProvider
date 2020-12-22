@@ -1,4 +1,4 @@
-﻿namespace Swashbuckle.WebApi.Server.Controllers
+namespace Swashbuckle.WebApi.Server.Controllers
 
 open System
 open Microsoft.AspNetCore.Mvc
@@ -59,3 +59,9 @@ type ReturnObjectPointClassController () =
 
 type ReturnFileDescriptionController () =
     inherit ReturnController<Types.FileDescription>(Types.FileDescription("1.txt",[|1uy;2uy;3uy|]))
+
+type ReturnStringDictionaryController () =
+    inherit ReturnController<Map<string, string>>(Map ["hello","world"])
+
+type ReturnObjectPointClassDictionaryController () =
+    inherit ReturnController<Map<string, Types.PointClass>>(Map ["point",Types.PointClass(0,0)])

@@ -1,4 +1,4 @@
-﻿namespace SwaggerProvider.Internal.v3.Compilers
+namespace SwaggerProvider.Internal.v3.Compilers
 
 open System
 open System.Net.Http
@@ -213,13 +213,11 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             // Makes argument a string // TODO: Make body an exception
             let coerceString exp =
                 let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                <@ let x = (%obj)
-                   if isNull x then null else x.ToString() @>
+                <@ let x = (%obj) in RuntimeHelpers.toParam x @>
 
             let rec coerceQueryString name expr =
                 let obj = Expr.Coerce(expr, typeof<obj>)
-                <@ let o = (%%obj : obj)
-                   RuntimeHelpers.toQueryParams name o (%this) @>
+                <@ let o = (%%obj : obj) in RuntimeHelpers.toQueryParams name o (%this) @>
 
             // Partitions arguments based on their locations
             let (path, queryParams, headers) =
