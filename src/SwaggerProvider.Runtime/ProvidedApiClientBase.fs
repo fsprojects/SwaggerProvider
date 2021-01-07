@@ -2,7 +2,8 @@ namespace Swagger
 
 open System
 open System.Net.Http
-open Newtonsoft.Json
+open System.Text.Json
+open System.Text.Json.Serialization
 
 open Swagger.Serialization
 
@@ -11,20 +12,24 @@ type OpenApiException(code:int, description:string) =
     member __.StatusCode = code
     member __.Description = description
 
-type ProvidedApiClientBase(httpClient: HttpClient) =
-    let jsonSerializerSettings =
-        let settings =
-            JsonSerializerSettings(
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.None)
+type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOptions) =
+
 #if TP_RUNTIME
-        [
-            OptionConverter () :> JsonConverter
-            ByteArrayConverter () :> JsonConverter
-        ]
-        |> List.iter settings.Converters.Add
+    let options =
+        match options with
+        | null ->
+            let options = JsonSerializerOptions()
+            [
+                JsonFSharpConverter(
+                    JsonUnionEncoding.InternalTag ||| JsonUnionEncoding.NamedFields
+                    ||| JsonUnionEncoding.UnwrapSingleCaseUnions
+                    ||| JsonUnionEncoding.UnwrapRecordCases
+                    ||| JsonUnionEncoding.UnwrapOption) :> JsonConverter
+            ]
+            |> List.iter options.Converters.Add
+            options
+        | _ -> options
 #endif
-        settings
 
     member val HttpClient = httpClient with get, set
 
@@ -32,9 +37,9 @@ type ProvidedApiClientBase(httpClient: HttpClient) =
     abstract member Deserialize: string * Type -> obj
 
     default __.Serialize(value:obj): string =
-        JsonConvert.SerializeObject(value, jsonSerializerSettings)
+        JsonSerializer.Serialize(value, options)
     default __.Deserialize(value, retTy:Type): obj =
-        JsonConvert.DeserializeObject(value, retTy, jsonSerializerSettings)
+        JsonSerializer.Deserialize(value, retTy, options)
 
     // This code may change in the future, especially when task{} become part of FSharp.Core.dll
     member this.CallAsync(request: HttpRequestMessage, errorCodes:string[], errorDescriptions:string[]) : Async<HttpContent> =

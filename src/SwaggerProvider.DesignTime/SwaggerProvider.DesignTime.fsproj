@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\netfx.props" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net46</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net48</TargetFrameworks>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
@@ -28,7 +28,6 @@
       <Paket>True</Paket>
       <Link>paket-files/ProvidedTypes.fs</Link>
     </Compile>
-    <Compile Include="..\SwaggerProvider.Runtime\Serialization.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\ProvidedApiClientBase.fs">
       <Link>ProvidedApiClientBase.fs</Link>
     </Compile>
@@ -49,15 +48,13 @@
     <Compile Include="Provider.OpenApiClient.fs" />
     <Compile Include="Provider.SwaggerClient.fs" />
     <None Include="paket.references" />
-    <None Include="..\..\packages\NETStandard.Library.NETFramework\build\net461\lib\netstandard.dll" Condition="'$(TargetFramework)' == 'net46'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
     <Reference Include="System.Text.Encoding" />
     <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Primitives" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

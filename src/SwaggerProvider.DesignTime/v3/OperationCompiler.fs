@@ -3,13 +3,14 @@ namespace SwaggerProvider.Internal.v3.Compilers
 open System
 open System.Net.Http
 open System.Threading.Tasks
+open System.Text.Json
 open System.Text.RegularExpressions
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
+open Microsoft.OpenApi.Models
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
-open Microsoft.OpenApi.Models
 
 open SwaggerProvider.Internal
 open Swagger
@@ -382,13 +383,15 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
             [
                 ProvidedConstructor(
-                    [ProvidedParameter("httpClient", typeof<HttpClient>)],
+                    [ProvidedParameter("httpClient", typeof<HttpClient>);
+                     ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = true)],
                     invokeCode = (fun args ->
                         match args with
                         | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
                         | _ -> <@@ () @@>),
                     BaseConstructorCall = fun args -> (baseCtor, args))
-                ProvidedConstructor([],
+                ProvidedConstructor(
+                    [ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = true)],
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall = fun args ->
                         let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @>

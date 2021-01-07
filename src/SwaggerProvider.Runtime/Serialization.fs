@@ -1,10 +1,10 @@
 namespace Swagger.Serialization
 
 open System
-open Newtonsoft.Json
+open System.Text.Json
 open Microsoft.FSharp.Reflection
 
-#if TP_RUNTIME
+#if TP_RUNTIME1
 
 /// Serializer for serializing the F# option types.
 // https://github.com/eulerfx/JsonNet.FSharp
