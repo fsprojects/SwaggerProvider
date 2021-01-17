@@ -11,7 +11,6 @@ open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.OpenApi.Models
-open Microsoft.AspNetCore.Mvc.NewtonsoftJson
 
 type Startup private () =
     new (configuration: IConfiguration) as this =
@@ -23,8 +22,7 @@ type Startup private () =
         // Add framework services.
         services
           .AddMvc(fun option -> option.EnableEndpointRouting <- false)
-          .AddNewtonsoftJson()
-          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0) 
+          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
