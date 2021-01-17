@@ -384,18 +384,30 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
             [
                 ProvidedConstructor(
                     [ProvidedParameter("httpClient", typeof<HttpClient>);
-                     ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = true)],
-                    invokeCode = (fun args ->
-                        match args with
-                        | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
-                        | _ -> <@@ () @@>),
+                     ProvidedParameter("options", typeof<JsonSerializerOptions>)],
+                    invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall = fun args -> (baseCtor, args))
                 ProvidedConstructor(
-                    [ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = true)],
+                    [ProvidedParameter("httpClient", typeof<HttpClient>)],
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall = fun args ->
-                        let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @>
-                        let args' = args @ [httpClient]
+                        let args' = args @ [ <@@ null @@> ]
+                        (baseCtor, args'))
+                ProvidedConstructor(
+                    [ProvidedParameter("options", typeof<JsonSerializerOptions>)],
+                    invokeCode = (fun args -> <@@ () @@>),
+                    BaseConstructorCall = fun args ->
+                        let httpClient = <@@ RuntimeHelpers.getDefaultHttpClient defaultHost @@>
+                        let args' =
+                            match args with
+                            | [instance; options] -> [instance; httpClient; options]
+                            | _ -> failwithf "unexpected arguments received %A" args
+                        (baseCtor, args'))
+                ProvidedConstructor([],
+                    invokeCode = (fun args -> <@@ () @@>),
+                    BaseConstructorCall = fun args ->
+                        let httpClient = <@@ RuntimeHelpers.getDefaultHttpClient defaultHost @@>
+                        let args' = args @ [ httpClient; <@@ null @@> ]
                         (baseCtor, args'))
             ] |> ty.AddMembers
 
