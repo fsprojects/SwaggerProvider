@@ -16,15 +16,7 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
     let options =
         if isNull options then
             let options = JsonSerializerOptions()
-            [
-                JsonFSharpConverter(
-                    JsonUnionEncoding.InternalTag
-                    ||| JsonUnionEncoding.NamedFields
-                    ||| JsonUnionEncoding.UnwrapSingleCaseUnions
-                    ||| JsonUnionEncoding.UnwrapRecordCases
-                    ||| JsonUnionEncoding.UnwrapOption) :> JsonConverter
-            ]
-            |> List.iter options.Converters.Add
+            options.Converters.Add(JsonFSharpConverter())
             options
         else options
 #endif
