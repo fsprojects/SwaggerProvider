@@ -38,4 +38,6 @@ group Test
     nuget FSharp.Compiler.Service redirects: force
     nuget FSharp.Core 4.7.0 redirects: force
 
+    nuget Microsoft.NET.Test.Sdk
     nuget Expecto
+    nuget YoloDev.Expecto.TestSdk

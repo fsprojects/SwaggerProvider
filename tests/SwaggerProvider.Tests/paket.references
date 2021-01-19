@@ -3,5 +3,7 @@ System.Net.Http
 System.Text.Json
 FSharp.SystemTextJson
 group Test
-    Expecto
     FSharp.Core
+    Microsoft.NET.Test.Sdk
+    Expecto
+    YoloDev.Expecto.TestSdk
