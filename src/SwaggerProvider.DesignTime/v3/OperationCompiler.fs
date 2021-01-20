@@ -393,8 +393,9 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                     [ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = (null:JsonSerializerOptions))],
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall = fun args ->
-                        let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @>
-                        let args' = args @ [httpClient]
+                        let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
+                        let this :: tail = args
+                        let args' = this :: httpClient :: tail
                         (baseCtor, args'))
             ] |> ty.AddMembers
 
