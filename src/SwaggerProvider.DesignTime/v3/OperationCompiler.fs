@@ -394,8 +394,10 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall = fun args ->
                         let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
-                        let this :: tail = args
-                        let args' = this :: httpClient :: tail
+                        let args' =
+                            match args with
+                            | [instance; options] -> [instance; httpClient; options]
+                            | _ -> failwithf "unexpected arguments received %A" args
                         (baseCtor, args'))
             ] |> ty.AddMembers
 
