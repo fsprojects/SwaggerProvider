@@ -2,9 +2,10 @@ namespace Swagger.Internal
 
 open System
 open System
-open Newtonsoft.Json
-open System.Threading.Tasks
 open System.Net.Http
+open System.Text.Json
+open System.Text.Json.Serialization
+open System.Threading.Tasks
 
 module MediaTypes =
     let [<Literal>] ApplicationJson = "application/json"
@@ -107,7 +108,7 @@ module RuntimeHelpers =
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
-            member __.Constructor =  typeof<JsonPropertyAttribute>.GetConstructor([|typeof<string>|])
+            member __.Constructor =  typeof<JsonPropertyNameAttribute>.GetConstructor([|typeof<string>|])
             member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> Collections.Generic.IList<_>
             member __.NamedArguments = [||] :> Collections.Generic.IList<_> }
 
@@ -120,8 +121,8 @@ module RuntimeHelpers =
             object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
             |> Seq.choose (fun prop ->
                 let name =
-                    match prop.GetCustomAttributes(typeof<JsonPropertyAttribute>, false) with
-                    | [|x|] -> (x :?> JsonPropertyAttribute).PropertyName
+                    match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
+                    | [|x|] -> (x :?> JsonPropertyNameAttribute).Name
                     | _ -> prop.Name
                 prop.GetValue(object)
                 |> Option.ofObj

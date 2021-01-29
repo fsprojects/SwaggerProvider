@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project>
   <!-- See https://stackoverflow.com/questions/43921992/how-can-i-use-beforebuild-and-afterbuild-targets-with-visual-studio-2017 -->
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
@@ -22,14 +22,13 @@
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Runtime.fs" />
-    <Compile Include="Serialization.fs" />
     <Compile Include="ProvidedApiClientBase.fs" />
     <Compile Include="RuntimeHelpers.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <!-- Be explicit about the version of FSharp.Core since we mention it in the manual nuget package spec -->
-    <PackageReference Include="FSharp.Core" Version="4.3.4" />
+    <PackageReference Include="FSharp.Core" Version="4.7.0" />
   </ItemGroup>
   <Target Name="BeforeBuild">
     <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Restore" />

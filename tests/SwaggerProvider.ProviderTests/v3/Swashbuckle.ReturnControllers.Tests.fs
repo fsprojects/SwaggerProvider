@@ -11,7 +11,7 @@ type CallLoggingHandler(messageHandler) =
         printfn "[SendAsync]: %A" request.RequestUri
         base.SendAsync(request, cancellationToken)
 
-type WebAPI = OpenApiClientProvider<"http://localhost:5000/swagger/v1/swagger.json", IgnoreOperationId=true, PreferAsync = true>
+type WebAPI = OpenApiClientProvider<"http://localhost:5000/swagger/v1/openapi.json", IgnoreOperationId=true, PreferAsync = true>
 let api =
     let handler = new HttpClientHandler (UseCookies = false)
     //handler.ServerCertificateCustomValidationCallback <- Func<_,_,_,_,_>(fun a b c d -> true)

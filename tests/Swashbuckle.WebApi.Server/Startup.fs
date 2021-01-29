@@ -11,7 +11,7 @@ open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.OpenApi.Models
-open Microsoft.AspNetCore.Mvc.NewtonsoftJson
+open System.Text.Json.Serialization
 
 type Startup private () =
     new (configuration: IConfiguration) as this =
@@ -23,8 +23,9 @@ type Startup private () =
         // Add framework services.
         services
           .AddMvc(fun option -> option.EnableEndpointRouting <- false)
-          .AddNewtonsoftJson()
-          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0) 
+          .AddJsonOptions(fun options ->
+                options.JsonSerializerOptions.Converters.Add(JsonFSharpConverter()))
+          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
@@ -39,10 +40,16 @@ type Startup private () =
 
         // Register the Swagger generator and the Swagger UI middlewares
         app.UseSwagger(fun c ->
+            c.RouteTemplate <- "/swagger/{documentName}/swagger.json"
+            c.SerializeAsV2 <- true // false = v3 = OpenApi
+        ) |> ignore
+        app.UseSwagger(fun c ->
+            c.RouteTemplate <- "/swagger/{documentName}/openapi.json"
             c.SerializeAsV2 <- false // false = v3 = OpenApi
         ) |> ignore
         app.UseSwaggerUI(fun c ->
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Swagger API v1");
+            c.SwaggerEndpoint("/swagger/v1/openapi.json", "My OpenAPI API v1");
         ) |> ignore
 
         //app.UseHttpsRedirection() |> ignore

@@ -6,12 +6,13 @@ open SwaggerProvider.Internal.v2.Parser.Schema
 open Swagger.Internal
 
 open System
+open System.Collections.Generic
+open System.Net.Http
+open System.Text.Json
+open System.Text.RegularExpressions
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
-open System.Text.RegularExpressions
-open System.Net.Http
-open System.Collections.Generic
 open SwaggerProvider.Internal
 open Swagger
 open Swagger.Internal
@@ -254,17 +255,22 @@ type OperationCompiler (schema:SwaggerObject, defCompiler:DefinitionCompiler, ig
 
             [
                 ProvidedConstructor(
-                    [ProvidedParameter("httpClient", typeof<HttpClient>)],
+                    [ProvidedParameter("httpClient", typeof<HttpClient>);
+                     ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = (null:JsonSerializerOptions))],
                     invokeCode = (fun args ->
                         match args with
                         | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
                         | _ -> <@@ () @@>),
                     BaseConstructorCall = fun args -> (baseCtor, args))
-                ProvidedConstructor([],
+                ProvidedConstructor(
+                    [ProvidedParameter("options", typeof<JsonSerializerOptions>, optionalValue = (null:JsonSerializerOptions))],
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall = fun args ->
-                        let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @>
-                        let args' = args @ [httpClient]
+                        let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
+                        let args' =
+                            match args with
+                            | [instance; options] -> [instance; httpClient; options]
+                            | _ -> failwithf "unexpected arguments received %A" args
                         (baseCtor, args'))
             ] |> ty.AddMembers
 
