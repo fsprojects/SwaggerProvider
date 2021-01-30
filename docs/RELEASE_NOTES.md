@@ -1,6 +1,7 @@
-#### 1.0.0-alpha1 - Jan 17, 2021
+#### 1.0.0-beta1 - Jan 30, 2021
 - Build with .NET 5
 - Drop `net46` support
+- Migration to System.Text.Json [#176](https://github.com/fsprojects/SwaggerProvider/pull/176)
 
 #### 0.12.0 - Dec 22, 2020
 - OpenApiProvider: Dictionary support [#174](https://github.com/fsprojects/SwaggerProvider/pull/174)
