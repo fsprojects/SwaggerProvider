@@ -23,10 +23,9 @@ type Startup private () =
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
         services
-          .AddMvc(fun option -> option.EnableEndpointRouting <- false)
+          .AddControllers()
           .AddJsonOptions(fun options ->
                 options.JsonSerializerOptions.Converters.Add(JsonFSharpConverter()))
-          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
@@ -55,6 +54,6 @@ type Startup private () =
         ) |> ignore
 
         //app.UseHttpsRedirection() |> ignore
-        app.UseMvc() |> ignore
+        app.UseRouting() |> ignore
 
     member val Configuration : IConfiguration = null with get, set
