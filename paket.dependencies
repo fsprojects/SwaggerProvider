@@ -28,6 +28,7 @@ group Server
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
     nuget Swashbuckle.AspNetCore prerelease
+    nuget Swashbuckle.AspNetCore.Filters
     nuget Microsoft.OpenApi
     nuget FSharp.Core 4.7.0
 

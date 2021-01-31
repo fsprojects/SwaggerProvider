@@ -12,6 +12,7 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.OpenApi.Models
 open System.Text.Json.Serialization
+open Swashbuckle.AspNetCore.Filters
 
 type Startup private () =
     new (configuration: IConfiguration) as this =
@@ -22,14 +23,14 @@ type Startup private () =
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
         services
-          .AddMvc(fun option -> option.EnableEndpointRouting <- false)
+          .AddControllers()
           .AddJsonOptions(fun options ->
                 options.JsonSerializerOptions.Converters.Add(JsonFSharpConverter()))
-          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
             c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"));
+            c.OperationFilter<AddResponseHeadersFilter>();
         ) |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +54,6 @@ type Startup private () =
         ) |> ignore
 
         //app.UseHttpsRedirection() |> ignore
-        app.UseMvc() |> ignore
+        app.UseRouting() |> ignore
 
     member val Configuration : IConfiguration = null with get, set

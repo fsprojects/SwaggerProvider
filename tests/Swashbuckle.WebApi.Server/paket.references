@@ -3,5 +3,6 @@ group Server
     Microsoft.AspNetCore.Mvc
     Microsoft.AspNetCore.HttpsPolicy
     Swashbuckle.AspNetCore
+    Swashbuckle.AspNetCore.Filters
     Microsoft.OpenApi
     FSharp.Core
