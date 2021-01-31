@@ -24,8 +24,8 @@ Please provide a description of any known workarounds.
 
 ### Affected Type Providers
 
-- [ ] SwaggerTypeProvider
-- [ ] OpenApiTypeProvider
+- [ ] SwaggerClientProvider
+- [ ] OpenApiClientProvider
 
 ### Related information
 
