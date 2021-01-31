@@ -30,5 +30,5 @@ references
     SwaggerProvider.Runtime.dll
 dependencies
     FSharp.Core >= LOCKEDVERSION
-    FSharp.SystemTextJson ~> LOCKED:Minor
+    FSharp.SystemTextJson >= LOCKEDVERSION
     System.Net.Http ~> LOCKEDVERSION
