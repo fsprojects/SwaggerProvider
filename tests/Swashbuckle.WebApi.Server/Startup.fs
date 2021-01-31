@@ -12,6 +12,7 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.OpenApi.Models
 open System.Text.Json.Serialization
+open Swashbuckle.AspNetCore.Filters
 
 type Startup private () =
     new (configuration: IConfiguration) as this =
@@ -30,6 +31,7 @@ type Startup private () =
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
             c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"));
+            c.OperationFilter<AddResponseHeadersFilter>();
         ) |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

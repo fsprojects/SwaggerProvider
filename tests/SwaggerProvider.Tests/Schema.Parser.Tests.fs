@@ -13,7 +13,7 @@ module V2 =
         let defCompiler = DefinitionCompiler(schema, false)
         let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
         opCompiler.CompileProvidedClients(defCompiler.Namespace)
-        ignore <|  defCompiler.Namespace.GetProvidedTypes()
+        ignore <| defCompiler.Namespace.GetProvidedTypes()
 
 module V3 =
     open SwaggerProvider.Internal.v3.Compilers
