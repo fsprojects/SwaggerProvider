@@ -51,6 +51,11 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
         let unambiguousName (par: OpenApiParameter) =
             sprintf "%sIn%A" par.Name par.In
+        let openApiParameters =
+            seq {
+                yield! pathItem.Parameters
+                yield! operation.Parameters
+            } |> Seq.toList
         let parameters =
             /// handles deduping Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
@@ -105,8 +110,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
 
             let required, optional =
                 seq {
-                    yield! pathItem.Parameters
-                    yield! operation.Parameters
+                    yield! openApiParameters
                     if bodyParam.IsSome
                     then yield bodyParam.Value
                 }
@@ -191,7 +195,7 @@ type OperationCompiler (schema:OpenApiDocument, defCompiler:DefinitionCompiler, 
                 |> List.choose (function
                     | ShapeVar sVar as expr ->
                         let param =
-                            operation.Parameters
+                            openApiParameters
                             |> Seq.tryFind (fun x ->
                                 // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
                                 let baseName = niceCamelName x.Name
