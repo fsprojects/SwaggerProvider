@@ -9,13 +9,13 @@
       ]
     },
     "fake-cli": {
-      "version": "5.20.3",
+      "version": "5.20.4",
       "commands": [
         "fake"
       ]
     },
     "dotnet-serve": {
-      "version": "1.8.15",
+      "version": "1.8.34",
       "commands": [
         "dotnet-serve"
       ]

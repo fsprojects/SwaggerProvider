@@ -6,7 +6,7 @@ nuget FSharp.Core 4.7.0
 nuget System.Net.Http
 nuget System.Text.Json
 nuget FSharp.SystemTextJson
-nuget Microsoft.OpenApi.Readers
+nuget Microsoft.OpenApi.Readers prerelease
 nuget NETStandard.Library.NETFramework
 nuget Newtonsoft.Json
 
@@ -17,8 +17,8 @@ nuget YamlDotNet
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
-github fsharp/FSharp.Data src/CommonRuntime/Pluralizer.fs
-github fsharp/FSharp.Data src/CommonRuntime/NameUtils.fs
+github fsprojects/FSharp.Data:main src/CommonRuntime/Pluralizer.fs
+github fsprojects/FSharp.Data:main src/CommonRuntime/NameUtils.fs
 
 group Server
     source https://api.nuget.org/v3/index.json

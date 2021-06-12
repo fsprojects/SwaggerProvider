@@ -11,11 +11,11 @@
     <OutputPath>..\SwaggerProvider.Runtime\bin\$(Configuration)\typeproviders\fsharp41\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
       <Paket>True</Paket>
       <Link>paket-files/Pluralizer.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsharp\FSharp.Data\src\CommonRuntime\NameUtils.fs">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\CommonRuntime\NameUtils.fs">
       <Paket>True</Paket>
       <Link>paket-files/NameUtils.fs</Link>
     </Compile>

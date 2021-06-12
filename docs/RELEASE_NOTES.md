@@ -1,3 +1,7 @@
+#### 1.0.0-beta4 - Jun 12, 2021
+- Dependencies update
+- Microsoft.OpenApi.Readers v1.3.0-preview
+
 #### 1.0.0-beta3 - Mar 20, 2021
 - Fix for 'FS3033: Payload is not supported' [#181](https://github.com/fsprojects/SwaggerProvider/issues/181)
 
