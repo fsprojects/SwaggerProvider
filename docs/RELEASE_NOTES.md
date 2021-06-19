@@ -1,3 +1,6 @@
+#### 1.0.0-beta5 - Jun 19, 2021
+- Revert optional parameters in provided constructors
+
 #### 1.0.0-beta4 - Jun 12, 2021
 - Dependencies update
 - Microsoft.OpenApi.Readers v1.3.0-preview
