@@ -8,7 +8,7 @@ open System.Net.Http
 type WebAPI = SwaggerClientProvider<"http://localhost:5000/swagger/v1/swagger.json", IgnoreOperationId=true, PreferAsync = true>
 let api =
     let handler = new HttpClientHandler (UseCookies = false)
-    handler.ServerCertificateCustomValidationCallback <- 
+    handler.ServerCertificateCustomValidationCallback <-
         Func<_,_,_,_,_>(fun a b c d -> true)
     let client = new HttpClient(handler, true, BaseAddress=Uri("http://localhost:5000"))
     WebAPI.Client(client)
@@ -90,11 +90,11 @@ let returnControllersTests =
 
     testCaseAsync "Return Enum GET Test" <|
         (api.GetApiReturnEnum()
-         |> asyncEqual "1")
+         |> asyncEqual 1)
 
     testCaseAsync "Return Enum POST Test" <|
         (api.PostApiReturnEnum()
-         |> asyncEqual "1")
+         |> asyncEqual 1)
 
 
     testCaseAsync "Return Array Int GET Test" <|
@@ -108,11 +108,11 @@ let returnControllersTests =
 
     testCaseAsync "Return Array Enum GET Test" <|
         (api.GetApiReturnArrayEnum()
-         |> asyncEqual [|"1";"2"|])
+         |> asyncEqual [|1;2|])
 
     testCaseAsync "Return Array Enum POST Test" <|
         (api.PostApiReturnArrayEnum()
-         |> asyncEqual [|"1";"2"|])
+         |> asyncEqual [|1;2|])
 
 
     testCaseAsync "Return List Int GET Test" <|

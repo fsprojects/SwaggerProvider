@@ -1,8 +1,7 @@
-﻿group Server
+group Server
     Microsoft.AspNetCore
     Microsoft.AspNetCore.Mvc
     Microsoft.AspNetCore.HttpsPolicy
     Swashbuckle.AspNetCore
     Microsoft.OpenApi
     FSharp.Core
-    Microsoft.AspNetCore.Mvc.NewtonsoftJson

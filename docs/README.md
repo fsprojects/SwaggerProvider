@@ -9,8 +9,29 @@ Type Providers support schemas in `JSON` & `YAML` formats and runs on `netcoreap
 
 ### Getting started
 
+#### F# Interactive
+
+Create new F# script file (for example `openapi.fsx`) and copy following code
+
+```fsharp
+#r "nuget: SwaggerProvider"
+
+open SwaggerProvider
+
+let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
+type PetStore = OpenApiClientProvider<Schema>
+
+let client = PetStore.Client()
+
+client.GetInventory()
+|> Async.AwaitTask
+|> Async.RunSynchronously
+```
+
+#### New project
+
 Create new F# `netcoreapp3.1` project and add reference to latest [SwaggerProvider](https://www.nuget.org/packages/SwaggerProvider) NuGet package
- 
+
 ```bash
 dotnet new console --name apiclient --language F#
 cd apiclient
@@ -35,22 +56,22 @@ let main argv =
     0
 ```
 
-build and run project 
+build and run project
 
 ```bash
-dotnet run 
+dotnet run
 ```
 
 in the console you should see printed inventory from the server.
 
-### Intellisense 
+### Intellisense
 
 Intellisense works in your favorite IDE.
 
 | [Visual Studio Code](https://code.visualstudio.com) + [Ionide](http://ionide.io) | [Rider](https://www.jetbrains.com/help/rider/F_Sharp.html) |
 |-----------|-------------|
-| <ImageZoom src="files/OpenApiClientProvider_Ionide.png" /> | <ImageZoom src="files/OpenApiClientProvider_Rider.png" /> | 
+| <ImageZoom src="files/OpenApiClientProvider_Ionide.png" /> | <ImageZoom src="files/OpenApiClientProvider_Rider.png" /> |
 
 | [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) | [Visual Studio](https://visualstudio.microsoft.com/vs/) |
 |-----------|-------------|
-| <ImageZoom src="files/OpenApiClientProvider_VS4Mac.png" /> | <ImageZoom src="files/OpenApiClientProvider_VS.png" /> | 
+| <ImageZoom src="files/OpenApiClientProvider_VS4Mac.png" /> | <ImageZoom src="files/OpenApiClientProvider_VS.png" /> |

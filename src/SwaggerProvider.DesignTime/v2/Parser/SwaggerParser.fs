@@ -4,54 +4,48 @@ open SwaggerProvider.Internal.v2.Parser.Schema
 open SwaggerProvider.Internal.v2.Parser.Exceptions
 
 module internal JsonAdapter =
-    open Newtonsoft.Json.Linq
+    open System.Text.Json
 
     /// Schema node for Swagger schemes in Json format
-    type JsonNodeAdapter(value:JToken) =
+    type JsonNodeAdapter(value:JsonElement) =
         inherit SchemaNode()
 
-        override __.AsBoolean() = value.ToObject<bool>()
+        override __.AsBoolean() = value.GetBoolean()
 
-        override __.AsString() = value.ToObject<string>()
+        override __.AsString() = value.ToString()
 
         override __.AsArray() =
-            match value.Type with
-            | JTokenType.Array ->
-                value :?> JArray
-                |> Seq.map (fun x -> JsonNodeAdapter(x) :> SchemaNode)
-                |> Seq.toArray
+            match value.ValueKind with
+            | JsonValueKind.Array ->
+                [|for item in value.EnumerateArray() do JsonNodeAdapter(item) :> SchemaNode|]
             | _ -> raise <| UnexpectedValueTypeException(value, "string")
 
         override __.AsStringArrayWithoutNull() =
-            match value.Type with
-            | JTokenType.String ->
-                [|value.ToObject<string>()|]
-            | JTokenType.Array ->
-                value :?> JArray
-                |> Seq.map (fun x -> x.ToObject<string>())
+            match value.ValueKind with
+            | JsonValueKind.String ->
+                [|value.GetString()|]
+            | JsonValueKind.Array ->
+                [|for item in value.EnumerateArray() do item.GetString()|]
                 |> Seq.filter (fun x -> x <> "null")
                 |> Seq.toArray
             | other ->
                 failwithf "Value: '%A' cannot be converted to StringArray" other
 
         override __.Properties() =
-            match value.Type with
-            | JTokenType.Object ->
-                (value :?> JObject).Properties()
-                |> Seq.map (fun x -> x.Name, JsonNodeAdapter(x.Value) :> SchemaNode)
-                |> Seq.toArray
-            | _ -> raise <| UnexpectedValueTypeException(value, "JObject")
+            match value.ValueKind with
+            | JsonValueKind.Object ->
+                [|for item in value.EnumerateObject() do item.Name, JsonNodeAdapter(item.Value) :> SchemaNode|]
+            | _ -> raise <| UnexpectedValueTypeException(value, "Object")
 
         override __.TryGetProperty(property) =
-            match value.Type with
-            | JTokenType.Object ->
-                let obj = value :?> JObject
-                match obj.TryGetValue(property) with
+            match value.ValueKind with
+            | JsonValueKind.Object ->
+                match value.TryGetProperty(property) with
                 | true, x -> Some(JsonNodeAdapter(x) :> SchemaNode)
                 | _ -> None
             | _ -> None
 
-    let parse = JToken.Parse >> JsonNodeAdapter
+    let parse (string: string) = (JsonDocument.Parse string).RootElement |> JsonNodeAdapter
 
 module internal YamlAdapter =
     open System.IO

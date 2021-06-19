@@ -278,7 +278,7 @@ type DefinitionCompiler (schema:SwaggerObject, provideNullable) as this =
                 | String    -> typeof<string>
                 | Date | DateTime -> typeof<DateTime>
                 | File            -> typeof<byte>.MakeArrayType(1)
-                | Enum _          -> typeof<string> //NOTE: find better type
+                | Enum _          -> typeof<int> //NOTE: find better type
                 | Array eTy       ->
                     (compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy true ns.RegisterType).MakeArrayType(1)
                 | Dictionary eTy  ->

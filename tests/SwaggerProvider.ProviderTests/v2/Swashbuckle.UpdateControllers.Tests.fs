@@ -71,12 +71,12 @@ let returnControllersTests =
 
 
     testCaseAsync "Update Enum GET Test" <|
-        (api.GetApiUpdateEnum("1")
-         |> asyncEqual "1")
+        (api.GetApiUpdateEnum(Some 1)
+         |> asyncEqual 1)
 
     testCaseAsync "Update Enum POST Test" <|
-        (api.PostApiUpdateEnum("1")
-         |> asyncEqual "1")
+        (api.PostApiUpdateEnum(Some 1)
+         |> asyncEqual 1)
 
 
     testCaseAsync "Update Array Int GET Test" <|
@@ -89,12 +89,12 @@ let returnControllersTests =
 
 
     testCaseAsync "Update Array Enum GET Test" <|
-        (api.GetApiUpdateArrayEnum([|"2";"1"|])
-         |> asyncEqual [|"1";"2"|])
+        (api.GetApiUpdateArrayEnum([|2;1|])
+         |> asyncEqual [|1;2|])
 
     testCaseAsync "Update Array Enum POST Test" <|
-        (api.PostApiUpdateArrayEnum([|"2";"1"|])
-         |> asyncEqual [|"1";"2"|])
+        (api.PostApiUpdateArrayEnum([|2;1|])
+         |> asyncEqual [|1;2|])
 
 
 //TODO:   testCaseAsync "Update Bool GET Test" <|  // "ExceptionMessage":"No parameterless constructor defined for this object."

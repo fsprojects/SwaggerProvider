@@ -1,6 +1,6 @@
 module APIsGuru
 
-open Newtonsoft.Json.Linq
+open System.Text.Json
 open System.Net.Http
 
 let httpClient = new HttpClient()
@@ -10,16 +10,16 @@ let private apisGuruList = lazy (
     let list =
         httpClient.GetStringAsync("https://api.apis.guru/v2/list.json")
         |> Async.AwaitTask
-        |> Async.RunSynchronously 
-    JObject.Parse(list).Properties()
+        |> Async.RunSynchronously
+    JsonDocument.Parse(list).RootElement.EnumerateObject()
     |> Seq.map (fun x -> x.Value)
   )
 
 let private getApisGuruSchemas propertyName =
-    let getProp prop (obj:JToken) =
-        match obj  with
-        | :? JObject as jObj ->
-            match jObj.TryGetValue(prop) with
+    let getProp (prop:string) (obj:JsonElement) =
+        match obj.ValueKind with
+        | JsonValueKind.Object ->
+            match obj.TryGetProperty(prop) with
             | true, jToken -> Some jToken
             | _ -> None
         | _ -> None
@@ -28,16 +28,15 @@ let private getApisGuruSchemas propertyName =
         schema
         |> getProp "versions"
         |> Option.bind (fun v ->
-            let jObj = v :?> JObject
-            jObj.Properties()
+            v.EnumerateObject()
             |> Seq.map (fun y -> y.Value)
             |> Seq.last
             |> Some)
        )
     |> Seq.choose (getProp propertyName)
-    |> Seq.map (fun x -> x.ToObject<string>())
+    |> Seq.map (fun x -> x.GetString())
     |> Seq.toArray
 
-let Schemas = 
+let Schemas =
     lazy (getApisGuruSchemas "swaggerYamlUrl") // "swaggerUrl"
-    
+

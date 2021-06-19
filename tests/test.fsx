@@ -1,22 +1,16 @@
-#I "../bin/SwaggerProvider"
-#r "SwaggerProvider.dll"
-#r "SwaggerProvider.Runtime.dll"
-
+#r "nuget: SwaggerProvider, 1.0.0-beta2"
 
 open SwaggerProvider
 
-let [<Literal>] GISchema = "https://api.apis.guru/v2/specs/gettyimages.com/3/swagger.json"
-type GI = SwaggerClientProvider<GISchema>
+let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
+type PetStore = OpenApiClientProvider<Schema>
+let petStoreClient = PetStore.Client()
 
-let gi = GI() 
+let inventory =
+    petStoreClient.GetInventory()
+    |> Async.AwaitTask
+    |> Async.RunSynchronously
 
-let x = GI.GettyImages.Models.Customers()
-let y = GI.GettyImages()
-
-
-let [<Literal>]Schema = "http://petstore.swagger.io/v2/swagger.json"
-type PetStore = SwaggerClientProvider<Schema> // Provided Types
-let petStore = PetStore()
 
 let tag = PetStore.Tag()
 tag.Id <- Some 1337L
@@ -62,20 +56,3 @@ let arrObj = arr :> obj
 let ty = arrObj.GetType()
 
 ty.IsArray
-
-
-
-
-let [<Literal>]Schema' = "https://raw.githubusercontent.com/Krzysztof-Cieslak/SwaggerProviderOptionalQuery/master/swagger.json"
-type MyTP = SwaggerClientProvider<Schema'> // Provided Types
-let tp = MyTP()
-
-
-
-tp.GetAccounts()
-
-
-type WebAPI = SwaggerClientProvider<"http://localhost:8735/swagger/docs/v1", IgnoreOperationId=true>
-let api = WebAPI()
-
-api.GetApiUpdateWithOptionalInt(1, Some(10))

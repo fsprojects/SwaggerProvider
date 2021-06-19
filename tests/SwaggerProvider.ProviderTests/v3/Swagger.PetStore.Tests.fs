@@ -35,7 +35,7 @@ let petStoreTests =
         Expect.stringContains (pet.ToString()) "bar" "ToString"
 
     testCaseAsync "throw custom exceptions" <| async {
-        try 
+        try
             let! __ = store.GetPetById(-100L)
             failwith "Call should fail"
         with
@@ -43,16 +43,17 @@ let petStoreTests =
             Expect.equal ex.Description "Pet not found" "invalid error message"
     }
 
-    testCaseAsync "call provided methods" <| async {
+    ptestCaseAsync "call provided methods" <| async {
+        let id = 3347L
         try
-            do! store.DeletePet(1337L, apiKey)
+            do! store.DeletePet(id, apiKey)
         with
         | _ -> ()
 
         let tag = PetStore.Tag(None, "foobar")
         Expect.stringContains (tag.ToString()) "foobar" "ToString"
-        let pet = PetStore.Pet("foo", [||], Some 1337L)
-        Expect.stringContains (pet.ToString()) "1337" "ToString"
+        let pet = PetStore.Pet("foo", [||], Some id)
+        Expect.stringContains (pet.ToString()) (id.ToString()) "ToString"
 
         try
             do! store.AddPet(pet)
@@ -62,7 +63,7 @@ let petStoreTests =
                       else exn.InnerException.Message
             failwithf "Adding pet failed with message: %s" msg
 
-        let! pet2 = store.GetPetById(1337L)
+        let! pet2 = store.GetPetById(id)
         Expect.equal pet.Name     pet2.Name     "same Name"
         Expect.equal pet.Id       pet2.Id       "same Id"
         Expect.equal pet.Category pet2.Category "same Category"
