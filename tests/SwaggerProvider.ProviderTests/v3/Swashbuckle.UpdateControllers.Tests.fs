@@ -1,4 +1,4 @@
-﻿module Swashbuckle.v3.UpdateControllersTests
+module Swashbuckle.v3.UpdateControllersTests
 
 open Expecto
 open System
@@ -7,6 +7,8 @@ open Swashbuckle.v3.ReturnControllersTests
 [<Tests>]
 let returnControllersTests =
   let guid = Guid.NewGuid()
+  let guid2 = Guid.NewGuid()
+  let guid3 = Guid.NewGuid()
   testList "All/v3/Swashbuckle.UpdateControllers.Tests" [
 
     testCaseAsync "Update Bool GET Test" <|
@@ -103,6 +105,14 @@ let returnControllersTests =
     testCaseAsync "Update Array Enum POST Test" <|
         (api.PostApiUpdateArrayEnum([|2;1|])
          |> asyncEqual [|1;2|])
+
+    testCaseAsync "Update Array Guid GET Test" <|
+        (api.GetApiUpdateArrayGuid([|guid; guid2; guid3|])
+         |> asyncEqual [|guid3; guid2; guid|])
+
+    testCaseAsync "Update Array Guid POST Test" <|
+        (api.PostApiUpdateArrayGuid([|guid; guid2; guid3|])
+         |> asyncEqual [|guid3; guid2; guid|])
 
     //TODO: System.InvalidOperationException: Could not create an instance of type 'Microsoft.FSharp.Collections.FSharpList`1[[System.Int32, System.Private.CoreLib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'. Model bound complex types must not be abstract or value types and must have a parameterless constructor. Alternatively, give the 'x' parameter a non-null default value.
     // testCaseAsync "Update List Int GET Test" <|
