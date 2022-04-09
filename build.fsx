@@ -1,6 +1,6 @@
 #r @"paket:
 source https://nuget.org/api/v2
-framework netstandard2.0
+framework net6.0
 nuget FSharp.Core 4.7.2
 nuget Fake.Core.Target
 nuget Fake.Core.Process
@@ -14,11 +14,7 @@ nuget Fake.DotNet.Testing.Expecto
 nuget Fake.DotNet.FSFormatting
 nuget Fake.Tools.Git
 nuget Fake.Api.GitHub //"
-
-#if !FAKE
 #load "./.fake/build.fsx/intellisense.fsx"
-#r "netstandard" // Temp fix for https://github.com/fsharp/FAKE/issues/1985
-#endif
 
 open Fake
 open Fake.Core.TargetOperators

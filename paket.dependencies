@@ -44,6 +44,6 @@ group Test
 
     nuget Newtonsoft.Json
     nuget System.Net.Http
-    nuget Microsoft.OpenApi.Readers
+    nuget Microsoft.OpenApi.Readers prerelease redirects: force
     nuget FSharp.SystemTextJson
-
+    nuget SharpYaml 1.8.0 redirects: force # temporary
