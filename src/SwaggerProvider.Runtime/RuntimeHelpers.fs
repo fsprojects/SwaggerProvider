@@ -86,6 +86,7 @@ module RuntimeHelpers =
         | :? array<string> as xs -> xs |> toStrArray name
         | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
         | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
+        | :? array<Guid> as xs -> xs |> toStrArray name
         | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
         | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name

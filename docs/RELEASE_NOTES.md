@@ -14,6 +14,9 @@
 - Migration to System.Text.Json [#176](https://github.com/fsprojects/SwaggerProvider/pull/176)
 - Fixed NuGet package dependencies
 
+#### 0.12.1 - Apr 9, 2022
+- Correctly serialize Guid [] as query parameter [#192](https://github.com/fsprojects/SwaggerProvider/pull/192)
+
 #### 0.12.0 - Dec 22, 2020
 - OpenApiProvider: Dictionary support [#174](https://github.com/fsprojects/SwaggerProvider/pull/174)
 

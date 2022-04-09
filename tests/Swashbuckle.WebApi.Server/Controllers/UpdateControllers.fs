@@ -50,6 +50,9 @@ type UpdateArrayIntController () =
 type UpdateArrayEnumController () =
     inherit UpdateController<UriKind []>(Array.rev)
 
+type UpdateArrayGuidController () =
+    inherit UpdateController<Guid []>(Array.rev)
+
 type UpdateListIntController () =
     inherit UpdateController<int list>(List.rev)
 
