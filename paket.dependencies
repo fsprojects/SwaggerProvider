@@ -1,8 +1,8 @@
 version 5.198.0
 source https://api.nuget.org/v3/index.json
-frameworks: net5.0, netstandard2.0
+frameworks: net6.0, netstandard2.0
 
-nuget FSharp.Core 4.7.0
+nuget FSharp.Core 4.7.2
 nuget System.Net.Http
 nuget System.Text.Json
 nuget FSharp.SystemTextJson
@@ -22,22 +22,28 @@ github fsprojects/FSharp.Data:main src/CommonRuntime/NameUtils.fs
 
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: net5.0
+    framework: net6.0
 
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
     nuget Swashbuckle.AspNetCore prerelease
     nuget Microsoft.OpenApi
-    nuget FSharp.Core 4.7.0
+    nuget FSharp.Core
 
 group Test
     source https://api.nuget.org/v3/index.json
-    frameworks: net5.0
+    frameworks: net6.0
 
-    nuget FSharp.Compiler.Service redirects: force
-    nuget FSharp.Core 4.7.0 redirects: force
+    nuget FSharp.Compiler.Service
+    nuget FSharp.Core
 
     nuget Microsoft.NET.Test.Sdk
     nuget Expecto
     nuget YoloDev.Expecto.TestSdk
+
+    nuget Newtonsoft.Json
+    nuget System.Net.Http
+    nuget Microsoft.OpenApi.Readers
+    nuget FSharp.SystemTextJson
+

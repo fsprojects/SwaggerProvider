@@ -1,3 +1,8 @@
+#### 1.0.0-beta6 - Apr 9, 2022
+- Target .NET 6
+- Microsoft.OpenApi.Readers v1.3.1-preview5
+- Dependencies update
+
 #### 1.0.0-beta5 - Jun 19, 2021
 - Revert optional parameters in provided constructors
 

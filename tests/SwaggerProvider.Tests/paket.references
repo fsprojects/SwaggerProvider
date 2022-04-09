@@ -1,9 +1,9 @@
-Microsoft.OpenApi.Readers
-System.Net.Http
-System.Text.Json
-FSharp.SystemTextJson
 group Test
     FSharp.Core
     Microsoft.NET.Test.Sdk
     Expecto
     YoloDev.Expecto.TestSdk
+    Microsoft.OpenApi.Readers
+    System.Net.Http
+    System.Text.Json
+    FSharp.SystemTextJson
