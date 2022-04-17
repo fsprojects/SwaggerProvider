@@ -12,10 +12,10 @@ type Slack = SwaggerClientProvider<Schema, PreferAsync = true>
 let slackTests =
   let slack = Slack.Client()
   slack.HttpClient.BaseAddress <- Uri Host
-  
+
   testList "All/TP Slack Tests" [
     testCaseAsync "call provided methods" <| async {
-        let! result =
+        let _ =
           slack.ChatPostEphemeral(
             threadTs = None,
             blocks = "",
