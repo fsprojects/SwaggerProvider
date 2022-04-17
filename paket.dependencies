@@ -1,4 +1,4 @@
-version 5.198.0
+version 7.1.4
 source https://api.nuget.org/v3/index.json
 frameworks: net6.0, netstandard2.0
 
@@ -6,9 +6,8 @@ nuget FSharp.Core 4.7.2
 nuget System.Net.Http
 nuget System.Text.Json
 nuget FSharp.SystemTextJson
-nuget Microsoft.OpenApi.Readers prerelease
+nuget Microsoft.OpenApi.Readers
 nuget NETStandard.Library.NETFramework
-nuget Newtonsoft.Json
 
 # delete when we drop custom parser for v2
 nuget YamlDotNet
@@ -27,7 +26,7 @@ group Server
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
-    nuget Swashbuckle.AspNetCore prerelease
+    nuget Swashbuckle.AspNetCore
     nuget Microsoft.OpenApi
     nuget FSharp.Core
 
@@ -42,7 +41,6 @@ group Test
     nuget Expecto
     nuget YoloDev.Expecto.TestSdk
 
-    nuget Newtonsoft.Json
     nuget System.Net.Http
-    nuget Microsoft.OpenApi.Readers prerelease redirects: force
+    nuget Microsoft.OpenApi.Readers redirects: force
     nuget FSharp.SystemTextJson
