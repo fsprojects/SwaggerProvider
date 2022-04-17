@@ -7,4 +7,3 @@ group Test
     System.Net.Http
     System.Text.Json
     FSharp.SystemTextJson
-    SharpYaml

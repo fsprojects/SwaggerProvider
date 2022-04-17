@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "paket": {
-      "version": "7.1.3",
+      "version": "7.1.4",
       "commands": [
         "paket"
       ]
@@ -18,6 +18,12 @@
       "version": "1.10.93",
       "commands": [
         "dotnet-serve"
+      ]
+    },
+    "fantomas-tool": {
+      "version": "5.0.0-alpha-002",
+      "commands": [
+        "fantomas"
       ]
     }
   }
