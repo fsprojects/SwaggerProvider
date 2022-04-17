@@ -1,6 +1,6 @@
-File:ProvidedTypes.fsi
-File:ProvidedTypes.fs
+File: ProvidedTypes.fsi
+File: ProvidedTypes.fs
 
 FSharp.Core
 System.Net.Http
-Newtonsoft.Json
+FSharp.SystemTextJson

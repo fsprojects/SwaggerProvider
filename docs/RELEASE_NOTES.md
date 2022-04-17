@@ -1,3 +1,24 @@
+#### 1.0.0-beta6 - Apr 9, 2022
+- Target .NET 6
+- Microsoft.OpenApi.Readers v1.3.1-preview5
+- Dependencies update
+
+#### 1.0.0-beta5 - Jun 19, 2021
+- Revert optional parameters in provided constructors
+
+#### 1.0.0-beta4 - Jun 12, 2021
+- Dependencies update
+- Microsoft.OpenApi.Readers v1.3.0-preview
+
+#### 1.0.0-beta3 - Mar 20, 2021
+- Fix for 'FS3033: Payload is not supported' [#181](https://github.com/fsprojects/SwaggerProvider/issues/181)
+
+#### 1.0.0-beta2 - Jan 31, 2021
+- Build with .NET 5
+- Drop `net46` support
+- Migration to System.Text.Json [#176](https://github.com/fsprojects/SwaggerProvider/pull/176)
+- Fixed NuGet package dependencies
+
 #### 0.12.1 - Apr 9, 2022
 - Correctly serialize Guid [] as query parameter [#192](https://github.com/fsprojects/SwaggerProvider/pull/192)
 

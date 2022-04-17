@@ -200,7 +200,11 @@ module Parsers =
             match obj.TryGetProperty("type") with
             | Some(ty) when ty.AsStringArrayWithoutNull() = [|"object"|] ->
                 obj.TryGetProperty("additionalProperties")
-                |> Option.map (parseSchemaObject definitions)
+                |> Option.bind (fun obj ->
+                    match parseSchemaObject definitions obj with
+                    | Object [||] -> None
+                    | schemaObj -> Some schemaObj
+                )
             | _ -> None
         let (|IsAllOf|_|) (obj:SchemaNode) =
             // Identify composition element 'allOf'

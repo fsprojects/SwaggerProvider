@@ -158,7 +158,7 @@ let returnControllersTests =
 
     // System.Net.Http.HttpRequestException: Response status code does not indicate success: 400 (Bad Request).
     testCaseAsync "Send byte[] in query" <| async {
-        let bytes = api.Deserialize("4242", typeof<byte[]>) :?> byte[]
+        let bytes = api.Deserialize("\"NDI0Mg==\"", typeof<byte[]>) :?> byte[] // base64 encoded "4242"
         let! y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
         y.Bytes |> shouldEqual (bytes)
     }

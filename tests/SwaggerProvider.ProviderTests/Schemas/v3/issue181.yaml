@@ -1,0 +1,74 @@
+openapi: 3.0.0
+info:
+  title: my-api-book
+  version: '1.0'
+servers:
+  - url: 'https://myapi.staging.acme.com'
+    description: Staging
+paths:
+  '/apis/products/quantitys/v1.0/{quantityIdentityId}':
+    parameters:
+      - schema:
+          type: string
+        name: quantityIdentityId
+        in: path
+        required: true
+        description: quantity Identity ID
+    get:
+      summary: Retrieve product quantity
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlaBlaResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      operationId: product-book-retrieve
+      description: Retrieve product quantity
+      parameters: []
+      security:
+        - OAuth2: []
+components:
+  schemas:
+    Error:
+      title: Error
+      type: object
+      properties:
+        details:
+          type: object
+          properties: {}
+        errorCode:
+          type: string
+    BlaBlaResponse:
+      title: BlaBlaResponse
+      type: object
+      properties:
+        accountingAccountNumber:
+          type: string
+          description: description
+        alerts:
+          type: array
+          items:
+            type: string
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/client_credential/accesstoken?grant_type=client_credentials
+          refreshUrl: /oauth/client_credential/accesstoken?grant_type=client_credentials
+          scopes: {}

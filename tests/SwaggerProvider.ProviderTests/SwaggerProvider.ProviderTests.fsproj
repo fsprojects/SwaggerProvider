@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../netfx.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
@@ -12,9 +11,9 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
-    <!-- <Compile Include="v2\Swashbuckle.ReturnControllers.Tests.fs" />
+    <Compile Include="v2\Swashbuckle.ReturnControllers.Tests.fs" />
     <Compile Include="v2\Swashbuckle.UpdateControllers.Tests.fs" />
-    <Compile Include="v2\Swashbuckle.ResourceControllers.Tests.fs" /> -->
+    <Compile Include="v2\Swashbuckle.ResourceControllers.Tests.fs" />
     <Compile Include="v2\Swagger.PetStore.Tests.fs" />
     <Compile Include="v2\Swagger.GitHub.Tests.fs" />
     <Compile Include="v2\Swagger.Instagram.Tests.fs" />
@@ -23,6 +22,7 @@
     <Compile Include="v2\Swagger.Slack.Tests.fs" />
     <Compile Include="v3\Swagger.PetStore.Tests.fs" />
     <Compile Include="v3\Swagger.I0173.Tests.fs" />
+    <Compile Include="v3\Swagger.I0181.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ReturnControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ResourceControllers.Tests.fs" />

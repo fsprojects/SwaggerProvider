@@ -15,22 +15,20 @@ licenseUrl
 requireLicenseAcceptance
     false
 copyright
-    Copyright 2015-2020
+    Copyright 2015-2022
 tags
     F# fsharp data typeprovider Swagger API REST OpenAPI
 summary
-    F# Type Provider for Swagger
+    F# Type Providers for Swagger & OpenAPI
 description
-    F# Type Provider for Swagger
+    F# Type Providers for Swagger & OpenAPI
 files
-    bin/Release/net46/SwaggerProvider.Runtime.* ==> lib/net46
     bin/Release/netstandard2.0/SwaggerProvider.Runtime.* ==> lib/netstandard2.0
     bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
-    bin/Release/typeproviders/fsharp41/netcoreapp3.1/*.dll ==> typeproviders/fsharp41/netcoreapp3.1
-    bin/Release/typeproviders/fsharp41/net46/*.dll ==> typeproviders/fsharp41/net46
+    bin/Release/typeproviders/fsharp41/net6.0/*.dll ==> typeproviders/fsharp41/net6.0
 references
     SwaggerProvider.Runtime.dll
 dependencies
     FSharp.Core >= LOCKEDVERSION
-    Newtonsoft.Json ~> LOCKEDVERSION
+    FSharp.SystemTextJson >= LOCKEDVERSION
     System.Net.Http ~> LOCKEDVERSION
