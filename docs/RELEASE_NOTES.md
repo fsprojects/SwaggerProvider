@@ -1,3 +1,6 @@
+#### 1.0.1 - Jun 25, 2022
+- Dependencies update
+
 #### 1.0.0 - Apr 17, 2022
 - Target .NET 6
 - Microsoft.OpenApi v1.3.1
