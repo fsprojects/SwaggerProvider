@@ -233,6 +233,37 @@ Target.create "Release" (fun _ ->
 
 Target.create "BuildPackage" ignore
 
+let sourceFiles =
+    !! "src/**/*.fs" ++ "src/**/*.fsi" ++ "build.fsx"
+    -- "src/**/obj/**/*.fs"
+    -- "src/**/AssemblyInfo.fs"
+
+Target.create "Format" (fun _ ->
+    let result =
+        sourceFiles
+        |> Seq.map (sprintf "\"%s\"")
+        |> String.concat " "
+        |> DotNet.exec id "fantomas"
+
+    if not result.OK then
+        printfn "Errors while formatting all files: %A" result.Messages)
+
+Target.create "CheckFormat" (fun _ ->
+    let result =
+        sourceFiles
+        |> Seq.map (sprintf "\"%s\"")
+        |> String.concat " "
+        |> sprintf "%s --check"
+        |> DotNet.exec id "fantomas"
+
+    if result.ExitCode = 0 then
+        Trace.log "No files need formatting"
+    elif result.ExitCode = 99 then
+        failwith "Some files need formatting, run `dotnet fake build -t Format` to format them"
+    else
+        Trace.logf "Errors while formatting: %A" result.Errors
+        failwith "Unknown errors while formatting")
+
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -244,6 +275,7 @@ let skipTests = Environment.environVarAsBoolOrDefault "skipTests" false
 
 "Clean"
   ==> "AssemblyInfo"
+  ==> "CheckFormat"
   ==> "Build"
   ==> "RunUnitTests"
   ==> "StartServer"
