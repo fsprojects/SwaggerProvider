@@ -8,76 +8,76 @@ open System.Text.Json.Serialization
 open System.Threading.Tasks
 
 module MediaTypes =
-    let [<Literal>] ApplicationJson = "application/json"
-    let [<Literal>] ApplicationOctetStream = "application/octet-stream"
+    [<Literal>]
+    let ApplicationJson = "application/json"
 
-type AsyncExtensions () =
+    [<Literal>]
+    let ApplicationOctetStream = "application/octet-stream"
+
+type AsyncExtensions() =
     static member cast<'t> asyncOp = async {
         let! ret = asyncOp
         let cast = box ret
         return cast :?> 't
     }
 
-type TaskExtensions () =
-    static member cast<'t> (task: Task<obj>): Task<'t> = task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)
+type TaskExtensions() =
+    static member cast<'t>(task: Task<obj>) : Task<'t> =
+        task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)
 
 module RuntimeHelpers =
     let inline private toStrArray name values =
         values
-        |> Array.map (fun value-> name, value.ToString())
+        |> Array.map(fun value -> name, value.ToString())
         |> Array.toList
 
     let inline private toStrArrayDateTime name (values: DateTime array) =
         values
-        |> Array.map (fun value-> name, value.ToString("O"))
+        |> Array.map(fun value -> name, value.ToString("O"))
         |> Array.toList
 
     let inline private toStrArrayDateTimeOffset name (values: DateTimeOffset array) =
         values
-        |> Array.map (fun value-> name, value.ToString("O"))
+        |> Array.map(fun value -> name, value.ToString("O"))
         |> Array.toList
 
     let inline private toStrArrayOpt name values =
-        values
-        |> Array.choose (id)
-        |> toStrArray name
+        values |> Array.choose(id) |> toStrArray name
 
     let inline private toStrArrayDateTimeOpt name values =
-        values
-        |> Array.choose (id)
-        |> toStrArrayDateTime name
+        values |> Array.choose(id) |> toStrArrayDateTime name
 
     let inline private toStrArrayDateTimeOffsetOpt name values =
-        values
-        |> Array.choose (id)
-        |> toStrArrayDateTimeOffset name
+        values |> Array.choose(id) |> toStrArrayDateTimeOffset name
 
 
     let inline private toStrOpt name value =
         match value with
-        | Some(x) -> [name, x.ToString()]
-        | None ->[]
+        | Some(x) -> [ name, x.ToString() ]
+        | None -> []
 
-    let inline private toStrDateTimeOpt name (value : DateTime option) =
+    let inline private toStrDateTimeOpt name (value: DateTime option) =
         match value with
-        | Some(x) -> [name, x.ToString("O")]
-        | None ->[]
+        | Some(x) -> [ name, x.ToString("O") ]
+        | None -> []
 
-    let inline private toStrDateTimeOffsetOpt name (value : DateTimeOffset option) =
+    let inline private toStrDateTimeOffsetOpt name (value: DateTimeOffset option) =
         match value with
-        | Some(x) -> [name, x.ToString("O")]
-        | None ->[]
+        | Some(x) -> [ name, x.ToString("O") ]
+        | None -> []
 
-    let toParam (obj:obj) =
+    let toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
         | :? DateTimeOffset as dto -> dto.ToString("O")
         | null -> null
         | _ -> obj.ToString()
 
-    let toQueryParams (name:string) (obj:obj) (client:Swagger.ProvidedApiClientBase) =
+    let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         match obj with
-        | :? array<byte> as xs -> [name, (client.Serialize xs).Trim('\"')] // TODO: Need to verify how servers parse byte[] from query string
+        | :? array<byte> as xs -> [
+            name, (client.Serialize xs).Trim('\"')
+          ] // TODO: Need to verify how servers parse byte[] from query string
         | :? array<bool> as xs -> xs |> toStrArray name
         | :? array<int32> as xs -> xs |> toStrArray name
         | :? array<int64> as xs -> xs |> toStrArray name
@@ -105,94 +105,132 @@ module RuntimeHelpers =
         | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
         | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
         | :? Option<Guid> as x -> x |> toStrOpt name
-        | _ -> [name, if isNull obj then null else obj.ToString()]
+        | _ -> [
+            name,
+            if isNull obj then
+                null
+            else
+                obj.ToString()
+          ]
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
-            member __.Constructor =  typeof<JsonPropertyNameAttribute>.GetConstructor([|typeof<string>|])
-            member __.ConstructorArguments = [|Reflection.CustomAttributeTypedArgument(typeof<string>, name)|] :> Collections.Generic.IList<_>
-            member __.NamedArguments = [||] :> Collections.Generic.IList<_> }
+            member __.Constructor =
+                typeof<JsonPropertyNameAttribute>.GetConstructor ([| typeof<string> |])
 
-    let toStringContent (valueStr:string) =
+            member __.ConstructorArguments =
+                [|
+                    Reflection.CustomAttributeTypedArgument(typeof<string>, name)
+                |]
+                :> Collections.Generic.IList<_>
+
+            member __.NamedArguments = [||] :> Collections.Generic.IList<_>
+        }
+
+    let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
 
-    let getPropertyValues (object:obj) =
-        if isNull object then Seq.empty
+    let getPropertyValues(object: obj) =
+        if isNull object then
+            Seq.empty
         else
-            object.GetType().GetProperties(System.Reflection.BindingFlags.Public ||| System.Reflection.BindingFlags.Instance)
-            |> Seq.choose (fun prop ->
+            object
+                .GetType()
+                .GetProperties(
+                    System.Reflection.BindingFlags.Public
+                    ||| System.Reflection.BindingFlags.Instance
+                )
+            |> Seq.choose(fun prop ->
                 let name =
                     match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
-                    | [|x|] -> (x :?> JsonPropertyNameAttribute).Name
+                    | [| x |] -> (x :?> JsonPropertyNameAttribute).Name
                     | _ -> prop.Name
+
                 prop.GetValue(object)
                 |> Option.ofObj
-                |> Option.map(fun value -> (name, value))
-            )
+                |> Option.map(fun value -> (name, value)))
 
-    let toMultipartFormDataContent (keyValues:seq<string*obj>) =
+    let toMultipartFormDataContent(keyValues: seq<string * obj>) =
         let cnt = new MultipartFormDataContent()
-        let addFileStream name (stream:IO.Stream) =
+
+        let addFileStream name (stream: IO.Stream) =
             let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
             cnt.Add(new StreamContent(stream), name, filename)
-        for (name,value) in keyValues do
+
+        for (name, value) in keyValues do
             match value with
             | null -> ()
             | :? IO.Stream as stream -> addFileStream name stream
-            | :? (IO.Stream[]) as streams -> streams |> Seq.iter (addFileStream name)
+            | :? (IO.Stream[]) as streams -> streams |> Seq.iter(addFileStream name)
             | x ->
                 let strValue = x.ToString() // TODO: serialize? does not work with arrays probably
                 cnt.Add(toStringContent strValue, name)
+
         cnt
 
-    let toFormUrlEncodedContent (keyValues:seq<string*obj>) =
+    let toFormUrlEncodedContent(keyValues: seq<string * obj>) =
         let keyValues =
             keyValues
-            |> Seq.filter (snd >> isNull >> not)
-            |> Seq.map (fun (k,v) ->
-                Collections.Generic.KeyValuePair(k, v.ToString()))
+            |> Seq.filter(snd >> isNull >> not)
+            |> Seq.map(fun (k, v) -> Collections.Generic.KeyValuePair(k, v.ToString()))
+
         new FormUrlEncodedContent(keyValues)
 
-    let getDefaultHttpClient (host:string) =
+    let getDefaultHttpClient(host: string) =
         // Using default handler with UseCookies=true, HttpClient will not be able to set Cookie-based parameters
-        let handler = new HttpClientHandler (UseCookies = false)
-        if isNull host
-        then new HttpClient(handler, true)
-        else
-            let host = if host.EndsWith("/") then host else host+"/"
-            new HttpClient(handler, true, BaseAddress=Uri(host))
+        let handler = new HttpClientHandler(UseCookies = false)
 
-    let combineUrl (urlA:string) (urlB:string) =
+        if isNull host then
+            new HttpClient(handler, true)
+        else
+            let host =
+                if host.EndsWith("/") then
+                    host
+                else
+                    host + "/"
+
+            new HttpClient(handler, true, BaseAddress = Uri(host))
+
+    let combineUrl (urlA: string) (urlB: string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
 
-    let createHttpRequest (httpMethod:string) address queryParams =
+    let createHttpRequest (httpMethod: string) address queryParams =
         let requestUrl =
             let fakeHost = "http://fake-host/"
-            let builder = UriBuilder (combineUrl fakeHost address)
+            let builder = UriBuilder(combineUrl fakeHost address)
             let query = System.Web.HttpUtility.ParseQueryString(builder.Query)
+
             for (name, value) in queryParams do
-                if not <| isNull value
-                then query.Add(name, value)
+                if not <| isNull value then
+                    query.Add(name, value)
+
             builder.Query <- query.ToString()
             builder.Uri.PathAndQuery.TrimStart('/')
 
         let method = HttpMethod(httpMethod.ToUpper())
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
-    let fillHeaders (msg:HttpRequestMessage) (headers:(string*string) seq) =
+    let fillHeaders (msg: HttpRequestMessage) (headers: (string * string) seq) =
         headers
-        |> Seq.filter (snd >> isNull >> not)
-        |> Seq.iter (fun (name, value) ->
+        |> Seq.filter(snd >> isNull >> not)
+        |> Seq.iter(fun (name, value) ->
             if not <| msg.Headers.TryAddWithoutValidation(name, value) then
-                let errMsg = String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
+                let errMsg =
+                    String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
+
                 if (name <> "Content-Type") then
-                    raise <| Exception(errMsg)
-        )
+                    raise <| Exception(errMsg))
 
     let asyncCast runtimeTy (asyncOp: Async<obj>) =
-        let castFn = typeof<AsyncExtensions>.GetMethod("cast")
-        castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|asyncOp|])
+        let castFn = typeof<AsyncExtensions>.GetMethod ("cast")
+
+        castFn
+            .MakeGenericMethod([| runtimeTy |])
+            .Invoke(null, [| asyncOp |])
 
     let taskCast runtimeTy (task: Task<obj>) =
-        let castFn = typeof<TaskExtensions>.GetMethod("cast")
-        castFn.MakeGenericMethod([|runtimeTy|]).Invoke(null, [|task|])
+        let castFn = typeof<TaskExtensions>.GetMethod ("cast")
+
+        castFn
+            .MakeGenericMethod([| runtimeTy |])
+            .Invoke(null, [| task |])

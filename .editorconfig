@@ -21,4 +21,4 @@ fsharp_max_infix_operator_expression=70
 fsharp_space_before_parameter=false
 fsharp_space_before_lowercase_invocation=false
 fsharp_multiline_block_brackets_on_same_column=true
-fsharp_ragnarok=true
+fsharp_experimental_stroustrup_style=true
