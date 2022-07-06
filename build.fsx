@@ -29,7 +29,7 @@ open Fake.Tools.Git
 open System
 open System.IO
 
-Target.initEnvironment ()
+Target.initEnvironment()
 
 // --------------------------------------------------------------------------------------
 
@@ -54,13 +54,13 @@ let release = ReleaseNotes.load "docs/RELEASE_NOTES.md"
 Target.create "AssemblyInfo" (fun _ ->
     let fileName = "src/Common/AssemblyInfo.fs"
 
-    AssemblyInfoFile.createFSharp
-        fileName
-        [ AssemblyInfo.Title gitName
-          AssemblyInfo.Product gitName
-          AssemblyInfo.Description description
-          AssemblyInfo.Version release.AssemblyVersion
-          AssemblyInfo.FileVersion release.AssemblyVersion ])
+    AssemblyInfoFile.createFSharp fileName [
+        AssemblyInfo.Title gitName
+        AssemblyInfo.Product gitName
+        AssemblyInfo.Description description
+        AssemblyInfo.Version release.AssemblyVersion
+        AssemblyInfo.FileVersion release.AssemblyVersion
+    ])
 
 // --------------------------------------------------------------------------------------
 // Clean build results
@@ -81,19 +81,15 @@ Target.create "CleanDocs" (fun _ -> Shell.cleanDirs [ "docs/output" ])
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
-Target.create "Build" (fun _ ->
-    DotNet.exec id "build" "SwaggerProvider.sln -c Release"
-    |> ignore)
+Target.create "Build" (fun _ -> DotNet.exec id "build" "SwaggerProvider.sln -c Release" |> ignore)
 
 let webApiInputStream = StreamRef.Empty
 
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
-    CreateProcess.fromRawCommandLine
-        "dotnet"
-        "tests/Swashbuckle.WebApi.Server/bin/Release/net6.0/Swashbuckle.WebApi.Server.dll"
-    |> CreateProcess.withStandardInput (CreatePipe webApiInputStream)
+    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/net6.0/Swashbuckle.WebApi.Server.dll"
+    |> CreateProcess.withStandardInput(CreatePipe webApiInputStream)
     |> Proc.start
     |> ignore
 
@@ -117,21 +113,22 @@ Target.create "BuildTests" (fun _ ->
 // Run the unit tests using test runner
 
 let runTests assembly =
-    [ Path.Combine(__SOURCE_DIRECTORY__, assembly) ]
-    |> Testing.Expecto.run (fun p ->
+    [
+        Path.Combine(__SOURCE_DIRECTORY__, assembly)
+    ]
+    |> Testing.Expecto.run(fun p ->
         { p with
             WorkingDirectory = __SOURCE_DIRECTORY__
             FailOnFocusedTests = true
             PrintVersion = true
             Parallel = false
             Summary = true
-            Debug = false })
+            Debug = false
+        })
 
-Target.create "RunUnitTests" (fun _ ->
-    runTests "tests/SwaggerProvider.Tests/bin/Release/net6.0/SwaggerProvider.Tests.dll")
+Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net6.0/SwaggerProvider.Tests.dll")
 
-Target.create "RunIntegrationTests" (fun _ ->
-    runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net6.0/SwaggerProvider.ProviderTests.dll")
+Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net6.0/SwaggerProvider.ProviderTests.dll")
 
 Target.create "RunTests" ignore
 
@@ -139,18 +136,20 @@ Target.create "RunTests" ignore
 // Build a NuGet package
 
 Target.create "NuGet" (fun _ ->
-    Paket.pack (fun p ->
+    Paket.pack(fun p ->
         { p with
             ToolType = ToolType.CreateLocalTool()
             OutputPath = "bin"
             Version = release.NugetVersion
-            ReleaseNotes = String.toLines release.Notes }))
+            ReleaseNotes = String.toLines release.Notes
+        }))
 
 Target.create "PublishNuget" (fun _ ->
-    Paket.push (fun p ->
+    Paket.push(fun p ->
         { p with
             ToolType = ToolType.CreateLocalTool()
-            WorkingDir = "bin" }))
+            WorkingDir = "bin"
+        }))
 
 // --------------------------------------------------------------------------------------
 // Generate the documentation
@@ -231,14 +230,14 @@ Target.create "Release" (fun _ ->
 Target.create "BuildPackage" ignore
 
 let sourceFiles =
-    !! "src/**/*.fs" ++ "src/**/*.fsi" ++ "build.fsx"
+    !! "src/**/*.fs" ++ "src/**/*.fsi" ++ "build.fsx" ++ "src/**/*.fsx"
     -- "src/**/obj/**/*.fs"
     -- "src/**/AssemblyInfo.fs"
 
 Target.create "Format" (fun _ ->
     let result =
         sourceFiles
-        |> Seq.map (sprintf "\"%s\"")
+        |> Seq.map(sprintf "\"%s\"")
         |> String.concat " "
         |> DotNet.exec id "fantomas"
 
@@ -248,7 +247,7 @@ Target.create "Format" (fun _ ->
 Target.create "CheckFormat" (fun _ ->
     let result =
         sourceFiles
-        |> Seq.map (sprintf "\"%s\"")
+        |> Seq.map(sprintf "\"%s\"")
         |> String.concat " "
         |> sprintf "%s --check"
         |> DotNet.exec id "fantomas"
