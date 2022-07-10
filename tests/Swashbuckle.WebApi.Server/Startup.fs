@@ -14,23 +14,21 @@ open Microsoft.OpenApi.Models
 open System.Text.Json.Serialization
 
 type Startup private () =
-    new (configuration: IConfiguration) as this =
-        Startup() then
-        this.Configuration <- configuration
+    new(configuration: IConfiguration) as this =
+        Startup()
+        then this.Configuration <- configuration
 
     // This method gets called by the runtime. Use this method to add services to the container.
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
         services
-          .AddMvc(fun option -> option.EnableEndpointRouting <- false)
-          .AddJsonOptions(fun options ->
-                options.JsonSerializerOptions.Converters.Add(JsonFSharpConverter()))
-          .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+            .AddMvc(fun option -> option.EnableEndpointRouting <- false)
+            .AddJsonOptions(fun options -> options.JsonSerializerOptions.Converters.Add(JsonFSharpConverter()))
+            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
-        services.AddSwaggerGen(fun c ->
-            c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"));
-        ) |> ignore
+        services.AddSwaggerGen(fun c -> c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1")))
+        |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
@@ -42,17 +40,21 @@ type Startup private () =
         app.UseSwagger(fun c ->
             c.RouteTemplate <- "/swagger/{documentName}/swagger.json"
             c.SerializeAsV2 <- true // false = v3 = OpenApi
-        ) |> ignore
+        )
+        |> ignore
+
         app.UseSwagger(fun c ->
             c.RouteTemplate <- "/swagger/{documentName}/openapi.json"
             c.SerializeAsV2 <- false // false = v3 = OpenApi
-        ) |> ignore
+        )
+        |> ignore
+
         app.UseSwaggerUI(fun c ->
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Swagger API v1");
-            c.SwaggerEndpoint("/swagger/v1/openapi.json", "My OpenAPI API v1");
-        ) |> ignore
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Swagger API v1")
+            c.SwaggerEndpoint("/swagger/v1/openapi.json", "My OpenAPI API v1"))
+        |> ignore
 
         //app.UseHttpsRedirection() |> ignore
         app.UseMvc() |> ignore
 
-    member val Configuration : IConfiguration = null with get, set
+    member val Configuration: IConfiguration = null with get, set

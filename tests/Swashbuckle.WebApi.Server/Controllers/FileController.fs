@@ -6,28 +6,28 @@ open Microsoft.AspNetCore.Http
 open Swagger.Internal
 
 type FormWithFile() =
-    member val Name:string = "" with get, set
-    member val File:IFormFile = null with get, set
+    member val Name: string = "" with get, set
+    member val File: IFormFile = null with get, set
 
 [<Route("api/[controller]")>]
 [<ApiController>]
-type ReturnFileController () =
+type ReturnFileController() =
     inherit ControllerBase()
 
     [<HttpGet; Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
-    member this.Get () =
+    member this.Get() =
         let bytes = System.Text.Encoding.UTF8.GetBytes("I am totally a file's\ncontent")
         let stream = new System.IO.MemoryStream(bytes)
         this.File(stream, MediaTypes.ApplicationOctetStream, "hello.txt") :> FileResult
 
     [<HttpPost("single"); Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
-    member this.PostFile (file:IFormFile) :FileResult =
+    member this.PostFile(file: IFormFile) : FileResult =
         this.File(file.OpenReadStream(), MediaTypes.ApplicationOctetStream, file.FileName) :> FileResult
 
-    [<HttpPost("multiple"); Produces(MediaTypes.ApplicationJson, Type=typeof<int>)>]
-    member this.PostFiles (files:IFormFileCollection) =
+    [<HttpPost("multiple"); Produces(MediaTypes.ApplicationJson, Type = typeof<int>)>]
+    member this.PostFiles(files: IFormFileCollection) =
         files.Count // return 0 when you call from Swagger UI
 
     [<HttpPost("form-with-file"); Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
-    member this.PostFormWithFile ([<FromForm>] formWithFile:FormWithFile) :FileResult =
+    member this.PostFormWithFile([<FromForm>] formWithFile: FormWithFile) : FileResult =
         this.File(formWithFile.File.OpenReadStream(), MediaTypes.ApplicationOctetStream, formWithFile.Name) :> FileResult

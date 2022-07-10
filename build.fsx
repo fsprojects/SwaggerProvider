@@ -230,9 +230,9 @@ Target.create "Release" (fun _ ->
 Target.create "BuildPackage" ignore
 
 let sourceFiles =
-    !! "src/**/*.fs" ++ "src/**/*.fsi" ++ "build.fsx" ++ "src/**/*.fsx"
-    -- "src/**/obj/**/*.fs"
-    -- "src/**/AssemblyInfo.fs"
+    !! "**/*.fs" ++ "**/*.fsi" ++ "build.fsx" ++ "**/*.fsx"
+    -- "**/obj/**/*.fs"
+    -- "**/AssemblyInfo.fs"
 
 Target.create "Format" (fun _ ->
     let result =

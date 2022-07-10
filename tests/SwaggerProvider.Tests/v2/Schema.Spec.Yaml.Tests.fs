@@ -6,9 +6,10 @@ open Expecto
 
 [<Tests>]
 let yamlSpecTests =
-  testList "All/v2/Parse/Schema.Spec.Yaml.Tests" [
-    testCase "Info Object Example" <| fun _ ->
-        """
+    testList "All/v2/Parse/Schema.Spec.Yaml.Tests" [
+        testCase "Info Object Example"
+        <| fun _ ->
+            """
 title: Swagger Sample App
 description: This is a sample server Petstore server.
 termsOfService: http://swagger.io/terms/
@@ -21,20 +22,21 @@ license:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 version: 1.0.1
         """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseInfoObject
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseInfoObject
+            |> fun actual ->
+                let expected = {
                     Title = "Swagger Sample App"
                     Description = "This is a sample server Petstore server."
                     Version = "1.0.1"
                 }
-            Expect.equal actual expected "parse Info Object"
+
+                Expect.equal actual expected "parse Info Object"
 
 
-    testCase "Paths Object Example" <| fun _ ->
-        """
+        testCase "Paths Object Example"
+        <| fun _ ->
+            """
 /pets:
   get:
     description: Returns all pets from the system that the user has access to
@@ -48,31 +50,38 @@ version: 1.0.1
           items:
             $ref: '#/definitions/pet'
         """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
-        |> fun actual ->
-            let expected =
-                [|{
-                    Path = "/pets"
-                    Type = Get
-                    Tags = [||]
-                    Summary = ""
-                    Description = "Returns all pets from the system that the user has access to"
-                    OperationId = ""
-                    Consumes = [||]
-                    Produces = [|"application/json"|]
-                    Responses =
-                        [|Some(200),
-                            { Description = "A list of pets."
-                              Schema = Some <| Array (Reference "#/definitions/pet")}|]
-                    Parameters = [||]
-                    Deprecated = false
-                  }|]
-            Expect.equal actual expected "parse Paths Object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+            |> fun actual ->
+                let expected = [|
+                    {
+                        Path = "/pets"
+                        Type = Get
+                        Tags = [||]
+                        Summary = ""
+                        Description = "Returns all pets from the system that the user has access to"
+                        OperationId = ""
+                        Consumes = [||]
+                        Produces = [| "application/json" |]
+                        Responses =
+                            [|
+                                Some(200),
+                                {
+                                    Description = "A list of pets."
+                                    Schema = Some <| Array(Reference "#/definitions/pet")
+                                }
+                            |]
+                        Parameters = [||]
+                        Deprecated = false
+                    }
+                |]
+
+                Expect.equal actual expected "parse Paths Object"
 
 
-    testCase "Path Item Object Example" <| fun _ ->
-        """
+        testCase "Path Item Object Example"
+        <| fun _ ->
+            """
 "/pets":
   get:
     description: Returns pets based on ID
@@ -102,42 +111,53 @@ version: 1.0.1
       type: string
     collectionFormat: csv
         """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
-        |> fun actual ->
-            let expected =
-                [|{
-                    Path = "/pets"
-                    Type = Get
-                    Tags = [||]
-                    Summary = "Find pets by ID"
-                    Description = "Returns pets based on ID"
-                    OperationId = "getPetsById"
-                    Consumes = [||]
-                    Produces = [|"application/json"; "text/html"|]
-                    Responses =
-                        [|Some(200),
-                            { Description = "pet response"
-                              Schema = Some <| Array (Reference "#/definitions/Pet")}
-                          None,
-                            { Description = "error payload"
-                              Schema = Some <| Reference "#/definitions/ErrorModel"}|]
-                    Parameters =
-                        [|{
-                          Name = "id"
-                          In = Path
-                          Description = "ID of pet to use"
-                          Required = true
-                          Type = Array String
-                          CollectionFormat = Csv
-                        }|]
-                    Deprecated = false
-                  }|]
-            Expect.equal actual expected "parse Path Item Object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+            |> fun actual ->
+                let expected = [|
+                    {
+                        Path = "/pets"
+                        Type = Get
+                        Tags = [||]
+                        Summary = "Find pets by ID"
+                        Description = "Returns pets based on ID"
+                        OperationId = "getPetsById"
+                        Consumes = [||]
+                        Produces = [| "application/json"; "text/html" |]
+                        Responses =
+                            [|
+                                Some(200),
+                                {
+                                    Description = "pet response"
+                                    Schema = Some <| Array(Reference "#/definitions/Pet")
+                                }
+                                None,
+                                {
+                                    Description = "error payload"
+                                    Schema = Some <| Reference "#/definitions/ErrorModel"
+                                }
+                            |]
+                        Parameters =
+                            [|
+                                {
+                                    Name = "id"
+                                    In = Path
+                                    Description = "ID of pet to use"
+                                    Required = true
+                                    Type = Array String
+                                    CollectionFormat = Csv
+                                }
+                            |]
+                        Deprecated = false
+                    }
+                |]
+
+                Expect.equal actual expected "parse Path Item Object"
 
 
-    testCase "Operation Object Example" <| fun _ ->
-        """
+        testCase "Operation Object Example"
+        <| fun _ ->
+            """
 tags:
 - pet
 summary: Updates a pet in the store with form data
@@ -173,58 +193,74 @@ security:
 - petstore_auth:
   - write:pets
   - read:pets"""
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
+            |> fun actual ->
+                let expected = {
                     Path = "/"
                     Type = Get
-                    Tags = [|"pet"|]
+                    Tags = [| "pet" |]
                     Summary = "Updates a pet in the store with form data"
                     Description = ""
                     OperationId = "updatePetWithForm"
-                    Consumes = [|"application/x-www-form-urlencoded"|]
-                    Produces = [|"application/json"; "application/xml"|]
+                    Consumes =
+                        [|
+                            "application/x-www-form-urlencoded"
+                        |]
+                    Produces =
+                        [|
+                            "application/json"
+                            "application/xml"
+                        |]
                     Responses =
-                        [|Some(200),
-                            { Description = "Pet updated."
-                              Schema = None}
-                          Some(405),
-                            { Description = "Invalid input"
-                              Schema = None }|]
+                        [|
+                            Some(200),
+                            {
+                                Description = "Pet updated."
+                                Schema = None
+                            }
+                            Some(405),
+                            {
+                                Description = "Invalid input"
+                                Schema = None
+                            }
+                        |]
                     Parameters =
-                        [|{
-                            Name = "petId"
-                            In = Path
-                            Description = "ID of pet that needs to be updated"
-                            Required = true
-                            Type = String
-                            CollectionFormat = Csv
-                          }
-                          {
-                            Name = "name"
-                            In = FormData
-                            Description = "Updated name of the pet"
-                            Required = false
-                            Type = String
-                            CollectionFormat = Csv
-                          }
-                          {
-                            Name = "status"
-                            In = FormData
-                            Description = "Updated status of the pet"
-                            Required = false
-                            Type = String
-                            CollectionFormat = Csv
-                          }|]
+                        [|
+                            {
+                                Name = "petId"
+                                In = Path
+                                Description = "ID of pet that needs to be updated"
+                                Required = true
+                                Type = String
+                                CollectionFormat = Csv
+                            }
+                            {
+                                Name = "name"
+                                In = FormData
+                                Description = "Updated name of the pet"
+                                Required = false
+                                Type = String
+                                CollectionFormat = Csv
+                            }
+                            {
+                                Name = "status"
+                                In = FormData
+                                Description = "Updated status of the pet"
+                                Required = false
+                                Type = String
+                                CollectionFormat = Csv
+                            }
+                        |]
                     Deprecated = false
                 }
-            Expect.equal actual expected "parse Operation Object"
+
+                Expect.equal actual expected "parse Operation Object"
 
 
-    testCase "Parameter Object Examples: Body Parameters" <| fun _ ->
-        """
+        testCase "Parameter Object Examples: Body Parameters"
+        <| fun _ ->
+            """
 name: user
 in: body
 description: user to add to the system
@@ -235,20 +271,21 @@ schema:
             |> SwaggerParser.parseYaml
             |> Parsers.parseParameterObject Parsers.emptyDict
             |> fun actual ->
-                let expected =
-                    {
-                        Name = "user"
-                        In = Body
-                        Description = "user to add to the system"
-                        Required = true
-                        Type = Reference "#/definitions/User"
-                        CollectionFormat = Csv
-                    }
+                let expected = {
+                    Name = "user"
+                    In = Body
+                    Description = "user to add to the system"
+                    Required = true
+                    Type = Reference "#/definitions/User"
+                    CollectionFormat = Csv
+                }
+
                 Expect.equal actual expected "parse body parameters"
 
 
-    testCase "Parameter Object Examples: Body Parameters Array" <| fun _ ->
-        """
+        testCase "Parameter Object Examples: Body Parameters Array"
+        <| fun _ ->
+            """
 name: user
 in: body
 description: user to add to the system
@@ -261,19 +298,20 @@ schema:
             |> SwaggerParser.parseYaml
             |> Parsers.parseParameterObject Parsers.emptyDict
             |> fun actual ->
-                let expected =
-                    {
-                        Name = "user"
-                        In = Body
-                        Description = "user to add to the system"
-                        Required = true
-                        Type = Array String
-                        CollectionFormat = Csv
-                    }
+                let expected = {
+                    Name = "user"
+                    In = Body
+                    Description = "user to add to the system"
+                    Required = true
+                    Type = Array String
+                    CollectionFormat = Csv
+                }
+
                 Expect.equal actual expected "parse Body Parameters Array"
 
-    testCase "Parameter Object Examples: Other Parameters" <| fun _ ->
-        """
+        testCase "Parameter Object Examples: Other Parameters"
+        <| fun _ ->
+            """
 name: token
 in: header
 description: token to be passed as a header
@@ -284,11 +322,10 @@ items:
   format: int64
 collectionFormat: csv
         """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "token"
                     In = Header
                     Description = "token to be passed as a header"
@@ -296,21 +333,22 @@ collectionFormat: csv
                     Type = Array Int64
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse other params"
 
-    testCase "Parameter Object Examples: Other Parameters - Path String" <| fun _ ->
-        """
+                Expect.equal actual expected "parse other params"
+
+        testCase "Parameter Object Examples: Other Parameters - Path String"
+        <| fun _ ->
+            """
 name: username
 in: path
 description: username to fetch
 required: true
 type: string
         """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "username"
                     In = Path
                     Description = "username to fetch"
@@ -318,11 +356,13 @@ type: string
                     Type = String
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse path string parameter"
+
+                Expect.equal actual expected "parse path string parameter"
 
 
-    testCase "Parameter Object Examples: Other Parameters - Array String Multi" <| fun _ ->
-        """
+        testCase "Parameter Object Examples: Other Parameters - Array String Multi"
+        <| fun _ ->
+            """
 name: id
 in: query
 description: ID of the object to fetch
@@ -332,11 +372,10 @@ items:
   type: string
 collectionFormat: multi
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "id"
                     In = Query
                     Description = "ID of the object to fetch"
@@ -344,21 +383,22 @@ collectionFormat: multi
                     Type = Array String
                     CollectionFormat = Multi
                 }
-            Expect.equal actual expected "parse `multi` collection format"
 
-    testCase "Parameter Object Examples: Other Parameters - File" <| fun _ ->
-        """
+                Expect.equal actual expected "parse `multi` collection format"
+
+        testCase "Parameter Object Examples: Other Parameters - File"
+        <| fun _ ->
+            """
 name: avatar
 in: formData
 description: The avatar of the user
 required: true
 type: file
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "avatar"
                     In = FormData
                     Description = "The avatar of the user"
@@ -366,46 +406,50 @@ type: file
                     Type = File
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse File type"
 
-    testCase "Response Object Examples: Response of an array of a complex type" <| fun _ ->
-        """
+                Expect.equal actual expected "parse File type"
+
+        testCase "Response Object Examples: Response of an array of a complex type"
+        <| fun _ ->
+            """
 description: A complex object array response
 schema:
   type: array
   items:
     $ref: '#/definitions/VeryComplexType'
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "A complex object array response"
-                    Schema = Some <| Array (Reference "#/definitions/VeryComplexType")
+                    Schema = Some <| Array(Reference "#/definitions/VeryComplexType")
                 }
-            Expect.equal actual expected "complex object array resp"
+
+                Expect.equal actual expected "complex object array resp"
 
 
 
-    testCase "Response Object Examples: Response with a string type" <| fun _ ->
-        """
+        testCase "Response Object Examples: Response with a string type"
+        <| fun _ ->
+            """
 description: A simple string response
 schema:
   type: string
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "A simple string response"
                     Schema = Some String
                 }
-            Expect.equal actual expected "string type resp"
 
-    testCase "Response Object Examples: Response with headers" <| fun _ ->
-        """
+                Expect.equal actual expected "string type resp"
+
+        testCase "Response Object Examples: Response with headers"
+        <| fun _ ->
+            """
 description: A simple string response
 schema:
   type: string
@@ -420,74 +464,78 @@ headers:
     description: The number of seconds left in the current period
     type: integer
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "A simple string response"
                     Schema = Some String
                 }
-            Expect.equal actual expected "string resp"
+
+                Expect.equal actual expected "string resp"
 
 
-    testCase "Response Object Examples: Response with no return value" <| fun _ ->
-        """
+        testCase "Response Object Examples: Response with no return value"
+        <| fun _ ->
+            """
 description: object created
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "object created"
                     Schema = None
                 }
-            Expect.equal actual expected "response with no return value"
+
+                Expect.equal actual expected "response with no return value"
 
 
 
-    testCase "Tag Object Example" <| fun _ ->
-        """
+        testCase "Tag Object Example"
+        <| fun _ ->
+            """
 name: pet
 description: Pets operations
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseTagObject
-        |> fun actual ->
-            let expected =
-                ({
-                    Name = "pet"
-                    Description = "Pets operations"
-                }:TagObject)
-            Expect.equal actual expected "parse Tag object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseTagObject
+            |> fun actual ->
+                let expected =
+                    ({
+                        Name = "pet"
+                        Description = "Pets operations"
+                    }: TagObject)
+
+                Expect.equal actual expected "parse Tag object"
 
 
-    testCase "Reference Object Example" <| fun _ ->
-        """
+        testCase "Reference Object Example"
+        <| fun _ ->
+            """
 $ref: '#/definitions/Pet'
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Reference "#/definitions/Pet")
-            Expect.equal actual expected "parse Reference object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = (Reference "#/definitions/Pet")
+                Expect.equal actual expected "parse Reference object"
 
 
-    testCase "Schema Object Examples: Primitive Sample" <| fun _ ->
-        """
+        testCase "Schema Object Examples: Primitive Sample"
+        <| fun _ ->
+            """
 type: string
 format: email
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            Expect.equal actual String "primitive type object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual -> Expect.equal actual String "primitive type object"
 
 
-    testCase "Schema Object Examples: Simple Model" <| fun _ ->
-        """
+        testCase "Schema Object Examples: Simple Model"
+        <| fun _ ->
+            """
 type: object
 required:
 - name
@@ -501,55 +549,63 @@ properties:
     format: int32
     minimum: 0
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Object
-                    [|{Name = "name"
-                       Type = String
-                       IsRequired = true
-                       Description = ""}
-                      {Name = "address"
-                       Type = Reference "#/definitions/Address"
-                       IsRequired = false
-                       Description = ""}
-                      {Name = "age"
-                       Type = Int32
-                       IsRequired = false
-                       Description = ""}|]
-                )
-            Expect.equal actual expected "parse simple model"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected =
+                    (Object [|
+                        {
+                            Name = "name"
+                            Type = String
+                            IsRequired = true
+                            Description = ""
+                        }
+                        {
+                            Name = "address"
+                            Type = Reference "#/definitions/Address"
+                            IsRequired = false
+                            Description = ""
+                        }
+                        {
+                            Name = "age"
+                            Type = Int32
+                            IsRequired = false
+                            Description = ""
+                        }
+                    |])
+
+                Expect.equal actual expected "parse simple model"
 
 
-    testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping" <| fun _ ->
-        """
+        testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping"
+        <| fun _ ->
+            """
 type: object
 additionalProperties:
   type: string
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            Expect.equal actual (Dictionary String) "string to string mapping"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual -> Expect.equal actual (Dictionary String) "string to string mapping"
 
 
-    testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping" <| fun _ ->
-        """
+        testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping"
+        <| fun _ ->
+            """
 type: object
 additionalProperties:
   $ref: '#/definitions/ComplexModel'
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Dictionary (Reference "#/definitions/ComplexModel"))
-            Expect.equal actual expected "string to model"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = (Dictionary(Reference "#/definitions/ComplexModel"))
+                Expect.equal actual expected "string to model"
 
 
-    testCase "Schema Object Examples: Model with Example" <| fun _ ->
-        """
+        testCase "Schema Object Examples: Model with Example"
+        <| fun _ ->
+            """
 type: object
 properties:
     id:
@@ -563,25 +619,31 @@ example:
     name: Puma
     id: 1
     """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Object
-                    [|{Name = "id"
-                       Type = Int64
-                       IsRequired = false
-                       Description = ""}
-                      {Name = "name"
-                       Type = String
-                       IsRequired = true
-                       Description = ""}|]
-                )
-            Expect.equal actual expected "model with example"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected =
+                    (Object [|
+                        {
+                            Name = "id"
+                            Type = Int64
+                            IsRequired = false
+                            Description = ""
+                        }
+                        {
+                            Name = "name"
+                            Type = String
+                            IsRequired = true
+                            Description = ""
+                        }
+                    |])
+
+                Expect.equal actual expected "model with example"
 
 
-    testCase "Schema Object Examples: Models with Composition" <| fun _ ->
-        """
+        testCase "Schema Object Examples: Models with Composition"
+        <| fun _ ->
+            """
 ErrorModel:
   type: object
   required:
@@ -604,42 +666,57 @@ ExtendedErrorModel:
       rootCause:
         type: string
         """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseDefinitionsObject
-        |> Seq.map (fun x->x.Key, x.Value.Value)
-        |> Map.ofSeq
-        |> fun actual ->
-            let expected =
-               ([|
-                    "#/definitions/ErrorModel",
-                    (Object
-                        [|{ Name = "message"
-                            Type = String
-                            IsRequired = true
-                            Description = "" }
-                          { Name = "code"
-                            Type = Int64
-                            IsRequired = true
-                            Description = "" }|])
-                    "#/definitions/ExtendedErrorModel",
-                    (Object
-                        [|{ Name = "message"
-                            Type = String
-                            IsRequired = true
-                            Description = "" }
-                          { Name = "code"
-                            Type = Int64
-                            IsRequired = true
-                            Description = "" }
-                          { Name = "rootCause"
-                            Type = String
-                            IsRequired = true
-                            Description = "" }|])
-                |] |> Map.ofArray)
-            Expect.equal actual expected "model with composition"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseDefinitionsObject
+            |> Seq.map(fun x -> x.Key, x.Value.Value)
+            |> Map.ofSeq
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/definitions/ErrorModel",
+                        (Object [|
+                            {
+                                Name = "message"
+                                Type = String
+                                IsRequired = true
+                                Description = ""
+                            }
+                            {
+                                Name = "code"
+                                Type = Int64
+                                IsRequired = true
+                                Description = ""
+                            }
+                        |])
+                        "#/definitions/ExtendedErrorModel",
+                        (Object [|
+                            {
+                                Name = "message"
+                                Type = String
+                                IsRequired = true
+                                Description = ""
+                            }
+                            {
+                                Name = "code"
+                                Type = Int64
+                                IsRequired = true
+                                Description = ""
+                            }
+                            {
+                                Name = "rootCause"
+                                Type = String
+                                IsRequired = true
+                                Description = ""
+                            }
+                        |])
+                     |]
+                     |> Map.ofArray)
 
-    ptestCase "Schema Object Examples: Models with Polymorphism Support" <| fun _ -> // Ignore("Not supported")
-        """
+                Expect.equal actual expected "model with composition"
+
+        ptestCase "Schema Object Examples: Models with Polymorphism Support"
+        <| fun _ -> // Ignore("Not supported")
+            """
 definitions:
   Pet:
     type: object
@@ -684,18 +761,16 @@ definitions:
       required:
       - packSize
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Object
-                    [||]
-                )
-            Expect.equal actual expected "Models with Polymorphism"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = (Object [||])
+                Expect.equal actual expected "Models with Polymorphism"
 
 
-    testCase "Definitions Object Example" <| fun _ ->
-        """
+        testCase "Definitions Object Example"
+        <| fun _ ->
+            """
 Category:
   type: object
   properties:
@@ -713,40 +788,51 @@ Tag:
     name:
       type: string
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseDefinitionsObject
-        |> Seq.map (fun x->x.Key, x.Value.Value)
-        |> Map.ofSeq
-        |> fun actual ->
-            let expected =
-               ([|
-                    "#/definitions/Category",
-                    (Object
-                        [|{Name = "id"
-                           Type = Int64
-                           IsRequired = false
-                           Description = ""}
-                          {Name = "name"
-                           Type = String
-                           IsRequired = false
-                           Description = ""}|]
-                    )
-                    "#/definitions/Tag",
-                    (Object
-                        [|{Name = "id"
-                           Type = Int64
-                           IsRequired = false
-                           Description = ""}
-                          {Name = "name"
-                           Type = String
-                           IsRequired = false
-                           Description = ""}|]
-                    )
-                |] |> Map.ofArray)
-            Expect.equal actual expected "parse Definitions Object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseDefinitionsObject
+            |> Seq.map(fun x -> x.Key, x.Value.Value)
+            |> Map.ofSeq
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/definitions/Category",
+                        (Object [|
+                            {
+                                Name = "id"
+                                Type = Int64
+                                IsRequired = false
+                                Description = ""
+                            }
+                            {
+                                Name = "name"
+                                Type = String
+                                IsRequired = false
+                                Description = ""
+                            }
+                        |])
+                        "#/definitions/Tag",
+                        (Object [|
+                            {
+                                Name = "id"
+                                Type = Int64
+                                IsRequired = false
+                                Description = ""
+                            }
+                            {
+                                Name = "name"
+                                Type = String
+                                IsRequired = false
+                                Description = ""
+                            }
+                        |])
+                     |]
+                     |> Map.ofArray)
 
-    testCase "Parameters Definition Object Example" <| fun _ ->
-        """
+                Expect.equal actual expected "parse Definitions Object"
+
+        testCase "Parameters Definition Object Example"
+        <| fun _ ->
+            """
 skipParam:
   name: skip
   in: query
@@ -762,34 +848,37 @@ limitParam:
   type: integer
   format: int32
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseParametersDefinition Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                ([|
-                    "#/parameters/skipParam",
-                    {
-                        Name = "skip"
-                        In = Query
-                        Description = "number of items to skip"
-                        Required = true
-                        Type = Int32
-                        CollectionFormat = Csv
-                    }
-                    "#/parameters/limitParam",
-                    {
-                        Name = "limit"
-                        In = Query
-                        Description = "max records to return"
-                        Required = true
-                        Type = Int32
-                        CollectionFormat = Csv
-                    }
-                |] |> Map.ofArray)
-            Expect.equal actual expected "Parameters Definition Object"
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseParametersDefinition Parsers.emptyDict
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/parameters/skipParam",
+                        {
+                            Name = "skip"
+                            In = Query
+                            Description = "number of items to skip"
+                            Required = true
+                            Type = Int32
+                            CollectionFormat = Csv
+                        }
+                        "#/parameters/limitParam",
+                        {
+                            Name = "limit"
+                            In = Query
+                            Description = "max records to return"
+                            Required = true
+                            Type = Int32
+                            CollectionFormat = Csv
+                        }
+                     |]
+                     |> Map.ofArray)
 
-    testCase "Responses Definitions Object Example" <| fun _ ->
-        """
+                Expect.equal actual expected "Parameters Definition Object"
+
+        testCase "Responses Definitions Object Example"
+        <| fun _ ->
+            """
 NotFound:
   description: Entity not found.
 IllegalInput:
@@ -799,26 +888,28 @@ GeneralError:
   schema:
     $ref: '#/definitions/GeneralError'
 """
-        |> SwaggerParser.parseYaml
-        |> Parsers.parseResponsesDefinition
-        |> fun actual ->
-            let expected =
-                ([|
-                    "#/responses/NotFound",
-                    {
-                        Description = "Entity not found."
-                        Schema = None
-                    }
-                    "#/responses/IllegalInput",
-                    {
-                        Description = "Illegal input for operation."
-                        Schema = None
-                    }
-                    "#/responses/GeneralError",
-                    {
-                        Description = "General Error"
-                        Schema = Some (Reference "#/definitions/GeneralError")
-                    }
-                |] |> Map.ofArray)
-            Expect.equal actual expected "Responses Definitions Object"
-  ]
+            |> SwaggerParser.parseYaml
+            |> Parsers.parseResponsesDefinition
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/responses/NotFound",
+                        {
+                            Description = "Entity not found."
+                            Schema = None
+                        }
+                        "#/responses/IllegalInput",
+                        {
+                            Description = "Illegal input for operation."
+                            Schema = None
+                        }
+                        "#/responses/GeneralError",
+                        {
+                            Description = "General Error"
+                            Schema = Some(Reference "#/definitions/GeneralError")
+                        }
+                     |]
+                     |> Map.ofArray)
+
+                Expect.equal actual expected "Responses Definitions Object"
+    ]
