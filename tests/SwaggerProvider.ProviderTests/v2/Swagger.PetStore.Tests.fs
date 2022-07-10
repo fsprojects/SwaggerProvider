@@ -4,70 +4,80 @@ open SwaggerProvider
 open Expecto
 open System
 
-let [<Literal>] Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/petstore.json"
-type PetStore = SwaggerClientProvider<Schema, PreferAsync = true>
-type PetStoreNullable = SwaggerClientProvider<Schema, PreferNullable = true>
+[<Literal>]
+let Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/petstore.json"
 
-type PetStoreOperationId = SwaggerClientProvider<Schema, IgnoreOperationId = true>
-type PetStoreControllerPrefix = SwaggerClientProvider<Schema, IgnoreControllerPrefix = false>
+type PetStore = SwaggerClientProvider<Schema, PreferAsync=true>
+type PetStoreNullable = SwaggerClientProvider<Schema, PreferNullable=true>
+
+type PetStoreOperationId = SwaggerClientProvider<Schema, IgnoreOperationId=true>
+type PetStoreControllerPrefix = SwaggerClientProvider<Schema, IgnoreControllerPrefix=false>
 
 let store = PetStore.Client()
 let apiKey = "test-key"
 
 [<Tests>]
 let petStoreTests =
-  testList "All/TP PetStore Tests" [
+    testList "All/TP PetStore Tests" [
 
-    testCase "Test provided Host property" <| fun _ ->
-        let store = PetStore.Client()
-        Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io/" "value from schema"
-        store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/"
-        Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io/" "Modified value"
+        testCase "Test provided Host property"
+        <| fun _ ->
+            let store = PetStore.Client()
+            Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io/" "value from schema"
+            store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/"
+            Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io/" "Modified value"
 
-    testCase "instantiate provided objects" <| fun _ ->
-        let pet = PetStore.Pet(Name = "foo")
-        Expect.equal pet.Name "foo" "access initial value"
-        Expect.stringContains (pet.ToString()) "foo" "ToString"
-        pet.Name <- "bar"
-        Expect.equal pet.Name "bar" "access modified value"
-        Expect.stringContains (pet.ToString()) "bar" "ToString"
+        testCase "instantiate provided objects"
+        <| fun _ ->
+            let pet = PetStore.Pet(Name = "foo")
+            Expect.equal pet.Name "foo" "access initial value"
+            Expect.stringContains (pet.ToString()) "foo" "ToString"
+            pet.Name <- "bar"
+            Expect.equal pet.Name "bar" "access modified value"
+            Expect.stringContains (pet.ToString()) "bar" "ToString"
 
-    ptestCaseAsync "call provided methods" <| async {
-        let id = 2347L
-        try
-            do! store.DeletePet(id, apiKey)
-        with
-        | _ -> ()
+        ptestCaseAsync "call provided methods"
+        <| async {
+            let id = 2347L
 
-        let tag = PetStore.Tag(None, "foobar")
-        Expect.stringContains (tag.ToString()) "foobar" "ToString"
-        let pet = PetStore.Pet("foo", [||], Some id)
-        Expect.stringContains (pet.ToString()) (id.ToString()) "ToString"
+            try
+                do! store.DeletePet(id, apiKey)
+            with _ ->
+                ()
 
-        try
-            do! store.AddPet(pet)
-        with
-        | exn ->
-            let msg = if exn.InnerException = null then exn.Message
-                      else exn.InnerException.Message
-            failwithf "Adding pet failed with message: %s" msg
+            let tag = PetStore.Tag(None, "foobar")
+            Expect.stringContains (tag.ToString()) "foobar" "ToString"
+            let pet = PetStore.Pet("foo", [||], Some id)
+            Expect.stringContains (pet.ToString()) (id.ToString()) "ToString"
 
-        let! pet2 = store.GetPetById(id)
-        Expect.equal pet.Name     pet2.Name     "same Name"
-        Expect.equal pet.Id       pet2.Id        "same Id"
-        Expect.equal pet.Category pet2.Category "same Category"
-        Expect.equal pet.Status   pet2.Status   "same Status"
-        Expect.notEqual pet pet2 "different objects"
-    }
+            try
+                do! store.AddPet(pet)
+            with exn ->
+                let msg =
+                    if exn.InnerException = null then
+                        exn.Message
+                    else
+                        exn.InnerException.Message
 
-    testCase "create types with Nullable properties" <| fun _ ->
-        let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
-        Expect.stringContains (tag.ToString()) "foobar" "ToString"
-        let tag2 = PetStoreNullable.Tag (Name = "foobar")
-        Expect.stringContains (tag2.ToString()) "foobar" "ToString"
+                failwithf "Adding pet failed with message: %s" msg
 
-        let pet = PetStoreNullable.Pet("foo", [||], Nullable(1337L))
-        Expect.stringContains (pet.ToString()) "1337" "ToString"
-        let pet2 = PetStoreNullable.Pet (Name="foo", Id = Nullable(1337L))
-        Expect.stringContains (pet2.ToString()) "1337" "ToString"
-  ]
+            let! pet2 = store.GetPetById(id)
+            Expect.equal pet.Name pet2.Name "same Name"
+            Expect.equal pet.Id pet2.Id "same Id"
+            Expect.equal pet.Category pet2.Category "same Category"
+            Expect.equal pet.Status pet2.Status "same Status"
+            Expect.notEqual pet pet2 "different objects"
+        }
+
+        testCase "create types with Nullable properties"
+        <| fun _ ->
+            let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
+            Expect.stringContains (tag.ToString()) "foobar" "ToString"
+            let tag2 = PetStoreNullable.Tag(Name = "foobar")
+            Expect.stringContains (tag2.ToString()) "foobar" "ToString"
+
+            let pet = PetStoreNullable.Pet("foo", [||], Nullable(1337L))
+            Expect.stringContains (pet.ToString()) "1337" "ToString"
+            let pet2 = PetStoreNullable.Pet(Name = "foo", Id = Nullable(1337L))
+            Expect.stringContains (pet2.ToString()) "1337" "ToString"
+    ]

@@ -16,7 +16,7 @@ module Program =
     let CreateWebHostBuilder args =
         WebHost
             .CreateDefaultBuilder(args)
-            .UseStartup<Startup>();
+            .UseStartup<Startup>()
 
     [<EntryPoint>]
     let main args =
@@ -28,8 +28,6 @@ module Program =
         Console.Read() |> ignore
 
         printfn "Stopping WebApi ..."
-        webHost.StopAsync()
-        |> Async.AwaitTask
-        |> Async.RunSynchronously
+        webHost.StopAsync() |> Async.AwaitTask |> Async.RunSynchronously
 
         exitCode

@@ -2,7 +2,9 @@
 
 open SwaggerProvider
 
-let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
+[<Literal>]
+let Schema = "https://petstore.swagger.io/v2/swagger.json"
+
 type PetStore = OpenApiClientProvider<Schema>
 let petStoreClient = PetStore.Client()
 
@@ -24,23 +26,22 @@ category.Name <- "dog"
 
 category.ToString()
 
-let pet = PetStore.Pet (Name = "foo", Id = Some 1337L)
+let pet = PetStore.Pet(Name = "foo", Id = Some 1337L)
 pet.Name <- "bar" // Overwrites "foo"
 pet.Category <- category
 pet.Status <- "sold"
 pet.PhotoUrls <- [||]
-pet.Tags <- [|tag|]
+pet.Tags <- [| tag |]
 
 pet.ToString()
 
 
-let dic = [1,"2"; 3,"4"] |> Map.ofList
+let dic = [ 1, "2"; 3, "4" ] |> Map.ofList
 
 
-type V (x:int) =
+type V(x: int) =
     member __.X = x
-    override __.ToString() =
-        "hello"
+    override __.ToString() = "hello"
 
 let v = V(5)
 v
@@ -50,7 +51,7 @@ let o = v :> obj
 o.ToString()
 
 
-let arr = [|tag|]
+let arr = [| tag |]
 let arrObj = arr :> obj
 
 let ty = arrObj.GetType()

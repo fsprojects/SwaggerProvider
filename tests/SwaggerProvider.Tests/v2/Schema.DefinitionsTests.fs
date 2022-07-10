@@ -4,84 +4,92 @@ open SwaggerProvider.Internal.v2.Parser.Schema
 open SwaggerProvider.Internal.v2.Parser
 open Expecto
 
-let shouldBeEqual (expected:SchemaObject) content =
+let shouldBeEqual (expected: SchemaObject) content =
     content
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> fun actual ->
-        Expect.equal actual expected "type definition parse"
+    |> fun actual -> Expect.equal actual expected "type definition parse"
 
 [<Tests>]
 let definitionsTests =
-  testList "All/v2/DefinitionsTests" [
+    testList "All/v2/DefinitionsTests" [
 
-    testCase "parse boolean" <| fun _ ->
-        """{
+        testCase "parse boolean"
+        <| fun _ ->
+            """{
             "type" : "boolean"
         }"""
-        |> shouldBeEqual Boolean
+            |> shouldBeEqual Boolean
 
-    testCase "parse int32" <| fun _ ->
-        """{
+        testCase "parse int32"
+        <| fun _ ->
+            """{
             "type" : "integer",
             "format" : "int32",
             "description" : "User Status"
         }"""
-        |> shouldBeEqual Int32
+            |> shouldBeEqual Int32
 
-    testCase "parse int64" <| fun _ ->
-        """{
+        testCase "parse int64"
+        <| fun _ ->
+            """{
             "type" : "integer",
             "format" : "int64"
         }"""
-        |> shouldBeEqual Int64
+            |> shouldBeEqual Int64
 
-    testCase "parse float" <| fun _ ->
-        """{
+        testCase "parse float"
+        <| fun _ ->
+            """{
             "type" : "number",
             "format" : "float"
         }"""
-        |> shouldBeEqual Float
+            |> shouldBeEqual Float
 
-    testCase "parse double" <| fun _ ->
-        """{
+        testCase "parse double"
+        <| fun _ ->
+            """{
             "type" : "number",
             "format" : "double"
         }"""
-        |> shouldBeEqual Double
+            |> shouldBeEqual Double
 
-    testCase "parse string" <| fun _ ->
-        """{"type" : "string"}"""
-        |> shouldBeEqual String
+        testCase "parse string"
+        <| fun _ -> """{"type" : "string"}""" |> shouldBeEqual String
 
-    testCase "parse date-time" <| fun _ ->
-        """{
+        testCase "parse date-time"
+        <| fun _ ->
+            """{
             "type" : "string",
             "format" : "date-time"
         }"""
-        |> shouldBeEqual DateTime
+            |> shouldBeEqual DateTime
 
-    testCase "parse date" <| fun _ ->
-        """{
+        testCase "parse date"
+        <| fun _ ->
+            """{
             "type" : "string",
             "format" : "date"
         }"""
-        |> shouldBeEqual Date
+            |> shouldBeEqual Date
 
-    testCase "parse enum" <| fun _ ->
-        """{
+        testCase "parse enum"
+        <| fun _ ->
+            """{
             "type" : "string",
             "description" : "pet status in the store",
             "enum" : ["available", "pending", "sold"]
         }"""
-        |> shouldBeEqual (Enum [|"available"; "pending"; "sold"|])
+            |> shouldBeEqual(Enum [| "available"; "pending"; "sold" |])
 
-    testCase "parse definition reference" <| fun _ ->
-        """{"$ref" : "#/definitions/Tag"}"""
-        |> shouldBeEqual (Reference "#/definitions/Tag")
+        testCase "parse definition reference"
+        <| fun _ ->
+            """{"$ref" : "#/definitions/Tag"}"""
+            |> shouldBeEqual(Reference "#/definitions/Tag")
 
-    testCase "parse array of definitions" <| fun _ ->
-        """{
+        testCase "parse array of definitions"
+        <| fun _ ->
+            """{
             "type" : "array",
             "xml" : {
                 "name" : "tag",
@@ -91,10 +99,11 @@ let definitionsTests =
                 "$ref" : "#/definitions/Tag"
             }
         }"""
-        |> shouldBeEqual (Array (Reference "#/definitions/Tag"))
+            |> shouldBeEqual(Array(Reference "#/definitions/Tag"))
 
-    testCase "parse array of string" <| fun _ ->
-        """{
+        testCase "parse array of string"
+        <| fun _ ->
+            """{
             "type" : "array",
             "xml" : {
                 "name" : "photoUrl",
@@ -104,23 +113,25 @@ let definitionsTests =
                 "type" : "string"
             }
         }"""
-        |> shouldBeEqual (Array String)
+            |> shouldBeEqual(Array String)
 
-    testCase "parse map of definitions" <| fun _ ->
-        """{
+        testCase "parse map of definitions"
+        <| fun _ ->
+            """{
             "type": "object",
             "additionalProperties": {
                 "$ref": "#/definitions/Tag"
             }
         }"""
-        |> shouldBeEqual (Dictionary (Reference "#/definitions/Tag"))
+            |> shouldBeEqual(Dictionary(Reference "#/definitions/Tag"))
 
-    testCase "parse map of string" <| fun _ ->
-        """{
+        testCase "parse map of string"
+        <| fun _ ->
+            """{
             "type": "object",
             "additionalProperties": {
                 "type": "string"
             }
         }"""
-        |> shouldBeEqual (Dictionary String)
-  ]
+            |> shouldBeEqual(Dictionary String)
+    ]

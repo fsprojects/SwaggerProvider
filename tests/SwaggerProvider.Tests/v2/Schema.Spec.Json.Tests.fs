@@ -6,9 +6,10 @@ open Expecto
 
 [<Tests>]
 let jsonSpecTests =
-  testList "All/v2/Parse/Schema.Spec.Json.Tests" [
-    testCase "Info Object Example" <| fun _ ->
-        """{
+    testList "All/v2/Parse/Schema.Spec.Json.Tests" [
+        testCase "Info Object Example"
+        <| fun _ ->
+            """{
             "title": "Swagger Sample App",
             "description": "This is a sample server Petstore server.",
             "termsOfService": "http://swagger.io/terms/",
@@ -23,19 +24,20 @@ let jsonSpecTests =
             },
             "version": "1.0.1"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseInfoObject
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseInfoObject
+            |> fun actual ->
+                let expected = {
                     Title = "Swagger Sample App"
                     Description = "This is a sample server Petstore server."
                     Version = "1.0.1"
                 }
-            Expect.equal actual expected "Title+Descr+Version"
 
-    testCase "Paths Object Example" <| fun _ ->
-        """{
+                Expect.equal actual expected "Title+Descr+Version"
+
+        testCase "Paths Object Example"
+        <| fun _ ->
+            """{
             "/pets": {
             "get": {
                 "description": "Returns all pets from the system that the user has access to",
@@ -56,30 +58,37 @@ let jsonSpecTests =
             }
             }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
-        |> fun actual ->
-            let expected =
-                [|{
-                    Path = "/pets"
-                    Type = Get
-                    Tags = [||]
-                    Summary = ""
-                    Description = "Returns all pets from the system that the user has access to"
-                    OperationId = ""
-                    Consumes = [||]
-                    Produces = [|"application/json"|]
-                    Responses =
-                        [|Some(200),
-                            { Description = "A list of pets."
-                              Schema = Some <| Array (Reference "#/definitions/pet")}|]
-                    Parameters = [||]
-                    Deprecated = false
-                  }|]
-            Expect.equal actual expected "parse Path Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+            |> fun actual ->
+                let expected = [|
+                    {
+                        Path = "/pets"
+                        Type = Get
+                        Tags = [||]
+                        Summary = ""
+                        Description = "Returns all pets from the system that the user has access to"
+                        OperationId = ""
+                        Consumes = [||]
+                        Produces = [| "application/json" |]
+                        Responses =
+                            [|
+                                Some(200),
+                                {
+                                    Description = "A list of pets."
+                                    Schema = Some <| Array(Reference "#/definitions/pet")
+                                }
+                            |]
+                        Parameters = [||]
+                        Deprecated = false
+                    }
+                |]
 
-    testCase "Path Item Object Example" <| fun _ ->
-        """{"/pets":{
+                Expect.equal actual expected "parse Path Object"
+
+        testCase "Path Item Object Example"
+        <| fun _ ->
+            """{"/pets":{
           "get": {
             "description": "Returns pets based on ID",
             "summary": "Find pets by ID",
@@ -120,41 +129,52 @@ let jsonSpecTests =
             }
           ]
         }}"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parsePathsObject Parsers.ParserContext.Empty
-        |> fun actual ->
-            let expected =
-                [|{
-                    Path = "/pets"
-                    Type = Get
-                    Tags = [||]
-                    Summary = "Find pets by ID"
-                    Description = "Returns pets based on ID"
-                    OperationId = "getPetsById"
-                    Consumes = [||]
-                    Produces = [|"application/json"; "text/html"|]
-                    Responses =
-                        [|Some(200),
-                            { Description = "pet response"
-                              Schema = Some <| Array (Reference "#/definitions/Pet")}
-                          None,
-                            { Description = "error payload"
-                              Schema = Some <| Reference "#/definitions/ErrorModel"}|]
-                    Parameters =
-                        [|{
-                          Name = "id"
-                          In = Path
-                          Description = "ID of pet to use"
-                          Required = true
-                          Type = Array String
-                          CollectionFormat = Csv
-                        }|]
-                    Deprecated = false
-                  }|]
-            Expect.equal actual expected "parse Path Item Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parsePathsObject Parsers.ParserContext.Empty
+            |> fun actual ->
+                let expected = [|
+                    {
+                        Path = "/pets"
+                        Type = Get
+                        Tags = [||]
+                        Summary = "Find pets by ID"
+                        Description = "Returns pets based on ID"
+                        OperationId = "getPetsById"
+                        Consumes = [||]
+                        Produces = [| "application/json"; "text/html" |]
+                        Responses =
+                            [|
+                                Some(200),
+                                {
+                                    Description = "pet response"
+                                    Schema = Some <| Array(Reference "#/definitions/Pet")
+                                }
+                                None,
+                                {
+                                    Description = "error payload"
+                                    Schema = Some <| Reference "#/definitions/ErrorModel"
+                                }
+                            |]
+                        Parameters =
+                            [|
+                                {
+                                    Name = "id"
+                                    In = Path
+                                    Description = "ID of pet to use"
+                                    Required = true
+                                    Type = Array String
+                                    CollectionFormat = Csv
+                                }
+                            |]
+                        Deprecated = false
+                    }
+                |]
 
-    testCase "Operation Object Example" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse Path Item Object"
+
+        testCase "Operation Object Example"
+        <| fun _ ->
+            """{
           "tags": [
             "pet"
           ],
@@ -208,57 +228,73 @@ let jsonSpecTests =
             }
           ]
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
+            |> fun actual ->
+                let expected = {
                     Path = "/"
                     Type = Get
-                    Tags = [|"pet"|]
+                    Tags = [| "pet" |]
                     Summary = "Updates a pet in the store with form data"
                     Description = ""
                     OperationId = "updatePetWithForm"
-                    Consumes = [|"application/x-www-form-urlencoded"|]
-                    Produces = [|"application/json"; "application/xml"|]
+                    Consumes =
+                        [|
+                            "application/x-www-form-urlencoded"
+                        |]
+                    Produces =
+                        [|
+                            "application/json"
+                            "application/xml"
+                        |]
                     Responses =
-                        [|Some(200),
-                            { Description = "Pet updated."
-                              Schema = None}
-                          Some(405),
-                            { Description = "Invalid input"
-                              Schema = None }|]
+                        [|
+                            Some(200),
+                            {
+                                Description = "Pet updated."
+                                Schema = None
+                            }
+                            Some(405),
+                            {
+                                Description = "Invalid input"
+                                Schema = None
+                            }
+                        |]
                     Parameters =
-                        [|{
-                            Name = "petId"
-                            In = Path
-                            Description = "ID of pet that needs to be updated"
-                            Required = true
-                            Type = String
-                            CollectionFormat = Csv
-                          }
-                          {
-                            Name = "name"
-                            In = FormData
-                            Description = "Updated name of the pet"
-                            Required = false
-                            Type = String
-                            CollectionFormat = Csv
-                          }
-                          {
-                            Name = "status"
-                            In = FormData
-                            Description = "Updated status of the pet"
-                            Required = false
-                            Type = String
-                            CollectionFormat = Csv
-                          }|]
+                        [|
+                            {
+                                Name = "petId"
+                                In = Path
+                                Description = "ID of pet that needs to be updated"
+                                Required = true
+                                Type = String
+                                CollectionFormat = Csv
+                            }
+                            {
+                                Name = "name"
+                                In = FormData
+                                Description = "Updated name of the pet"
+                                Required = false
+                                Type = String
+                                CollectionFormat = Csv
+                            }
+                            {
+                                Name = "status"
+                                In = FormData
+                                Description = "Updated status of the pet"
+                                Required = false
+                                Type = String
+                                CollectionFormat = Csv
+                            }
+                        |]
                     Deprecated = false
                 }
-            Expect.equal actual expected "parse Operation Object"
 
-    testCase "Parameter Object Examples: Body Parameters" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse Operation Object"
+
+        testCase "Parameter Object Examples: Body Parameters"
+        <| fun _ ->
+            """{
           "name": "user",
           "in": "body",
           "description": "user to add to the system",
@@ -267,11 +303,10 @@ let jsonSpecTests =
             "$ref": "#/definitions/User"
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "user"
                     In = Body
                     Description = "user to add to the system"
@@ -279,10 +314,12 @@ let jsonSpecTests =
                     Type = Reference "#/definitions/User"
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse Parameter Object body parameters"
 
-    testCase "Parameter Object Examples: Body Parameters Array" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse Parameter Object body parameters"
+
+        testCase "Parameter Object Examples: Body Parameters Array"
+        <| fun _ ->
+            """{
           "name": "user",
           "in": "body",
           "description": "user to add to the system",
@@ -294,11 +331,10 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "user"
                     In = Body
                     Description = "user to add to the system"
@@ -306,10 +342,12 @@ let jsonSpecTests =
                     Type = Array String
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse body params array"
 
-    testCase "Parameter Object Examples: Other Parameters" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse body params array"
+
+        testCase "Parameter Object Examples: Other Parameters"
+        <| fun _ ->
+            """{
           "name": "token",
           "in": "header",
           "description": "token to be passed as a header",
@@ -321,11 +359,10 @@ let jsonSpecTests =
           },
           "collectionFormat": "csv"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "token"
                     In = Header
                     Description = "token to be passed as a header"
@@ -333,21 +370,22 @@ let jsonSpecTests =
                     Type = Array Int64
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse other params"
 
-    testCase "Parameter Object Examples: Other Parameters - Path String" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse other params"
+
+        testCase "Parameter Object Examples: Other Parameters - Path String"
+        <| fun _ ->
+            """{
           "name": "username",
           "in": "path",
           "description": "username to fetch",
           "required": true,
           "type": "string"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "username"
                     In = Path
                     Description = "username to fetch"
@@ -355,10 +393,12 @@ let jsonSpecTests =
                     Type = String
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse paths string"
 
-    testCase "Parameter Object Examples: Other Parameters - Array String Multi" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse paths string"
+
+        testCase "Parameter Object Examples: Other Parameters - Array String Multi"
+        <| fun _ ->
+            """{
           "name": "id",
           "in": "query",
           "description": "ID of the object to fetch",
@@ -369,11 +409,10 @@ let jsonSpecTests =
           },
           "collectionFormat": "multi"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "id"
                     In = Query
                     Description = "ID of the object to fetch"
@@ -381,21 +420,22 @@ let jsonSpecTests =
                     Type = Array String
                     CollectionFormat = Multi
                 }
-            Expect.equal actual expected "parse collection format `multi`"
 
-    testCase "Parameter Object Examples: Other Parameters - File" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse collection format `multi`"
+
+        testCase "Parameter Object Examples: Other Parameters - File"
+        <| fun _ ->
+            """{
           "name": "avatar",
           "in": "formData",
           "description": "The avatar of the user",
           "required": true,
           "type": "file"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "avatar"
                     In = FormData
                     Description = "The avatar of the user"
@@ -403,10 +443,12 @@ let jsonSpecTests =
                     Type = File
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse File type"
 
-    testCase "Response Object Examples: Response of an array of a complex type" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse File type"
+
+        testCase "Response Object Examples: Response of an array of a complex type"
+        <| fun _ ->
+            """{
           "description": "A complex object array response",
           "schema": {
             "type": "array",
@@ -415,37 +457,39 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "A complex object array response"
-                    Schema = Some <| Array (Reference "#/definitions/VeryComplexType")
+                    Schema = Some <| Array(Reference "#/definitions/VeryComplexType")
                 }
-            Expect.equal actual expected "complex type array"
+
+                Expect.equal actual expected "complex type array"
 
 
-    testCase "Response Object Examples: Response with a string type" <| fun _ ->
-        """{
+        testCase "Response Object Examples: Response with a string type"
+        <| fun _ ->
+            """{
           "description": "A simple string response",
           "schema": {
             "type": "string"
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "A simple string response"
                     Schema = Some String
                 }
-            Expect.equal actual expected "string type reponse"
+
+                Expect.equal actual expected "string type reponse"
 
 
-    testCase "Response Object Examples: Response with headers" <| fun _ ->
-        """{
+        testCase "Response Object Examples: Response with headers"
+        <| fun _ ->
+            """{
           "description": "A simple string response",
           "schema": {
             "type": "string"
@@ -465,70 +509,74 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "A simple string response"
                     Schema = Some String
                 }
-            Expect.equal actual expected "response with headers"
 
-    testCase "Response Object Examples: Response with no return value" <| fun _ ->
-        """{
+                Expect.equal actual expected "response with headers"
+
+        testCase "Response Object Examples: Response with no return value"
+        <| fun _ ->
+            """{
             "description": "object created"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseResponseObject (Parsers.ParserContext.Empty)
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
+            |> fun actual ->
+                let expected = {
                     Description = "object created"
                     Schema = None
                 }
-            Expect.equal actual expected "response with no return type"
 
-    testCase "Tag Object Example" <| fun _ ->
-        """{
+                Expect.equal actual expected "response with no return type"
+
+        testCase "Tag Object Example"
+        <| fun _ ->
+            """{
             "name": "pet",
             "description": "Pets operations"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseTagObject
-        |> fun actual ->
-            let expected =
-                ({
-                    Name = "pet"
-                    Description = "Pets operations"
-                }:TagObject)
-            Expect.equal actual expected "parse Tag Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseTagObject
+            |> fun actual ->
+                let expected =
+                    ({
+                        Name = "pet"
+                        Description = "Pets operations"
+                    }: TagObject)
+
+                Expect.equal actual expected "parse Tag Object"
 
 
-    testCase "Tag Object Example Ref" <| fun _ ->
-        """{
+        testCase "Tag Object Example Ref"
+        <| fun _ ->
+            """{
             "$ref": "#/definitions/Pet"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Reference "#/definitions/Pet")
-            Expect.equal actual expected "parse Tag Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = (Reference "#/definitions/Pet")
+                Expect.equal actual expected "parse Tag Object"
 
 
-    testCase "Schema Object Examples: Primitive Sample" <| fun _ ->
-        """{
+        testCase "Schema Object Examples: Primitive Sample"
+        <| fun _ ->
+            """{
             "type": "string",
             "format": "email"
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            Expect.equal actual String "string object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual -> Expect.equal actual String "string object"
 
-    testCase "Schema Object Examples: Simple Model" <| fun _ ->
-        """{
+        testCase "Schema Object Examples: Simple Model"
+        <| fun _ ->
+            """{
           "type": "object",
           "required": [
             "name"
@@ -547,54 +595,62 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Object
-                    [|{Name = "name"
-                       Type = String
-                       IsRequired = true
-                       Description = ""}
-                      {Name = "address"
-                       Type = Reference "#/definitions/Address"
-                       IsRequired = false
-                       Description = ""}
-                      {Name = "age"
-                       Type = Int32
-                       IsRequired = false
-                       Description = ""}|]
-                )
-            Expect.equal actual expected "parse custom model"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected =
+                    (Object [|
+                        {
+                            Name = "name"
+                            Type = String
+                            IsRequired = true
+                            Description = ""
+                        }
+                        {
+                            Name = "address"
+                            Type = Reference "#/definitions/Address"
+                            IsRequired = false
+                            Description = ""
+                        }
+                        {
+                            Name = "age"
+                            Type = Int32
+                            IsRequired = false
+                            Description = ""
+                        }
+                    |])
 
-    testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse custom model"
+
+        testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping"
+        <| fun _ ->
+            """{
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            Expect.equal actual (Dictionary String) "parse string Dict object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual -> Expect.equal actual (Dictionary String) "parse string Dict object"
 
-    testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping" <| fun _ ->
-        """{
+        testCase "Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping"
+        <| fun _ ->
+            """{
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ComplexModel"
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Dictionary (Reference "#/definitions/ComplexModel"))
-            Expect.equal actual expected "parse dict of complex objects"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = (Dictionary(Reference "#/definitions/ComplexModel"))
+                Expect.equal actual expected "parse dict of complex objects"
 
-    testCase "Schema Object Examples: Model with Example" <| fun _ ->
-        """{
+        testCase "Schema Object Examples: Model with Example"
+        <| fun _ ->
+            """{
             "type": "object",
             "properties": {
             "id": {
@@ -613,23 +669,31 @@ let jsonSpecTests =
             "id": 1
             }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                [|{ Name = "id"
-                    Type = Int64
-                    IsRequired = false
-                    Description = ""}
-                  { Name = "name"
-                    Type = String
-                    IsRequired = true
-                    Description = ""}|]
-                |> Object
-            Expect.equal actual expected "model with example"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected =
+                    [|
+                        {
+                            Name = "id"
+                            Type = Int64
+                            IsRequired = false
+                            Description = ""
+                        }
+                        {
+                            Name = "name"
+                            Type = String
+                            IsRequired = true
+                            Description = ""
+                        }
+                    |]
+                    |> Object
 
-    testCase "Schema Object Examples: Models with Composition" <| fun _ ->
-        """{
+                Expect.equal actual expected "model with example"
+
+        testCase "Schema Object Examples: Models with Composition"
+        <| fun _ ->
+            """{
             "ErrorModel": {
               "type": "object",
               "required": [
@@ -666,42 +730,57 @@ let jsonSpecTests =
               ]
             }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseDefinitionsObject
-        |> Seq.map (fun x -> x.Key, x.Value.Value)
-        |> Map.ofSeq
-        |> fun actual ->
-            let expected =
-               ([|
-                    "#/definitions/ErrorModel",
-                    (Object
-                        [|{ Name = "message"
-                            Type = String
-                            IsRequired = true
-                            Description = "" }
-                          { Name = "code"
-                            Type = Int64
-                            IsRequired = true
-                            Description = "" }|])
-                    "#/definitions/ExtendedErrorModel",
-                    (Object
-                        [|{ Name = "message"
-                            Type = String
-                            IsRequired = true
-                            Description = "" }
-                          { Name = "code"
-                            Type = Int64
-                            IsRequired = true
-                            Description = "" }
-                          { Name = "rootCause"
-                            Type = String
-                            IsRequired = true
-                            Description = "" }|])
-                |] |> Map.ofArray)
-            Expect.equal actual expected "model with composition"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseDefinitionsObject
+            |> Seq.map(fun x -> x.Key, x.Value.Value)
+            |> Map.ofSeq
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/definitions/ErrorModel",
+                        (Object [|
+                            {
+                                Name = "message"
+                                Type = String
+                                IsRequired = true
+                                Description = ""
+                            }
+                            {
+                                Name = "code"
+                                Type = Int64
+                                IsRequired = true
+                                Description = ""
+                            }
+                        |])
+                        "#/definitions/ExtendedErrorModel",
+                        (Object [|
+                            {
+                                Name = "message"
+                                Type = String
+                                IsRequired = true
+                                Description = ""
+                            }
+                            {
+                                Name = "code"
+                                Type = Int64
+                                IsRequired = true
+                                Description = ""
+                            }
+                            {
+                                Name = "rootCause"
+                                Type = String
+                                IsRequired = true
+                                Description = ""
+                            }
+                        |])
+                     |]
+                     |> Map.ofArray)
 
-    ptestCase "Schema Object Examples: Models with Polymorphism Support" <| fun _ -> // Ignore("Not supported")
-        """{
+                Expect.equal actual expected "model with composition"
+
+        ptestCase "Schema Object Examples: Models with Polymorphism Support"
+        <| fun _ -> // Ignore("Not supported")
+            """{
           "definitions": {
             "Pet": {
               "type": "object",
@@ -771,18 +850,16 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseSchemaObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                (Object
-                    [||]
-                )
-            Expect.equal actual expected "Models with Polymorphism Support"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseSchemaObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = (Object [||])
+                Expect.equal actual expected "Models with Polymorphism Support"
 
 
-    testCase "Definitions Object Example" <| fun _ ->
-        """{
+        testCase "Definitions Object Example"
+        <| fun _ ->
+            """{
           "Category": {
             "type": "object",
             "properties": {
@@ -808,41 +885,52 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseDefinitionsObject
-        |> Seq.map (fun x->x.Key, x.Value.Value)
-        |> Map.ofSeq
-        |> fun actual ->
-            let expected =
-               ([|
-                    "#/definitions/Category",
-                    (Object
-                        [|{Name = "id"
-                           Type = Int64
-                           IsRequired = false
-                           Description = ""}
-                          {Name = "name"
-                           Type = String
-                           IsRequired = false
-                           Description = ""}|]
-                    )
-                    "#/definitions/Tag",
-                    (Object
-                        [|{Name = "id"
-                           Type = Int64
-                           IsRequired = false
-                           Description = ""}
-                          {Name = "name"
-                           Type = String
-                           IsRequired = false
-                           Description = ""}|]
-                    )
-                |] |> Map.ofArray)
-            Expect.equal actual expected "parse Definitions Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseDefinitionsObject
+            |> Seq.map(fun x -> x.Key, x.Value.Value)
+            |> Map.ofSeq
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/definitions/Category",
+                        (Object [|
+                            {
+                                Name = "id"
+                                Type = Int64
+                                IsRequired = false
+                                Description = ""
+                            }
+                            {
+                                Name = "name"
+                                Type = String
+                                IsRequired = false
+                                Description = ""
+                            }
+                        |])
+                        "#/definitions/Tag",
+                        (Object [|
+                            {
+                                Name = "id"
+                                Type = Int64
+                                IsRequired = false
+                                Description = ""
+                            }
+                            {
+                                Name = "name"
+                                Type = String
+                                IsRequired = false
+                                Description = ""
+                            }
+                        |])
+                     |]
+                     |> Map.ofArray)
+
+                Expect.equal actual expected "parse Definitions Object"
 
 
-    testCase "Parameters Definition Object Example" <| fun _ ->
-        """{
+        testCase "Parameters Definition Object Example"
+        <| fun _ ->
+            """{
           "skipParam": {
             "name": "skip",
             "in": "query",
@@ -860,34 +948,37 @@ let jsonSpecTests =
             "format": "int32"
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParametersDefinition Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                ([|
-                    "#/parameters/skipParam",
-                    {
-                        Name = "skip"
-                        In = Query
-                        Description = "number of items to skip"
-                        Required = true
-                        Type = Int32
-                        CollectionFormat = Csv
-                    }
-                    "#/parameters/limitParam",
-                    {
-                        Name = "limit"
-                        In = Query
-                        Description = "max records to return"
-                        Required = true
-                        Type = Int32
-                        CollectionFormat = Csv
-                    }
-                |] |> Map.ofArray)
-            Expect.equal actual expected "parse Parameters Definition Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParametersDefinition Parsers.emptyDict
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/parameters/skipParam",
+                        {
+                            Name = "skip"
+                            In = Query
+                            Description = "number of items to skip"
+                            Required = true
+                            Type = Int32
+                            CollectionFormat = Csv
+                        }
+                        "#/parameters/limitParam",
+                        {
+                            Name = "limit"
+                            In = Query
+                            Description = "max records to return"
+                            Required = true
+                            Type = Int32
+                            CollectionFormat = Csv
+                        }
+                     |]
+                     |> Map.ofArray)
 
-    testCase "Responses Definitions Object Example" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse Parameters Definition Object"
+
+        testCase "Responses Definitions Object Example"
+        <| fun _ ->
+            """{
           "NotFound": {
             "description": "Entity not found."
           },
@@ -901,31 +992,34 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseResponsesDefinition
-        |> fun actual ->
-            let expected =
-                ([|
-                    "#/responses/NotFound",
-                    {
-                        Description = "Entity not found."
-                        Schema = None
-                    }
-                    "#/responses/IllegalInput",
-                    {
-                        Description = "Illegal input for operation."
-                        Schema = None
-                    }
-                    "#/responses/GeneralError",
-                    {
-                        Description = "General Error"
-                        Schema = Some (Reference "#/definitions/GeneralError")
-                    }
-                |] |> Map.ofArray)
-            Expect.equal actual expected "parse Responses Definitions Object"
+            |> SwaggerParser.parseJson
+            |> Parsers.parseResponsesDefinition
+            |> fun actual ->
+                let expected =
+                    ([|
+                        "#/responses/NotFound",
+                        {
+                            Description = "Entity not found."
+                            Schema = None
+                        }
+                        "#/responses/IllegalInput",
+                        {
+                            Description = "Illegal input for operation."
+                            Schema = None
+                        }
+                        "#/responses/GeneralError",
+                        {
+                            Description = "General Error"
+                            Schema = Some(Reference "#/definitions/GeneralError")
+                        }
+                     |]
+                     |> Map.ofArray)
 
-    testCase "Parameter Map Examples: Body Parameters Map" <| fun _ ->
-        """{
+                Expect.equal actual expected "parse Responses Definitions Object"
+
+        testCase "Parameter Map Examples: Body Parameters Map"
+        <| fun _ ->
+            """{
           "name": "user",
           "in": "body",
           "description": "user to add to the system",
@@ -937,11 +1031,10 @@ let jsonSpecTests =
             }
           }
         }"""
-        |> SwaggerParser.parseJson
-        |> Parsers.parseParameterObject Parsers.emptyDict
-        |> fun actual ->
-            let expected =
-                {
+            |> SwaggerParser.parseJson
+            |> Parsers.parseParameterObject Parsers.emptyDict
+            |> fun actual ->
+                let expected = {
                     Name = "user"
                     In = Body
                     Description = "user to add to the system"
@@ -949,5 +1042,6 @@ let jsonSpecTests =
                     Type = Dictionary String
                     CollectionFormat = Csv
                 }
-            Expect.equal actual expected "parse body params array"
+
+                Expect.equal actual expected "parse body params array"
     ]

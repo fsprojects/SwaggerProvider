@@ -11,19 +11,26 @@ open SwaggerProvider.Internal.v2.Compilers
 
 //module Handlers =
 
-  // let logError event (ex: exn) =
-  //   let ex =
-  //     match ex with
-  //     | :? TypeInitializationException as typInit -> typInit.InnerException
-  //     | _ -> ex
-  //   Logging.logf "[%s]\t%s: %s\n%s" event (ex.GetType().Name) ex.Message ex.StackTrace
-  // let logResolve kind (args: ResolveEventArgs) = Logging.logf "[%s]\t%s on behalf of %s" kind args.Name args.RequestingAssembly.FullName
+// let logError event (ex: exn) =
+//   let ex =
+//     match ex with
+//     | :? TypeInitializationException as typInit -> typInit.InnerException
+//     | _ -> ex
+//   Logging.logf "[%s]\t%s: %s\n%s" event (ex.GetType().Name) ex.Message ex.StackTrace
+// let logResolve kind (args: ResolveEventArgs) = Logging.logf "[%s]\t%s on behalf of %s" kind args.Name args.RequestingAssembly.FullName
 
 
 /// The Swagger Type Provider.
 [<TypeProvider>]
-type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces(cfg, assemblyReplacementMap=[("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime")], addDefaultProbingLocation=true)
+type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
+    inherit TypeProviderForNamespaces
+        (
+            cfg,
+            assemblyReplacementMap = [
+                ("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime")
+            ],
+            addDefaultProbingLocation = true
+        )
 
     // static do
     //   AppDomain.CurrentDomain.FirstChanceException.Add(fun args -> Handlers.logError "FirstChanceException" args.Exception)
@@ -33,17 +40,24 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
     let asm = Assembly.GetExecutingAssembly()
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
-    do assert (typeof<ProvidedApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
+    do
+        assert
+            (typeof<ProvidedApiClientBase>.Assembly.GetName()
+                .Name = asm.GetName().Name)
 
     let myParamType =
-        let t = ProvidedTypeDefinition(asm, ns, "SwaggerClientProvider", Some typeof<obj>, isErased=false)
-        let staticParams =
-            [ ProvidedStaticParameter("Schema", typeof<string>)
-              ProvidedStaticParameter("Headers", typeof<string>, "")
-              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
-              ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-              ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)]
+        let t =
+            ProvidedTypeDefinition(asm, ns, "SwaggerClientProvider", Some typeof<obj>, isErased = false)
+
+        let staticParams = [
+            ProvidedStaticParameter("Schema", typeof<string>)
+            ProvidedStaticParameter("Headers", typeof<string>, "")
+            ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+            ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
+            ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
+            ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
+        ]
+
         t.AddXmlDoc
             """<summary>Statically typed Swagger provider.</summary>
                <param name='Schema'>Url or Path to Swagger schema file.</param>
@@ -59,37 +73,53 @@ type public SwaggerTypeProvider(cfg : TypeProviderConfig) as this =
                 let schemaPath =
                     let schemaPathRaw = unbox<string> args.[0]
                     SchemaReader.getAbsolutePath cfg.ResolutionFolder schemaPathRaw
+
                 let headersStr = unbox<string> args.[1]
-                let ignoreOperationId = unbox<bool>  args.[2]
-                let ignoreControllerPrefix = unbox<bool>  args.[3]
-                let preferNullable = unbox<bool>  args.[4]
-                let preferAsync = unbox<bool>  args.[5]
+                let ignoreOperationId = unbox<bool> args.[2]
+                let ignoreControllerPrefix = unbox<bool> args.[3]
+                let preferNullable = unbox<bool> args.[4]
+                let preferAsync = unbox<bool> args.[5]
 
                 let cacheKey =
                     (schemaPath, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
                     |> sprintf "%A"
 
                 let addCache() =
-                  lazy
-                    let schemaData =
-                        SchemaReader.readSchemaPath headersStr schemaPath
-                        |> Async.RunSynchronously
-                    let schema = SwaggerParser.parseSchema schemaData
+                    lazy
+                        let schemaData =
+                            SchemaReader.readSchemaPath headersStr schemaPath
+                            |> Async.RunSynchronously
 
-                    let defCompiler = DefinitionCompiler(schema, preferNullable)
-                    let opCompiler = OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
-                    opCompiler.CompileProvidedClients(defCompiler.Namespace)
-                    let tys = defCompiler.Namespace.GetProvidedTypes()
+                        let schema = SwaggerParser.parseSchema schemaData
 
-                    let tempAsm = ProvidedAssembly()
-                    let ty = ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
-                    ty.AddXmlDoc ("Swagger Provider for " + schemaPath)
-                    ty.AddMembers tys
-                    tempAsm.AddTypes [ty]
+                        let defCompiler = DefinitionCompiler(schema, preferNullable)
 
-                    ty
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                        let opCompiler =
+                            OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
+
+                        opCompiler.CompileProvidedClients(defCompiler.Namespace)
+                        let tys = defCompiler.Namespace.GetProvidedTypes()
+
+                        let tempAsm = ProvidedAssembly()
+
+                        let ty =
+                            ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
+
+                        ty.AddXmlDoc("Swagger Provider for " + schemaPath)
+                        ty.AddMembers tys
+                        tempAsm.AddTypes [ ty ]
+
+                        ty
+
+                Cache
+                    .providedTypes
+                    .GetOrAdd(
+                        cacheKey,
+                        addCache
+                    )
+                    .Value
         )
+
         t
-    do
-        this.AddNamespace(ns, [myParamType])
+
+    do this.AddNamespace(ns, [ myParamType ])
