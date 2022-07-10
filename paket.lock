@@ -54,7 +54,7 @@ NUGET
     runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.ubuntu.18.04-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
-    SharpYaml (1.9.2)
+    SharpYaml (2.0)
     System.Buffers (4.5.1) - restriction: || (&& (== net6.0) (>= net461)) (&& (== net6.0) (< netcoreapp3.1)) (== netstandard2.0)
     System.Collections (4.3)
       Microsoft.NETCore.Platforms (>= 1.1)
@@ -310,8 +310,8 @@ GITHUB
     src/ProvidedTypes.fs (a35115bd94a4e989b6a978a9c2634f7725301a1f)
     src/ProvidedTypes.fsi (a35115bd94a4e989b6a978a9c2634f7725301a1f)
   remote: fsprojects/FSharp.Data
-    src/CommonRuntime/NameUtils.fs (0d973d4f6547bd1b69471257668c9ff843b15467)
-    src/CommonRuntime/Pluralizer.fs (0d973d4f6547bd1b69471257668c9ff843b15467)
+    src/CommonRuntime/NameUtils.fs (6757c40cbd074cb27d227720ef3ad729fe22c2bd)
+    src/CommonRuntime/Pluralizer.fs (6757c40cbd074cb27d227720ef3ad729fe22c2bd)
 GROUP Server
 RESTRICTION: == net6.0
 NUGET
@@ -916,7 +916,7 @@ NUGET
     runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.ubuntu.18.04-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
-    SharpYaml (1.9.2) - redirects: force
+    SharpYaml (2.0) - redirects: force
     System.Buffers (4.5.1)
     System.CodeDom (6.0)
     System.Collections (4.3)
