@@ -29,8 +29,10 @@ type DefinitionPath =
         let rec getCharInTypeName ind =
             if ind = definitionPath.Length then
                 ind - 1
-            elif Char.IsLetterOrDigit definitionPath.[ind]
-                 || definitionPath.[ind] = nsSeparator then
+            elif
+                Char.IsLetterOrDigit definitionPath.[ind]
+                || definitionPath.[ind] = nsSeparator
+            then
                 getCharInTypeName(ind + 1)
             else
                 ind

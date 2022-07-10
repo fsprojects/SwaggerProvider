@@ -1,3 +1,7 @@
+#### 1.0.2 - Jul 10, 2022
+- SharpYaml 2.0.0
+- Format code using Fantomas
+
 #### 1.0.1 - Jun 25, 2022
 - Dependencies update
 
