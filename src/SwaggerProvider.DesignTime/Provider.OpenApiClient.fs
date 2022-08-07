@@ -17,9 +17,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces
         (
             cfg,
-            assemblyReplacementMap = [
-                ("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime")
-            ],
+            assemblyReplacementMap = [ ("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime") ],
             addDefaultProbingLocation = true
         )
 
@@ -27,10 +25,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
     let asm = Assembly.GetExecutingAssembly()
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
-    do
-        assert
-            (typeof<ProvidedApiClientBase>.Assembly.GetName()
-                .Name = asm.GetName().Name)
+    do assert (typeof<ProvidedApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
 
     let myParamType =
         let t =
@@ -103,23 +98,11 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                         ty
 
                 try
-                    Cache
-                        .providedTypes
-                        .GetOrAdd(
-                            cacheKey,
-                            addCache
-                        )
-                        .Value
+                    Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
                 with _ ->
                     Cache.providedTypes.Remove(cacheKey) |> ignore
 
-                    Cache
-                        .providedTypes
-                        .GetOrAdd(
-                            cacheKey,
-                            addCache
-                        )
-                        .Value
+                    Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
 
         t

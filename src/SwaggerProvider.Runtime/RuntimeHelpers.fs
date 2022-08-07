@@ -75,9 +75,7 @@ module RuntimeHelpers =
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         match obj with
-        | :? array<byte> as xs -> [
-            name, (client.Serialize xs).Trim('\"')
-          ] // TODO: Need to verify how servers parse byte[] from query string
+        | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
         | :? array<bool> as xs -> xs |> toStrArray name
         | :? array<int32> as xs -> xs |> toStrArray name
         | :? array<int64> as xs -> xs |> toStrArray name
@@ -105,13 +103,7 @@ module RuntimeHelpers =
         | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
         | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
         | :? Option<Guid> as x -> x |> toStrOpt name
-        | _ -> [
-            name,
-            if isNull obj then
-                null
-            else
-                obj.ToString()
-          ]
+        | _ -> [ name, (if isNull obj then null else obj.ToString()) ]
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
@@ -119,10 +111,7 @@ module RuntimeHelpers =
                 typeof<JsonPropertyNameAttribute>.GetConstructor ([| typeof<string> |])
 
             member __.ConstructorArguments =
-                [|
-                    Reflection.CustomAttributeTypedArgument(typeof<string>, name)
-                |]
-                :> Collections.Generic.IList<_>
+                [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
 
             member __.NamedArguments = [||] :> Collections.Generic.IList<_>
         }
@@ -183,11 +172,7 @@ module RuntimeHelpers =
         if isNull host then
             new HttpClient(handler, true)
         else
-            let host =
-                if host.EndsWith("/") then
-                    host
-                else
-                    host + "/"
+            let host = if host.EndsWith("/") then host else host + "/"
 
             new HttpClient(handler, true, BaseAddress = Uri(host))
 
@@ -224,13 +209,9 @@ module RuntimeHelpers =
     let asyncCast runtimeTy (asyncOp: Async<obj>) =
         let castFn = typeof<AsyncExtensions>.GetMethod ("cast")
 
-        castFn
-            .MakeGenericMethod([| runtimeTy |])
-            .Invoke(null, [| asyncOp |])
+        castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| asyncOp |])
 
     let taskCast runtimeTy (task: Task<obj>) =
         let castFn = typeof<TaskExtensions>.GetMethod ("cast")
 
-        castFn
-            .MakeGenericMethod([| runtimeTy |])
-            .Invoke(null, [| task |])
+        castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| task |])

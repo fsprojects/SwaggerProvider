@@ -238,15 +238,8 @@ let jsonSpecTests =
                     Summary = "Updates a pet in the store with form data"
                     Description = ""
                     OperationId = "updatePetWithForm"
-                    Consumes =
-                        [|
-                            "application/x-www-form-urlencoded"
-                        |]
-                    Produces =
-                        [|
-                            "application/json"
-                            "application/xml"
-                        |]
+                    Consumes = [| "application/x-www-form-urlencoded" |]
+                    Produces = [| "application/json"; "application/xml" |]
                     Responses =
                         [|
                             Some(200),

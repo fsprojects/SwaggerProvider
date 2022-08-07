@@ -16,6 +16,7 @@ type DefinitionPath =
         RequestedTypeName: string
         ProvidedTypeNameCandidate: string
     }
+
     static member DefinitionPrefix = "#/components/schemas/"
 
     static member Parse(definition: string) =
@@ -92,12 +93,9 @@ and NamespaceAbstraction(name: string) =
 
         let newName =
             let pref =
-                if String.IsNullOrWhiteSpace nameSuffix then
-                    namePref
-                elif String.IsNullOrWhiteSpace namePref then
-                    nameSuffix
-                else
-                    sprintf "%s_%s" namePref nameSuffix
+                if String.IsNullOrWhiteSpace nameSuffix then namePref
+                elif String.IsNullOrWhiteSpace namePref then nameSuffix
+                else sprintf "%s_%s" namePref nameSuffix
 
             findUniq pref 0
 

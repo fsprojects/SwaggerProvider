@@ -25,10 +25,7 @@ module SchemaReader =
                 |> Seq.choose(fun x ->
                     let pair = x.Split('=')
 
-                    if (pair.Length = 2) then
-                        Some(pair.[0], pair.[1])
-                    else
-                        None)
+                    if (pair.Length = 2) then Some(pair.[0], pair.[1]) else None)
 
             let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
 

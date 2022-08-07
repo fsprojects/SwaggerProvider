@@ -100,9 +100,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
 
                             <@
                                 if jsonConsumable then
-                                    [|
-                                        "Content-Type", MediaTypes.ApplicationJson
-                                    |]
+                                    [| "Content-Type", MediaTypes.ApplicationJson |]
                                 else
                                     [||]
                             @>
@@ -318,9 +316,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                     BaseConstructorCall = fun args -> (baseCtor, args)
                 )
                 ProvidedConstructor(
-                    [
-                        ProvidedParameter("httpClient", typeof<HttpClient>)
-                    ],
+                    [ ProvidedParameter("httpClient", typeof<HttpClient>) ],
                     invokeCode =
                         (fun args ->
                             match args with
@@ -332,9 +328,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             (baseCtor, args')
                 )
                 ProvidedConstructor(
-                    [
-                        ProvidedParameter("options", typeof<JsonSerializerOptions>)
-                    ],
+                    [ ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall =
                         fun args ->

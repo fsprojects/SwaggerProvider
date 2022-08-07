@@ -341,10 +341,7 @@ module Parsers =
         match context.ResolveResponseObject obj with
         | Some(response) -> response
         | None -> {
-            Description =
-                obj
-                    .GetRequiredField("description", spec)
-                    .AsString()
+            Description = obj.GetRequiredField("description", spec).AsString()
             Schema =
                 obj.TryGetProperty("schema")
                 |> Option.map(parseSchemaObject context.Definitions)

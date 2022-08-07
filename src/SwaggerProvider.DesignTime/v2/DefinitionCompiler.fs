@@ -16,6 +16,7 @@ type DefinitionPath =
         RequestedTypeName: string
         ProvidedTypeNameCandidate: string
     }
+
     static member Parse(definition: string) =
         let definitionPrefix, nsSeparator = "#/definitions/", '.'
 

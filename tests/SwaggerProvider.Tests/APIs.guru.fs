@@ -14,9 +14,7 @@ let private apisGuruList =
              |> Async.AwaitTask
              |> Async.RunSynchronously
 
-         JsonDocument
-             .Parse(list)
-             .RootElement.EnumerateObject()
+         JsonDocument.Parse(list).RootElement.EnumerateObject()
          |> Seq.map(fun x -> x.Value))
 
 let private getApisGuruSchemas propertyName =

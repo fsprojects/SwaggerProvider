@@ -1,7 +1,7 @@
 #r @"paket:
 source https://nuget.org/api/v2
 framework net6.0
-nuget FSharp.Core 4.7.2
+nuget FSharp.Core
 nuget Fake.Core.Target
 nuget Fake.Core.Process
 nuget Fake.Core.ReleaseNotes
@@ -113,9 +113,7 @@ Target.create "BuildTests" (fun _ ->
 // Run the unit tests using test runner
 
 let runTests assembly =
-    [
-        Path.Combine(__SOURCE_DIRECTORY__, assembly)
-    ]
+    [ Path.Combine(__SOURCE_DIRECTORY__, assembly) ]
     |> Testing.Expecto.run(fun p ->
         { p with
             WorkingDirectory = __SOURCE_DIRECTORY__

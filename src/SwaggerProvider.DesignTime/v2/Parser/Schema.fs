@@ -147,6 +147,7 @@ type ParameterObject =
         /// Determines the format of the array if type array is used.
         CollectionFormat: CollectionFormat
     }
+
     member x.UnambiguousName = sprintf "%sIn%A" x.Name x.In
 
 

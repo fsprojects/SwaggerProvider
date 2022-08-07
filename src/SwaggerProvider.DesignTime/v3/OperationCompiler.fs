@@ -93,10 +93,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 | _ -> None
 
             let (|NoMediaType|_|)(requestBody: OpenApiRequestBody) =
-                if requestBody.Content.Count = 0 then
-                    Some()
-                else
-                    None
+                if requestBody.Content.Count = 0 then Some() else None
 
             let bodyParam =
                 if isNull operation.RequestBody then
@@ -222,9 +219,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             // op.Consumes |> Seq.exists (fun mt -> mt="application/json")
                             <@
                                 if jsonConsumable then
-                                    [
-                                        "Content-Type", MediaTypes.ApplicationJson
-                                    ]
+                                    [ "Content-Type", MediaTypes.ApplicationJson ]
                                 else
                                     []
                             @>
@@ -349,10 +344,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 @>
 
                         let action =
-                            <@
-                                (%this)
-                                    .CallAsync(%httpRequestMessageWithPayload, errorCodes, errorDescriptions)
-                            @>
+                            <@ (%this).CallAsync(%httpRequestMessageWithPayload, errorCodes, errorDescriptions) @>
 
                         let responseObj =
                             let innerReturnType = defaultArg retTy null
@@ -485,9 +477,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     BaseConstructorCall = fun args -> (baseCtor, args)
                 )
                 ProvidedConstructor(
-                    [
-                        ProvidedParameter("httpClient", typeof<HttpClient>)
-                    ],
+                    [ ProvidedParameter("httpClient", typeof<HttpClient>) ],
                     invokeCode =
                         (fun args ->
                             match args with
@@ -499,9 +489,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             (baseCtor, args')
                 )
                 ProvidedConstructor(
-                    [
-                        ProvidedParameter("options", typeof<JsonSerializerOptions>)
-                    ],
+                    [ ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
                     invokeCode = (fun args -> <@@ () @@>),
                     BaseConstructorCall =
                         fun args ->

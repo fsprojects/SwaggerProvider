@@ -49,10 +49,7 @@ type ReturnArrayIntController() =
     inherit ReturnController<int array>([| 1; 2; 3 |])
 
 type ReturnArrayEnumController() =
-    inherit ReturnController<UriKind array>([|
-        System.UriKind.Absolute
-        System.UriKind.Relative
-    |])
+    inherit ReturnController<UriKind array>([| System.UriKind.Absolute; System.UriKind.Relative |])
 
 type ReturnListIntController() =
     inherit ReturnController<int list>([ 1; 2; 3 ])

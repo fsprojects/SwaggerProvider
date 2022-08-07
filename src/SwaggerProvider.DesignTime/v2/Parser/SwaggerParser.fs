@@ -81,11 +81,7 @@ module internal YamlAdapter =
         | :? List<obj>
         | :? Dictionary<obj, obj> -> None
         | scalar ->
-            let value =
-                if isNull scalar then
-                    ""
-                else
-                    scalar.ToString()
+            let value = if isNull scalar then "" else scalar.ToString()
 
             Some(value)
 
