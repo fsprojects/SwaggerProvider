@@ -206,8 +206,8 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                                 let msg = %httpRequestMessageWithPayload
                                 RuntimeHelpers.fillHeaders msg %heads
 
-                                async {
-                                    let! response = (%this).HttpClient.SendAsync(msg) |> Async.AwaitTask
+                                task {
+                                    let! response = (%this).HttpClient.SendAsync(msg)
                                     return response.EnsureSuccessStatusCode().Content
                                 }
                             @>
@@ -216,9 +216,9 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             <@
                                 let x = %action
 
-                                async {
+                                task {
                                     let! response = x
-                                    let! content = response.ReadAsStringAsync() |> Async.AwaitTask
+                                    let! content = response.ReadAsStringAsync()
                                     return (%this).Deserialize(content, innerReturnType)
                                 }
                             @>
@@ -227,22 +227,22 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             <@
                                 let x = %action
 
-                                async {
+                                task {
                                     let! _ = x
                                     return ()
                                 }
                             @>
 
-                        let task t =
-                            <@ Async.StartAsTask(%t) @>
+                        let awaitTask t =
+                            <@ Async.AwaitTask(%t) @>
 
                         // if we're an async method, then we can just return the above, coerced to the overallReturnType.
                         // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
                         match asAsync, retTy with
-                        | true, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
-                        | true, None -> responseUnit.Raw
-                        | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
-                        | false, None -> (task responseUnit).Raw
+                        | false, Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
+                        | false, None -> responseUnit.Raw
+                        | true, Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
+                        | true, None -> (awaitTask responseUnit).Raw
             )
 
         if not <| String.IsNullOrEmpty(op.Summary) then

@@ -41,7 +41,7 @@ let petStoreTests =
         testCaseAsync "throw custom exceptions"
         <| async {
             try
-                let! __ = store.GetPetById(-100L)
+                let! __ = store.GetPetById(-142L)
                 failwith "Call should fail"
             with :? Swagger.OpenApiException as ex ->
                 Expect.equal ex.Description "Pet not found" "invalid error message"
