@@ -43,7 +43,8 @@ let petStoreTests =
             try
                 let! __ = store.GetPetById(-142L)
                 failwith "Call should fail"
-            with :? Swagger.OpenApiException as ex ->
+            with :? System.AggregateException as ex ->
+                let ex = ex.InnerException :?> Swagger.OpenApiException
                 Expect.equal ex.Description "Pet not found" "invalid error message"
         }
 
