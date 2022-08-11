@@ -10,12 +10,14 @@ open System
 let Schema = "https://petstore.swagger.io/v2/swagger.json"
 
 type PetStore = OpenApiClientProvider<Schema, PreferAsync=true>
+type PetStoreTask = OpenApiClientProvider<Schema, PreferAsync=false>
 
 type PetStoreNullable = OpenApiClientProvider<Schema, PreferNullable=true>
 type PetStoreOperationId = OpenApiClientProvider<Schema, IgnoreOperationId=true>
 type PetStoreControllerPrefix = OpenApiClientProvider<Schema, IgnoreControllerPrefix=false>
 
 let store = PetStore.Client()
+let storeTask = PetStoreTask.Client()
 let apiKey = "test-key"
 
 [<Tests>]
@@ -38,13 +40,26 @@ let petStoreTests =
             Expect.equal pet.Name "bar" "access modified value"
             Expect.stringContains (pet.ToString()) "bar" "ToString"
 
-        testCaseAsync "throw custom exceptions"
+        testCaseAsync "throw custom exceptions from async"
         <| async {
             try
-                let! __ = store.GetPetById(-100L)
+                let! __ = store.GetPetById(-142L)
                 failwith "Call should fail"
-            with :? Swagger.OpenApiException as ex ->
-                Expect.equal ex.Description "Pet not found" "invalid error message"
+            with :? System.AggregateException as aex ->
+                match aex.InnerException with
+                | :? Swagger.OpenApiException as ex -> Expect.equal ex.Description "Pet not found" "invalid error message"
+                | _ -> raise aex
+        }
+
+        testCaseAsync "throw custom exceptions from task"
+        <| async {
+            try
+                let! __ = storeTask.GetPetById(-142L) |> Async.AwaitTask
+                failwith "Call should fail"
+            with :? System.AggregateException as aex ->
+                match aex.InnerException with
+                | :? Swagger.OpenApiException as ex -> Expect.equal ex.Description "Pet not found" "invalid error message"
+                | _ -> raise aex
         }
 
         ptestCaseAsync "call provided methods"

@@ -352,9 +352,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             <@
                                 let x = %action
 
-                                async {
+                                task {
                                     let! response = x
-                                    let! content = response.ReadAsStringAsync() |> Async.AwaitTask
+                                    let! content = response.ReadAsStringAsync()
                                     return (%this).Deserialize(content, innerReturnType)
                                 }
                             @>
@@ -363,9 +363,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             <@
                                 let x = %action
 
-                                async {
+                                task {
                                     let! response = x
-                                    let! data = response.ReadAsStreamAsync() |> Async.AwaitTask
+                                    let! data = response.ReadAsStreamAsync()
                                     return data
                                 }
                             @>
@@ -374,7 +374,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             <@
                                 let x = %action
 
-                                async {
+                                task {
                                     let! _ = x
                                     return ()
                                 }
@@ -382,19 +382,19 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                         // if we're an async method, then we can just return the above, coerced to the overallReturnType.
                         // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
-                        if asAsync then
+                        if not asAsync then
                             match retTy with
                             | None -> responseUnit.Raw
                             | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
-                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %responseObj @>, overallReturnType)
+                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
                         else
-                            let task t =
-                                <@ Async.StartAsTask(%t) @>
+                            let awaitTask t =
+                                <@ Async.AwaitTask(%t) @>
 
                             match retTy with
-                            | None -> (task responseUnit).Raw
-                            | Some t when t = typeof<IO.Stream> -> <@ %(task responseStream) @>.Raw
-                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %(task responseObj) @>, overallReturnType)
+                            | None -> (awaitTask responseUnit).Raw
+                            | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
+                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
             )
 
         if not <| String.IsNullOrEmpty(operation.Summary) then

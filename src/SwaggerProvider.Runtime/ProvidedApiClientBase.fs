@@ -2,6 +2,7 @@ namespace Swagger
 
 open System
 open System.Net.Http
+open System.Threading.Tasks
 open System.Text.Json
 open System.Text.Json.Serialization
 
@@ -33,9 +34,8 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
     default __.Deserialize(value, retTy: Type) : obj =
         JsonSerializer.Deserialize(value, retTy, options)
 
-    // This code may change in the future, especially when task{} become part of FSharp.Core.dll
-    member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Async<HttpContent> = async {
-        let! response = this.HttpClient.SendAsync(request) |> Async.AwaitTask
+    member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> = task {
+        let! response = this.HttpClient.SendAsync(request)
 
         if response.IsSuccessStatusCode then
             return response.Content

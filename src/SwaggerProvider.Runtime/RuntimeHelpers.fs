@@ -1,7 +1,6 @@
 namespace Swagger.Internal
 
 open System
-open System
 open System.Net.Http
 open System.Text.Json
 open System.Text.Json.Serialization
@@ -17,13 +16,14 @@ module MediaTypes =
 type AsyncExtensions() =
     static member cast<'t> asyncOp = async {
         let! ret = asyncOp
-        let cast = box ret
-        return cast :?> 't
+        return (box ret) :?> 't
     }
 
 type TaskExtensions() =
-    static member cast<'t>(task: Task<obj>) : Task<'t> =
-        task.ContinueWith(fun (t: Task<obj>) -> t.Result :?> 't)
+    static member cast<'t> taskOp = task {
+        let! ret = taskOp
+        return (box ret) :?> 't
+    }
 
 module RuntimeHelpers =
     let inline private toStrArray name values =
