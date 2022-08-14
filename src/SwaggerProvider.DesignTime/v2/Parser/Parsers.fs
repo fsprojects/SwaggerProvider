@@ -257,7 +257,13 @@ module Parsers =
             obj.TryGetProperty("discriminator")
 
         match obj with
-        | IsEnum cases -> Enum cases
+        | IsEnum cases ->
+            let ty =
+                obj.TryGetProperty("type")
+                |> Option.map(fun x -> x.AsString())
+                |> Option.defaultValue "string"
+
+            Enum(cases, ty)
         | IsRef ref -> Reference ref
         | IsArray itemTy -> Array itemTy
         | IsPrimitive ty -> ty

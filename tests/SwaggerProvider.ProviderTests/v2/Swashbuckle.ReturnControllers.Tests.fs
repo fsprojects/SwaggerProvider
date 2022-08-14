@@ -77,10 +77,10 @@ let returnControllersTests =
 
 
         testCaseAsync "Return Enum GET Test"
-        <| (api.GetApiReturnEnum() |> asyncEqual 1)
+        <| (api.GetApiReturnEnum() |> asyncEqual "Absolute")
 
         testCaseAsync "Return Enum POST Test"
-        <| (api.PostApiReturnEnum() |> asyncEqual 1)
+        <| (api.PostApiReturnEnum() |> asyncEqual "Absolute")
 
 
         testCaseAsync "Return Array Int GET Test"
@@ -91,10 +91,11 @@ let returnControllersTests =
 
 
         testCaseAsync "Return Array Enum GET Test"
-        <| (api.GetApiReturnArrayEnum() |> asyncEqual [| 1; 2 |])
+        <| (api.GetApiReturnArrayEnum() |> asyncEqual [| "Absolute"; "Relative" |])
 
         testCaseAsync "Return Array Enum POST Test"
-        <| (api.PostApiReturnArrayEnum() |> asyncEqual [| 1; 2 |])
+        <| (api.PostApiReturnArrayEnum()
+            |> asyncEqual [| "Absolute"; "Relative" |])
 
 
         testCaseAsync "Return List Int GET Test"

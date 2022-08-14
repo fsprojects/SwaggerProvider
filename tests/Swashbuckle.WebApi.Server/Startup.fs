@@ -23,7 +23,10 @@ type Startup private () =
         // Add framework services.
         services
             .AddMvc(fun option -> option.EnableEndpointRouting <- false)
-            .AddJsonOptions(fun options -> options.JsonSerializerOptions.Converters.Add(JsonFSharpConverter()))
+            .AddJsonOptions(fun options ->
+                let converters = options.JsonSerializerOptions.Converters
+                converters.Add(JsonFSharpConverter())
+                converters.Add(JsonStringEnumConverter()))
             .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services

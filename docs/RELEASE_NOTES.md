@@ -1,7 +1,8 @@
-#### 2.0.0-beta1 - Aug 11, 2022
+#### 2.0.0-beta2 - Aug 13, 2022
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
+- Model enums as `string`, `int32` or `boolean` (Fixed [#186](https://github.com/fsprojects/SwaggerProvider/issues/186) )
 
 #### 1.0.2 - Jul 10, 2022
 - SharpYaml 2.0.0
