@@ -423,7 +423,6 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                     elTy.MakeArrayType(1)
-                //| Enum _          -> typeof<string> //NOTE: find better type
                 | ty, format -> failwithf "Type %s(%s,%s) should be caught by other match statement (%A)" tyName ty format schemaObj.Type
 
         if fromByPathCompiler then

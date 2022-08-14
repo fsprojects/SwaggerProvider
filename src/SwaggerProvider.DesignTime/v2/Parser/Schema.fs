@@ -24,7 +24,7 @@ type SchemaObject =
     /// An additional primitive data type used by the Parameter Object and the Response Object to set the parameter type or the response as being a file.
     | File
     /// Enumeration
-    | Enum of values: string[]
+    | Enum of values: string[] * ``type``: string
     /// Array of items of type itemTy
     | Array of itemTy: SchemaObject
     /// Object
@@ -46,7 +46,7 @@ type SchemaObject =
         | String -> "String"
         | Date -> "Date"
         | DateTime -> "DateTime"
-        | Enum x -> sprintf "Enum  %A" x
+        | Enum(x, ty) -> sprintf "Enum  %A represented as %s" x ty
         | Array x -> sprintf "Array %O" x
         | Dictionary x -> sprintf "Dictionary %O" x
         | File -> "File"

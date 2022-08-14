@@ -364,7 +364,9 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | Date
                 | DateTime -> typeof<DateTime>
                 | File -> typeof<byte>.MakeArrayType (1)
-                | Enum _ -> typeof<int> //NOTE: find better type
+                | Enum(_, "string") -> typeof<string>
+                | Enum(_, "boolean") -> typeof<bool>
+                | Enum(_, _) -> typeof<int32>
                 | Array eTy ->
                     (compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy true ns.RegisterType)
                         .MakeArrayType(1)

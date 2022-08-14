@@ -26,10 +26,6 @@
     <Compile Include="RuntimeHelpers.fs" />
     <None Include="paket.references" />
   </ItemGroup>
-  <ItemGroup>
-    <!-- Be explicit about the version of FSharp.Core since we mention it in the manual nuget package spec -->
-    <PackageReference Include="FSharp.Core" Version="6.0.5" />
-  </ItemGroup>
   <Target Name="BeforeBuild">
     <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Restore" />
     <MSBuild Projects="..\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" Targets="Build" Properties="Configuration=$(Configuration);TargetFramework=net6.0" />

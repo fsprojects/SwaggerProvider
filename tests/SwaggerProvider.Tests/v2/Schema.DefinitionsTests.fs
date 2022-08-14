@@ -80,7 +80,7 @@ let definitionsTests =
             "description" : "pet status in the store",
             "enum" : ["available", "pending", "sold"]
         }"""
-            |> shouldBeEqual(Enum [| "available"; "pending"; "sold" |])
+            |> shouldBeEqual(Enum([| "available"; "pending"; "sold" |], "string"))
 
         testCase "parse definition reference"
         <| fun _ ->

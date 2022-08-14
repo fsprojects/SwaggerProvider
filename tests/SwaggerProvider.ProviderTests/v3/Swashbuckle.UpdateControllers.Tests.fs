@@ -68,10 +68,10 @@ let returnControllersTests =
         <| (api.PostApiUpdateGuid(Some(guid)) |> asyncEqual guid)
 
         testCaseAsync "Update Enum GET Test"
-        <| (api.GetApiUpdateEnum(Some 1) |> asyncEqual 1)
+        <| (api.GetApiUpdateEnum("Absolute") |> asyncEqual "Absolute")
 
         testCaseAsync "Update Enum POST Test"
-        <| (api.PostApiUpdateEnum(Some 1) |> asyncEqual 1)
+        <| (api.PostApiUpdateEnum("Absolute") |> asyncEqual "Absolute")
 
 
         testCaseAsync "Update Array Int GET Test"
@@ -82,10 +82,12 @@ let returnControllersTests =
 
 
         testCaseAsync "Update Array Enum GET Test"
-        <| (api.GetApiUpdateArrayEnum([| 2; 1 |]) |> asyncEqual [| 1; 2 |])
+        <| (api.GetApiUpdateArrayEnum([| "Relative"; "Absolute" |])
+            |> asyncEqual [| "Absolute"; "Relative" |])
 
         testCaseAsync "Update Array Enum POST Test"
-        <| (api.PostApiUpdateArrayEnum([| 2; 1 |]) |> asyncEqual [| 1; 2 |])
+        <| (api.PostApiUpdateArrayEnum([| "Relative"; "Absolute" |])
+            |> asyncEqual [| "Absolute"; "Relative" |])
 
         testCaseAsync "Update Array Guid GET Test"
         <| (api.GetApiUpdateArrayGuid([| guid; guid2; guid3 |])
