@@ -215,13 +215,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         let httpMethod = opTy.ToString()
 
                         let headers =
-                            let jsonConsumable = true // TODO: take a look at media types
-                            // op.Consumes |> Seq.exists (fun mt -> mt="application/json")
+                            // TODO: add headers conditionally
                             <@
-                                if jsonConsumable then
-                                    [ "Content-Type", MediaTypes.ApplicationJson ]
-                                else
-                                    []
+                                [
+                                    "Accept", MediaTypes.ApplicationJson
+                                    "Content-Type", MediaTypes.ApplicationJson
+                                ]
                             @>
 
                         // Locates parameters matching the arguments
