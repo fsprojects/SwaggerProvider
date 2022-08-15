@@ -97,12 +97,16 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                         let headers =
                             let jsonConsumable =
                                 op.Consumes |> Seq.exists(fun mt -> mt = MediaTypes.ApplicationJson)
+                            let jsonProducible =
+                                op.Produces |> Seq.exists(fun mt -> mt = MediaTypes.ApplicationJson)
 
                             <@
-                                if jsonConsumable then
-                                    [| "Content-Type", MediaTypes.ApplicationJson |]
-                                else
-                                    [||]
+                                [|
+                                    if jsonProducible then
+                                        "Accept", MediaTypes.ApplicationJson
+                                    if jsonConsumable then
+                                        "Content-Type", MediaTypes.ApplicationJson
+                                |]
                             @>
 
                         // Locates parameters matching the arguments
