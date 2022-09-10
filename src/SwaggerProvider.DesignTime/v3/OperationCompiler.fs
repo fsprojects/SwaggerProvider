@@ -39,7 +39,7 @@ type PayloadType =
         | "body" -> Body
         | "formData" -> FormData
         | "formUrlEncoded" -> FormUrlEncoded
-        | name -> failwithf "Payload '%s' is not supported" name
+        | name -> failwithf $"Payload '%s{name}' is not supported"
 
 /// Object for compiling operations.
 type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -48,10 +48,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let operation = pathItem.Operations.[opTy]
 
         if String.IsNullOrWhiteSpace providedMethodName then
-            failwithf "Operation name could not be empty. See '%s/%A'" path opTy
+            failwithf $"Operation name could not be empty. See '%s{path}/%A{opTy}'"
 
         let unambiguousName(par: OpenApiParameter) =
-            sprintf "%sIn%A" par.Name par.In
+            $"%s{par.Name}In%A{par.In}"
 
         let openApiParameters =
             seq {
@@ -119,7 +119,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     // TODO: application/octet-stream
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
-                        failwithf "Operation '%s' does not contain supported media types [%A]" operation.OperationId keys
+                        failwithf $"Operation '%s{operation.OperationId}' does not contain supported media types [%A{keys}]"
 
             let required, optional =
                 seq {
@@ -248,10 +248,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                             None
                                         | Some(_) ->
                                             failwithf
-                                                "More than one payload parameter is specified: '%A' & '%A'"
-                                                payloadType
-                                                (payloadExp.Value |> fst)
-                                | _ -> failwithf "Function '%s' does not support functions as arguments." providedMethodName)
+                                                $"More than one payload parameter is specified: '%A{payloadType}' & '%A{payloadExp.Value |> fst}'"
+                                | _ -> failwithf $"Function '%s{providedMethodName}' does not support functions as arguments.")
 
                         // Makes argument a string // TODO: Make body an exception
                         let coerceString exp =
@@ -273,7 +271,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                         match param.In.Value with
                                         | ParameterLocation.Path ->
                                             let value = coerceString valueExpr
-                                            let pattern = sprintf "{%s}" name
+                                            let pattern = $"{{%s{name}}}"
                                             let path' = <@ Regex.Replace(%path, pattern, %value) @>
                                             (path', query, headers, cookies)
                                         | ParameterLocation.Query ->
@@ -288,7 +286,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                             let value = coerceString valueExpr
                                             let cookies' = <@ (name, %value) :: (%cookies) @>
                                             (path, query, headers, cookies')
-                                        | x -> failwithf "Unsupported parameter location '%A'" x
+                                        | x -> failwithf $"Unsupported parameter location '%A{x}'"
                                     else
                                         failwithf "This should not happen, payload expression is already parsed")
 
@@ -460,7 +458,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             ns.RegisterType(tyName, ty)
 
             if not <| String.IsNullOrEmpty clientName then
-                ty.AddXmlDoc(sprintf "Client for '%s_*' operations" clientName)
+                ty.AddXmlDoc $"Client for '%s{clientName}_*' operations"
 
             [
                 ProvidedConstructor(
@@ -497,7 +495,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             let args' =
                                 match args with
                                 | [ instance; options ] -> [ instance; httpClient; options ]
-                                | _ -> failwithf "unexpected arguments received %A" args
+                                | _ -> failwithf $"unexpected arguments received %A{args}"
 
                             (baseCtor, args')
                 )
@@ -511,7 +509,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             let args' =
                                 match args with
                                 | [ instance ] -> [ instance; httpClient; <@@ null @@> ]
-                                | _ -> failwithf "unexpected arguments received %A" args
+                                | _ -> failwithf $"unexpected arguments received %A{args}"
 
                             (baseCtor, args')
                 )

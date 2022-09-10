@@ -9,6 +9,8 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <OutputPath>..\SwaggerProvider.Runtime\bin\$(Configuration)\typeproviders\fsharp41\</OutputPath>
+    <!-- This allows the component to execute from 'bin' directory during build -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
@@ -48,5 +50,11 @@
     <Compile Include="Provider.SwaggerClient.fs" />
     <None Include="paket.references" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="6.0.5">
+        <!-- This excludes FSharp.Core.xml and FSharp.Core.resources.dll while referencing the right FSharp.Core.dll version -->
+        <ExcludeAssets>runtime;contentFiles</ExcludeAssets>
+    </PackageReference>
+   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -43,9 +43,9 @@ let parserTestBody(path: string) = async {
             try
                 APIsGuru.httpClient.GetStringAsync(uri) |> Async.AwaitTask
             with e ->
-                Tests.skiptestf "Network issue. Cannot download %s" e.Message
+                Tests.skiptestf $"Network issue. Cannot download %s{e.Message}"
         | _ when File.Exists(path) -> async { return File.ReadAllText path }
-        | _ -> failwithf "Cannot find schema '%s'" path
+        | _ -> failwithf $"Cannot find schema '%s{path}'"
 
     if not <| System.String.IsNullOrEmpty(schemaStr) then
         if path.IndexOf("v2") >= 0 then
@@ -65,7 +65,7 @@ let knownSchemaTests =
     |> List.filter(fun s -> s.IndexOf("ignored") < 0)
     |> List.map(fun file ->
         let path = Path.GetFullPath(file).Substring(root.Length)
-        testCaseAsync (sprintf "Parse%s" path) (parserTestBody file))
+        testCaseAsync $"Parse%s{path}" (parserTestBody file))
     |> testList "All/Schema"
 
 [<Tests>]
