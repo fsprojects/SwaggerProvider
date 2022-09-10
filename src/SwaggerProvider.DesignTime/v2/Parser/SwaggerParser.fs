@@ -34,7 +34,7 @@ module internal JsonAdapter =
                 |]
                 |> Seq.filter(fun x -> x <> "null")
                 |> Seq.toArray
-            | other -> failwithf "Value: '%A' cannot be converted to StringArray" other
+            | other -> failwithf $"Value: '%A{other}' cannot be converted to StringArray"
 
         override __.Properties() =
             match value.ValueKind with
@@ -114,10 +114,10 @@ module internal YamlAdapter =
                 nodes
                 |> Seq.map (function
                     | Scalar(x) -> x
-                    | x -> failwithf "'%A' cannot be converted to string" x)
+                    | x -> failwithf $"'%A{x}' cannot be converted to string")
                 |> Seq.filter(fun x -> x <> "null")
                 |> Seq.toArray
-            | other -> failwithf "Value: '%A' cannot be converted to StringArray" other
+            | other -> failwithf $"Value: '%A{other}' cannot be converted to StringArray"
 
         override __.Properties() =
             match value with

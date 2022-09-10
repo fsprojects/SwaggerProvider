@@ -46,11 +46,11 @@ type SchemaObject =
         | String -> "String"
         | Date -> "Date"
         | DateTime -> "DateTime"
-        | Enum(x, ty) -> sprintf "Enum  %A represented as %s" x ty
-        | Array x -> sprintf "Array %O" x
-        | Dictionary x -> sprintf "Dictionary %O" x
+        | Enum(x, ty) -> $"Enum  %A{x} represented as %s{ty}"
+        | Array x -> $"Array {x}"
+        | Dictionary x -> $"Dictionary {x}"
         | File -> "File"
-        | Reference s -> sprintf "Reference %s" s
+        | Reference s -> $"Reference %s{s}"
 
 
 /// The property of a data type.
@@ -148,7 +148,7 @@ type ParameterObject =
         CollectionFormat: CollectionFormat
     }
 
-    member x.UnambiguousName = sprintf "%sIn%A" x.Name x.In
+    member x.UnambiguousName = $"%s{x.Name}In%A{x.In}"
 
 
 /// Describes a single response from an API Operation.
