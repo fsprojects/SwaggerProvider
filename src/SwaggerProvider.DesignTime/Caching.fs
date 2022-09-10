@@ -104,7 +104,7 @@ let createInMemoryCache(expiration: TimeSpan) =
         | true, (_, timestamp) ->
             if DateTime.UtcNow - timestamp >= expiration then
                 match dict.TryRemove(key) with
-                | true, _ -> log(sprintf "Cache expired: %O" key)
+                | true, _ -> log $"Cache expired: {key}"
                 | _ -> ()
             else
                 do! invalidationFunction key
@@ -127,7 +127,7 @@ let createInMemoryCache(expiration: TimeSpan) =
 
         member __.Remove(key) =
             match dict.TryRemove(key) with
-            | true, _ -> log(sprintf "Explicitly removed from cache: %O" key)
+            | true, _ -> log $"Explicitly removed from cache: {key}"
             | _ -> ()
 
         member __.GetOrAdd(key, valueFactory) =

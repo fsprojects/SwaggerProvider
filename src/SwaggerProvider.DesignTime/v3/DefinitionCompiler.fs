@@ -23,7 +23,7 @@ type DefinitionPath =
         let nsSeparator = '.'
 
         if (not <| definition.StartsWith(DefinitionPath.DefinitionPrefix)) then
-            failwithf "Definition path ('%s') does not start with %s" definition DefinitionPath.DefinitionPrefix
+            failwithf $"Definition path ('%s{definition}') does not start with %s{DefinitionPath.DefinitionPrefix}"
 
         let definitionPath = definition.Substring(DefinitionPath.DefinitionPrefix.Length)
 
@@ -75,8 +75,8 @@ and NamespaceAbstraction(name: string) =
         match providedTys.TryGetValue tyName with
         | true, Reservation
         | true, NameAlias -> updateFunc()
-        | false, _ -> failwithf "Cannot %s '%s' because name was not reserved" opName tyName
-        | _, value -> failwithf "Cannot %s '%s' because the slot is used by %A" opName tyName value
+        | false, _ -> failwithf $"Cannot %s{opName} '%s{tyName}' because name was not reserved"
+        | _, value -> failwithf $"Cannot %s{opName} '%s{tyName}' because the slot is used by %A{value}"
 
     /// Namespace name
     member __.Name = name
@@ -95,7 +95,7 @@ and NamespaceAbstraction(name: string) =
             let pref =
                 if String.IsNullOrWhiteSpace nameSuffix then namePref
                 elif String.IsNullOrWhiteSpace namePref then nameSuffix
-                else sprintf "%s_%s" namePref nameSuffix
+                else $"%s{namePref}_%s{nameSuffix}"
 
             findUniq pref 0
 
@@ -120,7 +120,7 @@ and NamespaceAbstraction(name: string) =
             | true, ProvidedType pTy when pTy.Name = tyName -> ()
             | false, _ -> providedTys.[tyName] <- ProvidedType ty
             //failwithf "Cannot register the type '%s' because name was not reserved" tyName
-            | _, value -> failwithf "Cannot register the type '%s' because the slot is used by %A" tyName value
+            | _, value -> failwithf $"Cannot register the type '%s{tyName}' because the slot is used by %A{value}"
         | _ -> () // Do nothing, TP should not provide real types
 
     /// Get or create sub-namespace
@@ -137,7 +137,7 @@ and NamespaceAbstraction(name: string) =
             let ns = NamespaceAbstraction(name)
             providedTys.[name] <- Namespace ns
             ns
-        | true, value -> failwithf "Name collision, cannot create namespace '%s' because it used by '%A'" name value
+        | true, value -> failwithf $"Name collision, cannot create namespace '%s{name}' because it used by '%A{value}'"
 
     /// Resolve DefinitionPath according to current namespace
     member this.Resolve(dPath: DefinitionPath) =
@@ -152,7 +152,7 @@ and NamespaceAbstraction(name: string) =
         List.ofSeq providedTys
         |> List.choose(fun kv ->
             match kv.Value with
-            | Reservation -> failwithf "Reservation without type found '%s'. This is a bug in DefinitionCompiler" kv.Key
+            | Reservation -> failwithf $"Reservation without type found '%s{kv.Key}'. This is a bug in DefinitionCompiler"
             | NameAlias -> None
             | ProvidedType ty -> Some ty
             | Namespace ns ->
@@ -191,7 +191,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
         let providedField =
             let fieldName =
-                sprintf "_%c%s" (Char.ToLower propertyName.[0]) (propertyName.Substring(1))
+                $"_%c{Char.ToLower propertyName.[0]}%s{propertyName.Substring(1)}"
 
             ProvidedField(fieldName, ty)
 
@@ -235,8 +235,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
                 ty :> Type
             | None when tyPath.StartsWith(DefinitionPath.DefinitionPrefix) ->
-                failwithf "Cannot find definition '%s' in schema definitions %A" tyPath (pathToType.Keys |> Seq.toArray)
-            | None -> failwithf "Cannot find definition '%s' (references to relative documents are not supported yet)" tyPath
+                failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
+            | None -> failwithf $"Cannot find definition '%s{tyPath}' (references to relative documents are not supported yet)"
 
     and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: OpenApiSchema) isRequired registerNew fromByPathCompiler =
         let compileNewObject() =
@@ -246,7 +246,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                 typeof<obj>
             elif isNull tyName then
-                failwithf "Swagger provider does not support anonymous types: %A" schemaObj
+                failwithf $"Swagger provider does not support anonymous types: %A{schemaObj}"
             else
                 // Register every ProvidedTypeDefinition
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
@@ -261,7 +261,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         let propName, propSchema = p.Key, p.Value
 
                         if String.IsNullOrEmpty(propName) then
-                            failwithf "Property cannot be created with empty name. TypeName:%A; SchemaObj:%A" tyName schemaObj
+                            failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
                         let isRequired = schemaObj.Required.Contains(propName)
 
@@ -374,7 +374,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
         let tyType =
             match schemaObj with
-            | null -> failwithf "Cannot compile object '%s' when schema is 'null'" tyName
+            | null -> failwithf $"Cannot compile object '%s{tyName}' when schema is 'null'"
             | _ when
                 schemaObj.Reference <> null
                 && not <| schemaObj.Reference.Id.EndsWith(tyName)
@@ -386,7 +386,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 | true, ty ->
                     ns.ReleaseNameReservation tyName
                     ty
-                | _ -> failwithf "Cannot compile object '%s' based on unresolved reference '%O'" tyName schemaObj.Reference.ReferenceV3
+                | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaObj.Reference.ReferenceV3}'"
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
@@ -423,7 +423,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                     elTy.MakeArrayType(1)
-                | ty, format -> failwithf "Type %s(%s,%s) should be caught by other match statement (%A)" tyName ty format schemaObj.Type
+                | ty, format -> failwithf $"Type %s{tyName}(%s{ty},%s{format}) should be caught by other match statement (%A{schemaObj.Type})"
 
         if fromByPathCompiler then
             registerNew(tyName, tyType)

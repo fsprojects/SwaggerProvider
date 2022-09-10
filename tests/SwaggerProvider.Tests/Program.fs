@@ -12,7 +12,7 @@ let main args =
     let asmName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name
 
     let fileName =
-        sprintf "bin/TestResults-%s-%O.xml" asmName (System.Environment.OSVersion)
+        $"bin/TestResults-%s{asmName}-{System.Environment.OSVersion}.xml"
 
     let writeResults = TestResults.writeNUnitSummary fileName
     let config = config.appendSummaryHandler writeResults

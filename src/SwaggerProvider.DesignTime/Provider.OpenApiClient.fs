@@ -75,7 +75,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                             failwithf
                                 "Schema parse errors:\n%s"
                                 (diagnostic.Errors
-                                 |> Seq.map(fun e -> sprintf "%s @ %s" e.Message e.Pointer)
+                                 |> Seq.map(fun e -> $"%s{e.Message} @ %s{e.Pointer}")
                                  |> String.concat "\n")
 
                         let defCompiler = DefinitionCompiler(schema, preferNullable)

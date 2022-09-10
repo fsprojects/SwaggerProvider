@@ -21,7 +21,7 @@ open Swagger.Internal
 type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (methodName: string) (op: OperationObject) =
         if String.IsNullOrWhiteSpace methodName then
-            failwithf "Operation name could not be empty. See '%s/%A'" op.Path op.Type
+            failwithf $"Operation name could not be empty. See '%s{op.Path}/%A{op.Type}'"
 
         let parameters =
             /// handles deduping Swagger parameter names if the same parameter name
@@ -122,7 +122,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                                             baseName = sVar.Name || x.UnambiguousName = sVar.Name)
 
                                     param, expr
-                                | _ -> failwithf "Function '%s' does not support functions as arguments." methodName)
+                                | _ -> failwithf $"Function '%s{methodName}' does not support functions as arguments.")
 
                         // Makes argument a string // TODO: Make body an exception
                         let coerceString defType (format: CollectionFormat) exp =
@@ -134,7 +134,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             <@ let o = (%%obj: obj) in RuntimeHelpers.toQueryParams name o (%this) @>
 
                         let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
-                            let pattern = sprintf "{%s}" name
+                            let pattern = $"{{%s{name}}}"
                             <@ Regex.Replace(%path, pattern, %value) @>
 
                         let addPayload load (param: ParameterObject) (exp: Expr) =
@@ -279,7 +279,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                 | [||] -> "http" // Should use the scheme used to access the Swagger definition itself.
                 | array -> array.[0]
 
-            sprintf "%s://%s" protocol schema.Host
+            $"%s{protocol}://%s{schema.Host}"
 
         let baseTy = Some typeof<ProvidedApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
@@ -304,7 +304,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
             ns.RegisterType(tyName, ty)
 
             if not <| String.IsNullOrEmpty clientName then
-                ty.AddXmlDoc(sprintf "Client for '%s_*' operations" clientName)
+                ty.AddXmlDoc $"Client for '%s{clientName}_*' operations"
 
             [
                 ProvidedConstructor(
@@ -341,7 +341,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             let args' =
                                 match args with
                                 | [ instance; options ] -> [ instance; httpClient; options ]
-                                | _ -> failwithf "unexpected arguments received %A" args
+                                | _ -> failwithf $"unexpected arguments received %A{args}"
 
                             (baseCtor, args')
                 )
@@ -355,7 +355,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             let args' =
                                 match args with
                                 | [ instance ] -> [ instance; httpClient; <@@ null @@> ]
-                                | _ -> failwithf "unexpected arguments received %A" args
+                                | _ -> failwithf $"unexpected arguments received %A{args}"
 
                             (baseCtor, args')
                 )

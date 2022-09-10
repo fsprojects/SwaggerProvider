@@ -21,7 +21,7 @@ type DefinitionPath =
         let definitionPrefix, nsSeparator = "#/definitions/", '.'
 
         if (not <| definition.StartsWith(definitionPrefix)) then
-            failwithf "Definition path does not start with %s" definitionPrefix
+            failwithf $"Definition path does not start with %s{definitionPrefix}"
 
         let definitionPath = definition.Substring(definitionPrefix.Length)
 
@@ -72,8 +72,8 @@ and NamespaceAbstraction(name: string) =
     let updateReservation opName tyName updateFunc =
         match providedTys.TryGetValue tyName with
         | true, Reservation -> updateFunc()
-        | false, _ -> failwithf "Cannot %s '%s' because name was not reserved" opName tyName
-        | _, value -> failwithf "Cannot %s '%s' because the slot is used by %A" opName tyName value
+        | false, _ -> failwithf $"Cannot %s{opName} '%s{tyName}' because name was not reserved"
+        | _, value -> failwithf $"Cannot %s{opName} '%s{tyName}' because the slot is used by %A{value}"
 
     /// Namespace name
     member __.Name = name
@@ -105,8 +105,8 @@ and NamespaceAbstraction(name: string) =
         match providedTys.TryGetValue tyName with
         | true, Reservation -> providedTys.[tyName] <- ProvidedType ty
         | true, Namespace ns -> providedTys.[tyName] <- NestedType(ty, ns)
-        | false, _ -> failwithf "Cannot register the type '%s' because name was not reserved" tyName
-        | _, value -> failwithf "Cannot register the type '%s' because the slot is used by %A" tyName value
+        | false, _ -> failwithf $"Cannot register the type '%s{tyName}' because name was not reserved"
+        | _, value -> failwithf $"Cannot register the type '%s{tyName}' because the slot is used by %A{value}"
 
     /// Get or create sub-namespace
     member __.GetOrCreateNamespace name =
@@ -122,7 +122,7 @@ and NamespaceAbstraction(name: string) =
             let ns = NamespaceAbstraction(name)
             providedTys.[name] <- Namespace ns
             ns
-        | true, value -> failwithf "Name collision, cannot create namespace '%s' because it used by '%A'" name value
+        | true, value -> failwithf $"Name collision, cannot create namespace '%s{name}' because it used by '%A{value}'"
 
     /// Resolve DefinitionPath according to current namespace
     member this.Resolve(dPath: DefinitionPath) =
@@ -137,7 +137,7 @@ and NamespaceAbstraction(name: string) =
         List.ofSeq providedTys
         |> List.choose(fun kv ->
             match kv.Value with
-            | Reservation -> failwithf "Reservation without type found '%s'. This is a bug in DefinitionCompiler" kv.Key
+            | Reservation -> failwithf $"Reservation without type found '%s{kv.Key}'. This is a bug in DefinitionCompiler"
             | NameAlias -> None
             | ProvidedType ty -> Some ty
             | Namespace ns ->
@@ -169,7 +169,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
         let providedField =
             let fieldName =
-                sprintf "_%c%s" (Char.ToLower propertyName.[0]) (propertyName.Substring(1))
+                $"_%c{Char.ToLower propertyName.[0]}%s{propertyName.Substring(1)}"
 
             ProvidedField(fieldName, ty)
 
@@ -195,7 +195,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
     let registerInNsAndInDef tyDefName (ns: NamespaceAbstraction) (name, ty: ProvidedTypeDefinition) =
         if definitionToType.ContainsKey tyDefName then
-            failwithf "Second time compilation of type definition '%s'. This is a bug in DefinitionCompiler" tyDefName
+            failwithf $"Second time compilation of type definition '%s{tyDefName}'. This is a bug in DefinitionCompiler"
         else
             definitionToType.Add(tyDefName, ty)
 
@@ -211,8 +211,8 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 let ty = compileSchemaObject ns tyName def true (registerInNsAndInDef tyDefName ns)
                 ty :> Type
             | None when tyDefName.StartsWith("#/definitions/") ->
-                failwithf "Cannot find definition '%s' in schema definitions %A" tyDefName (definitionToType.Keys |> Seq.toArray)
-            | None -> failwithf "Cannot find definition '%s' (references to relative documents are not supported yet)" tyDefName
+                failwithf $"Cannot find definition '%s{tyDefName}' in schema definitions %A{definitionToType.Keys |> Seq.toArray}"
+            | None -> failwithf $"Cannot find definition '%s{tyDefName}' (references to relative documents are not supported yet)"
 
     and compileSchemaObject (ns: NamespaceAbstraction) tyName (schemaObj: SchemaObject) isRequired registerNew =
         let compileNewObject(properties: DefinitionProperty[]) =
@@ -222,7 +222,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
                 typeof<obj>
             else if isNull tyName then
-                failwithf "Swagger provider does not support anonymous types: %A" schemaObj
+                failwithf $"Swagger provider does not support anonymous types: %A{schemaObj}"
             else
                 // Register every ProvidedTypeDefinition
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
@@ -235,7 +235,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                     List.ofArray properties
                     |> List.map(fun p ->
                         if String.IsNullOrEmpty(p.Name) then
-                            failwithf "Property cannot be created with empty name. TypeName:%A; SchemaObj:%A" tyName schemaObj
+                            failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
                         let pTy =
                             compileSchemaObject ns (ns.ReserveUniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired ns.RegisterType
