@@ -97,6 +97,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                         let headers =
                             let jsonConsumable =
                                 op.Consumes |> Seq.exists(fun mt -> mt = MediaTypes.ApplicationJson)
+
                             let jsonProducible =
                                 op.Produces |> Seq.exists(fun mt -> mt = MediaTypes.ApplicationJson)
 

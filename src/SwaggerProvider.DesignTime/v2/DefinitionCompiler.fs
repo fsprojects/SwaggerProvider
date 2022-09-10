@@ -168,8 +168,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
         let providedField =
-            let fieldName =
-                $"_%c{Char.ToLower propertyName.[0]}%s{propertyName.Substring(1)}"
+            let fieldName = $"_%c{Char.ToLower propertyName.[0]}%s{propertyName.Substring(1)}"
 
             ProvidedField(fieldName, ty)
 
