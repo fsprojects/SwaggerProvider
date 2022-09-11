@@ -332,7 +332,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 @>
                             | Some(AppOctetStream, streamObj) ->
                                 <@
-                                    let stream: System.IO.Stream = %%streamObj
+                                    let stream: obj = %%streamObj
                                     let msg = %httpRequestMessage
                                     msg.Content <- RuntimeHelpers.toStreamContent(stream)
                                     msg

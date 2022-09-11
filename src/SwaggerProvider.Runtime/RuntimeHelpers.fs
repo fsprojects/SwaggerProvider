@@ -125,8 +125,10 @@ module RuntimeHelpers =
     let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
 
-    let toStreamContent(stream: System.IO.Stream) =
-        new StreamContent(stream)
+    let toStreamContent(boxedStream: obj) =
+        match boxedStream with
+        | :? IO.Stream as stream -> new StreamContent(stream)
+        | _ -> failwith $"Unexpected parameter type {boxedStream.GetType().Name} instead of IO.Stream"
 
     let getPropertyValues(object: obj) =
         if isNull object then
