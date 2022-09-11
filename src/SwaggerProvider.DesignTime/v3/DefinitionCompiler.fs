@@ -31,8 +31,8 @@ type DefinitionPath =
             if ind = definitionPath.Length then
                 ind - 1
             elif
-                Char.IsLetterOrDigit definitionPath.[ind]
-                || definitionPath.[ind] = nsSeparator
+                Char.IsLetterOrDigit definitionPath[ind]
+                || definitionPath[ind] = nsSeparator
             then
                 getCharInTypeName(ind + 1)
             else
@@ -79,10 +79,10 @@ and NamespaceAbstraction(name: string) =
         | _, value -> failwithf $"Cannot %s{opName} '%s{tyName}' because the slot is used by %A{value}"
 
     /// Namespace name
-    member __.Name = name
+    member _.Name = name
 
     /// Generate unique name and reserve it for the type
-    member __.ReserveUniqueName namePref nameSuffix = // TODO: Strange signature - think more
+    member _.ReserveUniqueName namePref nameSuffix = // TODO: Strange signature - think more
         let rec findUniq prefix i =
             let newName = sprintf "%s%s" prefix (if i = 0 then "" else i.ToString())
 
@@ -103,39 +103,39 @@ and NamespaceAbstraction(name: string) =
         newName
 
     /// Release previously reserved name
-    member __.ReleaseNameReservation tyName =
+    member _.ReleaseNameReservation tyName =
         updateReservation "release the name" tyName (fun () -> providedTys.Remove(tyName) |> ignore)
 
     /// Mark type name as named alias for basic type
-    member __.MarkTypeAsNameAlias tyName =
-        updateReservation "mark as Alias type" tyName (fun () -> providedTys.[tyName] <- NameAlias)
+    member _.MarkTypeAsNameAlias tyName =
+        updateReservation "mark as Alias type" tyName (fun () -> providedTys[tyName] <- NameAlias)
 
     /// Associate ProvidedType with reserved type name
-    member __.RegisterType(tyName, ty: Type) =
+    member _.RegisterType(tyName, ty: Type) =
         match ty with
         | :? ProvidedTypeDefinition as ty ->
             match providedTys.TryGetValue tyName with
-            | true, Reservation -> providedTys.[tyName] <- ProvidedType ty
-            | true, Namespace ns -> providedTys.[tyName] <- NestedType(ty, ns)
+            | true, Reservation -> providedTys[tyName] <- ProvidedType ty
+            | true, Namespace ns -> providedTys[tyName] <- NestedType(ty, ns)
             | true, ProvidedType pTy when pTy.Name = tyName -> ()
-            | false, _ -> providedTys.[tyName] <- ProvidedType ty
+            | false, _ -> providedTys[tyName] <- ProvidedType ty
             //failwithf "Cannot register the type '%s' because name was not reserved" tyName
             | _, value -> failwithf $"Cannot register the type '%s{tyName}' because the slot is used by %A{value}"
         | _ -> () // Do nothing, TP should not provide real types
 
     /// Get or create sub-namespace
-    member __.GetOrCreateNamespace name =
+    member _.GetOrCreateNamespace name =
         match providedTys.TryGetValue name with
         | true, Namespace ns -> ns
         | true, NestedType(_, ns) -> ns
         | true, ProvidedType ty ->
             let ns = NamespaceAbstraction(name)
-            providedTys.[name] <- NestedType(ty, ns)
+            providedTys[name] <- NestedType(ty, ns)
             ns
         | false, _
         | true, Reservation ->
             let ns = NamespaceAbstraction(name)
-            providedTys.[name] <- Namespace ns
+            providedTys[name] <- Namespace ns
             ns
         | true, value -> failwithf $"Name collision, cannot create namespace '%s{name}' because it used by '%A{value}'"
 
@@ -148,7 +148,7 @@ and NamespaceAbstraction(name: string) =
             ns.Resolve { dPath with Namespace = tail }
 
     /// Create Provided representation of Namespace
-    member __.GetProvidedTypes() =
+    member _.GetProvidedTypes() =
         List.ofSeq providedTys
         |> List.choose(fun kv ->
             match kv.Value with
@@ -190,7 +190,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
         let providedField =
-            let fieldName = $"_%c{Char.ToLower propertyName.[0]}%s{propertyName.Substring(1)}"
+            let fieldName = $"_%c{Char.ToLower propertyName[0]}%s{propertyName.Substring(1)}"
 
             ProvidedField(fieldName, ty)
 
@@ -267,7 +267,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         let pTy =
                             compileBySchema ns (ns.ReserveUniqueName tyName (nicePascalName propName)) propSchema isRequired ns.RegisterType false
 
-                        let (pField, pProp) = generateProperty propName pTy
+                        let pField, pProp = generateProperty propName pTy
 
                         if not <| String.IsNullOrWhiteSpace propSchema.Description then
                             pProp.AddXmlDoc propSchema.Description
@@ -307,7 +307,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     ctorParams,
                     invokeCode =
                         fun args ->
-                            let (this, args) =
+                            let this, args =
                                 match args with
                                 | x :: xs -> (x, xs)
                                 | _ -> failwith "Wrong constructor arguments"
@@ -315,7 +315,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                             List.zip args fields
                             |> List.map(fun (arg, f) -> Expr.FieldSetUnchecked(this, f, arg))
                             |> List.rev
-                            |> List.fold (fun a b -> Expr.Sequential(a, b)) (<@@ () @@>)
+                            |> List.fold (fun a b -> Expr.Sequential(a, b)) <@@ () @@>
                 )
 
                 // Override `.ToString()`
@@ -327,9 +327,9 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         isStatic = false,
                         invokeCode =
                             fun args ->
-                                let this = args.[0]
+                                let this = args[0]
 
-                                let (pNames, pValues) =
+                                let pNames, pValues =
                                     Array.ofList members
                                     |> Array.map(fun (pField, pProp) ->
                                         let pValObj = Expr.FieldGet(this, pField)
@@ -357,7 +357,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                                     let strs =
                                         values
-                                        |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames.[i], formatValue v))
+                                        |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames[i], formatValue v))
 
                                     String.Format("{{{0}}}", String.Join("; ", strs))
                                 @@>
@@ -365,7 +365,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
 
-                let objToStr = (typeof<obj>).GetMethod("ToString", [||])
+                let objToStr = typeof<obj>.GetMethod ("ToString", [||])
                 ty.DefineMethodOverride(toStr, objToStr)
                 ty.AddMember <| toStr
 
@@ -386,6 +386,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     ns.ReleaseNameReservation tyName
                     ty
                 | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaObj.Reference.ReferenceV3}'"
+            // TODO: fail on external references
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
@@ -406,8 +407,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 | "number", "double" -> typeof<double>
                 | "number", _ -> typeof<float32>
                 | "boolean", _ -> typeof<bool>
-                | "string", "byte" -> typeof<byte>.MakeArrayType (1)
-                | "string", "binary"
+                | "string", "byte" -> typeof<byte>.MakeArrayType 1
+                | "string", "binary" // for `application/octet-stream` request body
                 | "file", _ -> // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                     typeof<IO.Stream>
                 | "string", "date"
@@ -444,14 +445,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
     do pathToSchema |> Seq.iter(fun kv -> compileByPath kv.Key |> ignore)
 
     /// Namespace that represent provided type space
-    member __.Namespace = nsRoot
+    member _.Namespace = nsRoot
 
     /// Method that allow OperationCompiler to resolve object reference, compile basic and anonymous types.
-    member __.CompileTy opName tyUseSuffix ty required =
+    member _.CompileTy opName tyUseSuffix ty required =
         compileBySchema nsOps (nsOps.ReserveUniqueName opName tyUseSuffix) ty required nsOps.RegisterType false
 
     /// Default value for optional parameters
-    member __.GetDefaultValue _ =
+    member _.GetDefaultValue _ =
         // This method is only used for not required types
         // Reference types, Option<T> and Nullable<T>
         null

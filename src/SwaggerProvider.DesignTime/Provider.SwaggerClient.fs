@@ -9,19 +9,8 @@ open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v2.Parser
 open SwaggerProvider.Internal.v2.Compilers
 
-//module Handlers =
-
-// let logError event (ex: exn) =
-//   let ex =
-//     match ex with
-//     | :? TypeInitializationException as typInit -> typInit.InnerException
-//     | _ -> ex
-//   Logging.logf "[%s]\t%s: %s\n%s" event (ex.GetType().Name) ex.Message ex.StackTrace
-// let logResolve kind (args: ResolveEventArgs) = Logging.logf "[%s]\t%s on behalf of %s" kind args.Name args.RequestingAssembly.FullName
-
-
 /// The Swagger Type Provider.
-[<TypeProvider>]
+[<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v3 schema formats.")>]
 type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces
         (
@@ -29,10 +18,6 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
             assemblyReplacementMap = [ ("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime") ],
             addDefaultProbingLocation = true
         )
-
-    // static do
-    //   AppDomain.CurrentDomain.FirstChanceException.Add(fun args -> Handlers.logError "FirstChanceException" args.Exception)
-    //   AppDomain.CurrentDomain.UnhandledException.Add(fun args -> Handlers.logError "UnhandledException" (args.ExceptionObject :?> exn))
 
     let ns = "SwaggerProvider"
     let asm = Assembly.GetExecutingAssembly()

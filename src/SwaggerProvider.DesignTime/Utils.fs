@@ -25,11 +25,11 @@ module SchemaReader =
                 |> Seq.choose(fun x ->
                     let pair = x.Split('=')
 
-                    if (pair.Length = 2) then Some(pair.[0], pair.[1]) else None)
+                    if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
 
             let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
 
-            for (name, value) in headers do
+            for name, value in headers do
                 request.Headers.TryAddWithoutValidation(name, value) |> ignore
             // using a custom handler means that we can set the default credentials.
             use handler = new HttpClientHandler(UseDefaultCredentials = true)
@@ -44,7 +44,7 @@ module SchemaReader =
 
             match res with
             | Choice1Of2 x -> return x
-            | Choice2Of2(:? System.Net.WebException as wex) when not <| isNull wex.Response ->
+            | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
                 use stream = wex.Response.GetResponseStream()
                 use reader = new StreamReader(stream)
                 let err = reader.ReadToEnd()
@@ -75,5 +75,5 @@ type UniqueNameGenerator() =
             newName
         | true -> findUniq prefix (i + 1)
 
-    member __.MakeUnique methodName =
+    member _.MakeUnique methodName =
         findUniq methodName 0

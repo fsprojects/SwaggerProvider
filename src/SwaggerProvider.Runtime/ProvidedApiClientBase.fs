@@ -8,8 +8,8 @@ open System.Text.Json.Serialization
 
 type OpenApiException(code: int, description: string) =
     inherit Exception(description)
-    member __.StatusCode = code
-    member __.Description = description
+    member _.StatusCode = code
+    member _.Description = description
 
 type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOptions) =
 
@@ -28,10 +28,10 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
     abstract member Serialize: obj -> string
     abstract member Deserialize: string * Type -> obj
 
-    default __.Serialize(value: obj) : string =
+    default _.Serialize(value: obj) : string =
         JsonSerializer.Serialize(value, options)
 
-    default __.Deserialize(value, retTy: Type) : obj =
+    default _.Deserialize(value, retTy: Type) : obj =
         JsonSerializer.Deserialize(value, retTy, options)
 
     member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> = task {
@@ -46,7 +46,7 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
             errorCodes
             |> Array.tryFindIndex((=) codeStr)
             |> Option.iter(fun idx ->
-                let desc = errorDescriptions.[idx]
+                let desc = errorDescriptions[idx]
                 raise(OpenApiException(code, desc)))
 
             // fail with HttpRequestException if we do not know error description

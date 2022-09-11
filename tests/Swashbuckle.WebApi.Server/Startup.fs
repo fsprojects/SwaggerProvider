@@ -1,10 +1,6 @@
 namespace Swashbuckle.WebApi.Server
 
-open System
-open System.Collections.Generic
-open System.Linq
-open System.Reflection.Metadata
-open System.Threading.Tasks
+
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Mvc
@@ -12,6 +8,7 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.OpenApi.Models
 open System.Text.Json.Serialization
+open Swashbuckle.WebApi.Server.Controllers
 
 type Startup private () =
     new(configuration: IConfiguration) as this =
@@ -30,7 +27,9 @@ type Startup private () =
             .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
-        services.AddSwaggerGen(fun c -> c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1")))
+        services.AddSwaggerGen(fun c ->
+            c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"))
+            c.OperationFilter<BinaryContentFilter>())
         |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

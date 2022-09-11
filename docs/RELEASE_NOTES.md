@@ -4,6 +4,7 @@
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
 - Model enums as `string`, `int32` or `boolean` (Fixed [#186](https://github.com/fsprojects/SwaggerProvider/issues/186) )
 - Add `Accept` header to all request (Fixed [#196](https://github.com/fsprojects/SwaggerProvider/issues/196))
+- Supported requests with `octet-stream` body content [#203](https://github.com/fsprojects/SwaggerProvider/pull/203)
 - Microsoft.OpenApi v1.4.1
 
 #### 1.0.2 - Jul 10, 2022

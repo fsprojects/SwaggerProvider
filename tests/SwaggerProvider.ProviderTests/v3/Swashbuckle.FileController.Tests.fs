@@ -1,7 +1,6 @@
 module Swashbuckle.v3.FileControllersTests
 
 open Expecto
-open System
 open System.IO
 open Swashbuckle.v3.ReturnControllersTests
 
@@ -13,7 +12,7 @@ let resourceControllersTests =
         let bytes = System.Text.Encoding.UTF8.GetBytes(text)
         new MemoryStream(bytes)
 
-    let fromStream(stream: IO.Stream) = async {
+    let fromStream(stream: Stream) = async {
         use reader = new StreamReader(stream)
         return! reader.ReadToEndAsync() |> Async.AwaitTask
     }
@@ -25,6 +24,14 @@ let resourceControllersTests =
             let! stream = api.GetApiReturnFile()
             let! actual = fromStream stream
             Expect.stringContains actual "I am totally a file" "incorrect server response"
+        }
+
+        testCaseAsync "Send file as IO.Stream"
+        <| async {
+            let bytes = System.Text.Encoding.UTF8.GetBytes("I am totally a file's\ncontent")
+            use stream = new MemoryStream(bytes)
+            let! actual = api.PostApiReturnFileStream(stream)
+            Expect.equal actual bytes.Length "incorrect server response"
         }
 
         testCaseAsync "Send file and get it back"

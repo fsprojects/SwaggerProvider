@@ -1,6 +1,7 @@
 namespace SwaggerProvider.Internal.v3.Compilers
 
 open System
+open System.Collections.Generic
 open System.Net.Http
 open System.Text.Json
 open System.Text.RegularExpressions
@@ -21,31 +22,42 @@ open Swagger.Internal
 type ApiCall = string * OpenApiPathItem * OperationType
 
 type PayloadType =
-    | NoBody
-    | Body
-    | FormData
-    | FormUrlEncoded
+    | NoData
+    | AppJson
+    | AppOctetStream
+    | AppFormUrlEncoded
+    | MultipartFormData
 
     override x.ToString() =
         match x with
-        | NoBody -> "noBody"
-        | Body -> "body"
-        | FormData -> "formData"
-        | FormUrlEncoded -> "formUrlEncoded"
+        | NoData -> "noData"
+        | AppJson -> "json"
+        | AppOctetStream -> "octetStream"
+        | AppFormUrlEncoded -> "formUrlEncoded"
+        | MultipartFormData -> "formData"
+
+    member x.ToMediaType() =
+        match x with
+        | NoData -> null
+        | AppJson -> MediaTypes.ApplicationJson
+        | AppOctetStream -> MediaTypes.ApplicationOctetStream
+        | AppFormUrlEncoded -> MediaTypes.ApplicationFormUrlEncoded
+        | MultipartFormData -> MediaTypes.MultipartFormData
 
     static member Parse =
         function
-        | "noBody" -> NoBody
-        | "body" -> Body
-        | "formData" -> FormData
-        | "formUrlEncoded" -> FormUrlEncoded
+        | "noData" -> NoData
+        | "json" -> AppJson
+        | "octetStream" -> AppOctetStream
+        | "formUrlEncoded" -> AppFormUrlEncoded
+        | "formData" -> MultipartFormData
         | name -> failwithf $"Payload '%s{name}' is not supported"
 
 /// Object for compiling operations.
 type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
     let compileOperation (providedMethodName: string) (apiCall: ApiCall) =
-        let (path, pathItem, opTy) = apiCall
-        let operation = pathItem.Operations.[opTy]
+        let path, pathItem, opTy = apiCall
+        let operation = pathItem.Operations[opTy]
 
         if String.IsNullOrWhiteSpace providedMethodName then
             failwithf $"Operation name could not be empty. See '%s{path}/%A{opTy}'"
@@ -53,142 +65,137 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let unambiguousName(par: OpenApiParameter) =
             $"%s{par.Name}In%A{par.In}"
 
-        let openApiParameters =
-            seq {
-                yield! pathItem.Parameters
-                yield! operation.Parameters
-            }
-            |> Seq.toList
+        let openApiParameters = [ yield! pathItem.Parameters; yield! operation.Parameters ]
 
-        let parameters =
-            /// handles deduping Swagger parameter names if the same parameter name
+        let (|MediaType|_|) contentType (content: IDictionary<string, OpenApiMediaType>) =
+            match content.TryGetValue contentType with
+            | true, mediaTyObj -> Some(mediaTyObj)
+            | _ -> None
+
+        let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
+            if content.Count = 0 then Some() else None
+
+        let payloadMime, parameters =
+            /// handles de-duplicating Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
-            let uniqueParamName existing (current: OpenApiParameter) =
-                let name = niceCamelName current.Name
+            let uniqueParamName usedNames (param: OpenApiParameter) =
+                let name = niceCamelName param.Name
 
-                if Set.contains name existing then
-                    let fqName = unambiguousName current
-                    Set.add fqName existing, fqName
+                if usedNames |> Set.contains name then
+                    let fqName = unambiguousName param
+                    Set.add fqName usedNames, fqName
                 else
-                    Set.add name existing, name
+                    Set.add name usedNames, name
 
-            let (|ApplicationJson|_|)(requestBody: OpenApiRequestBody) =
-                let bestKey =
-                    requestBody.Content.Keys
-                    |> Seq.tryFind(fun s -> s.StartsWith(MediaTypes.ApplicationJson, StringComparison.InvariantCultureIgnoreCase))
-                    |> Option.defaultValue MediaTypes.ApplicationJson
-
-                match requestBody.Content.TryGetValue bestKey with
-                | true, mediaTyObj -> Some(mediaTyObj)
-                | _ -> None
-
-            let (|FormUrlEncodedContent|_|)(requestBody: OpenApiRequestBody) =
-                match requestBody.Content.TryGetValue "application/x-www-form-urlencoded" with
-                | true, mediaTyObj -> Some(mediaTyObj)
-                | _ -> None
-
-            let (|MultipartFormData|_|)(requestBody: OpenApiRequestBody) =
-                match requestBody.Content.TryGetValue "multipart/form-data" with
-                | true, mediaTyObj -> Some(mediaTyObj)
-                | _ -> None
-
-            let (|NoMediaType|_|)(requestBody: OpenApiRequestBody) =
-                if requestBody.Content.Count = 0 then Some() else None
-
-            let bodyParam =
+            let bodyFormatAndParam =
                 if isNull operation.RequestBody then
                     None
                 else
-                    let param (payloadType: PayloadType) schema =
-                        OpenApiParameter(
-                            In = Nullable<_>(), // In Body parameter indicator
-                            Name = payloadType.ToString(),
-                            Schema = schema,
-                            Required = true //operation.RequestBody.Required
-                        )
-                        |> Some
+                    let formatAndParam (payloadType: PayloadType) schema =
+                        let p =
+                            OpenApiParameter(
+                                In = Nullable<_>(), // In Body parameter indicator
+                                Name = payloadType.ToString(),
+                                Schema = schema,
+                                Required = true //operation.RequestBody.Required
+                            )
 
-                    match operation.RequestBody with
-                    | ApplicationJson mediaTyObj -> param Body mediaTyObj.Schema
-                    | MultipartFormData mediaTyObj -> param FormData mediaTyObj.Schema
-                    | FormUrlEncodedContent mediaTyObj -> param FormUrlEncoded mediaTyObj.Schema
+                        Some(payloadType, p)
+
+                    match operation.RequestBody.Content with
+                    | MediaType MediaTypes.ApplicationJson mediaTyObj -> formatAndParam AppJson mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationOctetStream mediaTyObj -> formatAndParam AppOctetStream mediaTyObj.Schema
+                    | MediaType MediaTypes.MultipartFormData mediaTyObj -> formatAndParam MultipartFormData mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationFormUrlEncoded mediaTyObj -> formatAndParam AppFormUrlEncoded mediaTyObj.Schema
                     | NoMediaType ->
                         // Assume that server treat it as `applicationJson`
                         let defSchema = OpenApiSchema() // todo: we need to test it
-                        param NoBody defSchema
-                    // TODO: application/octet-stream
+                        formatAndParam NoData defSchema
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
                         failwithf $"Operation '%s{operation.OperationId}' does not contain supported media types [%A{keys}]"
 
-            let required, optional =
-                seq {
-                    yield! openApiParameters
+            let payloadTy = bodyFormatAndParam |> Option.map fst |> Option.defaultValue NoData
 
-                    if bodyParam.IsSome then
-                        yield bodyParam.Value
-                }
-                |> Seq.distinctBy(fun op -> op.Name, op.In)
-                |> Seq.toList
-                |> List.partition(fun x -> x.Required)
+            let orderedParameters =
+                let required, optional =
+                    [
+                        yield! openApiParameters
+                        if bodyFormatAndParam.IsSome then
+                            yield bodyFormatAndParam.Value |> snd
+                    ]
+                    |> List.distinctBy(fun op -> op.Name, op.In)
+                    |> List.partition(fun x -> x.Required)
 
-            ((Set.empty, []), List.append required optional)
-            ||> List.fold(fun (names, parameters) current ->
-                let (names, paramName) = uniqueParamName names current
+                List.append required optional
 
-                let paramType =
-                    defCompiler.CompileTy providedMethodName paramName current.Schema current.Required
+            let providedParameters =
+                ((Set.empty, []), orderedParameters)
+                ||> List.fold(fun (names, parameters) current ->
+                    let names, paramName = uniqueParamName names current
 
-                let providedParam =
-                    if current.Required then
-                        ProvidedParameter(paramName, paramType)
-                    else
-                        let paramDefaultValue = defCompiler.GetDefaultValue paramType
-                        ProvidedParameter(paramName, paramType, false, paramDefaultValue)
+                    let paramType =
+                        defCompiler.CompileTy providedMethodName paramName current.Schema current.Required
 
-                (names, providedParam :: parameters))
-            |> snd
-            // because we built up our list in reverse order with the fold,
-            // reverse it again so that all required properties come first
-            |> List.rev
+                    let providedParam =
+                        if current.Required then
+                            ProvidedParameter(paramName, paramType)
+                        else
+                            let paramDefaultValue = defCompiler.GetDefaultValue paramType
+                            ProvidedParameter(paramName, paramType, false, paramDefaultValue)
+
+                    (names, providedParam :: parameters))
+                |> snd
+                // because we built up our list in reverse order with the fold,
+                // reverse it again so that all required properties come first
+                |> List.rev
+
+            payloadTy.ToMediaType(), providedParameters
 
         // find the inner type value
-        let retTy =
-            let okResponse = // BUG :  wrong selector
+        let retMimeAndTy =
+            let okResponse =
                 operation.Responses
-                |> Seq.tryFind(fun resp -> resp.Key = "200" || resp.Key = "201") // or default
+                |> Seq.tryFind(fun resp -> resp.Key = "200")
+                |> Option.orElseWith(fun () ->
+                    operation.Responses
+                    |> Seq.tryFind(fun resp -> resp.Key.StartsWith("20")))
 
-            match okResponse with
-            | Some(kv) ->
-                // TODO: FTW media type ?
-                match kv.Value.Content.TryGetValue MediaTypes.ApplicationJson with
-                | true, mediaTy ->
-                    if isNull mediaTy.Schema then
-                        Some <| typeof<unit>
-                    else
-                        Some
-                        <| defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
-                | false, _ ->
-                    match kv.Value.Content.TryGetValue MediaTypes.ApplicationOctetStream with
-                    | true, mediaTy -> // The only really expected type here is IO.Stream
+            okResponse
+            |> Option.bind(fun kv ->
+                match kv.Value.Content with
+                | MediaType MediaTypes.ApplicationJson mediaTy ->
+                    let ty =
                         if isNull mediaTy.Schema then
-                            Some <| typeof<IO.Stream>
+                            typeof<unit>
                         else
-                            Some
-                            <| defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
-                    | false, _ -> None
-            | None -> None
+                            defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
+
+                    Some(MediaTypes.ApplicationJson, ty)
+                | MediaType MediaTypes.ApplicationOctetStream mediaTy ->
+                    let ty =
+                        if isNull mediaTy.Schema then
+                            typeof<IO.Stream>
+                        else
+                            defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
+
+                    Some(MediaTypes.ApplicationOctetStream, ty)
+                | _ -> None)
+
+        let retMime = retMimeAndTy |> Option.map fst |> Option.defaultValue null
+        let retTy = retMimeAndTy |> Option.map snd
 
         let overallReturnType =
-            ProvidedTypeBuilder.MakeGenericType(
-                (if asAsync then
-                     typedefof<Async<unit>>
-                 else
-                     typedefof<System.Threading.Tasks.Task<unit>>),
-                [ defaultArg retTy (typeof<unit>) ]
-            )
+            let wrapperTy =
+                if asAsync then
+                    typedefof<Async<unit>>
+                else
+                    typedefof<System.Threading.Tasks.Task<unit>>
 
-        let (errorCodes, errorDescriptions) =
+            let genericTy = retTy |> Option.defaultValue typeof<unit>
+            ProvidedTypeBuilder.MakeGenericType(wrapperTy, [ genericTy ])
+
+        let errorCodes, errorDescriptions =
             operation.Responses
             |> Seq.choose(fun x ->
                 let code = x.Key
@@ -209,17 +216,18 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 invokeCode =
                     fun args ->
                         let this =
-                            Expr.Coerce(args.[0], typeof<ProvidedApiClientBase>)
+                            Expr.Coerce(args[0], typeof<ProvidedApiClientBase>)
                             |> Expr.Cast<ProvidedApiClientBase>
 
                         let httpMethod = opTy.ToString()
 
                         let headers =
-                            // TODO: add headers conditionally
                             <@
                                 [
-                                    "Accept", MediaTypes.ApplicationJson
-                                    "Content-Type", MediaTypes.ApplicationJson
+                                    if payloadMime <> null then
+                                        "Content-Type", payloadMime
+                                    if retMime <> null then
+                                        "Accept", MediaTypes.ApplicationJson
                                 ]
                             @>
 
@@ -246,7 +254,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                         | None ->
                                             payloadExp <- Some(payloadType, Expr.Coerce(expr, typeof<obj>))
                                             None
-                                        | Some(_) ->
+                                        | Some _ ->
                                             failwithf
                                                 $"More than one payload parameter is specified: '%A{payloadType}' & '%A{payloadExp.Value |> fst}'"
                                 | _ -> failwithf $"Function '%s{providedMethodName}' does not support functions as arguments.")
@@ -261,8 +269,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             <@ let o = (%%obj: obj) in RuntimeHelpers.toQueryParams name o (%this) @>
 
                         // Partitions arguments based on their locations
-                        let (path, queryParams, headers) =
-                            let (path, queryParams, headers, cookies) =
+                        let path, queryParams, headers =
+                            let path, queryParams, headers, cookies =
                                 ((<@ path @>, <@ [] @>, headers, <@ [] @>), parameters)
                                 ||> List.fold(fun (path, query, headers, cookies) (param: OpenApiParameter, valueExpr) ->
                                     if param.In.HasValue then
@@ -314,29 +322,33 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         let httpRequestMessageWithPayload =
                             match payloadExp with
                             | None -> httpRequestMessage
-                            | Some(NoBody, _) -> httpRequestMessage
-                            | Some(Body, body) ->
+                            | Some(NoData, _) -> httpRequestMessage
+                            | Some(AppJson, body) ->
                                 <@
                                     let valueStr = (%this).Serialize(%%body: obj)
-                                    let content = RuntimeHelpers.toStringContent(valueStr)
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toStringContent(valueStr)
                                     msg
                                 @>
-                            | Some(FormData, formData) ->
+                            | Some(AppOctetStream, streamObj) ->
+                                <@
+                                    let stream: obj = %%streamObj
+                                    let msg = %httpRequestMessage
+                                    msg.Content <- RuntimeHelpers.toStreamContent(stream)
+                                    msg
+                                @>
+                            | Some(MultipartFormData, formData) ->
                                 <@
                                     let data = RuntimeHelpers.getPropertyValues(%%formData: obj)
-                                    let content = RuntimeHelpers.toMultipartFormDataContent data
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toMultipartFormDataContent data
                                     msg
                                 @>
-                            | Some(FormUrlEncoded, formUrlEncoded) ->
+                            | Some(AppFormUrlEncoded, formUrlEncoded) ->
                                 <@
                                     let data = RuntimeHelpers.getPropertyValues(%%formUrlEncoded: obj)
-                                    let content = RuntimeHelpers.toFormUrlEncodedContent(data)
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toFormUrlEncodedContent(data)
                                     msg
                                 @>
 
@@ -403,11 +415,11 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         m
 
     static member GetMethodNameCandidate (apiCall: ApiCall) skipLength ignoreOperationId =
-        let (path, pathItem, opTy) = apiCall
-        let operation = pathItem.Operations.[opTy]
+        let path, pathItem, opTy = apiCall
+        let operation = pathItem.Operations[opTy]
 
         if ignoreOperationId || String.IsNullOrWhiteSpace(operation.OperationId) then
-            let (_, pathParts) =
+            let _, pathParts =
                 (path.Split([| '/' |], StringSplitOptions.RemoveEmptyEntries), (false, []))
                 ||> Array.foldBack(fun x (nextIsArg, pathParts) ->
                     if x.StartsWith("{") then
@@ -415,17 +427,17 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     else
                         (false, (if nextIsArg then singularize x else x) :: pathParts))
 
-            String.Join("_", (opTy.ToString()) :: pathParts)
+            String.Join("_", opTy.ToString() :: pathParts)
         else
             operation.OperationId.Substring(skipLength)
         |> nicePascalName
 
-    member __.CompileProvidedClients(ns: NamespaceAbstraction) =
+    member _.CompileProvidedClients(ns: NamespaceAbstraction) =
         let defaultHost =
             if schema.Servers.Count = 0 then
                 null
             else
-                schema.Servers.[0].Url
+                schema.Servers[0].Url
 
         let baseTy = Some typeof<ProvidedApiClientBase>
         let baseCtor = baseTy.Value.GetConstructors().[0]
@@ -438,7 +450,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             if ignoreControllerPrefix then
                 String.Empty //
             else
-                let op = pathItem.Operations.[opTy]
+                let op = pathItem.Operations[opTy]
 
                 if isNull op.OperationId then
                     String.Empty
@@ -487,7 +499,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 )
                 ProvidedConstructor(
                     [ ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
-                    invokeCode = (fun args -> <@@ () @@>),
+                    invokeCode = (fun _ -> <@@ () @@>),
                     BaseConstructorCall =
                         fun args ->
                             let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
@@ -501,7 +513,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 )
                 ProvidedConstructor(
                     [],
-                    invokeCode = (fun args -> <@@ () @@>),
+                    invokeCode = (fun _ -> <@@ () @@>),
                     BaseConstructorCall =
                         fun args ->
                             let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr

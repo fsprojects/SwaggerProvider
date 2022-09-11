@@ -2,7 +2,6 @@ module SwaggerProvider.Caching
 
 open System
 open System.Collections.Concurrent
-open System.IO
 
 // https://github.com/fsharp/FSharp.Data/blob/master/src/CommonRuntime/IO.fs
 
@@ -74,7 +73,7 @@ let internal logTime category (instance: string) =
 
 let internal dummyDisposable =
     { new IDisposable with
-        member __.Dispose() = ()
+        member _.Dispose() = ()
     }
 
 let inline internal log(_: string) = ()
@@ -112,25 +111,25 @@ let createInMemoryCache(expiration: TimeSpan) =
     }
 
     { new ICache<_, _> with
-        member __.Set(key, value) =
-            dict.[key] <- (value, DateTime.UtcNow)
+        member _.Set(key, value) =
+            dict[key] <- (value, DateTime.UtcNow)
             invalidationFunction key |> Async.Start
 
         member x.TryRetrieve(key, ?extendCacheExpiration) =
             match dict.TryGetValue(key) with
             | true, (value, timestamp) when DateTime.UtcNow - timestamp < expiration ->
                 if extendCacheExpiration = Some true then
-                    dict.[key] <- (value, DateTime.UtcNow)
+                    dict[key] <- (value, DateTime.UtcNow)
 
                 Some value
             | _ -> None
 
-        member __.Remove(key) =
+        member _.Remove(key) =
             match dict.TryRemove(key) with
             | true, _ -> log $"Explicitly removed from cache: {key}"
             | _ -> ()
 
-        member __.GetOrAdd(key, valueFactory) =
+        member _.GetOrAdd(key, valueFactory) =
             let res, _ = dict.GetOrAdd(key, (fun k -> valueFactory(), DateTime.UtcNow))
             invalidationFunction key |> Async.Start
             res
