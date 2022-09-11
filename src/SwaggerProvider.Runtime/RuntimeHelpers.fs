@@ -113,13 +113,13 @@ module RuntimeHelpers =
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
-            member __.Constructor =
-                typeof<JsonPropertyNameAttribute>.GetConstructor ([| typeof<string> |])
+            member _.Constructor =
+                typeof<JsonPropertyNameAttribute>.GetConstructor [| typeof<string> |]
 
-            member __.ConstructorArguments =
+            member _.ConstructorArguments =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
 
-            member __.NamedArguments = [||] :> Collections.Generic.IList<_>
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_>
         }
 
     let toStringContent(valueStr: string) =
@@ -155,7 +155,7 @@ module RuntimeHelpers =
             let filename = Guid.NewGuid().ToString() // asp.net core cannot deserialize IFormFile otherwise
             cnt.Add(new StreamContent(stream), name, filename)
 
-        for (name, value) in keyValues do
+        for name, value in keyValues do
             match value with
             | null -> ()
             | :? IO.Stream as stream -> addFileStream name stream
@@ -194,7 +194,7 @@ module RuntimeHelpers =
             let builder = UriBuilder(combineUrl fakeHost address)
             let query = System.Web.HttpUtility.ParseQueryString(builder.Query)
 
-            for (name, value) in queryParams do
+            for name, value in queryParams do
                 if not <| isNull value then
                     query.Add(name, value)
 
@@ -216,11 +216,11 @@ module RuntimeHelpers =
                     raise <| Exception(errMsg))
 
     let asyncCast runtimeTy (asyncOp: Async<obj>) =
-        let castFn = typeof<AsyncExtensions>.GetMethod ("cast")
+        let castFn = typeof<AsyncExtensions>.GetMethod "cast"
 
         castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| asyncOp |])
 
     let taskCast runtimeTy (task: Task<obj>) =
-        let castFn = typeof<TaskExtensions>.GetMethod ("cast")
+        let castFn = typeof<TaskExtensions>.GetMethod "cast"
 
         castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| task |])

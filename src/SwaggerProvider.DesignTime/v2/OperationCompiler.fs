@@ -6,7 +6,6 @@ open SwaggerProvider.Internal.v2.Parser.Schema
 open Swagger.Internal
 
 open System
-open System.Collections.Generic
 open System.Net.Http
 open System.Text.Json
 open System.Text.RegularExpressions
@@ -15,7 +14,6 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
 open SwaggerProvider.Internal
 open Swagger
-open Swagger.Internal
 
 /// Object for compiling operations.
 type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
@@ -39,7 +37,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
             Array.append required optional
             |> Array.fold
                 (fun (names, parameters) current ->
-                    let (names, paramName) = uniqueParamName names current
+                    let names, paramName = uniqueParamName names current
 
                     let paramType =
                         defCompiler.CompileTy methodName paramName current.Type current.Required
@@ -77,7 +75,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                      typedefof<Async<unit>>
                  else
                      typedefof<System.Threading.Tasks.Task<unit>>),
-                [ defaultArg retTy (typeof<unit>) ]
+                [ defaultArg retTy typeof<unit> ]
             )
 
         let m =
@@ -88,7 +86,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                 invokeCode =
                     fun args ->
                         let this =
-                            Expr.Coerce(args.[0], typeof<ProvidedApiClientBase>)
+                            Expr.Coerce(args[0], typeof<ProvidedApiClientBase>)
                             |> Expr.Cast<ProvidedApiClientBase>
 
                         let httpMethod = op.Type.ToString()
@@ -158,7 +156,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             <@ Array.append %heads [| name, %value |] @>
 
                         // Partitions arguments based on their locations
-                        let (path, payload, queries, heads) =
+                        let path, payload, queries, heads =
                             let mPath = op.Path
 
                             parameters
@@ -260,7 +258,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
 
     static member GetMethodNameCandidate (op: OperationObject) skipLength ignoreOperationId =
         if ignoreOperationId || String.IsNullOrWhiteSpace(op.OperationId) then
-            let (_, pathParts) =
+            let _, pathParts =
                 (op.Path.Split([| '/' |], StringSplitOptions.RemoveEmptyEntries), (false, []))
                 ||> Array.foldBack(fun x (nextIsArg, pathParts) ->
                     if x.StartsWith("{") then
@@ -268,7 +266,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                     else
                         (false, (if nextIsArg then singularize x else x) :: pathParts))
 
-            String.Join("_", (op.Type.ToString()) :: pathParts)
+            String.Join("_", op.Type.ToString() :: pathParts)
         else
             op.OperationId.Substring(skipLength)
         |> nicePascalName
@@ -278,7 +276,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
             let protocol =
                 match schema.Schemes with
                 | [||] -> "http" // Should use the scheme used to access the Swagger definition itself.
-                | array -> array.[0]
+                | array -> array[0]
 
             $"%s{protocol}://%s{schema.Host}"
 
@@ -334,7 +332,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                 )
                 ProvidedConstructor(
                     [ ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
-                    invokeCode = (fun args -> <@@ () @@>),
+                    invokeCode = (fun _ -> <@@ () @@>),
                     BaseConstructorCall =
                         fun args ->
                             let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
@@ -348,7 +346,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                 )
                 ProvidedConstructor(
                     [],
-                    invokeCode = (fun args -> <@@ () @@>),
+                    invokeCode = (fun _ -> <@@ () @@>),
                     BaseConstructorCall =
                         fun args ->
                             let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr

@@ -2,7 +2,6 @@ module SwaggerProvider.Caching
 
 open System
 open System.Collections.Concurrent
-open System.IO
 
 // https://github.com/fsharp/FSharp.Data/blob/master/src/CommonRuntime/IO.fs
 
@@ -113,14 +112,14 @@ let createInMemoryCache(expiration: TimeSpan) =
 
     { new ICache<_, _> with
         member _.Set(key, value) =
-            dict.[key] <- (value, DateTime.UtcNow)
+            dict[key] <- (value, DateTime.UtcNow)
             invalidationFunction key |> Async.Start
 
         member x.TryRetrieve(key, ?extendCacheExpiration) =
             match dict.TryGetValue(key) with
             | true, (value, timestamp) when DateTime.UtcNow - timestamp < expiration ->
                 if extendCacheExpiration = Some true then
-                    dict.[key] <- (value, DateTime.UtcNow)
+                    dict[key] <- (value, DateTime.UtcNow)
 
                 Some value
             | _ -> None

@@ -29,8 +29,8 @@ type DefinitionPath =
             if ind = definitionPath.Length then
                 ind - 1
             elif
-                Char.IsLetterOrDigit definitionPath.[ind]
-                || definitionPath.[ind] = nsSeparator
+                Char.IsLetterOrDigit definitionPath[ind]
+                || definitionPath[ind] = nsSeparator
             then
                 getCharInTypeName(ind + 1)
             else
@@ -98,13 +98,13 @@ and NamespaceAbstraction(name: string) =
 
     /// Mark type name as named alias for basic type
     member _.MarkTypeAsNameAlias tyName =
-        updateReservation "mark as Alias type" tyName (fun () -> providedTys.[tyName] <- NameAlias)
+        updateReservation "mark as Alias type" tyName (fun () -> providedTys[tyName] <- NameAlias)
 
     /// Associate ProvidedType with reserved type name
     member _.RegisterType(tyName, ty) =
         match providedTys.TryGetValue tyName with
-        | true, Reservation -> providedTys.[tyName] <- ProvidedType ty
-        | true, Namespace ns -> providedTys.[tyName] <- NestedType(ty, ns)
+        | true, Reservation -> providedTys[tyName] <- ProvidedType ty
+        | true, Namespace ns -> providedTys[tyName] <- NestedType(ty, ns)
         | false, _ -> failwithf $"Cannot register the type '%s{tyName}' because name was not reserved"
         | _, value -> failwithf $"Cannot register the type '%s{tyName}' because the slot is used by %A{value}"
 
@@ -115,12 +115,12 @@ and NamespaceAbstraction(name: string) =
         | true, NestedType(_, ns) -> ns
         | true, ProvidedType ty ->
             let ns = NamespaceAbstraction(name)
-            providedTys.[name] <- NestedType(ty, ns)
+            providedTys[name] <- NestedType(ty, ns)
             ns
         | false, _
         | true, Reservation ->
             let ns = NamespaceAbstraction(name)
-            providedTys.[name] <- Namespace ns
+            providedTys[name] <- Namespace ns
             ns
         | true, value -> failwithf $"Name collision, cannot create namespace '%s{name}' because it used by '%A{value}'"
 
@@ -168,7 +168,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
         let providedField =
-            let fieldName = $"_%c{Char.ToLower propertyName.[0]}%s{propertyName.Substring(1)}"
+            let fieldName = $"_%c{Char.ToLower propertyName[0]}%s{propertyName.Substring(1)}"
 
             ProvidedField(fieldName, ty)
 
@@ -239,7 +239,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                         let pTy =
                             compileSchemaObject ns (ns.ReserveUniqueName tyName (nicePascalName p.Name)) p.Type p.IsRequired ns.RegisterType
 
-                        let (pField, pProp) = generateProperty p.Name pTy
+                        let pField, pProp = generateProperty p.Name pTy
 
                         if not <| String.IsNullOrWhiteSpace p.Description then
                             pProp.AddXmlDoc p.Description
@@ -279,7 +279,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                     ctorParams,
                     invokeCode =
                         fun args ->
-                            let (this, args) =
+                            let this, args =
                                 match args with
                                 | x :: xs -> (x, xs)
                                 | _ -> failwith "Wrong constructor arguments"
@@ -287,7 +287,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                             List.zip args fields
                             |> List.map(fun (arg, f) -> Expr.FieldSetUnchecked(this, f, arg))
                             |> List.rev
-                            |> List.fold (fun a b -> Expr.Sequential(a, b)) (<@@ () @@>)
+                            |> List.fold (fun a b -> Expr.Sequential(a, b)) <@@ () @@>
                 )
 
                 // Override `.ToString()`
@@ -299,9 +299,9 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                         isStatic = false,
                         invokeCode =
                             fun args ->
-                                let this = args.[0]
+                                let this = args[0]
 
-                                let (pNames, pValues) =
+                                let pNames, pValues =
                                     Array.ofList members
                                     |> Array.map(fun (pField, pProp) ->
                                         let pValObj = Expr.FieldGet(this, pField)
@@ -329,7 +329,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
                                     let strs =
                                         values
-                                        |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames.[i], formatValue v))
+                                        |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames[i], formatValue v))
 
                                     String.Format("{{{0}}}", String.Join("; ", strs))
                                 @@>
@@ -337,7 +337,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
 
-                let objToStr = (typeof<obj>).GetMethod("ToString", [||])
+                let objToStr = typeof<obj>.GetMethod ("ToString", [||])
                 ty.DefineMethodOverride(toStr, objToStr)
                 ty.AddMember <| toStr
 
@@ -362,10 +362,10 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | String -> typeof<string>
                 | Date
                 | DateTime -> typeof<DateTime>
-                | File -> typeof<byte>.MakeArrayType (1)
+                | File -> typeof<byte>.MakeArrayType 1
                 | Enum(_, "string") -> typeof<string>
                 | Enum(_, "boolean") -> typeof<bool>
-                | Enum(_, _) -> typeof<int32>
+                | Enum _ -> typeof<int32>
                 | Array eTy ->
                     (compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy true ns.RegisterType)
                         .MakeArrayType(1)
