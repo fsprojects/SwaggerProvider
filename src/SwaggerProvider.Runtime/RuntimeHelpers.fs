@@ -2,7 +2,6 @@ namespace Swagger.Internal
 
 open System
 open System.Net.Http
-open System.Text.Json
 open System.Text.Json.Serialization
 open System.Threading.Tasks
 

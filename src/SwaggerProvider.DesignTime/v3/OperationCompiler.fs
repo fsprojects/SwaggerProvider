@@ -21,27 +21,27 @@ open Swagger.Internal
 type ApiCall = string * OpenApiPathItem * OperationType
 
 type PayloadType =
-    | NoBody
-    | Body
+    | NoData
+    | JsonData
+    | StreamData
     | FormData
     | FormUrlEncoded
-    | OctetStream
 
     override x.ToString() =
         match x with
-        | NoBody -> "noBody"
-        | Body -> "body"
-        | FormData -> "formData"
-        | FormUrlEncoded -> "formUrlEncoded"
-        | OctetStream -> "octetStream"
+        | NoData -> "no-data"
+        | JsonData -> MediaTypes.ApplicationJson
+        | StreamData -> MediaTypes.ApplicationOctetStream
+        | FormData -> MediaTypes.MultipartFormData
+        | FormUrlEncoded -> MediaTypes.ApplicationFormUrlEncoded
 
     static member Parse =
         function
-        | "noBody" -> NoBody
-        | "body" -> Body
-        | "formData" -> FormData
-        | "formUrlEncoded" -> FormUrlEncoded
-        | "octetStream" -> OctetStream
+        | "no-data" -> NoData
+        | MediaTypes.ApplicationJson -> JsonData
+        | MediaTypes.ApplicationOctetStream -> StreamData
+        | MediaTypes.MultipartFormData -> FormData
+        | MediaTypes.ApplicationFormUrlEncoded -> FormUrlEncoded
         | name -> failwithf $"Payload '%s{name}' is not supported"
 
 /// Object for compiling operations.
@@ -97,14 +97,14 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         |> Some
 
                     match operation.RequestBody with
-                    | MediaType MediaTypes.ApplicationJson mediaTyObj -> param Body mediaTyObj.Schema
-                    | MediaType MediaTypes.ApplicationOctetStream mediaTyObj -> param OctetStream mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationJson mediaTyObj -> param JsonData mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationOctetStream mediaTyObj -> param StreamData mediaTyObj.Schema
                     | MediaType MediaTypes.MultipartFormData mediaTyObj -> param FormData mediaTyObj.Schema
                     | MediaType MediaTypes.ApplicationFormUrlEncoded mediaTyObj -> param FormUrlEncoded mediaTyObj.Schema
                     | NoMediaType ->
                         // Assume that server treat it as `applicationJson`
                         let defSchema = OpenApiSchema() // todo: we need to test it
-                        param NoBody defSchema
+                        param NoData defSchema
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
                         failwithf $"Operation '%s{operation.OperationId}' does not contain supported media types [%A{keys}]"
@@ -302,37 +302,33 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         let httpRequestMessageWithPayload =
                             match payloadExp with
                             | None -> httpRequestMessage
-                            | Some(NoBody, _) -> httpRequestMessage
-                            | Some(Body, body) ->
+                            | Some(NoData, _) -> httpRequestMessage
+                            | Some(JsonData, body) ->
                                 <@
                                     let valueStr = (%this).Serialize(%%body: obj)
-                                    let content = RuntimeHelpers.toStringContent(valueStr)
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toStringContent(valueStr)
                                     msg
                                 @>
-                            | Some(OctetStream, streamObj) ->
+                            | Some(StreamData, streamObj) ->
                                 <@
                                     let stream: System.IO.Stream = %%streamObj
-                                    let content = RuntimeHelpers.toStreamContent(stream)
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toStreamContent(stream)
                                     msg
                                 @>
                             | Some(FormData, formData) ->
                                 <@
                                     let data = RuntimeHelpers.getPropertyValues(%%formData: obj)
-                                    let content = RuntimeHelpers.toMultipartFormDataContent data
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toMultipartFormDataContent data
                                     msg
                                 @>
                             | Some(FormUrlEncoded, formUrlEncoded) ->
                                 <@
                                     let data = RuntimeHelpers.getPropertyValues(%%formUrlEncoded: obj)
-                                    let content = RuntimeHelpers.toFormUrlEncodedContent(data)
                                     let msg = %httpRequestMessage
-                                    msg.Content <- content
+                                    msg.Content <- RuntimeHelpers.toFormUrlEncodedContent(data)
                                     msg
                                 @>
 
