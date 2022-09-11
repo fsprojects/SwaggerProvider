@@ -386,6 +386,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     ns.ReleaseNameReservation tyName
                     ty
                 | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaObj.Reference.ReferenceV3}'"
+            // TODO: fail on external references
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
