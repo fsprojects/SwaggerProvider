@@ -407,7 +407,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 | "number", _ -> typeof<float32>
                 | "boolean", _ -> typeof<bool>
                 | "string", "byte" -> typeof<byte>.MakeArrayType (1)
-                | "string", "binary"
+                | "string", "binary" // for `application/octet-stream` request body
                 | "file", _ -> // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                     typeof<IO.Stream>
                 | "string", "date"

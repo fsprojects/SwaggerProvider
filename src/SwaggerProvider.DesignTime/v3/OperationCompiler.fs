@@ -25,6 +25,7 @@ type PayloadType =
     | Body
     | FormData
     | FormUrlEncoded
+    | OctetStream
 
     override x.ToString() =
         match x with
@@ -32,6 +33,7 @@ type PayloadType =
         | Body -> "body"
         | FormData -> "formData"
         | FormUrlEncoded -> "formUrlEncoded"
+        | OctetStream -> "octetStream"
 
     static member Parse =
         function
@@ -39,6 +41,7 @@ type PayloadType =
         | "body" -> Body
         | "formData" -> FormData
         | "formUrlEncoded" -> FormUrlEncoded
+        | "octetStream" -> OctetStream
         | name -> failwithf $"Payload '%s{name}' is not supported"
 
 /// Object for compiling operations.
@@ -72,25 +75,28 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 else
                     Set.add name existing, name
 
+            let getSchemaObjByContentType contentType (requestBody: OpenApiRequestBody) =
+                match requestBody.Content.TryGetValue contentType with
+                | true, mediaTyObj -> Some(mediaTyObj)
+                | _ -> None
+
             let (|ApplicationJson|_|)(requestBody: OpenApiRequestBody) =
                 let bestKey =
                     requestBody.Content.Keys
                     |> Seq.tryFind(fun s -> s.StartsWith(MediaTypes.ApplicationJson, StringComparison.InvariantCultureIgnoreCase))
                     |> Option.defaultValue MediaTypes.ApplicationJson
 
-                match requestBody.Content.TryGetValue bestKey with
-                | true, mediaTyObj -> Some(mediaTyObj)
-                | _ -> None
+                requestBody |> getSchemaObjByContentType bestKey
+
+            let (|ApplicationOctetStream|_|)(requestBody: OpenApiRequestBody) =
+                requestBody |> getSchemaObjByContentType "application/octet-stream"
 
             let (|FormUrlEncodedContent|_|)(requestBody: OpenApiRequestBody) =
-                match requestBody.Content.TryGetValue "application/x-www-form-urlencoded" with
-                | true, mediaTyObj -> Some(mediaTyObj)
-                | _ -> None
+                requestBody
+                |> getSchemaObjByContentType "application/x-www-form-urlencoded"
 
             let (|MultipartFormData|_|)(requestBody: OpenApiRequestBody) =
-                match requestBody.Content.TryGetValue "multipart/form-data" with
-                | true, mediaTyObj -> Some(mediaTyObj)
-                | _ -> None
+                requestBody |> getSchemaObjByContentType "multipart/form-data"
 
             let (|NoMediaType|_|)(requestBody: OpenApiRequestBody) =
                 if requestBody.Content.Count = 0 then Some() else None
@@ -110,6 +116,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                     match operation.RequestBody with
                     | ApplicationJson mediaTyObj -> param Body mediaTyObj.Schema
+                    | ApplicationOctetStream mediaTyObj -> param OctetStream mediaTyObj.Schema
                     | MultipartFormData mediaTyObj -> param FormData mediaTyObj.Schema
                     | FormUrlEncodedContent mediaTyObj -> param FormUrlEncoded mediaTyObj.Schema
                     | NoMediaType ->
@@ -319,6 +326,14 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 <@
                                     let valueStr = (%this).Serialize(%%body: obj)
                                     let content = RuntimeHelpers.toStringContent(valueStr)
+                                    let msg = %httpRequestMessage
+                                    msg.Content <- content
+                                    msg
+                                @>
+                            | Some(OctetStream, streamObj) ->
+                                <@
+                                    let stream: System.IO.Stream = %%streamObj
+                                    let content = RuntimeHelpers.toStreamContent(stream)
                                     let msg = %httpRequestMessage
                                     msg.Content <- content
                                     msg

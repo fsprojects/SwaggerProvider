@@ -119,6 +119,9 @@ module RuntimeHelpers =
     let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
 
+    let toStreamContent(stream: System.IO.Stream) =
+        new StreamContent(stream)
+
     let getPropertyValues(object: obj) =
         if isNull object then
             Seq.empty
