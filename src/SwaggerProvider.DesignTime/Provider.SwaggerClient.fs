@@ -10,7 +10,7 @@ open SwaggerProvider.Internal.v2.Parser
 open SwaggerProvider.Internal.v2.Compilers
 
 /// The Swagger Type Provider.
-[<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v2 schema formats.")>]
+[<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v3 schema formats.")>]
 type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces
         (
