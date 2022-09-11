@@ -13,6 +13,13 @@ module MediaTypes =
     [<Literal>]
     let ApplicationOctetStream = "application/octet-stream"
 
+    [<Literal>]
+    let ApplicationFormUrlEncoded = "application/x-www-form-urlencoded"
+
+    [<Literal>]
+    let MultipartFormData = "multipart/form-data"
+
+
 type AsyncExtensions() =
     static member cast<'t> asyncOp = async {
         let! ret = asyncOp

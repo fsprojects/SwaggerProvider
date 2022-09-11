@@ -75,28 +75,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 else
                     Set.add name existing, name
 
-            let getSchemaObjByContentType contentType (requestBody: OpenApiRequestBody) =
+            let (|MediaType|_|) contentType (requestBody: OpenApiRequestBody) =
                 match requestBody.Content.TryGetValue contentType with
                 | true, mediaTyObj -> Some(mediaTyObj)
                 | _ -> None
-
-            let (|ApplicationJson|_|)(requestBody: OpenApiRequestBody) =
-                let bestKey =
-                    requestBody.Content.Keys
-                    |> Seq.tryFind(fun s -> s.StartsWith(MediaTypes.ApplicationJson, StringComparison.InvariantCultureIgnoreCase))
-                    |> Option.defaultValue MediaTypes.ApplicationJson
-
-                requestBody |> getSchemaObjByContentType bestKey
-
-            let (|ApplicationOctetStream|_|)(requestBody: OpenApiRequestBody) =
-                requestBody |> getSchemaObjByContentType "application/octet-stream"
-
-            let (|FormUrlEncodedContent|_|)(requestBody: OpenApiRequestBody) =
-                requestBody
-                |> getSchemaObjByContentType "application/x-www-form-urlencoded"
-
-            let (|MultipartFormData|_|)(requestBody: OpenApiRequestBody) =
-                requestBody |> getSchemaObjByContentType "multipart/form-data"
 
             let (|NoMediaType|_|)(requestBody: OpenApiRequestBody) =
                 if requestBody.Content.Count = 0 then Some() else None
@@ -115,15 +97,14 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         |> Some
 
                     match operation.RequestBody with
-                    | ApplicationJson mediaTyObj -> param Body mediaTyObj.Schema
-                    | ApplicationOctetStream mediaTyObj -> param OctetStream mediaTyObj.Schema
-                    | MultipartFormData mediaTyObj -> param FormData mediaTyObj.Schema
-                    | FormUrlEncodedContent mediaTyObj -> param FormUrlEncoded mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationJson mediaTyObj -> param Body mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationOctetStream mediaTyObj -> param OctetStream mediaTyObj.Schema
+                    | MediaType MediaTypes.MultipartFormData mediaTyObj -> param FormData mediaTyObj.Schema
+                    | MediaType MediaTypes.ApplicationFormUrlEncoded mediaTyObj -> param FormUrlEncoded mediaTyObj.Schema
                     | NoMediaType ->
                         // Assume that server treat it as `applicationJson`
                         let defSchema = OpenApiSchema() // todo: we need to test it
                         param NoBody defSchema
-                    // TODO: application/octet-stream
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
                         failwithf $"Operation '%s{operation.OperationId}' does not contain supported media types [%A{keys}]"
