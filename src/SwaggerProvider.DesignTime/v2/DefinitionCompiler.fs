@@ -76,10 +76,10 @@ and NamespaceAbstraction(name: string) =
         | _, value -> failwithf $"Cannot %s{opName} '%s{tyName}' because the slot is used by %A{value}"
 
     /// Namespace name
-    member __.Name = name
+    member _.Name = name
 
     /// Generate unique name and reserve it for the type
-    member __.ReserveUniqueName namePref nameSuffix = // TODO: Strange signature - think more
+    member _.ReserveUniqueName namePref nameSuffix = // TODO: Strange signature - think more
         let rec findUniq prefix i =
             let newName = sprintf "%s%s" prefix (if i = 0 then "" else i.ToString())
 
@@ -93,15 +93,15 @@ and NamespaceAbstraction(name: string) =
         newName
 
     /// Release previously reserved name
-    member __.ReleaseNameReservation tyName =
+    member _.ReleaseNameReservation tyName =
         updateReservation "release the name" tyName (fun () -> providedTys.Remove(tyName) |> ignore)
 
     /// Mark type name as named alias for basic type
-    member __.MarkTypeAsNameAlias tyName =
+    member _.MarkTypeAsNameAlias tyName =
         updateReservation "mark as Alias type" tyName (fun () -> providedTys.[tyName] <- NameAlias)
 
     /// Associate ProvidedType with reserved type name
-    member __.RegisterType(tyName, ty) =
+    member _.RegisterType(tyName, ty) =
         match providedTys.TryGetValue tyName with
         | true, Reservation -> providedTys.[tyName] <- ProvidedType ty
         | true, Namespace ns -> providedTys.[tyName] <- NestedType(ty, ns)
@@ -109,7 +109,7 @@ and NamespaceAbstraction(name: string) =
         | _, value -> failwithf $"Cannot register the type '%s{tyName}' because the slot is used by %A{value}"
 
     /// Get or create sub-namespace
-    member __.GetOrCreateNamespace name =
+    member _.GetOrCreateNamespace name =
         match providedTys.TryGetValue name with
         | true, Namespace ns -> ns
         | true, NestedType(_, ns) -> ns
@@ -133,7 +133,7 @@ and NamespaceAbstraction(name: string) =
             ns.Resolve { dPath with Namespace = tail }
 
     /// Create Provided representation of Namespace
-    member __.GetProvidedTypes() =
+    member _.GetProvidedTypes() =
         List.ofSeq providedTys
         |> List.choose(fun kv ->
             match kv.Value with
@@ -399,14 +399,14 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
         |> Seq.iter(fun (name, _) -> compileDefinition name |> ignore)
 
     /// Namespace that represent provided type space
-    member __.Namespace = nsRoot
+    member _.Namespace = nsRoot
 
     /// Method that allow OperationCompiler to resolve object reference, compile basic and anonymous types.
-    member __.CompileTy opName tyUseSuffix ty required =
+    member _.CompileTy opName tyUseSuffix ty required =
         compileSchemaObject nsOps (nsOps.ReserveUniqueName opName tyUseSuffix) ty required nsOps.RegisterType
 
     /// Default value for optional parameters
-    member __.GetDefaultValue _ =
+    member _.GetDefaultValue _ =
         // This method is only used for not required types
         // Reference types, Option<T> and Nullable<T>
         null

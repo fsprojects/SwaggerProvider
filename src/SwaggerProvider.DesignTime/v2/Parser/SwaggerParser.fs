@@ -10,13 +10,13 @@ module internal JsonAdapter =
     type JsonNodeAdapter(value: JsonElement) =
         inherit SchemaNode()
 
-        override __.AsBoolean() =
+        override _.AsBoolean() =
             value.GetBoolean()
 
-        override __.AsString() =
+        override _.AsString() =
             value.ToString()
 
-        override __.AsArray() =
+        override _.AsArray() =
             match value.ValueKind with
             | JsonValueKind.Array -> [|
                 for item in value.EnumerateArray() do
@@ -24,7 +24,7 @@ module internal JsonAdapter =
               |]
             | _ -> raise <| UnexpectedValueTypeException(value, "string")
 
-        override __.AsStringArrayWithoutNull() =
+        override _.AsStringArrayWithoutNull() =
             match value.ValueKind with
             | JsonValueKind.String -> [| value.GetString() |]
             | JsonValueKind.Array ->
@@ -36,7 +36,7 @@ module internal JsonAdapter =
                 |> Seq.toArray
             | other -> failwithf $"Value: '%A{other}' cannot be converted to StringArray"
 
-        override __.Properties() =
+        override _.Properties() =
             match value.ValueKind with
             | JsonValueKind.Object -> [|
                 for item in value.EnumerateObject() do
@@ -44,7 +44,7 @@ module internal JsonAdapter =
               |]
             | _ -> raise <| UnexpectedValueTypeException(value, "Object")
 
-        override __.TryGetProperty(property) =
+        override _.TryGetProperty(property) =
             match value.ValueKind with
             | JsonValueKind.Object ->
                 match value.TryGetProperty(property) with
@@ -89,17 +89,17 @@ module internal YamlAdapter =
     type YamlNodeAdapter(value: obj) =
         inherit SchemaNode()
 
-        override __.AsBoolean() =
+        override _.AsBoolean() =
             match value with
             | Scalar(x) -> System.Boolean.Parse(x)
             | _ -> raise <| UnexpectedValueTypeException(value, "bool")
 
-        override __.AsString() =
+        override _.AsString() =
             match value with
             | Scalar(x) -> x
             | _ -> raise <| UnexpectedValueTypeException(value, "string")
 
-        override __.AsArray() =
+        override _.AsArray() =
             match value with
             | List(nodes) ->
                 nodes
@@ -107,7 +107,7 @@ module internal YamlAdapter =
                 |> Array.ofSeq
             | _ -> [||]
 
-        override __.AsStringArrayWithoutNull() =
+        override _.AsStringArrayWithoutNull() =
             match value with
             | Scalar(x) -> [| x |]
             | List(nodes) ->
@@ -119,7 +119,7 @@ module internal YamlAdapter =
                 |> Seq.toArray
             | other -> failwithf $"Value: '%A{other}' cannot be converted to StringArray"
 
-        override __.Properties() =
+        override _.Properties() =
             match value with
             | Map(pairs) ->
                 pairs
@@ -127,7 +127,7 @@ module internal YamlAdapter =
                 |> Array.ofSeq
             | _ -> raise <| UnexpectedValueTypeException(value, "map")
 
-        override __.TryGetProperty(prop) =
+        override _.TryGetProperty(prop) =
             match value with
             | Map(items) ->
                 items

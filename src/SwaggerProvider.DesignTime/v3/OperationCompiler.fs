@@ -435,7 +435,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             operation.OperationId.Substring(skipLength)
         |> nicePascalName
 
-    member __.CompileProvidedClients(ns: NamespaceAbstraction) =
+    member _.CompileProvidedClients(ns: NamespaceAbstraction) =
         let defaultHost =
             if schema.Servers.Count = 0 then
                 null

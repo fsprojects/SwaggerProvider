@@ -273,7 +273,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
             op.OperationId.Substring(skipLength)
         |> nicePascalName
 
-    member __.CompileProvidedClients(ns: NamespaceAbstraction) =
+    member _.CompileProvidedClients(ns: NamespaceAbstraction) =
         let defaultHost =
             let protocol =
                 match schema.Schemes with

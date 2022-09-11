@@ -75,5 +75,5 @@ type UniqueNameGenerator() =
             newName
         | true -> findUniq prefix (i + 1)
 
-    member __.MakeUnique methodName =
+    member _.MakeUnique methodName =
         findUniq methodName 0

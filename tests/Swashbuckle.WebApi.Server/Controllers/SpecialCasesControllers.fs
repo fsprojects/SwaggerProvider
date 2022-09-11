@@ -10,4 +10,4 @@ type MultiFormatController() =
     inherit ControllerBase()
 
     [<HttpGet>]
-    member __.Get() = "0.0"
+    member _.Get() = "0.0"

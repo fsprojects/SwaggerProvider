@@ -74,7 +74,7 @@ let internal logTime category (instance: string) =
 
 let internal dummyDisposable =
     { new IDisposable with
-        member __.Dispose() = ()
+        member _.Dispose() = ()
     }
 
 let inline internal log(_: string) = ()
@@ -112,7 +112,7 @@ let createInMemoryCache(expiration: TimeSpan) =
     }
 
     { new ICache<_, _> with
-        member __.Set(key, value) =
+        member _.Set(key, value) =
             dict.[key] <- (value, DateTime.UtcNow)
             invalidationFunction key |> Async.Start
 
@@ -125,12 +125,12 @@ let createInMemoryCache(expiration: TimeSpan) =
                 Some value
             | _ -> None
 
-        member __.Remove(key) =
+        member _.Remove(key) =
             match dict.TryRemove(key) with
             | true, _ -> log $"Explicitly removed from cache: {key}"
             | _ -> ()
 
-        member __.GetOrAdd(key, valueFactory) =
+        member _.GetOrAdd(key, valueFactory) =
             let res, _ = dict.GetOrAdd(key, (fun k -> valueFactory(), DateTime.UtcNow))
             invalidationFunction key |> Async.Start
             res
