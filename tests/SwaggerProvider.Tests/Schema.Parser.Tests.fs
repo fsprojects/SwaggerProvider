@@ -22,7 +22,7 @@ module V3 =
     let testSchema schemaStr =
         let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
-        let (schema, diagnostic) = openApiReader.Read(schemaStr)
+        let schema, diagnostic = openApiReader.Read(schemaStr)
         (*        if diagnostic.Errors.Count > 0 then
                failwithf "Schema parse errors:\n- %s"
                    (diagnostic.Errors
@@ -43,33 +43,48 @@ let parserTestBody(path: string) = async {
             try
                 APIsGuru.httpClient.GetStringAsync(uri) |> Async.AwaitTask
             with e ->
-                Tests.skiptestf $"Network issue. Cannot download %s{e.Message}"
+                skiptestf $"Network issue. Cannot download %s{e.Message}"
         | _ when File.Exists(path) -> async { return File.ReadAllText path }
         | _ -> failwithf $"Cannot find schema '%s{path}'"
 
-    if not <| System.String.IsNullOrEmpty(schemaStr) then
+    if not <| String.IsNullOrEmpty(schemaStr) then
         if path.IndexOf("v2") >= 0 then
             V2.testSchema schemaStr
         else
             V3.testSchema schemaStr
 }
 
+let rootFolder =
+    Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
+    |> Path.GetFullPath
+
+let allSchemas =
+    Directory.GetFiles(rootFolder, "*.*", SearchOption.AllDirectories)
+    |> List.ofArray
+
 [<Tests>]
 let knownSchemaTests =
-    let root =
-        Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
-        |> Path.GetFullPath
-
-    Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
-    |> List.ofArray
-    |> List.filter(fun s -> s.IndexOf("ignored") < 0)
+    allSchemas
+    |> List.filter(fun s -> s.IndexOf("unsupported") < 0)
     |> List.map(fun file ->
-        let path = Path.GetFullPath(file).Substring(root.Length)
+        let path = Path.GetFullPath(file).Substring(rootFolder.Length)
         testCaseAsync $"Parse%s{path}" (parserTestBody file))
     |> testList "All/Schema"
 
 [<Tests>]
-let petstoreTest =
+let unsupportedSchemaTests =
+    allSchemas
+    |> List.filter(fun s -> s.IndexOf("unsupported") > 0)
+    |> List.map(fun file ->
+        let path = Path.GetFullPath(file).Substring(rootFolder.Length)
+
+        testCase $"Fail to parse%s{path}" (fun () ->
+            Expect.throws (fun () -> parserTestBody file |> Async.RunSynchronously) "Parser should report error"))
+    |> testList "All/Schema"
+
+
+[<Tests>]
+let petStoreTest =
     testCaseAsync
         "Parse PetStore"
         (parserTestBody(
