@@ -444,6 +444,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
         List.ofSeq schema.Paths
         |> List.collect(fun path ->
+            if path.Value.UnresolvedReference then
+                failwith
+                    $"TP does not support unresolved paths / external references. Path '%s{path.Key}' refer to '%s{path.Value.Reference.ReferenceV3}'"
+
             List.ofSeq path.Value.Operations
             |> List.map(fun kv -> path.Key, path.Value, kv.Key))
         |> List.groupBy(fun (_, pathItem, opTy) ->

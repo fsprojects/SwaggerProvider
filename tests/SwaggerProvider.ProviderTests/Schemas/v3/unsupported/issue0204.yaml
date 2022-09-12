@@ -1,0 +1,120 @@
+﻿openapi: 3.0.0
+info:
+  description: This is our customer facing API for the Qorta platform
+  version: v1
+  title: SambaSafety Customer API
+tags:
+  - name: authentication
+  - name: user management
+    description: Operations to manage users
+  - name: group
+    description: Operations to manage a group
+  - name: people
+    description: Operations to manage people in groups
+  - name: license
+    description: Operations to manage licenses associated with people
+  - name: license enrollment
+    description: Operations to manage enrollment in monitoring per license
+  - name: mvr
+    description: Operations to find and retrieve an MVR
+  - name: mvr order
+    description: Operations for mvr orders
+  - name: subscription
+    description: Webhook management
+paths:
+  /oauth2/v1/token:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Authorization/1.0#/components/token'
+  /oauth2/v1/revoke:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Authorization/1.0#/components/revokeToken'
+  /organization/v1/groups/{groupId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/groupsById'
+  /organization/v1/groups:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/groups'
+  /organization/v1/groups/{groupId}/people:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/people'
+  /organization/v1/people/{personId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/peopleById'
+  /organization/v1/groups/{groupId}/people/{personId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/groupsByIdPeopleById'
+  /organization/v1/people/search:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/peopleBySearch'
+  /organization/v1/people/{personId}/customfields:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/customFields'
+  /organization/v1/licenses/{licenseId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/licensesById'
+  /organization/v1/licenses/search:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/licenseBySearch'
+  /organization/v1/licenses/history:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Transactional/v1-beta#/components/LicenseHistoryOrder'
+  /organization/v1/people/{personId}/licenses:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Organization/v1#/components/licenses'
+  /organization/v1/users:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/UserManagement/v1#/components/users'
+  /organization/v1/users/{userId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/UserManagement/v1#/components/userById'
+  /organization/v1/users/{userId}/roles:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/UserManagement/v1#/components/rolesByUserId'
+  /organization/v1/users/{userId}/groups:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/UserManagement/v1#/components/groupsByUserId'
+  /organization/v1/users/search:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/UserManagement/v1#/components/usersSearch'
+  /monitoring/v1/groups/{groupId}/licenseenrollments:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Monitoring/1.1#/components/licenseEnrollmentsByGroupId'
+  /monitoring/v1/licenseenrollments/{licenseId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Monitoring/1.1#/components/licenseEnrollmentsById'
+  /monitoring/v1/people/{personId}/licenseenrollments:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Monitoring/1.1#/components/licenseEnrollmentsByPersonId'
+  /monitoring/v1/licenseenrollments/search:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Monitoring/1.1#/components/licenseEnrollmentsByStateByDLN'
+  /transactional/v1/licenses/{licenseId}/mvrorders:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Transactional/v1-beta#/components/LicenseIdMvrOrder'
+  /transactional/v1/mvrorders:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Transactional/v1-beta#/components/DriverDataMvrOrder'
+  /transactional/v1/mvrorders/{mvrOrderId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Transactional/v1-beta#/components/MvrOrderById'
+  /reports/v1/licensehistory/{orderId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Transactional/v1-beta#/components/LicenseHistoryResponse'
+  /reports/v1/motorvehiclereports/watch:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Reports/v1#/components/MVRWatch'
+  /reports/v1/motorvehiclereports/watch/{subscriptionId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Reports/v1#/components/SubscriptionModify'
+  /reports/v1/people/{personId}/motorvehiclereports:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Reports/v1#/components/MVRsByPersonId'
+  /reports/v1/motorvehiclereports/{mvrId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/MonitoringMotorVehicleReports/v1-beta#/components/MVRById'
+  /reports/v1/motorvehiclereports/{mvrId}/mvrreason:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/Reports/v1#/components/MvrReason'
+  /reports/v1/monitoring/motorvehiclereports/{mvrId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/MonitoringMotorVehicleReports/v1-beta#/components/MonitoringMVRById'
+  /reports/v1/compliance/motorvehiclereports/{mvrId}:
+    $ref: 'https://api.swaggerhub.com/domains/SambaSafety/MonitoringMotorVehicleReports/v1-beta#/components/ComplianceMVRById'
+components:
+  securitySchemes:
+    ApiKeyAuth:      # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: x-api-key
+    Authorization:            # arbitrary name for the security
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+        description: >
+          For accessing the API a valid JWT token must be passed in
+
+          the 'Authorization' header.
+
+          A valid JWT token is generated by the Authentication API.
+
+          The following syntax must be used in the 'Authorization' header :
+
+              Bearer: xxxxxx.yyyyyyy.zzzzzz
+security:
+   - ApiKeyAuth: []
+     Authorization: []
+# Added by API Auto Mocking Plugin
+servers:
+    - description: API Demo
+      url: https://api-demo.sambasafety.io
+# Added by API Auto Mocking Plugin
+    - description: SwaggerHub API Auto Mocking
+      url: https://api-mock.sambasafety.io
