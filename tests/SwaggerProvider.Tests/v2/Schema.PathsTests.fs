@@ -12,7 +12,7 @@ let shouldBeEqualToTag (expected: TagObject) content =
     |> shouldEqual expected
 
 [<Fact>]
-let ``parse simple tag`` () =
+let ``parse simple tag``() =
     """{
         "name" : "store",
         "description" : "Operations about user"
@@ -24,7 +24,7 @@ let ``parse simple tag`` () =
         }
 
 [<Fact>]
-let ``parse partial tag`` () =
+let ``parse partial tag``() =
     """{
         "name" : "store"
     }"""
@@ -35,7 +35,7 @@ let ``parse partial tag`` () =
         }
 
 [<Fact>]
-let ``parse complex tag`` () =
+let ``parse complex tag``() =
     """{
         "name" : "user",
         "description" : "Access to Petstore orders",

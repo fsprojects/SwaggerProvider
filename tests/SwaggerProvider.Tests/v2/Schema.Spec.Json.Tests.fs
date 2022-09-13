@@ -6,7 +6,7 @@ open FsUnitTyped
 open Xunit
 
 [<Fact>]
-let ``Info Object Example`` () =
+let ``Info Object Example``() =
     """{
         "title": "Swagger Sample App",
         "description": "This is a sample server Petstore server.",
@@ -24,14 +24,15 @@ let ``Info Object Example`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseInfoObject
-    |> shouldEqual {
-        Title = "Swagger Sample App"
-        Description = "This is a sample server Petstore server."
-        Version = "1.0.1"
-    }
+    |> shouldEqual
+        {
+            Title = "Swagger Sample App"
+            Description = "This is a sample server Petstore server."
+            Version = "1.0.1"
+        }
 
 [<Fact>]
-let ``Paths Object Example`` () =
+let ``Paths Object Example``() =
     """{
         "/pets": {
         "get": {
@@ -79,7 +80,7 @@ let ``Paths Object Example`` () =
     |]
 
 [<Fact>]
-let ``Path Item Object Example`` () =
+let ``Path Item Object Example``() =
     """{"/pets":{
       "get": {
         "description": "Returns pets based on ID",
@@ -162,7 +163,7 @@ let ``Path Item Object Example`` () =
     |]
 
 [<Fact>]
-let ``Operation Object Example`` () =
+let ``Operation Object Example``() =
     """{
       "tags": [
         "pet"
@@ -219,7 +220,8 @@ let ``Operation Object Example`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
-    |> shouldEqual {
+    |> shouldEqual
+        {
             Path = "/"
             Type = Get
             Tags = [| "pet" |]
@@ -272,7 +274,7 @@ let ``Operation Object Example`` () =
         }
 
 [<Fact>]
-let ``Parameter Object Examples: Body Parameters`` () =
+let ``Parameter Object Examples: Body Parameters``() =
     """{
       "name": "user",
       "in": "body",
@@ -284,17 +286,18 @@ let ``Parameter Object Examples: Body Parameters`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "user"
-        In = Body
-        Description = "user to add to the system"
-        Required = true
-        Type = Reference "#/definitions/User"
-        CollectionFormat = Csv
-    }
+    |> shouldEqual
+        {
+            Name = "user"
+            In = Body
+            Description = "user to add to the system"
+            Required = true
+            Type = Reference "#/definitions/User"
+            CollectionFormat = Csv
+        }
 
 [<Fact>]
-let ``Parameter Object Examples: Body Parameters Array`` () =
+let ``Parameter Object Examples: Body Parameters Array``() =
     """{
       "name": "user",
       "in": "body",
@@ -309,17 +312,18 @@ let ``Parameter Object Examples: Body Parameters Array`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "user"
-        In = Body
-        Description = "user to add to the system"
-        Required = true
-        Type = Array String
-        CollectionFormat = Csv
-    }
+    |> shouldEqual
+        {
+            Name = "user"
+            In = Body
+            Description = "user to add to the system"
+            Required = true
+            Type = Array String
+            CollectionFormat = Csv
+        }
 
 [<Fact>]
-let ``Parameter Object Examples: Other Parameters`` () =
+let ``Parameter Object Examples: Other Parameters``() =
     """{
       "name": "token",
       "in": "header",
@@ -334,17 +338,18 @@ let ``Parameter Object Examples: Other Parameters`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "token"
-        In = Header
-        Description = "token to be passed as a header"
-        Required = true
-        Type = Array Int64
-        CollectionFormat = Csv
-    }
+    |> shouldEqual
+        {
+            Name = "token"
+            In = Header
+            Description = "token to be passed as a header"
+            Required = true
+            Type = Array Int64
+            CollectionFormat = Csv
+        }
 
 [<Fact>]
-let ``Parameter Object Examples: Other Parameters - Path String`` () =
+let ``Parameter Object Examples: Other Parameters - Path String``() =
     """{
       "name": "username",
       "in": "path",
@@ -354,17 +359,18 @@ let ``Parameter Object Examples: Other Parameters - Path String`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "username"
-        In = Path
-        Description = "username to fetch"
-        Required = true
-        Type = String
-        CollectionFormat = Csv
-    }
+    |> shouldEqual
+        {
+            Name = "username"
+            In = Path
+            Description = "username to fetch"
+            Required = true
+            Type = String
+            CollectionFormat = Csv
+        }
 
 [<Fact>]
-let ``Parameter Object Examples: Other Parameters - Array String Multi`` () =
+let ``Parameter Object Examples: Other Parameters - Array String Multi``() =
     """{
       "name": "id",
       "in": "query",
@@ -378,17 +384,18 @@ let ``Parameter Object Examples: Other Parameters - Array String Multi`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "id"
-        In = Query
-        Description = "ID of the object to fetch"
-        Required = false
-        Type = Array String
-        CollectionFormat = Multi
-    }
+    |> shouldEqual
+        {
+            Name = "id"
+            In = Query
+            Description = "ID of the object to fetch"
+            Required = false
+            Type = Array String
+            CollectionFormat = Multi
+        }
 
 [<Fact>]
-let ``Parameter Object Examples: Other Parameters - File`` () =
+let ``Parameter Object Examples: Other Parameters - File``() =
     """{
       "name": "avatar",
       "in": "formData",
@@ -398,17 +405,18 @@ let ``Parameter Object Examples: Other Parameters - File`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "avatar"
-        In = FormData
-        Description = "The avatar of the user"
-        Required = true
-        Type = File
-        CollectionFormat = Csv
-    }
+    |> shouldEqual
+        {
+            Name = "avatar"
+            In = FormData
+            Description = "The avatar of the user"
+            Required = true
+            Type = File
+            CollectionFormat = Csv
+        }
 
 [<Fact>]
-let ``Response Object Examples: Response of an array of a complex type`` () =
+let ``Response Object Examples: Response of an array of a complex type``() =
     """{
       "description": "A complex object array response",
       "schema": {
@@ -420,13 +428,14 @@ let ``Response Object Examples: Response of an array of a complex type`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
-    |> shouldEqual {
-        Description = "A complex object array response"
-        Schema = Some <| Array(Reference "#/definitions/VeryComplexType")
-    }
+    |> shouldEqual
+        {
+            Description = "A complex object array response"
+            Schema = Some <| Array(Reference "#/definitions/VeryComplexType")
+        }
 
 [<Fact>]
-let ``Response Object Examples: Response with a string type`` () =
+let ``Response Object Examples: Response with a string type``() =
     """{
       "description": "A simple string response",
       "schema": {
@@ -435,13 +444,14 @@ let ``Response Object Examples: Response with a string type`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
-    |> shouldEqual {
-        Description = "A simple string response"
-        Schema = Some String
-    }
+    |> shouldEqual
+        {
+            Description = "A simple string response"
+            Schema = Some String
+        }
 
 [<Fact>]
-let ``Response Object Examples: Response with headers`` () =
+let ``Response Object Examples: Response with headers``() =
     """{
       "description": "A simple string response",
       "schema": {
@@ -464,48 +474,52 @@ let ``Response Object Examples: Response with headers`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
-    |> shouldEqual {
-        Description = "A simple string response"
-        Schema = Some String
-    }
+    |> shouldEqual
+        {
+            Description = "A simple string response"
+            Schema = Some String
+        }
 
 [<Fact>]
-let ``Response Object Examples: Response with no return value`` () =
+let ``Response Object Examples: Response with no return value``() =
     """{
         "description": "object created"
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
-    |> shouldEqual {
-        Description = "object created"
-        Schema = None
-    }
+    |> shouldEqual
+        {
+            Description = "object created"
+            Schema = None
+        }
 
 [<Fact>]
-let ``Tag Object Example`` () =
+let ``Tag Object Example``() =
     """{
         "name": "pet",
         "description": "Pets operations"
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseTagObject
-    |> shouldEqual ({
-        Name = "pet"
-        Description = "Pets operations"
-    }: TagObject)
+    |> shouldEqual(
+        {
+            Name = "pet"
+            Description = "Pets operations"
+        }: TagObject
+    )
 
 
 [<Fact>]
-let ``Tag Object Example Ref`` () =
+let ``Tag Object Example Ref``() =
     """{
         "$ref": "#/definitions/Pet"
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> shouldEqual (Reference "#/definitions/Pet")
+    |> shouldEqual(Reference "#/definitions/Pet")
 
 [<Fact>]
-let ``Schema Object Examples: Primitive Sample`` () =
+let ``Schema Object Examples: Primitive Sample``() =
     """{
         "type": "string",
         "format": "email"
@@ -515,7 +529,7 @@ let ``Schema Object Examples: Primitive Sample`` () =
     |> shouldEqual String
 
 [<Fact>]
-let ``Schema Object Examples: Simple Model`` () =
+let ``Schema Object Examples: Simple Model``() =
     """{
       "type": "object",
       "required": [
@@ -537,29 +551,31 @@ let ``Schema Object Examples: Simple Model`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> shouldEqual (Object [|
-        {
-            Name = "name"
-            Type = String
-            IsRequired = true
-            Description = ""
-        }
-        {
-            Name = "address"
-            Type = Reference "#/definitions/Address"
-            IsRequired = false
-            Description = ""
-        }
-        {
-            Name = "age"
-            Type = Int32
-            IsRequired = false
-            Description = ""
-        }
-    |])
+    |> shouldEqual(
+        Object [|
+            {
+                Name = "name"
+                Type = String
+                IsRequired = true
+                Description = ""
+            }
+            {
+                Name = "address"
+                Type = Reference "#/definitions/Address"
+                IsRequired = false
+                Description = ""
+            }
+            {
+                Name = "age"
+                Type = Int32
+                IsRequired = false
+                Description = ""
+            }
+        |]
+    )
 
 [<Fact>]
-let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping`` () =
+let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple string to string mapping``() =
     """{
       "type": "object",
       "additionalProperties": {
@@ -568,10 +584,10 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a simple
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> shouldEqual (Dictionary String)
+    |> shouldEqual(Dictionary String)
 
 [<Fact>]
-let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping`` () =
+let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string to model mapping``() =
     """{
       "type": "object",
       "additionalProperties": {
@@ -580,10 +596,10 @@ let ``Schema Object Examples: Model with Map/Dictionary Properties: For a string
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> shouldEqual (Dictionary(Reference "#/definitions/ComplexModel"))
+    |> shouldEqual(Dictionary(Reference "#/definitions/ComplexModel"))
 
 [<Fact>]
-let ``Schema Object Examples: Model with Example`` () =
+let ``Schema Object Examples: Model with Example``() =
     """{
         "type": "object",
         "properties": {
@@ -605,23 +621,26 @@ let ``Schema Object Examples: Model with Example`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> shouldEqual ([|
-        {
-            Name = "id"
-            Type = Int64
-            IsRequired = false
-            Description = ""
-        }
-        {
-            Name = "name"
-            Type = String
-            IsRequired = true
-            Description = ""
-        }
-    |] |> Object)
+    |> shouldEqual(
+        [|
+            {
+                Name = "id"
+                Type = Int64
+                IsRequired = false
+                Description = ""
+            }
+            {
+                Name = "name"
+                Type = String
+                IsRequired = true
+                Description = ""
+            }
+        |]
+        |> Object
+    )
 
 [<Fact>]
-let ``Schema Object Examples: Models with Composition`` () =
+let ``Schema Object Examples: Models with Composition``() =
     """{
         "ErrorModel": {
           "type": "object",
@@ -663,7 +682,8 @@ let ``Schema Object Examples: Models with Composition`` () =
     |> Parsers.parseDefinitionsObject
     |> Seq.map(fun x -> x.Key, x.Value.Value)
     |> Map.ofSeq
-    |> shouldEqual ([|
+    |> shouldEqual(
+        [|
             "#/definitions/ErrorModel",
             (Object [|
                 {
@@ -700,11 +720,12 @@ let ``Schema Object Examples: Models with Composition`` () =
                     Description = ""
                 }
             |])
-         |]
-         |> Map.ofArray)
+        |]
+        |> Map.ofArray
+    )
 
 [<Fact>]
-let ``Schema Object Examples: Models with Polymorphism Support`` () =
+let ``Schema Object Examples: Models with Polymorphism Support``() =
     """{
       "definitions": {
         "Pet": {
@@ -777,10 +798,10 @@ let ``Schema Object Examples: Models with Polymorphism Support`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseSchemaObject Parsers.emptyDict
-    |> shouldEqual (Object [||])
+    |> shouldEqual(Object [||])
 
 [<Fact>]
-let ``Definitions Object Example`` () =
+let ``Definitions Object Example``() =
     """{
       "Category": {
         "type": "object",
@@ -811,7 +832,8 @@ let ``Definitions Object Example`` () =
     |> Parsers.parseDefinitionsObject
     |> Seq.map(fun x -> x.Key, x.Value.Value)
     |> Map.ofSeq
-    |> shouldEqual ([|
+    |> shouldEqual(
+        [|
             "#/definitions/Category",
             (Object [|
                 {
@@ -842,11 +864,12 @@ let ``Definitions Object Example`` () =
                     Description = ""
                 }
             |])
-         |]
-         |> Map.ofArray)
+        |]
+        |> Map.ofArray
+    )
 
 [<Fact>]
-let ``Parameters Definition Object Example`` () =
+let ``Parameters Definition Object Example``() =
     """{
       "skipParam": {
         "name": "skip",
@@ -867,7 +890,8 @@ let ``Parameters Definition Object Example`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParametersDefinition Parsers.emptyDict
-    |> shouldEqual ([|
+    |> shouldEqual(
+        [|
             "#/parameters/skipParam",
             {
                 Name = "skip"
@@ -886,11 +910,12 @@ let ``Parameters Definition Object Example`` () =
                 Type = Int32
                 CollectionFormat = Csv
             }
-         |]
-         |> Map.ofArray)
+        |]
+        |> Map.ofArray
+    )
 
 [<Fact>]
-let ``Responses Definitions Object Example`` () =
+let ``Responses Definitions Object Example``() =
     """{
       "NotFound": {
         "description": "Entity not found."
@@ -907,7 +932,8 @@ let ``Responses Definitions Object Example`` () =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseResponsesDefinition
-    |> shouldEqual ([|
+    |> shouldEqual(
+        [|
             "#/responses/NotFound",
             {
                 Description = "Entity not found."
@@ -923,11 +949,12 @@ let ``Responses Definitions Object Example`` () =
                 Description = "General Error"
                 Schema = Some(Reference "#/definitions/GeneralError")
             }
-         |]
-         |> Map.ofArray)
+        |]
+        |> Map.ofArray
+    )
 
 [<Fact>]
-let ``Parameter Map Examples: Body Parameters Map`` ()  =
+let ``Parameter Map Examples: Body Parameters Map``() =
     """{
       "name": "user",
       "in": "body",
@@ -942,11 +969,12 @@ let ``Parameter Map Examples: Body Parameters Map`` ()  =
     }"""
     |> SwaggerParser.parseJson
     |> Parsers.parseParameterObject Parsers.emptyDict
-    |> shouldEqual {
-        Name = "user"
-        In = Body
-        Description = "user to add to the system"
-        Required = true
-        Type = Dictionary String
-        CollectionFormat = Csv
-    }
+    |> shouldEqual
+        {
+            Name = "user"
+            In = Body
+            Description = "user to add to the system"
+            Required = true
+            Type = Dictionary String
+            CollectionFormat = Csv
+        }

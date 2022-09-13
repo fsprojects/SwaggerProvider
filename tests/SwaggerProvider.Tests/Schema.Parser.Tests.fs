@@ -40,8 +40,7 @@ module V3 =
 let parserTestBody(path: string) = task {
     let! schemaStr =
         match Uri.TryCreate(path, UriKind.Absolute) with
-        | true, uri when path.IndexOf("http") >= 0 ->
-            APIsGuru.httpClient.GetStringAsync(uri)
+        | true, uri when path.IndexOf("http") >= 0 -> APIsGuru.httpClient.GetStringAsync(uri)
         | _ when File.Exists(path) -> File.ReadAllTextAsync path
         | _ -> failwithf $"Cannot find schema '%s{path}'"
 
@@ -59,7 +58,7 @@ let rootFolder =
 let allSchemas =
     Directory.GetFiles(rootFolder, "*.*", SearchOption.AllDirectories)
     |> List.ofArray
-    |> List.map (fun s -> Path.GetRelativePath(rootFolder, s))
+    |> List.map(fun s -> Path.GetRelativePath(rootFolder, s))
 
 let knownSchemaPaths =
     allSchemas
@@ -79,11 +78,7 @@ let unsupportedSchemaPaths =
 [<Theory; MemberData(nameof(unsupportedSchemaPaths))>]
 let ``Fail to parse`` file =
     let file = Path.Combine(rootFolder, file)
-    shouldFail (fun () ->
-        parserTestBody file
-        |> Async.AwaitTask
-        |> Async.RunSynchronously
-    )
+    shouldFail(fun () -> parserTestBody file |> Async.AwaitTask |> Async.RunSynchronously)
 
 
 [<Fact>]

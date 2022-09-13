@@ -2,9 +2,8 @@
 
 open SwaggerProvider
 open Swagger
-open Expecto
-open System
-
+open FsUnitTyped
+open Xunit
 
 [<Literal>]
 let Schema = "https://petstore.swagger.io/v2/swagger.json"
@@ -20,78 +19,78 @@ let store = PetStore.Client()
 let storeTask = PetStoreTask.Client()
 let apiKey = "test-key"
 
-[<Tests>]
-let petStoreTests =
-    testList "All/v3/TP PetStore Tests" [
+[<Fact>]
+let ``Test provided Host property``() =
+    let store = PetStore.Client()
 
-        testCase "Test provided Host property"
-        <| fun _ ->
-            let store = PetStore.Client()
-            Expect.equal (store.HttpClient.BaseAddress.ToString()) "https://petstore.swagger.io/v2/" "value from schema"
-            store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/v3/"
-            Expect.equal (store.HttpClient.BaseAddress.ToString()) "http://petstore.swagger.io/v3/" "Modified value"
+    store.HttpClient.BaseAddress.ToString()
+    |> shouldEqual "https://petstore.swagger.io/v2/"
 
-        testCase "instantiate provided objects"
-        <| fun _ ->
-            let pet = PetStore.Pet(Name = "foo")
-            Expect.equal pet.Name "foo" "access initial value"
-            Expect.stringContains (pet.ToString()) "foo" "ToString"
-            pet.Name <- "bar"
-            Expect.equal pet.Name "bar" "access modified value"
-            Expect.stringContains (pet.ToString()) "bar" "ToString"
+    store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/v3/"
 
-        testCaseAsync "throw custom exceptions from async"
-        <| async {
-            try
-                let! __ = store.GetPetById(-142L)
-                failwith "Call should fail"
-            with :? System.AggregateException as aex ->
-                match aex.InnerException with
-                | :? Swagger.OpenApiException as ex -> Expect.equal ex.Description "Pet not found" "invalid error message"
-                | _ -> raise aex
-        }
+    store.HttpClient.BaseAddress.ToString()
+    |> shouldEqual "http://petstore.swagger.io/v3/"
 
-        testCaseAsync "throw custom exceptions from task"
-        <| async {
-            try
-                let! __ = storeTask.GetPetById(-142L) |> Async.AwaitTask
-                failwith "Call should fail"
-            with :? System.AggregateException as aex ->
-                match aex.InnerException with
-                | :? Swagger.OpenApiException as ex -> Expect.equal ex.Description "Pet not found" "invalid error message"
-                | _ -> raise aex
-        }
+[<Fact>]
+let ``instantiate provided objects``() =
+    let pet = PetStore.Pet(Name = "foo")
+    pet.Name |> shouldEqual "foo"
+    pet.ToString() |> shouldContainText "foo"
+    pet.Name <- "bar"
+    pet.Name |> shouldEqual "bar"
+    pet.ToString() |> shouldContainText "bar"
 
-        ptestCaseAsync "call provided methods"
-        <| async {
-            let id = 3347L
+[<Fact>]
+let ``throw custom exceptions from async``() = task {
+    try
+        let! _ = store.GetPetById(-142L)
+        failwith "Call should fail"
+    with :? System.AggregateException as aex ->
+        match aex.InnerException with
+        | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
+        | _ -> raise aex
+}
 
-            try
-                do! store.DeletePet(id, apiKey)
-            with _ ->
-                ()
+[<Fact>]
+let ``throw custom exceptions from task``() = task {
+    try
+        let! _ = storeTask.GetPetById(-142L)
+        failwith "Call should fail"
+    with :? System.AggregateException as aex ->
+        match aex.InnerException with
+        | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
+        | _ -> raise aex
+}
 
-            let tag = PetStore.Tag(None, "foobar")
-            Expect.stringContains (tag.ToString()) "foobar" "ToString"
-            let pet = PetStore.Pet("foo", [||], Some id)
-            Expect.stringContains (pet.ToString()) (id.ToString()) "ToString"
+[<Fact>]
+let ``call provided methods``() = task {
+    let id = 3347L
 
-            try
-                do! store.AddPet(pet)
-            with exn ->
-                let msg =
-                    if isNull exn.InnerException then
-                        exn.Message
-                    else
-                        exn.InnerException.Message
+    try
+        do! store.DeletePet(id, apiKey)
+    with _ ->
+        ()
 
-                failwithf "Adding pet failed with message: %s" msg
+    let tag = PetStore.Tag(None, "foobar")
+    tag.ToString() |> shouldEqual "foobar"
+    let pet = PetStore.Pet("foo", [||], Some id)
+    pet.ToString() |> shouldContainText(id.ToString())
 
-            let! pet2 = store.GetPetById(id)
-            Expect.equal pet.Name pet2.Name "same Name"
-            Expect.equal pet.Id pet2.Id "same Id"
-            Expect.equal pet.Category pet2.Category "same Category"
-            Expect.equal pet.Status pet2.Status "same Status"
-            Expect.notEqual pet pet2 "different objects"
-        }
-    ]
+    try
+        do! store.AddPet(pet)
+    with exn ->
+        let msg =
+            if isNull exn.InnerException then
+                exn.Message
+            else
+                exn.InnerException.Message
+
+        failwith $"Adding pet failed with message: %s{msg}"
+
+    let! pet2 = store.GetPetById(id)
+    pet.Name |> shouldEqual pet2.Name
+    pet.Id |> shouldEqual pet2.Id
+    pet.Category |> shouldEqual pet2.Category
+    pet.Status |> shouldEqual pet2.Status
+    pet |> shouldNotEqual pet2
+}

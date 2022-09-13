@@ -1,6 +1,6 @@
 ﻿module Swashbuckle.v2.ReturnControllersTests
 
-open Expecto
+open FsUnitTyped
 open SwaggerProvider
 open System
 open System.Net.Http
