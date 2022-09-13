@@ -1,6 +1,7 @@
 module SwaggerProvider.Tests.v3
 
-open Expecto
+open Xunit
+open FsUnitTyped
 open System
 open System.IO
 
@@ -36,15 +37,12 @@ module V3 =
         with e when e.Message.IndexOf("not supported yet") >= 0 ->
             ()
 
-let parserTestBody(path: string) = async {
+let parserTestBody(path: string) = task {
     let! schemaStr =
         match Uri.TryCreate(path, UriKind.Absolute) with
         | true, uri when path.IndexOf("http") >= 0 ->
-            try
-                APIsGuru.httpClient.GetStringAsync(uri) |> Async.AwaitTask
-            with e ->
-                skiptestf $"Network issue. Cannot download %s{e.Message}"
-        | _ when File.Exists(path) -> async { return File.ReadAllText path }
+            APIsGuru.httpClient.GetStringAsync(uri)
+        | _ when File.Exists(path) -> File.ReadAllTextAsync path
         | _ -> failwithf $"Cannot find schema '%s{path}'"
 
     if not <| String.IsNullOrEmpty(schemaStr) then
@@ -61,36 +59,39 @@ let rootFolder =
 let allSchemas =
     Directory.GetFiles(rootFolder, "*.*", SearchOption.AllDirectories)
     |> List.ofArray
+    |> List.map (fun s -> Path.GetRelativePath(rootFolder, s))
 
-[<Tests>]
-let knownSchemaTests =
+let knownSchemaPaths =
     allSchemas
     |> List.filter(fun s -> s.IndexOf("unsupported") < 0)
-    |> List.map(fun file ->
-        let path = Path.GetFullPath(file).Substring(rootFolder.Length)
-        testCaseAsync $"Parse%s{path}" (parserTestBody file))
-    |> testList "All/Schema"
+    |> List.map(fun s -> [| box s |])
 
-[<Tests>]
-let unsupportedSchemaTests =
+[<Theory; MemberData(nameof(knownSchemaPaths))>]
+let Parse file =
+    let file = Path.Combine(rootFolder, file)
+    parserTestBody file
+
+let unsupportedSchemaPaths =
     allSchemas
     |> List.filter(fun s -> s.IndexOf("unsupported") > 0)
-    |> List.map(fun file ->
-        let path = Path.GetFullPath(file).Substring(rootFolder.Length)
+    |> List.map(fun s -> [| box s |])
 
-        testCase $"Fail to parse%s{path}" (fun () ->
-            Expect.throws (fun () -> parserTestBody file |> Async.RunSynchronously) "Parser should report error"))
-    |> testList "All/Schema"
+[<Theory; MemberData(nameof(unsupportedSchemaPaths))>]
+let ``Fail to parse`` file =
+    let file = Path.Combine(rootFolder, file)
+    shouldFail (fun () ->
+        parserTestBody file
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
+    )
 
 
-[<Tests>]
-let petStoreTest =
-    testCaseAsync
-        "Parse PetStore"
-        (parserTestBody(
-            __SOURCE_DIRECTORY__
-            + "/../SwaggerProvider.ProviderTests/Schemas/v2/petstore.json"
-        ))
+[<Fact>]
+let ``Parse PetStore``() =
+    parserTestBody(
+        __SOURCE_DIRECTORY__
+        + "/../SwaggerProvider.ProviderTests/Schemas/v2/petstore.json"
+    )
 
 (*
 [<Tests>]

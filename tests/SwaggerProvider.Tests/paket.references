@@ -1,8 +1,7 @@
 group Test
     FSharp.Core
     Microsoft.NET.Test.Sdk
-    Expecto
-    YoloDev.Expecto.TestSdk
+    FsUnit.xUnit
     Microsoft.OpenApi.Readers
     System.Net.Http
     System.Text.Json

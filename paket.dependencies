@@ -38,8 +38,7 @@ group Test
     nuget FSharp.Core
 
     nuget Microsoft.NET.Test.Sdk
-    nuget Expecto
-    nuget YoloDev.Expecto.TestSdk
+    nuget FsUnit.Xunit
 
     nuget System.Net.Http
     nuget Microsoft.OpenApi.Readers redirects: force
