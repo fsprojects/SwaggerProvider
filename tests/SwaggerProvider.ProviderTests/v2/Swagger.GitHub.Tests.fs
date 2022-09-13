@@ -1,7 +1,8 @@
 module Swagger.GitHub.Tests
 
 open SwaggerProvider
-open Expecto
+open Xunit
+open FsUnitTyped
 open System
 open System.Net.Http
 
@@ -37,17 +38,14 @@ let taskGitHub() =
 
     client
 
-[<Tests>] // Explicit
-let githubTest =
-    ptestCaseAsync "All/Get fsprojects from GitHub"
-    <| async {
-        let! repos = github().OrgRepos("fsprojects")
-        Expect.isGreaterThan repos.Length 0 "F# community is strong"
-    }
+[<Fact>] // Explicit
+let ``Get fsprojects from GitHub``() = task {
+    let! repos = github().OrgRepos("fsprojects")
+    repos.Length |> shouldBeGreaterThan 0
+}
 
-[<Tests>]
-let taskGitHubTest =
-    ptestCase "All/Get fsproject from GitHub with Task"
-    <| fun _ ->
-        let length = taskGitHub().OrgRepos("fsprojects").Result.Length
-        Expect.isGreaterThan length 0 "F# community is strong"
+[<Fact>]
+let ``Get fsproject from GitHub with Task``() = task {
+    let! repos = taskGitHub().OrgRepos("fsprojects")
+    repos.Length |> shouldBeGreaterThan 0
+}

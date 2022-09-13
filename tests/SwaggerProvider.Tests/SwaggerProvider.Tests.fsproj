@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
@@ -16,7 +15,6 @@
     <Compile Include="v2\Schema.Spec.Yaml.Tests.fs" />
     <Compile Include="APIs.guru.fs" />
     <Compile Include="Schema.Parser.Tests.fs" />
-    <Compile Include="Program.fs" />
     <None Include="paket.references" />
     <ProjectReference Include="..\..\src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" />
   </ItemGroup>

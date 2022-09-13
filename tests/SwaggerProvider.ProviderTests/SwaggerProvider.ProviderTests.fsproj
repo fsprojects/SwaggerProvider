@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFrameworks>net6.0</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -35,9 +34,6 @@
     <Compile Include="APIs.Guru.FSC.Tests.fs" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />
-    <Compile Include="..\SwaggerProvider.Tests\Program.fs">
-      <Link>Program.fs</Link>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.IO" />
