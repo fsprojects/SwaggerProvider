@@ -10,7 +10,6 @@ nuget Fake.DotNet.Cli
 nuget Fake.DotNet.MSBuild
 nuget Fake.DotNet.AssemblyInfoFile
 nuget Fake.DotNet.Paket
-nuget Fake.DotNet.Testing.Expecto
 nuget Fake.DotNet.FSFormatting
 nuget Fake.Tools.Git
 nuget Fake.Api.GitHub //"
@@ -23,10 +22,7 @@ open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.IO.Globbing.Operators
 open Fake.DotNet
-open Fake.DotNet.Testing
 open Fake.Tools
-open Fake.Tools.Git
-open System
 open System.IO
 
 Target.initEnvironment()
@@ -36,8 +32,6 @@ Target.initEnvironment()
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
 let description = "F# Type Provider for Swagger & Open API"
-// Pattern specifying assemblies to be tested using Expecto
-let testAssemblies = "tests/**/bin/Release" </> "**" </> "*Tests*.exe"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -81,7 +75,13 @@ Target.create "CleanDocs" (fun _ -> Shell.cleanDirs [ "docs/output" ])
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
-Target.create "Build" (fun _ -> DotNet.exec id "build" "SwaggerProvider.sln -c Release" |> ignore)
+let dotnet cmd args =
+    let result = DotNet.exec id cmd args
+
+    if not result.OK then
+        failwithf "Failed: %A" result.Errors
+
+Target.create "Build" (fun _ -> dotnet "build" "SwaggerProvider.sln -c Release")
 
 let webApiInputStream = StreamRef.Empty
 
@@ -105,24 +105,13 @@ Target.createFinal "StopServer" (fun _ ->
 //Process.killAllByName "dotnet"
 )
 
-Target.create "BuildTests" (fun _ ->
-    DotNet.exec id "build" "SwaggerProvider.TestsAndDocs.sln -c Release"
-    |> ignore)
+Target.create "BuildTests" (fun _ -> dotnet "build" "SwaggerProvider.TestsAndDocs.sln -c Release")
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
 let runTests assembly =
-    [ Path.Combine(__SOURCE_DIRECTORY__, assembly) ]
-    |> Testing.Expecto.run(fun p ->
-        { p with
-            WorkingDirectory = __SOURCE_DIRECTORY__
-            FailOnFocusedTests = true
-            PrintVersion = true
-            Parallel = false
-            Summary = true
-            Debug = false
-        })
+    dotnet "test" $"{assembly} -c Release --no-build"
 
 Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net6.0/SwaggerProvider.Tests.dll")
 
@@ -152,52 +141,12 @@ Target.create "PublishNuget" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
-// module Fake =
-//     let fakePath = "packages" </> "build" </> "FAKE" </> "tools" </> "FAKE.exe"
-//     let fakeStartInfo script workingDirectory args fsiargs environmentVars =
-//         (fun (info: Diagnostics.ProcessStartInfo) ->
-//             info.FileName <- Path.GetFullPath fakePath
-//             info.Arguments <- sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
-//             info.WorkingDirectory <- workingDirectory
-//             let setVar k v = info.EnvironmentVariables.[k] <- v
-//             for (k, v) in environmentVars do setVar k v
-//             setVar "MSBuild" msBuildExe
-//             setVar "GIT" CommandHelper.gitPath
-//             setVar "FSI" fsiPath)
-
-//     /// Run the given buildscript with FAKE.exe
-//     let executeFAKEWithOutput workingDirectory script fsiargs envArgs =
-//         let exitCode =
-//             ExecProcessWithLambdas
-//                 (fakeStartInfo script workingDirectory "" fsiargs envArgs)
-//                 TimeSpan.MaxValue false ignore ignore
-//         System.Threading.Thread.Sleep 1000
-//         exitCode
-
 Target.create "BrowseDocs" (fun _ ->
     CreateProcess.fromRawCommandLine "dotnet" "serve -o -d ./docs"
     |> (Proc.run >> ignore))
 
-// Target.create "GenerateDocs" (fun _ ->
-//     let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "GenerateDocs"]
-//     if exit <> 0 then failwith "Generating documentation failed"
-// )
-
-// Target.create "PublishDocs" (fun _ ->
-//     let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "PublishDocs"]
-//     if exit <> 0 then failwith "Publishing documentation failed"
-// )
-
-// Target.create "PublishStaticPages" (fun _ ->
-//     let exit = Fake.executeFAKEWithOutput "docs" "docs.fsx" "" ["target", "PublishStaticPages"]
-//     if exit <> 0 then failwith "Publishing documentation failed"
-// )
-
 // --------------------------------------------------------------------------------------
 // Release Scripts
-
-//#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
-//open Octokit
 
 Target.create "Release" (fun _ ->
     // not fully converted from  FAKE 4
@@ -279,7 +228,6 @@ let skipTests = Environment.environVarAsBoolOrDefault "skipTests" false
 =?> ("RunIntegrationTests", not skipTests)
 ==> "StopServer"
 ==> "RunTests"
-//=?> ("GenerateDocs", BuildServer.isLocalBuild)
 ==> "NuGet"
 ==> "All"
 ==> "BuildPackage"
