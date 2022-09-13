@@ -4,6 +4,7 @@ open SwaggerProvider
 open Swagger
 open FsUnitTyped
 open Xunit
+open System
 
 [<Literal>]
 let Schema = "https://petstore.swagger.io/v2/swagger.json"
@@ -32,7 +33,7 @@ let ``Test provided Host property``() =
     |> shouldEqual "http://petstore.swagger.io/v3/"
 
 [<Fact>]
-let ``instantiate provided objects``() =
+let ``Instantiate provided objects``() =
     let pet = PetStore.Pet(Name = "foo")
     pet.Name |> shouldEqual "foo"
     pet.ToString() |> shouldContainText "foo"
@@ -94,3 +95,15 @@ let ``call provided methods``() = task {
     pet.Status |> shouldEqual pet2.Status
     pet |> shouldNotEqual pet2
 }
+
+[<Fact>]
+let ``create types with Nullable properties``() =
+    let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
+    tag.ToString() |> shouldEqual "foobar"
+    let tag2 = PetStoreNullable.Tag(Name = "foobar")
+    tag2.ToString() |> shouldContainText "foobar"
+
+    let pet = PetStoreNullable.Pet("foo", [||], Nullable(1337L))
+    pet.ToString() |> shouldContainText "1337"
+    let pet2 = PetStoreNullable.Pet(Name = "foo", Id = Nullable(1337L))
+    pet2.ToString() |> shouldContainText "1337"

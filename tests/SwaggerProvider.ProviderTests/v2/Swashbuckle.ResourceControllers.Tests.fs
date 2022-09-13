@@ -1,34 +1,28 @@
 ﻿module Swashbuckle.v2.ResourceControllersTests
 
-open Expecto
-open System
+open Xunit
+open FsUnitTyped
 open Swashbuckle.v2.ReturnControllersTests
 
-[<Tests>]
-let resourceControllersTests =
-    testList "All/v2/Swashbuckle.ResourceControllers.Tests" [
+[<Fact>]
+let ``ResourceStringString Add and get from resource dictionary``() = task {
+    do! api.PutApiResourceStringString("lang", "F#")
+    do! api.GetApiResourceStringString("lang") |> asyncEqual "F#"
+}
 
-        testCaseAsync "ResourceStringString Add and get from resource dictionary"
-        <| async {
-            do! api.PutApiResourceStringString("lang2", "F#")
-            do! api.GetApiResourceStringString("lang2") |> asyncEqual "F#"
-        }
+[<Fact>]
+let ``ResourceStringString Update value in the resource dictionary``() = task {
+    do! api.PutApiResourceStringString("name", "Sergey")
+    do! api.GetApiResourceStringString("name") |> asyncEqual "Sergey"
 
-        testCaseAsync "ResourceStringString Update value in the resource dictionary"
-        <| async {
-            do! api.PutApiResourceStringString("name2", "Sergey")
-            do! api.GetApiResourceStringString("name2") |> asyncEqual "Sergey"
+    do! api.PostApiResourceStringString("name", "Siarhei")
+    do! api.GetApiResourceStringString("name") |> asyncEqual "Siarhei"
+}
 
-            do! api.PostApiResourceStringString("name2", "Siarhei")
-            do! api.GetApiResourceStringString("name2") |> asyncEqual "Siarhei"
-        }
-
-        testCaseAsync "ResourceStringString Delete from the dictionary"
-        <| async {
-            let baseUrl = "http://localhost/"
-            do! api.PutApiResourceStringString("url", baseUrl)
-            let! url = api.GetApiResourceStringString("url")
-            shouldEqual url baseUrl
-            do! api.DeleteApiResourceStringString("url")
-        }
-    ]
+let ``ResourceStringString Delete from the dictionary``() = task {
+    let baseUrl = "http://localhost/"
+    do! api.PutApiResourceStringString("url", baseUrl)
+    let! url = api.GetApiResourceStringString("url")
+    shouldEqual url baseUrl
+    do! api.DeleteApiResourceStringString("url")
+}
