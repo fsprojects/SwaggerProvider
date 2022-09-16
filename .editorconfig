@@ -22,3 +22,5 @@ fsharp_space_before_parameter=false
 fsharp_space_before_lowercase_invocation=false
 fsharp_multiline_block_brackets_on_same_column=true
 fsharp_experimental_stroustrup_style=true
+fsharp_bar_before_discriminated_union_declaration = true
+fsharp_keep_max_number_of_blank_lines=3
