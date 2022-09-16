@@ -18,13 +18,13 @@ type Startup private () =
     // This method gets called by the runtime. Use this method to add services to the container.
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
+
         services
-            .AddMvc(fun option -> option.EnableEndpointRouting <- false)
+            .AddControllersWithViews()
             .AddJsonOptions(fun options ->
                 let converters = options.JsonSerializerOptions.Converters
                 converters.Add(JsonFSharpConverter())
                 converters.Add(JsonStringEnumConverter()))
-            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
@@ -57,6 +57,6 @@ type Startup private () =
         |> ignore
 
         //app.UseHttpsRedirection() |> ignore
-        app.UseMvc() |> ignore
+        app.UseRouting() |> ignore
 
     member val Configuration: IConfiguration = null with get, set
