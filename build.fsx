@@ -178,6 +178,7 @@ Target.create "BuildPackage" ignore
 
 let sourceFiles =
     !! "**/*.fs" ++ "**/*.fsx"
+    -- "packages/**/*.*"
     -- "paket-files/**/*.*"
     -- ".fake/**/*.*"
     -- "**/obj/**/*.*"
