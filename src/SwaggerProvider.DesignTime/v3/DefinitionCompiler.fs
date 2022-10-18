@@ -30,10 +30,8 @@ type DefinitionPath =
         let rec getCharInTypeName ind =
             if ind = definitionPath.Length then
                 ind - 1
-            elif
-                Char.IsLetterOrDigit definitionPath[ind]
-                || definitionPath[ind] = nsSeparator
-            then
+            elif Char.IsLetterOrDigit definitionPath[ind]
+                 || definitionPath[ind] = nsSeparator then
                 getCharInTypeName(ind + 1)
             else
                 ind
@@ -93,9 +91,12 @@ and NamespaceAbstraction(name: string) =
 
         let newName =
             let pref =
-                if String.IsNullOrWhiteSpace nameSuffix then namePref
-                elif String.IsNullOrWhiteSpace namePref then nameSuffix
-                else $"%s{namePref}_%s{nameSuffix}"
+                if String.IsNullOrWhiteSpace nameSuffix then
+                    namePref
+                elif String.IsNullOrWhiteSpace namePref then
+                    nameSuffix
+                else
+                    $"%s{namePref}_%s{nameSuffix}"
 
             findUniq pref 0
 
@@ -150,7 +151,7 @@ and NamespaceAbstraction(name: string) =
     /// Create Provided representation of Namespace
     member _.GetProvidedTypes() =
         List.ofSeq providedTys
-        |> List.choose(fun kv ->
+        |> List.choose (fun kv ->
             match kv.Value with
             | Reservation -> failwithf $"Reservation without type found '%s{kv.Key}'. This is a bug in DefinitionCompiler"
             | NameAlias -> None
@@ -183,7 +184,9 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             |> Map.ofSeq
 
     let pathToType = Collections.Generic.Dictionary<_, Type>()
+
     let nsRoot = NamespaceAbstraction("Root")
+
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"
 
     let generateProperty (scope: UniqueNameGenerator) propName ty =
@@ -231,7 +234,9 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             match pathToSchema.TryFind tyPath with
             | Some def ->
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
+
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
+
                 ty :> Type
             | None when tyPath.StartsWith(DefinitionPath.DefinitionPrefix) ->
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
@@ -249,6 +254,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             else
                 // Register every ProvidedTypeDefinition
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
+
                 registerNew(tyName, ty :> Type)
 
                 // Generate fields and properties
@@ -256,7 +262,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     let generateProperty = generateProperty(UniqueNameGenerator())
 
                     List.ofSeq schemaObj.Properties
-                    |> List.map(fun p ->
+                    |> List.map (fun p ->
                         let propName, propSchema = p.Key, p.Value
 
                         if String.IsNullOrEmpty(propName) then
@@ -289,7 +295,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         |> List.partition(fun (x, _) -> schemaObj.Required.Contains(x.Key))
 
                     (required @ optional)
-                    |> List.map(fun (x, (f, p)) ->
+                    |> List.map (fun (x, (f, p)) ->
                         let paramName = niceCamelName p.Name
 
                         let prParam =
@@ -297,6 +303,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                                 ProvidedParameter(paramName, f.FieldType)
                             else
                                 let paramDefaultValue = this.GetDefaultValue f.FieldType
+
                                 ProvidedParameter(paramName, f.FieldType, false, paramDefaultValue)
 
                         prParam, f)
@@ -331,15 +338,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                                 let pNames, pValues =
                                     Array.ofList members
-                                    |> Array.map(fun (pField, pProp) ->
+                                    |> Array.map (fun (pField, pProp) ->
                                         let pValObj = Expr.FieldGet(this, pField)
                                         pProp.Name, Expr.Coerce(pValObj, typeof<obj>))
                                     |> Array.unzip
 
                                 let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
 
-                                <@@
-                                    let values = (%%pValuesArr: array<obj>)
+                                <@@ let values = (%%pValuesArr: array<obj>)
 
                                     let rec formatValue(v: obj) =
                                         if isNull v then
@@ -351,6 +357,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                                                 String.Format("\"{0}\"", v)
                                             elif vTy.IsArray then
                                                 let elements = (v :?> seq<_>) |> Seq.map formatValue
+
                                                 String.Format("[{0}]", String.Join("; ", elements))
                                             else
                                                 v.ToString()
@@ -359,13 +366,13 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                                         values
                                         |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames[i], formatValue v))
 
-                                    String.Format("{{{0}}}", String.Join("; ", strs))
-                                @@>
+                                    String.Format("{{{0}}}", String.Join("; ", strs)) @@>
                     )
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
 
                 let objToStr = typeof<obj>.GetMethod ("ToString", [||])
+
                 ty.DefineMethodOverride(toStr, objToStr)
                 ty.AddMember <| toStr
 
@@ -390,6 +397,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
+
                 let elSchema = schemaObj.AdditionalProperties
 
                 let elTy =
@@ -411,13 +419,13 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 | "string", "binary" // for `application/octet-stream` request body
                 | "file", _ -> // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                     typeof<IO.Stream>
-                #if NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
                 // According to https://swagger.io/docs/specification/data-models/data-types/#string
                 | "string", "date" -> typeof<DateOnly>
-                #endif
-                #if NETSTANDARD2_0
+#endif
+#if NETSTANDARD2_0
                 | "string", "date"
-                #endif
+#endif
                 | "string", "date-time" -> typeof<DateTimeOffset>
                 | "string", "uuid" -> typeof<Guid>
                 | "string", _ -> typeof<string>
