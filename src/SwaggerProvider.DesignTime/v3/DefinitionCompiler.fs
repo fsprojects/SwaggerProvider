@@ -411,7 +411,13 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 | "string", "binary" // for `application/octet-stream` request body
                 | "file", _ -> // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                     typeof<IO.Stream>
+                #if NET6_0_OR_GREATER
+                // According to https://swagger.io/docs/specification/data-models/data-types/#string
+                | "string", "date" -> typeof<DateOnly>
+                #endif
+                #if NETSTANDARD2_0
                 | "string", "date"
+                #endif
                 | "string", "date-time" -> typeof<DateTimeOffset>
                 | "string", "uuid" -> typeof<Guid>
                 | "string", _ -> typeof<string>
