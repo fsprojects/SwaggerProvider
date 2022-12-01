@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        dotnet: [6.0.401]
+        dotnet: [7.0.100]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -25,6 +25,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet }}
+    - name: Setup .NET Core 6
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.403
     - name: Install local tools
       run: dotnet tool restore
     - name: Paket Restore
