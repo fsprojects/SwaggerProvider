@@ -1,6 +1,5 @@
 group Test
     FSharp.Compiler.Service
     FSharp.Core
-    System.Net.Http
     Microsoft.NET.Test.Sdk
     FsUnit.Xunit

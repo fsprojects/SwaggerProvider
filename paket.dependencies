@@ -3,7 +3,6 @@ source https://api.nuget.org/v3/index.json
 frameworks: net6.0, netstandard2.0
 
 nuget FSharp.Core
-nuget System.Net.Http
 nuget System.Text.Json
 nuget FSharp.SystemTextJson
 nuget Microsoft.OpenApi.Readers
@@ -40,6 +39,5 @@ group Test
     nuget Microsoft.NET.Test.Sdk
     nuget FsUnit.Xunit
 
-    nuget System.Net.Http
     nuget Microsoft.OpenApi.Readers redirects: force
     nuget FSharp.SystemTextJson
