@@ -31,4 +31,3 @@ references
 dependencies
     FSharp.Core >= LOCKEDVERSION
     FSharp.SystemTextJson >= LOCKEDVERSION
-    System.Net.Http ~> LOCKEDVERSION

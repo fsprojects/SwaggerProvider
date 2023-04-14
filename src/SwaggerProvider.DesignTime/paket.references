@@ -3,7 +3,6 @@ File: ProvidedTypes.fs
 File: Pluralizer.fs
 File: NameUtils.fs
 
-System.Net.Http
 System.Text.Json
 Microsoft.OpenApi.Readers
 
