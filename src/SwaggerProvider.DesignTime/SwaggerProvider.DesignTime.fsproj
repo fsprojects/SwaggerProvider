@@ -13,11 +13,11 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\CommonRuntime\Pluralizer.fs">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\FSharp.Data.Runtime.Utilities\Pluralizer.fs">
       <Paket>True</Paket>
       <Link>paket-files/Pluralizer.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\CommonRuntime\NameUtils.fs">
+    <Compile Include="..\..\paket-files\fsprojects\FSharp.Data\src\FSharp.Data.Runtime.Utilities\NameUtils.fs">
       <Paket>True</Paket>
       <Link>paket-files/NameUtils.fs</Link>
     </Compile>
@@ -52,9 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="6.0.5">
-        <!-- This excludes FSharp.Core.xml and FSharp.Core.resources.dll while referencing the right FSharp.Core.dll version -->
-        <ExcludeAssets>runtime;contentFiles</ExcludeAssets>
+      <!-- This excludes FSharp.Core.xml and FSharp.Core.resources.dll while referencing the right FSharp.Core.dll version -->
+      <ExcludeAssets>runtime;contentFiles</ExcludeAssets>
     </PackageReference>
-   </ItemGroup>
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

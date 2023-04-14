@@ -16,8 +16,8 @@ nuget YamlDotNet
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
-github fsprojects/FSharp.Data:main src/CommonRuntime/Pluralizer.fs
-github fsprojects/FSharp.Data:main src/CommonRuntime/NameUtils.fs
+github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/Pluralizer.fs
+github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/NameUtils.fs
 
 group Server
     source https://api.nuget.org/v3/index.json
