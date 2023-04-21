@@ -156,7 +156,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let retMimeAndTy =
             let okResponse =
                 operation.Responses
-                |> Seq.tryFind(fun resp -> resp.Key = "200" 
+                |> Seq.tryFind(fun resp -> 
+                    resp.Key = "200" 
                     || resp.Key.StartsWith("20")
                     || resp.Key = "default"
                 )
