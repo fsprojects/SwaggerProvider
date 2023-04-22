@@ -1,7 +1,7 @@
 #r @"paket:
 source https://nuget.org/api/v2
 framework net6.0
-nuget FSharp.Core
+nuget FSharp.Core 6.0.0.0
 nuget Fake.Core.Target
 nuget Fake.Core.Process
 nuget Fake.Core.ReleaseNotes
