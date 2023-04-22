@@ -1,4 +1,4 @@
-#### 2.0.0-beta7 - Apr 22, 2023
+#### 2.0.0-beta8 - Apr 22, 2023
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
