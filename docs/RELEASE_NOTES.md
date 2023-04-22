@@ -1,12 +1,12 @@
-#### 2.0.0-beta8 - Apr 22, 2023
+#### 2.0.0-beta9 - Apr 22, 2023
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
 - Model enums as `string`, `int32` or `boolean` (Fixed [#186](https://github.com/fsprojects/SwaggerProvider/issues/186) )
 - Add `Accept` header to all request (Fixed [#196](https://github.com/fsprojects/SwaggerProvider/issues/196))
 - Supported requests with `octet-stream` body content [#203](https://github.com/fsprojects/SwaggerProvider/pull/203)
-- Microsoft.OpenApi (1.4.3)
-- FSharp.SystemTextJson (1.0.5)
+- Microsoft.OpenApi (1.6.3)
+- FSharp.SystemTextJson (1.1.23)
 - Removed the `System.Net.Http` dependency (#221)
 - fix: accept "default" as "ok response" fallback (#223)
 
