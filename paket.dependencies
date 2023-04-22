@@ -1,4 +1,4 @@
-version 7.1.4
+version 7.2.1
 source https://api.nuget.org/v3/index.json
 frameworks: net6.0, netstandard2.0
 
