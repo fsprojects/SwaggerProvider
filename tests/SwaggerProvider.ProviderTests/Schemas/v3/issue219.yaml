@@ -1,0 +1,1358 @@
+openapi: "3.0.3"
+info:
+  title: "Sample Api"
+  description: |
+    # Some ACME API
+  termsOfService: "https://acmed3hdhhd5dhdh.com/license.html"
+  contact:
+    name: "API Support"
+    url: "https://ACMEdbbe3hbdbcg4ge.com"
+    email: "acmeacmehdhhebbfdb4n@ACME.com"
+  version: "v1.0"
+servers:
+- url: "https://acm4353436ddfdee.com/test"
+  description: "Test server"
+paths:
+  /ApplyDiscount:
+    post:
+      tags:
+      - "Service"
+      summary: |
+        ApplyDiscount
+      description: |
+        blabla
+      operationId: "Test"
+      requestBody:
+        description: |
+          
+        $ref: "#/components/requestBodies/ApplyDiscountRequest"
+      responses:
+        default:
+          description: |
+            
+          $ref: "#/components/responses/ApplyDiscountResponse"
+      x-codeSamples:
+      - lang: "C#"
+        source: |
+          fill C# source code here
+  /ConfirmTransactionb2b:
+    post:
+      tags:
+      - "Service"
+      summary: |
+        ConfirmTransactionb2b
+      description: |
+        blablabla
+      operationId: "ConfirmTransactionb2b"
+      requestBody:
+        description: |
+          blablabla
+        $ref: "#/components/requestBodies/ConfirmTransactionb2bRequest"
+      responses:
+        default:
+          description: |
+            blabla
+          $ref: "#/components/responses/ConfirmTransactionb2bResponse"
+      x-codeSamples:
+      - lang: "C#"
+        source: |
+          fill C# source code here
+  /AskFlight:
+    post:
+      tags:
+      - "Service"
+      summary: |
+        AskFlight
+      description: |
+        bla blabla
+      operationId: "AskFlight"
+      requestBody:
+        description: |
+          blabla
+        $ref: "#/components/requestBodies/AskFlightRequest"
+      responses:
+        default:
+          description: |
+            blabla
+          $ref: "#/components/responses/AskFlightResponse"
+      x-codeSamples:
+      - lang: "C#"
+        source: |
+          fill C# source code here
+  /AskDetail:
+    post:
+      tags:
+      - "Service"
+      summary: |
+        AskDetail
+      description: |
+        bla blabla
+      operationId: "AskDetail"
+      requestBody:
+        description: |
+          bla bla
+        $ref: "#/components/requestBodies/AskDetailRequest"
+      responses:
+        default:
+          description: |
+            bla bla
+          $ref: "#/components/responses/AskDetailResponse"
+      x-codeSamples:
+      - lang: "C#"
+        source: |
+          fill C# source code here
+components:
+  schemas:
+    AdditionalFeeDetail:
+      type: "object"
+      properties:
+        TaxDeductionCommisssion:
+          type: "number"
+          description: |
+            commission bla bla
+          format: "decimal"
+    ApplyInfo:
+      type: "object"
+      required:
+      - "ApplyID"
+      - "BookingIdentifier"
+      properties:
+        AdditionalRefundInfo:
+          description: |
+            refund info bla bla
+          $ref: "#/components/schemas/RefundBlablaInfoType"
+        ApplyID:
+          type: "string"
+          description: |
+            The AppyID for a refund application.
+          format: ""
+        JourneyInfo:
+          type: "array"
+          description: |
+            babba
+          items:
+            description: |
+              babab.
+            $ref: "#/components/schemas/RefundOrderFlightInfo"
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            babbdbd
+          format: "int64"
+        RouteType:
+          type: "string"
+          description: |
+            abchdhekf
+          format: ""
+    ApplyDiscountRequest:
+      type: "object"
+      properties:
+        ApplyInfoList:
+          type: "array"
+          description: |
+            The list of info on refund application
+          items:
+            description: |
+              The list of info on refund application
+            $ref: "#/components/schemas/ApplyInfo"
+    ApplyDiscountResponse:
+      type: "object"
+      properties:
+        ApplyResultList:
+          type: "array"
+          description: |
+            The application result
+          items:
+            description: |
+              The application result
+            $ref: "#/components/schemas/ApplyResult"
+        Status:
+          description: |
+            
+          $ref: "#/components/schemas/Status"
+    ApplyResult:
+      type: "object"
+      properties:
+        ApplyID:
+          type: "string"
+          description: |
+            The AppyID for a refund application.
+          format: ""
+        ErrorCode:
+          type: "string"
+          description: |
+            Error code
+          format: ""
+        ErrorMessage:
+          type: "string"
+          description: |
+            Error message
+          format: ""
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            blublu
+          format: "int64"
+        RefundID:
+          type: "integer"
+          description: |
+            The refund ID
+          format: "int64"
+        RefundSuspensionType:
+          type: "integer"
+          description: |
+            hey ho he
+          format: "int32"
+    BasicRefundFeeInfo:
+      type: "object"
+      properties:
+        CanCalculate:
+          type: "boolean"
+          description: |
+            hoho
+            ho ho ho.
+          format: ""
+        RefundPrice:
+          type: "number"
+          description: |
+            huhu
+          format: "decimal"
+        Refundable:
+          type: "boolean"
+          description: |
+            hohoho
+          format: ""
+    CityType:
+      type: "object"
+      properties:
+        CityCode:
+          type: "string"
+          description: |
+            blabla
+          format: ""
+        CityID:
+          type: "integer"
+          description: |
+            CityID
+          format: "int32"
+        CityName:
+          type: "string"
+          description: |
+            CityName
+          format: ""
+    ConfirmTransactionb2bRequest:
+      type: "object"
+      required:
+      - "BookingIdentifier"
+      - "ActionType"
+      - "RefundID"
+      properties:
+        ActionType:
+          type: "integer"
+          description: |
+            The types of action that you can take on the refund application. 1 means confirm; 2 means cancel. If you cancel a refund application, you need to pass the cancellation reason in the CancelReasonType node.
+          format: "int32"
+        CancelReasonType:
+          type: "integer"
+          description: |
+            Reasons for cancelling a refund application: 1 means the passenger does not want to refund; 2 means change the refund type; 3 means exchanged tickets need to be refunded by airlines; 4 means refund the through check-in ticket bought from China Express Airlines;  5 means the customer can not accept the refund fee; 6 means no refunds for the refund; 7 means ticket used; 8 means changes with the refund details; 9 means the airline does not allow refund but allow you to cancel the current ACME and save the open ticket for a pending travelling date (usually within one year); 10 means other reasons.
+          format: "int32"
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            The internal order ID from us CACME.
+          format: "int64"
+        RefundID:
+          type: "integer"
+          description: |
+            The Refund ID
+          format: "int64"
+    ConfirmTransactionb2bResponse:
+      type: "object"
+      properties:
+        Status:
+          description: |
+            
+          $ref: "#/components/schemas/Status"
+    ContactType:
+      type: "object"
+      properties:
+        ContactEmail:
+          type: "string"
+          description: |
+            The email of the contact
+          format: ""
+        ContactID:
+          type: "integer"
+          description: |
+            The index of the contact
+          format: "int32"
+        ContactName:
+          type: "string"
+          description: |
+            The name of the contact
+          format: ""
+        ForeignMobilePhone:
+          description: |
+            The foreign contact info.
+          $ref: "#/components/schemas/PhoneType"
+        MobilePhone:
+          description: |
+            Info on the contact's mobile phone
+          $ref: "#/components/schemas/PhoneType"
+    EmdFeeDetail:
+      type: "object"
+      properties:
+        EmdAmount:
+          type: "number"
+          description: |
+            The amount of an EMD.
+          format: "decimal"
+        EmdID:
+          type: "integer"
+          description: |
+            The ID for a certain EMD.
+          format: "int64"
+        EmdId:
+          type: "integer"
+          description: |
+            
+          format: "int64"
+        EmdMoneyType:
+          type: "number"
+          description: |
+            bdhdhuf
+          format: "decimal"
+    FlagType:
+      type: "object"
+      properties:
+        Key:
+          type: "string"
+          description: |
+            Key
+          format: ""
+        Value:
+          type: "string"
+          description: |
+            Value
+          format: ""
+    FlightInfo:
+      type: "object"
+      properties:
+        ArrivalDateTimeGMT:
+          type: "string"
+          description: |
+            hshs
+          format: ""
+        ArriveDateTime:
+          type: "string"
+          description: |
+            hshs
+          format: ""
+        ArrivePoint:
+          description: |
+            jfjjd
+          $ref: "#/components/schemas/StationType"
+        DepartDateTime:
+          type: "string"
+          description: |
+            gaga
+          format: ""
+        DepartPoint:
+          description: |
+            agag
+          $ref: "#/components/schemas/StationType"
+        DepartureDateTimeGMT:
+          type: "string"
+          description: |
+            agagaag
+          format: ""
+        Duration:
+          type: "integer"
+          description: |
+            agagaga
+          format: "int32"
+        JourneyNo:
+          type: "integer"
+          description: |
+            agag
+          format: "int32"
+        OperatingFlightNo:
+          type: "string"
+          description: |
+            agagag
+          format: ""
+        SegmentNo:
+          type: "integer"
+          description: |
+            Segment number
+          format: "int32"
+        TransportNo:
+          type: "string"
+          description: |
+            agagag
+          format: ""
+    ItineraryInfo:
+      type: "object"
+      required:
+      - "PaxName"
+      - "DepartureAirportCode"
+      - "ArrivalAirportCode"
+      - "MarketingFlightNo"
+      - "DepartureDateTime"
+      properties:
+        ArrivalAirportCode:
+          type: "string"
+          description: |
+            acac
+          format: ""
+        DepartureAirportCode:
+          type: "string"
+          description: |
+            acaca
+          format: ""
+        DepartureDateTime:
+          type: "string"
+          description: |
+            acaca
+          format: ""
+        MarketingFlightNo:
+          type: "string"
+          description: |
+            acaca
+          format: ""
+        PaxName:
+          type: "string"
+          description: |
+            acaca
+          format: ""
+    OrderInfo:
+      type: "object"
+      properties:
+        CurrencyCode:
+          type: "string"
+          description: |
+            acacacaa
+          format: ""
+        MinimumPerson:
+          type: "integer"
+          description: |
+            acaca
+          format: "int32"
+    OrderItem:
+      type: "object"
+      required:
+      - "BookingIdentifier"
+      properties:
+        JourneyList:
+          type: "array"
+          description: |
+            acacaca
+          items:
+            description: |
+              acaaca
+            $ref: "#/components/schemas/SegmentInfo"
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            acacac
+          format: "int64"
+        OrderInfo:
+          description: |
+            acaca
+          $ref: "#/components/schemas/OrderInfo"
+        RefundFeeList:
+          type: "array"
+          description: |
+            cacac
+          items:
+            description: |
+              acacac
+            $ref: "#/components/schemas/RefundFeeDetailInfo"
+        SicknessRefundInfo:
+          type: "array"
+          description: |
+            acacac
+          items:
+            description: |
+              acacaca
+            $ref: "#/components/schemas/SicknessRefundInfo"
+        SpecialEventInfo:
+          type: "array"
+          description: |
+            acacaca
+          items:
+            description: |
+              acacaca
+            $ref: "#/components/schemas/SpecialEventInfo"
+    PhoneType:
+      type: "object"
+      properties:
+        CountryCode:
+          type: "string"
+          description: |
+            acaca
+          format: ""
+        PhoneNo:
+          type: "string"
+          description: |
+            acaca
+          format: ""
+    AskFlightRequest:
+      type: "object"
+      required:
+      - "BookingIdentifier"
+      properties:
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            acac
+          format: "int64"
+        Source:
+          type: "string"
+          description: |
+            
+          format: ""
+    AskFlightResponse:
+      type: "object"
+      required:
+      - "Status"
+      properties:
+        OrderItemList:
+          type: "array"
+          description: |
+            aca
+          items:
+            description: |
+              accac
+            $ref: "#/components/schemas/OrderItem"
+        Status:
+          description: |
+            
+          $ref: "#/components/schemas/Status"
+    AskDetailRequest:
+      type: "object"
+      required:
+      - "BookingIdentifier"
+      properties:
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            fdfdff
+          format: "int64"
+    AskDetailResponse:
+      type: "object"
+      properties:
+        JourneyInfo:
+          type: "array"
+          description: |
+            fdsdf
+          items:
+            description: |
+              sfdsf
+            $ref: "#/components/schemas/RefundFlightInfo"
+        PaxInfoList:
+          type: "array"
+          description: |
+            fdsfs
+          items:
+            description: |
+              sdfs
+            $ref: "#/components/schemas/RefundPassengerInfo"
+        RefundDetailList:
+          type: "array"
+          description: |
+            sdfsfd
+          items:
+            description: |
+              fdsfds
+            $ref: "#/components/schemas/RefundInfo"
+        Status:
+          description: |
+            
+          $ref: "#/components/schemas/Status"
+    RefundFeeDetail:
+      type: "object"
+      properties:
+        Amount:
+          type: "number"
+          description: |
+            sfdsfd
+          format: "decimal"
+        Type:
+          type: "string"
+          description: |
+            sfdsfd
+          format: ""
+    RefundFeeDetailInfo:
+      type: "object"
+      properties:
+        AdditionalFeeDetail:
+          description: |
+            sdfs
+          $ref: "#/components/schemas/AdditionalFeeDetail"
+        BasicRefundFeeInfo:
+          description: |
+            sdfsfd
+          $ref: "#/components/schemas/BasicRefundFeeInfo"
+        EMDRefundTypeCode:
+          type: "integer"
+          description: |
+            sdfds
+          format: "int32"
+        EmdFeeDetail:
+          description: |
+            Details on airline EMD.
+          $ref: "#/components/schemas/EmdFeeDetail"
+        RefundFeeID:
+          type: "integer"
+          description: |
+            sdfsfdsf
+          format: "int32"
+        RefundScenario:
+          type: "integer"
+          description: |
+            dsfsf
+          format: "int32"
+        RefundTypeCode:
+          type: "integer"
+          description: |
+            sdfsfdsf
+          format: "int32"
+        ServiceFeeDetail:
+          description: |
+            sdfsfs
+          $ref: "#/components/schemas/ServiceFeeDetail"
+        UsedFeeDetail:
+          description: |
+            sdfsfd
+          $ref: "#/components/schemas/UsedFeeDetail"
+    RefundFlagType:
+      type: "object"
+      properties:
+        Key:
+          type: "string"
+          description: |
+            Key
+          format: ""
+        Value:
+          type: "string"
+          description: |
+            Value
+          format: ""
+    RefundFlightInfo:
+      type: "object"
+      properties:
+        ArriveDateTime:
+          type: "string"
+          description: |
+            sdfsdf
+          format: ""
+        ArrivePoint:
+          description: |
+            sdfsfds
+          $ref: "#/components/schemas/StationType"
+        DepartDateTime:
+          type: "string"
+          description: |
+            sdfsf
+          format: ""
+        DepartPoint:
+          description: |
+            sdfsfd
+          $ref: "#/components/schemas/StationType"
+        Duration:
+          type: "integer"
+          description: |
+            sdfs
+          format: "int32"
+        FlightIndex:
+          type: "integer"
+          description: |
+            The index of the flight.
+          format: "int32"
+        TransportNo:
+          type: "string"
+          description: |
+            sdfsfd
+          format: ""
+    RefundInfo:
+      type: "object"
+      properties:
+        BookingIdentifier:
+          type: "integer"
+          description: |
+            sdfsf
+          format: "int64"
+        RefundFeeDetailInfoList:
+          type: "array"
+          description: |
+            sdfsd
+          items:
+            description: |
+              sdfs
+            $ref: "#/components/schemas/RefundTicketFeeDetailInfo"
+        RefundOrderDetailList:
+          type: "array"
+          description: |
+            sdfsf
+          items:
+            description: |
+              sdfsdfs
+            $ref: "#/components/schemas/RefundOrderDetailInfo"
+    RefundOrderDetailInfo:
+      type: "object"
+      properties:
+        ApplyDateTime:
+          type: "string"
+          description: |
+            sdfsd
+          format: ""
+        ContactInfo:
+          description: |
+            The contact info
+          $ref: "#/components/schemas/ContactType"
+        DenialReason:
+          type: "string"
+          description: |
+            The denial reason for a refund request
+          format: ""
+        JourneyRelatedInfoList:
+          type: "array"
+          description: |
+            Related info on the refunded flight.
+          items:
+            description: |
+              Related info on the refunded flight.
+            $ref: "#/components/schemas/RefundACMEItineraryRelationInfo"
+        RefundFeeInfolist:
+          type: "array"
+          description: |
+            The list of info on refund fee.
+          items:
+            description: |
+              The list of info on refund fee.
+            $ref: "#/components/schemas/RefundOrderFeeInfo"
+        RefundFlagType:
+          type: "array"
+          description: |
+            The flag for refund
+          items:
+            description: |
+              The flag for refund
+            $ref: "#/components/schemas/RefundFlagType"
+        RefundID:
+          type: "integer"
+          description: |
+            The refund ID
+          format: "int64"
+        RefundWorkflowInfo:
+          type: "array"
+          description: |
+            sdfsdfs
+          items:
+            description: |
+              The info on the refund process or workflow
+            $ref: "#/components/schemas/RefundProcessInfo"
+        Status:
+          type: "string"
+          description: |
+            sdfsfds
+          format: ""
+    RefundOrderFeeInfo:
+      type: "object"
+      properties:
+        Currency:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+        CurrencyType:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+        ExchangeRate:
+          type: "number"
+          description: |
+            The exchange rate between RMB and
+          format: "decimal"
+        FeeDetailList:
+          type: "array"
+          description: |
+            The details of refund fee
+          items:
+            description: |
+              The details of refund fee
+            $ref: "#/components/schemas/RefundFeeDetail"
+    RefundOrderFlightInfo:
+      type: "object"
+      required:
+      - "RefundTypeCode"
+      - "AutoCalculate"
+      - "RefundFee"
+      - "RefundScenario"
+      properties:
+        AutoCalculate:
+          type: "boolean"
+          description: |
+            sdfdsfds
+          format: ""
+        JourneyDetail:
+          description: |
+            sdfs
+          $ref: "#/components/schemas/ItineraryInfo"
+        RefundFee:
+          type: "number"
+          description: |
+            The refund fee.
+          format: "decimal"
+        RefundScenario:
+          type: "integer"
+          description: |
+            sdfsfdsfsfd
+          format: "int32"
+        RefundTypeCode:
+          type: "string"
+          description: |
+            sdfsdfsf
+          format: ""
+    RefundBlablaInfoType:
+      type: "object"
+      properties:
+        RefundMaterialToken:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+        UploadDocument:
+          type: "integer"
+          description: |
+            sdfsdfs
+          format: "int32"
+    RefundPassengerInfo:
+      type: "object"
+      properties:
+        PaxDetailIndex:
+          type: "integer"
+          description: |
+            The index of passenger detail
+          format: "int32"
+        PaxID:
+          type: "integer"
+          description: |
+            Passenger ID
+          format: "int64"
+        PaxName:
+          type: "string"
+          description: |
+            Passenger Name
+          format: ""
+    RefundProcessInfo:
+      type: "object"
+      properties:
+        EstimatedFinishDateTime:
+          type: "string"
+          description: |
+            sdfs
+          format: ""
+        FinishDateTime:
+          type: "string"
+          description: |
+            sdfsd
+          format: ""
+        FlowName:
+          type: "string"
+          description: |
+            sfdsdjfjdfj
+            fdshfhdf
+            fhdfh
+            hdhdhd j dj dh
+          format: ""
+        Operator:
+          type: "string"
+          description: |
+            The operator for refund.
+          format: ""
+        ProcessStatus:
+          type: "integer"
+          description: |
+            hhdsfhhefe
+          format: "int32"
+    RefundTicketFeeDetailInfo:
+      type: "object"
+      properties:
+        AirlineRefundFee:
+          type: "number"
+          description: |
+            The refund fee charged by the airline
+          format: "decimal"
+        AutoCalculate:
+          type: "boolean"
+          description: |
+            dhhfhhehe
+          format: ""
+        Currency:
+          type: "string"
+          description: |
+            sdfsfsdfs
+          format: ""
+        CurrencyType:
+          type: "string"
+          description: |
+            sfdsfds
+          format: ""
+        DiscountAmount:
+          type: "number"
+          description: |
+            The discount for the outbound ACME
+          format: "decimal"
+        ExchangeRate:
+          type: "number"
+          description: |
+            The exchange rate between RMB and the currency used by our b2b
+          format: "decimal"
+        OnlyRefundTax:
+          type: "boolean"
+          description: |
+            Whether to only refund tax
+          format: ""
+        RefundFee:
+          type: "number"
+          description: |
+            Refund fee
+          format: "decimal"
+        RefundFeeIndex:
+          type: "integer"
+          description: |
+            The index for the refund fee
+          format: "int64"
+        RefundTypeCode:
+          type: "integer"
+          description: |
+            sdfsfdsfds
+          format: "int32"
+        ServiceFeeType:
+          description: |
+            The types of service fees charged for refund
+          $ref: "#/components/schemas/ServiceFeeType"
+        UsedFeeInfo:
+          description: |
+            The fees concerning used segments
+          $ref: "#/components/schemas/UsedFeeInfo"
+    RefundACMEItineraryRelationInfo:
+      type: "object"
+      properties:
+        FlightIndex:
+          type: "integer"
+          description: |
+            The index of the flight.
+          format: "int32"
+        JourneyNo:
+          type: "integer"
+          description: |
+            Journey number
+          format: "int32"
+        PaxDetailIndex:
+          type: "integer"
+          description: |
+            The index of Passenger details
+          format: "int32"
+        RefundFeeIndex:
+          type: "integer"
+          description: |
+            The index of refund fee.
+          format: "int64"
+        SegmentNo:
+          type: "integer"
+          description: |
+            Segment number
+          format: "int32"
+    RetireMaterialInfo:
+      type: "object"
+      properties:
+        MaterialType:
+          type: "integer"
+          description: |
+            sdfsdfsfdsf
+          format: "int32"
+    SegmentInfo:
+      type: "object"
+      properties:
+        ExtensionInfolist:
+          type: "array"
+          description: |
+            The list of extension info (info on the original flight is supported now).
+          items:
+            description: |
+              The list of extension info (info on the original flight is supported now).
+            $ref: "#/components/schemas/FlagType"
+        FlightInfo:
+          description: |
+            The flight info
+          $ref: "#/components/schemas/FlightInfo"
+        FuelSurcharge:
+          type: "number"
+          description: |
+            sdfsdfs
+          format: "decimal"
+        PNR:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+        PTC:
+          type: "string"
+          description: |
+            sdfs
+          format: ""
+        PaxName:
+          type: "string"
+          description: |
+            Passenger name
+          format: ""
+        RefundFeeInfoList:
+          type: "array"
+          description: |
+            The list of info on the refund fee
+          items:
+            type: "integer"
+            description: |
+              The list of info on the refund fee
+            format: "int32"
+        Refundable:
+          type: "boolean"
+          description: |
+            sdfsdfs
+          format: ""
+        SalePrice:
+          type: "number"
+          description: |
+            sdfsdfs
+          format: "decimal"
+        SicknessRefundID:
+          type: "integer"
+          description: |
+            sdfsfdds
+          format: "int32"
+        SpecialEventID:
+          type: "integer"
+          description: |
+            sdfsdf
+          format: "int32"
+        StudentSpecialEventID:
+          type: "integer"
+          description: |
+            sdfsdfsfd
+          format: "int32"
+        Tax:
+          type: "number"
+          description: |
+            sdfsdf
+          format: "decimal"
+        TicketNo:
+          type: "string"
+          description: |
+            Ticket number
+          format: ""
+        TicketStatus:
+          type: "integer"
+          description: |
+            Ticket status
+          format: "int32"
+        UnRefundableReasonCode:
+          type: "string"
+          description: |
+            The reason code for unrefundability
+          format: ""
+        Used:
+          type: "boolean"
+          description: |
+            Whether the flight ticket is used
+          format: ""
+    ServiceFeeDetail:
+      type: "object"
+      properties:
+        AgencyServiceFee:
+          type: "number"
+          description: |
+            sdfsdfs
+          format: "decimal"
+        AirlineServiceFee:
+          type: "number"
+          description: |
+            sdfsd
+          format: "decimal"
+        CACMEServiceFee:
+          type: "number"
+          description: |
+            sdfsdfs
+          format: "decimal"
+    ServiceFeeType:
+      type: "object"
+      properties:
+        AirlineServiceFee:
+          type: "number"
+          description: |
+            Service fees charged by airlines
+          format: "decimal"
+        CACMEServiceFee:
+          type: "number"
+          description: |
+            Service fees charged by CACME
+          format: "decimal"
+        SupplierServiceFee:
+          type: "number"
+          description: |
+            Service fees charged by supplier
+          format: "decimal"
+    SicknessRefundInfo:
+      type: "object"
+      properties:
+        MaterialInfoList:
+          type: "array"
+          description: |
+            The info concerning the supporting documents.
+          items:
+            description: |
+              The info concerning the supporting documents.
+            $ref: "#/components/schemas/RetireMaterialInfo"
+        SicknessRefundID:
+          type: "integer"
+          description: |
+            sdfsdfs
+          format: "int32"
+    SpecialEventInfo:
+      type: "object"
+      properties:
+        MaterialInfoList:
+          type: "array"
+          description: |
+            sdfsd
+          items:
+            description: |
+              sdfsd
+            $ref: "#/components/schemas/RetireMaterialInfo"
+        RuleNameCN:
+          type: "string"
+          description: |
+            sdfsdfsdfs
+          format: ""
+        SpecialEventID:
+          type: "integer"
+          description: |
+            sdfsdfs
+          format: "int32"
+    StationType:
+      type: "object"
+      properties:
+        City:
+          description: |
+            City information, includes ID、code、name
+          $ref: "#/components/schemas/CityType"
+        StationCode:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+        StationID:
+          type: "integer"
+          description: |
+            StationID
+          format: "int32"
+        StationName:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+        TerminalName:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+    Status:
+      type: "object"
+      properties:
+        Code:
+          type: "integer"
+          description: |
+            sdfsdfs
+          format: "int32"
+        Message:
+          type: "string"
+          description: |
+            sdfsdfs
+          format: ""
+    UsedFeeDetail:
+      type: "object"
+      properties:
+        UsedSalePrice:
+          type: "number"
+          description: |
+            sdfs
+          format: "decimal"
+        UsedTax:
+          type: "number"
+          description: |
+            sdfsd
+          format: "decimal"
+    UsedFeeInfo:
+      type: "object"
+      properties:
+        UsedAmount:
+          type: "number"
+          description: |
+            sdfsdf
+          format: "decimal"
+        UsedTax:
+          type: "number"
+          description: |
+            The tax of used segments
+          format: "decimal"
+  responses:
+    ApplyDiscountResponse:
+      description: |
+        Success case
+      content:
+        application/json:
+          examples:
+            success:
+              summary: "success"
+              description: |
+                success response
+              externalValue: "../b2b-refund-service/json/ApplyDiscount-Response.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/ApplyDiscountResponse"
+    ConfirmTransactionb2bResponse:
+      description: |
+        Success case
+      content:
+        application/json:
+          examples:
+            success:
+              summary: "success"
+              description: |
+                success response
+              externalValue: "../b2b-refund-service/json/ConfirmTransactionb2b-Response.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/ConfirmTransactionb2bResponse"
+    AskFlightResponse:
+      description: |
+        Success case
+      content:
+        application/json:
+          examples:
+            success:
+              summary: "success"
+              description: |
+                success response
+              externalValue: "../b2b-refund-service/json/AskFlight-Response.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/AskFlightResponse"
+    AskDetailResponse:
+      description: |
+        Success case
+      content:
+        application/json:
+          examples:
+            success:
+              summary: "success"
+              description: |
+                success response
+              externalValue: "../b2b-refund-service/json/AskDetail-Response.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/AskDetailResponse"
+  requestBodies:
+    ApplyDiscountRequest:
+      description: |
+      content:
+        application/json:
+          examples:
+            common:
+              summary: "common"
+              description: |
+                common request
+              externalValue: "../b2b-refund-service/json/ApplyDiscount-Request.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/ApplyDiscountRequest"
+      required: true
+    ConfirmTransactionb2bRequest:
+      description: |
+      content:
+        application/json:
+          examples:
+            common:
+              summary: "common"
+              description: |
+                common request
+              externalValue: "../b2b-refund-service/json/ConfirmTransactionb2b-Request.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/ConfirmTransactionb2bRequest"
+      required: true
+    AskFlightRequest:
+      description: |
+      content:
+        application/json:
+          examples:
+            common:
+              summary: "common"
+              description: |
+                common request
+              externalValue: "../b2b-refund-service/json/AskFlight-Request.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/AskFlightRequest"
+      required: true
+    AskDetailRequest:
+      description: |
+      content:
+        application/json:
+          examples:
+            common:
+              summary: "common"
+              description: |
+                common request
+              externalValue: "../b2b-refund-service/json/AskDetail-Request.json"
+          schema:
+            description: |
+            $ref: "#/components/schemas/AskDetailRequest"
+      required: true
+tags:
+- name: "Service"
+  description: |
+  x-displayName: "Service"
+  x-traitTag: false
+- name: "Getting Started"
+  description: |
+    more examples you will find here
+  externalDocs:
+    description: "external doc description"
+    url: "https://www.ac54554ggme.chfhehfe"
+  x-displayName: "Getting Started"
+  x-traitTag: true
+- name: "Support"
+  description: |
+    bla bla bla
+  x-displayName: "Technical Support"
+  x-traitTag: true
+- name: "Question"
+  description: |
+    Q: Why bla bla?
+       > bla bla bla
+  x-displayName: "FAQs"
+  x-traitTag: true
+x-tagGroups:
+- name: "General"
+  tags:
+  - "Service"
+  - "Getting Started"
+- name: "Support"
+  tags:
+  - "Question"
+  - "Support"
