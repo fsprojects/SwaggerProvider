@@ -39,13 +39,15 @@ let taskGitHub() =
     client
 
 [<Fact>] // Explicit
-let ``Get fsprojects from GitHub``() = task {
-    let! repos = github().OrgRepos("fsprojects")
-    repos.Length |> shouldBeGreaterThan 0
-}
+let ``Get fsprojects from GitHub``() =
+    task {
+        let! repos = github().OrgRepos("fsprojects")
+        repos.Length |> shouldBeGreaterThan 0
+    }
 
 [<Fact>]
-let ``Get fsproject from GitHub with Task``() = task {
-    let! repos = taskGitHub().OrgRepos("fsprojects")
-    repos.Length |> shouldBeGreaterThan 0
-}
+let ``Get fsproject from GitHub with Task``() =
+    task {
+        let! repos = taskGitHub().OrgRepos("fsprojects")
+        repos.Length |> shouldBeGreaterThan 0
+    }

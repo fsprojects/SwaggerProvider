@@ -20,16 +20,18 @@ module MediaTypes =
 
 
 type AsyncExtensions() =
-    static member cast<'t> asyncOp = async {
-        let! ret = asyncOp
-        return (box ret) :?> 't
-    }
+    static member cast<'t> asyncOp =
+        async {
+            let! ret = asyncOp
+            return (box ret) :?> 't
+        }
 
 type TaskExtensions() =
-    static member cast<'t> taskOp = task {
-        let! ret = taskOp
-        return (box ret) :?> 't
-    }
+    static member cast<'t> taskOp =
+        task {
+            let! ret = taskOp
+            return (box ret) :?> 't
+        }
 
 module RuntimeHelpers =
     let inline private toStrArray name values =
@@ -119,8 +121,7 @@ module RuntimeHelpers =
             member _.ConstructorArguments =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
 
-            member _.NamedArguments = [||] :> Collections.Generic.IList<_>
-        }
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
 
     let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")

@@ -34,21 +34,22 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
     default _.Deserialize(value, retTy: Type) : obj =
         JsonSerializer.Deserialize(value, retTy, options)
 
-    member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> = task {
-        let! response = this.HttpClient.SendAsync(request)
+    member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> =
+        task {
+            let! response = this.HttpClient.SendAsync(request)
 
-        if response.IsSuccessStatusCode then
-            return response.Content
-        else
-            let code = response.StatusCode |> int
-            let codeStr = code |> string
+            if response.IsSuccessStatusCode then
+                return response.Content
+            else
+                let code = response.StatusCode |> int
+                let codeStr = code |> string
 
-            errorCodes
-            |> Array.tryFindIndex((=) codeStr)
-            |> Option.iter(fun idx ->
-                let desc = errorDescriptions[idx]
-                raise(OpenApiException(code, desc)))
+                errorCodes
+                |> Array.tryFindIndex((=) codeStr)
+                |> Option.iter(fun idx ->
+                    let desc = errorDescriptions[idx]
+                    raise(OpenApiException(code, desc)))
 
-            // fail with HttpRequestException if we do not know error description
-            return response.EnsureSuccessStatusCode().Content
-    }
+                // fail with HttpRequestException if we do not know error description
+                return response.EnsureSuccessStatusCode().Content
+        }

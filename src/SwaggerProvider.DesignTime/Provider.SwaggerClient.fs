@@ -12,8 +12,8 @@ open SwaggerProvider.Internal.v2.Compilers
 /// The Swagger Type Provider.
 [<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v3 schema formats.")>]
 type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces
-        (
+    inherit
+        TypeProviderForNamespaces(
             cfg,
             assemblyReplacementMap = [ ("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime") ],
             addDefaultProbingLocation = true
@@ -29,14 +29,13 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
         let t =
             ProvidedTypeDefinition(asm, ns, "SwaggerClientProvider", Some typeof<obj>, isErased = false)
 
-        let staticParams = [
-            ProvidedStaticParameter("Schema", typeof<string>)
-            ProvidedStaticParameter("Headers", typeof<string>, "")
-            ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
-            ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-            ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-            ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
-        ]
+        let staticParams =
+            [ ProvidedStaticParameter("Schema", typeof<string>)
+              ProvidedStaticParameter("Headers", typeof<string>, "")
+              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+              ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
+              ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
+              ProvidedStaticParameter("PreferAsync", typeof<bool>, false) ]
 
         t.AddXmlDoc
             """<summary>Statically typed Swagger provider.</summary>

@@ -119,11 +119,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
             let orderedParameters =
                 let required, optional =
-                    [
-                        yield! openApiParameters
-                        if bodyFormatAndParam.IsSome then
-                            yield bodyFormatAndParam.Value |> snd
-                    ]
+                    [ yield! openApiParameters
+                      if bodyFormatAndParam.IsSome then
+                          yield bodyFormatAndParam.Value |> snd ]
                     |> List.distinctBy(fun op -> op.Name, op.In)
                     |> List.partition(fun x -> x.Required)
 
@@ -220,12 +218,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                         let headers =
                             <@
-                                [
-                                    if payloadMime <> null then
-                                        "Content-Type", payloadMime
-                                    if retMime <> null then
-                                        "Accept", MediaTypes.ApplicationJson
-                                ]
+                                [ if payloadMime <> null then
+                                      "Content-Type", payloadMime
+                                  if retMime <> null then
+                                      "Accept", MediaTypes.ApplicationJson ]
                             @>
 
                         // Locates parameters matching the arguments
@@ -473,60 +469,56 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             if not <| String.IsNullOrEmpty clientName then
                 ty.AddXmlDoc $"Client for '%s{clientName}_*' operations"
 
-            [
-                ProvidedConstructor(
-                    [
-                        ProvidedParameter("httpClient", typeof<HttpClient>)
-                        ProvidedParameter("options", typeof<JsonSerializerOptions>)
-                    ],
-                    invokeCode =
-                        (fun args ->
-                            match args with
-                            | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
-                            | _ -> <@@ () @@>),
-                    BaseConstructorCall = fun args -> (baseCtor, args)
-                )
-                ProvidedConstructor(
-                    [ ProvidedParameter("httpClient", typeof<HttpClient>) ],
-                    invokeCode =
-                        (fun args ->
-                            match args with
-                            | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
-                            | _ -> <@@ () @@>),
-                    BaseConstructorCall =
-                        fun args ->
-                            let args' = args @ [ <@@ null @@> ]
-                            (baseCtor, args')
-                )
-                ProvidedConstructor(
-                    [ ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
-                    invokeCode = (fun _ -> <@@ () @@>),
-                    BaseConstructorCall =
-                        fun args ->
-                            let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
+            [ ProvidedConstructor(
+                  [ ProvidedParameter("httpClient", typeof<HttpClient>)
+                    ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
+                  invokeCode =
+                      (fun args ->
+                          match args with
+                          | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
+                          | _ -> <@@ () @@>),
+                  BaseConstructorCall = fun args -> (baseCtor, args)
+              )
+              ProvidedConstructor(
+                  [ ProvidedParameter("httpClient", typeof<HttpClient>) ],
+                  invokeCode =
+                      (fun args ->
+                          match args with
+                          | [] -> failwith "Generated constructors should always pass the instance as the first argument!"
+                          | _ -> <@@ () @@>),
+                  BaseConstructorCall =
+                      fun args ->
+                          let args' = args @ [ <@@ null @@> ]
+                          (baseCtor, args')
+              )
+              ProvidedConstructor(
+                  [ ProvidedParameter("options", typeof<JsonSerializerOptions>) ],
+                  invokeCode = (fun _ -> <@@ () @@>),
+                  BaseConstructorCall =
+                      fun args ->
+                          let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
 
-                            let args' =
-                                match args with
-                                | [ instance; options ] -> [ instance; httpClient; options ]
-                                | _ -> failwithf $"unexpected arguments received %A{args}"
+                          let args' =
+                              match args with
+                              | [ instance; options ] -> [ instance; httpClient; options ]
+                              | _ -> failwithf $"unexpected arguments received %A{args}"
 
-                            (baseCtor, args')
-                )
-                ProvidedConstructor(
-                    [],
-                    invokeCode = (fun _ -> <@@ () @@>),
-                    BaseConstructorCall =
-                        fun args ->
-                            let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
+                          (baseCtor, args')
+              )
+              ProvidedConstructor(
+                  [],
+                  invokeCode = (fun _ -> <@@ () @@>),
+                  BaseConstructorCall =
+                      fun args ->
+                          let httpClient = <@ RuntimeHelpers.getDefaultHttpClient defaultHost @> :> Expr
 
-                            let args' =
-                                match args with
-                                | [ instance ] -> [ instance; httpClient; <@@ null @@> ]
-                                | _ -> failwithf $"unexpected arguments received %A{args}"
+                          let args' =
+                              match args with
+                              | [ instance ] -> [ instance; httpClient; <@@ null @@> ]
+                              | _ -> failwithf $"unexpected arguments received %A{args}"
 
-                            (baseCtor, args')
-                )
-            ]
+                          (baseCtor, args')
+              ) ]
             |> ty.AddMembers
 
             let methodNameScope = UniqueNameGenerator()

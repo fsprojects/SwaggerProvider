@@ -18,30 +18,26 @@ module internal JsonAdapter =
 
         override _.AsArray() =
             match value.ValueKind with
-            | JsonValueKind.Array -> [|
-                for item in value.EnumerateArray() do
-                    JsonNodeAdapter(item) :> SchemaNode
-              |]
+            | JsonValueKind.Array ->
+                [| for item in value.EnumerateArray() do
+                       JsonNodeAdapter(item) :> SchemaNode |]
             | _ -> raise <| UnexpectedValueTypeException(value, "string")
 
         override _.AsStringArrayWithoutNull() =
             match value.ValueKind with
             | JsonValueKind.String -> [| value.GetString() |]
             | JsonValueKind.Array ->
-                [|
-                    for item in value.EnumerateArray() do
-                        item.GetString()
-                |]
+                [| for item in value.EnumerateArray() do
+                       item.GetString() |]
                 |> Seq.filter(fun x -> x <> "null")
                 |> Seq.toArray
             | other -> failwithf $"Value: '%A{other}' cannot be converted to StringArray"
 
         override _.Properties() =
             match value.ValueKind with
-            | JsonValueKind.Object -> [|
-                for item in value.EnumerateObject() do
-                    item.Name, JsonNodeAdapter(item.Value) :> SchemaNode
-              |]
+            | JsonValueKind.Object ->
+                [| for item in value.EnumerateObject() do
+                       item.Name, JsonNodeAdapter(item.Value) :> SchemaNode |]
             | _ -> raise <| UnexpectedValueTypeException(value, "Object")
 
         override _.TryGetProperty(property) =

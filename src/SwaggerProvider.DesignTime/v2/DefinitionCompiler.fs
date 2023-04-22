@@ -11,11 +11,9 @@ open SwaggerProvider.Internal
 open Microsoft.FSharp.Quotations
 
 type DefinitionPath =
-    {
-        Namespace: string list
-        RequestedTypeName: string
-        ProvidedTypeNameCandidate: string
-    }
+    { Namespace: string list
+      RequestedTypeName: string
+      ProvidedTypeNameCandidate: string }
 
     static member Parse(definition: string) =
         let definitionPrefix, nsSeparator = "#/definitions/", '.'
@@ -39,11 +37,9 @@ type DefinitionPath =
         let lastDot = definitionPath.LastIndexOf(nsSeparator, getCharInTypeName 0)
 
         if lastDot < 0 then
-            {
-                Namespace = []
-                RequestedTypeName = definitionPath
-                ProvidedTypeNameCandidate = nicePascalName definitionPath
-            }
+            { Namespace = []
+              RequestedTypeName = definitionPath
+              ProvidedTypeNameCandidate = nicePascalName definitionPath }
         else
             let nsPath =
                 definitionPath
@@ -53,11 +49,9 @@ type DefinitionPath =
 
             let tyName = definitionPath.Substring(lastDot + 1)
 
-            {
-                Namespace = nsPath
-                RequestedTypeName = tyName
-                ProvidedTypeNameCandidate = nicePascalName tyName
-            }
+            { Namespace = nsPath
+              RequestedTypeName = tyName
+              ProvidedTypeNameCandidate = nicePascalName tyName }
 
 type NamespaceEntry =
     | Reservation
@@ -149,7 +143,7 @@ and NamespaceAbstraction(name: string) =
                     let nsTy = ProvidedTypeDefinition(ns.Name, Some typeof<obj>, isErased = false)
 
                     nsTy.AddMember
-                    <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>) // hack
+                    <| ProvidedConstructor([], invokeCode = (fun _ -> <@@ () @@>)) // hack
 
                     nsTy.AddMembers <| types
                     Some nsTy
@@ -253,7 +247,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
                 // Add default constructor
                 ty.AddMember
-                <| ProvidedConstructor([], invokeCode = fun _ -> <@@ () @@>)
+                <| ProvidedConstructor([], invokeCode = (fun _ -> <@@ () @@>))
                 // Add full-init constructor
                 let ctorParams, fields =
                     let required, optional =
@@ -337,7 +331,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
 
-                let objToStr = typeof<obj>.GetMethod ("ToString", [||])
+                let objToStr = typeof<obj>.GetMethod("ToString", [||])
                 ty.DefineMethodOverride(toStr, objToStr)
                 ty.AddMember <| toStr
 
@@ -372,10 +366,8 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | Dictionary eTy ->
                     ProvidedTypeBuilder.MakeGenericType(
                         typedefof<Map<string, obj>>,
-                        [
-                            typeof<string>
-                            compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy false ns.RegisterType
-                        ]
+                        [ typeof<string>
+                          compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy false ns.RegisterType ]
                     )
                 | Reference _
                 | Object _ -> failwith "This case should be caught by other match statement"

@@ -48,13 +48,13 @@ let release = ReleaseNotes.load "docs/RELEASE_NOTES.md"
 Target.create "AssemblyInfo" (fun _ ->
     let fileName = "src/Common/AssemblyInfo.fs"
 
-    AssemblyInfoFile.createFSharp fileName [
-        AssemblyInfo.Title gitName
-        AssemblyInfo.Product gitName
-        AssemblyInfo.Description description
-        AssemblyInfo.Version release.AssemblyVersion
-        AssemblyInfo.FileVersion release.AssemblyVersion
-    ])
+    AssemblyInfoFile.createFSharp
+        fileName
+        [ AssemblyInfo.Title gitName
+          AssemblyInfo.Product gitName
+          AssemblyInfo.Description description
+          AssemblyInfo.Version release.AssemblyVersion
+          AssemblyInfo.FileVersion release.AssemblyVersion ])
 
 // --------------------------------------------------------------------------------------
 // Clean build results
@@ -128,15 +128,13 @@ Target.create "NuGet" (fun _ ->
             ToolType = ToolType.CreateLocalTool()
             OutputPath = "bin"
             Version = release.NugetVersion
-            ReleaseNotes = String.toLines release.Notes
-        }))
+            ReleaseNotes = String.toLines release.Notes }))
 
 Target.create "PublishNuget" (fun _ ->
     Paket.push(fun p ->
         { p with
             ToolType = ToolType.CreateLocalTool()
-            WorkingDir = "bin"
-        }))
+            WorkingDir = "bin" }))
 
 // --------------------------------------------------------------------------------------
 // Generate the documentation

@@ -14,8 +14,8 @@ module Cache =
 /// The Open API Provider.
 [<TypeProvider>]
 type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces
-        (
+    inherit
+        TypeProviderForNamespaces(
             cfg,
             assemblyReplacementMap = [ ("SwaggerProvider.DesignTime", "SwaggerProvider.Runtime") ],
             addDefaultProbingLocation = true
@@ -31,13 +31,12 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
         let t =
             ProvidedTypeDefinition(asm, ns, "OpenApiClientProvider", Some typeof<obj>, isErased = false)
 
-        let staticParams = [
-            ProvidedStaticParameter("Schema", typeof<string>)
-            ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
-            ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-            ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-            ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
-        ]
+        let staticParams =
+            [ ProvidedStaticParameter("Schema", typeof<string>)
+              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+              ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
+              ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
+              ProvidedStaticParameter("PreferAsync", typeof<bool>, false) ]
 
         t.AddXmlDoc
             """<summary>Statically typed OpenAPI provider.</summary>

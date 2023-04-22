@@ -16,51 +16,52 @@ module SchemaReader =
         else
             Path.Combine(resolutionFolder, schemaPathRaw)
 
-    let readSchemaPath (headersStr: string) (schemaPathRaw: string) = async {
-        match Uri(schemaPathRaw).Scheme with
-        | "https"
-        | "http" ->
-            let headers =
-                headersStr.Split('|')
-                |> Seq.choose(fun x ->
-                    let pair = x.Split('=')
+    let readSchemaPath (headersStr: string) (schemaPathRaw: string) =
+        async {
+            match Uri(schemaPathRaw).Scheme with
+            | "https"
+            | "http" ->
+                let headers =
+                    headersStr.Split('|')
+                    |> Seq.choose(fun x ->
+                        let pair = x.Split('=')
 
-                    if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
+                        if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
 
-            let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
+                let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
 
-            for name, value in headers do
-                request.Headers.TryAddWithoutValidation(name, value) |> ignore
-            // using a custom handler means that we can set the default credentials.
-            use handler = new HttpClientHandler(UseDefaultCredentials = true)
-            use client = new HttpClient(handler)
+                for name, value in headers do
+                    request.Headers.TryAddWithoutValidation(name, value) |> ignore
+                // using a custom handler means that we can set the default credentials.
+                use handler = new HttpClientHandler(UseDefaultCredentials = true)
+                use client = new HttpClient(handler)
 
-            let! res =
-                async {
-                    let! response = client.SendAsync(request) |> Async.AwaitTask
-                    return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                }
-                |> Async.Catch
+                let! res =
+                    async {
+                        let! response = client.SendAsync(request) |> Async.AwaitTask
+                        return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                    }
+                    |> Async.Catch
 
-            match res with
-            | Choice1Of2 x -> return x
-            | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                use stream = wex.Response.GetResponseStream()
-                use reader = new StreamReader(stream)
-                let err = reader.ReadToEnd()
+                match res with
+                | Choice1Of2 x -> return x
+                | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
+                    use stream = wex.Response.GetResponseStream()
+                    use reader = new StreamReader(stream)
+                    let err = reader.ReadToEnd()
 
-                return
-                    if String.IsNullOrEmpty err then
-                        raise wex
-                    else
-                        err.ToString()
-            | Choice2Of2 e -> return failwith(e.ToString())
-        | _ ->
-            let request = WebRequest.Create(schemaPathRaw)
-            use! response = request.GetResponseAsync() |> Async.AwaitTask
-            use sr = new StreamReader(response.GetResponseStream())
-            return! sr.ReadToEndAsync() |> Async.AwaitTask
-    }
+                    return
+                        if String.IsNullOrEmpty err then
+                            raise wex
+                        else
+                            err.ToString()
+                | Choice2Of2 e -> return failwith(e.ToString())
+            | _ ->
+                let request = WebRequest.Create(schemaPathRaw)
+                use! response = request.GetResponseAsync() |> Async.AwaitTask
+                use sr = new StreamReader(response.GetResponseStream())
+                return! sr.ReadToEndAsync() |> Async.AwaitTask
+        }
 
 type UniqueNameGenerator() =
     let hash = System.Collections.Generic.HashSet<_>()

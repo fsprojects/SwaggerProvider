@@ -42,59 +42,62 @@ let ``Instantiate provided objects``() =
     pet.ToString() |> shouldContainText "bar"
 
 [<Fact>]
-let ``throw custom exceptions from async``() = task {
-    try
-        let! _ = store.GetPetById(-142L)
-        failwith "Call should fail"
-    with :? System.AggregateException as aex ->
-        match aex.InnerException with
-        | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
-        | _ -> raise aex
-}
+let ``throw custom exceptions from async``() =
+    task {
+        try
+            let! _ = store.GetPetById(-142L)
+            failwith "Call should fail"
+        with :? System.AggregateException as aex ->
+            match aex.InnerException with
+            | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
+            | _ -> raise aex
+    }
 
 [<Fact>]
-let ``throw custom exceptions from task``() = task {
-    try
-        let! _ = storeTask.GetPetById(-142L)
-        failwith "Call should fail"
-    with :? System.AggregateException as aex ->
-        match aex.InnerException with
-        | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
-        | _ -> raise aex
-}
+let ``throw custom exceptions from task``() =
+    task {
+        try
+            let! _ = storeTask.GetPetById(-142L)
+            failwith "Call should fail"
+        with :? System.AggregateException as aex ->
+            match aex.InnerException with
+            | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
+            | _ -> raise aex
+    }
 
 [<Fact>]
-let ``call provided methods``() = task {
-    let id = 3347L
+let ``call provided methods``() =
+    task {
+        let id = 3347L
 
-    try
-        do! store.DeletePet(id, apiKey)
-    with _ ->
-        ()
+        try
+            do! store.DeletePet(id, apiKey)
+        with _ ->
+            ()
 
-    let tag = PetStore.Tag(None, "foobar")
-    tag.ToString() |> shouldEqual "foobar"
-    let pet = PetStore.Pet("foo", [||], Some id)
-    pet.ToString() |> shouldContainText(id.ToString())
+        let tag = PetStore.Tag(None, "foobar")
+        tag.ToString() |> shouldEqual "foobar"
+        let pet = PetStore.Pet("foo", [||], Some id)
+        pet.ToString() |> shouldContainText(id.ToString())
 
-    try
-        do! store.AddPet(pet)
-    with exn ->
-        let msg =
-            if isNull exn.InnerException then
-                exn.Message
-            else
-                exn.InnerException.Message
+        try
+            do! store.AddPet(pet)
+        with exn ->
+            let msg =
+                if isNull exn.InnerException then
+                    exn.Message
+                else
+                    exn.InnerException.Message
 
-        failwith $"Adding pet failed with message: %s{msg}"
+            failwith $"Adding pet failed with message: %s{msg}"
 
-    let! pet2 = store.GetPetById(id)
-    pet.Name |> shouldEqual pet2.Name
-    pet.Id |> shouldEqual pet2.Id
-    pet.Category |> shouldEqual pet2.Category
-    pet.Status |> shouldEqual pet2.Status
-    pet |> shouldNotEqual pet2
-}
+        let! pet2 = store.GetPetById(id)
+        pet.Name |> shouldEqual pet2.Name
+        pet.Id |> shouldEqual pet2.Id
+        pet.Category |> shouldEqual pet2.Category
+        pet.Status |> shouldEqual pet2.Status
+        pet |> shouldNotEqual pet2
+    }
 
 [<Fact>]
 let ``create types with Nullable properties``() =

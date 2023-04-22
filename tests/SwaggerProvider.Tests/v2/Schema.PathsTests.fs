@@ -18,10 +18,8 @@ let ``parse simple tag``() =
         "description" : "Operations about user"
     }"""
     |> shouldBeEqualToTag
-        {
-            Name = "store"
-            Description = "Operations about user"
-        }
+        { Name = "store"
+          Description = "Operations about user" }
 
 [<Fact>]
 let ``parse partial tag``() =
@@ -29,10 +27,8 @@ let ``parse partial tag``() =
         "name" : "store"
     }"""
     |> shouldBeEqualToTag
-        {
-            Name = "store"
-            Description = System.String.Empty
-        }
+        { Name = "store"
+          Description = System.String.Empty }
 
 [<Fact>]
 let ``parse complex tag``() =
@@ -45,7 +41,5 @@ let ``parse complex tag``() =
         }
     }"""
     |> shouldBeEqualToTag
-        {
-            Name = "user"
-            Description = "Access to Petstore orders"
-        }
+        { Name = "user"
+          Description = "Access to Petstore orders" }

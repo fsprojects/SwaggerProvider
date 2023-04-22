@@ -23,11 +23,9 @@ version: 1.0.1
     |> SwaggerParser.parseYaml
     |> Parsers.parseInfoObject
     |> shouldEqual
-        {
-            Title = "Swagger Sample App"
-            Description = "This is a sample server Petstore server."
-            Version = "1.0.1"
-        }
+        { Title = "Swagger Sample App"
+          Description = "This is a sample server Petstore server."
+          Version = "1.0.1" }
 
 [<Fact>]
 let ``Paths Object Example``() =
@@ -47,28 +45,21 @@ let ``Paths Object Example``() =
     """
     |> SwaggerParser.parseYaml
     |> Parsers.parsePathsObject Parsers.ParserContext.Empty
-    |> shouldEqual [|
-        {
-            Path = "/pets"
-            Type = Get
-            Tags = [||]
-            Summary = ""
-            Description = "Returns all pets from the system that the user has access to"
-            OperationId = ""
-            Consumes = [||]
-            Produces = [| "application/json" |]
-            Responses =
-                [|
-                    Some(200),
-                    {
-                        Description = "A list of pets."
-                        Schema = Some <| Array(Reference "#/definitions/pet")
-                    }
-                |]
-            Parameters = [||]
-            Deprecated = false
-        }
-    |]
+    |> shouldEqual
+        [| { Path = "/pets"
+             Type = Get
+             Tags = [||]
+             Summary = ""
+             Description = "Returns all pets from the system that the user has access to"
+             OperationId = ""
+             Consumes = [||]
+             Produces = [| "application/json" |]
+             Responses =
+               [| Some(200),
+                  { Description = "A list of pets."
+                    Schema = Some <| Array(Reference "#/definitions/pet") } |]
+             Parameters = [||]
+             Deprecated = false } |]
 
 [<Fact>]
 let ``Path Item Object Example``() =
@@ -104,43 +95,30 @@ let ``Path Item Object Example``() =
     """
     |> SwaggerParser.parseYaml
     |> Parsers.parsePathsObject Parsers.ParserContext.Empty
-    |> shouldEqual [|
-        {
-            Path = "/pets"
-            Type = Get
-            Tags = [||]
-            Summary = "Find pets by ID"
-            Description = "Returns pets based on ID"
-            OperationId = "getPetsById"
-            Consumes = [||]
-            Produces = [| "application/json"; "text/html" |]
-            Responses =
-                [|
-                    Some(200),
-                    {
-                        Description = "pet response"
-                        Schema = Some <| Array(Reference "#/definitions/Pet")
-                    }
-                    None,
-                    {
-                        Description = "error payload"
-                        Schema = Some <| Reference "#/definitions/ErrorModel"
-                    }
-                |]
-            Parameters =
-                [|
-                    {
-                        Name = "id"
-                        In = Path
-                        Description = "ID of pet to use"
-                        Required = true
-                        Type = Array String
-                        CollectionFormat = Csv
-                    }
-                |]
-            Deprecated = false
-        }
-    |]
+    |> shouldEqual
+        [| { Path = "/pets"
+             Type = Get
+             Tags = [||]
+             Summary = "Find pets by ID"
+             Description = "Returns pets based on ID"
+             OperationId = "getPetsById"
+             Consumes = [||]
+             Produces = [| "application/json"; "text/html" |]
+             Responses =
+               [| Some(200),
+                  { Description = "pet response"
+                    Schema = Some <| Array(Reference "#/definitions/Pet") }
+                  None,
+                  { Description = "error payload"
+                    Schema = Some <| Reference "#/definitions/ErrorModel" } |]
+             Parameters =
+               [| { Name = "id"
+                    In = Path
+                    Description = "ID of pet to use"
+                    Required = true
+                    Type = Array String
+                    CollectionFormat = Csv } |]
+             Deprecated = false } |]
 
 [<Fact>]
 let ``Operation Object Example``() =
@@ -183,57 +161,41 @@ security:
     |> SwaggerParser.parseYaml
     |> Parsers.parseOperationObject Parsers.ParserContext.Empty "/" Get
     |> shouldEqual
-        {
-            Path = "/"
-            Type = Get
-            Tags = [| "pet" |]
-            Summary = "Updates a pet in the store with form data"
-            Description = ""
-            OperationId = "updatePetWithForm"
-            Consumes = [| "application/x-www-form-urlencoded" |]
-            Produces = [| "application/json"; "application/xml" |]
-            Responses =
-                [|
-                    Some(200),
-                    {
-                        Description = "Pet updated."
-                        Schema = None
-                    }
-                    Some(405),
-                    {
-                        Description = "Invalid input"
-                        Schema = None
-                    }
-                |]
-            Parameters =
-                [|
-                    {
-                        Name = "petId"
-                        In = Path
-                        Description = "ID of pet that needs to be updated"
-                        Required = true
-                        Type = String
-                        CollectionFormat = Csv
-                    }
-                    {
-                        Name = "name"
-                        In = FormData
-                        Description = "Updated name of the pet"
-                        Required = false
-                        Type = String
-                        CollectionFormat = Csv
-                    }
-                    {
-                        Name = "status"
-                        In = FormData
-                        Description = "Updated status of the pet"
-                        Required = false
-                        Type = String
-                        CollectionFormat = Csv
-                    }
-                |]
-            Deprecated = false
-        }
+        { Path = "/"
+          Type = Get
+          Tags = [| "pet" |]
+          Summary = "Updates a pet in the store with form data"
+          Description = ""
+          OperationId = "updatePetWithForm"
+          Consumes = [| "application/x-www-form-urlencoded" |]
+          Produces = [| "application/json"; "application/xml" |]
+          Responses =
+            [| Some(200),
+               { Description = "Pet updated."
+                 Schema = None }
+               Some(405),
+               { Description = "Invalid input"
+                 Schema = None } |]
+          Parameters =
+            [| { Name = "petId"
+                 In = Path
+                 Description = "ID of pet that needs to be updated"
+                 Required = true
+                 Type = String
+                 CollectionFormat = Csv }
+               { Name = "name"
+                 In = FormData
+                 Description = "Updated name of the pet"
+                 Required = false
+                 Type = String
+                 CollectionFormat = Csv }
+               { Name = "status"
+                 In = FormData
+                 Description = "Updated status of the pet"
+                 Required = false
+                 Type = String
+                 CollectionFormat = Csv } |]
+          Deprecated = false }
 
 [<Fact>]
 let ``Parameter Object Examples: Body Parameters``() =
@@ -248,14 +210,12 @@ schema:
     |> SwaggerParser.parseYaml
     |> Parsers.parseParameterObject Parsers.emptyDict
     |> shouldEqual
-        {
-            Name = "user"
-            In = Body
-            Description = "user to add to the system"
-            Required = true
-            Type = Reference "#/definitions/User"
-            CollectionFormat = Csv
-        }
+        { Name = "user"
+          In = Body
+          Description = "user to add to the system"
+          Required = true
+          Type = Reference "#/definitions/User"
+          CollectionFormat = Csv }
 
 [<Fact>]
 let ``Parameter Object Examples: Body Parameters Array``() =
@@ -272,14 +232,12 @@ schema:
     |> SwaggerParser.parseYaml
     |> Parsers.parseParameterObject Parsers.emptyDict
     |> shouldEqual
-        {
-            Name = "user"
-            In = Body
-            Description = "user to add to the system"
-            Required = true
-            Type = Array String
-            CollectionFormat = Csv
-        }
+        { Name = "user"
+          In = Body
+          Description = "user to add to the system"
+          Required = true
+          Type = Array String
+          CollectionFormat = Csv }
 
 [<Fact>]
 let ``Parameter Object Examples: Other Parameters``() =
@@ -297,14 +255,12 @@ collectionFormat: csv
     |> SwaggerParser.parseYaml
     |> Parsers.parseParameterObject Parsers.emptyDict
     |> shouldEqual
-        {
-            Name = "token"
-            In = Header
-            Description = "token to be passed as a header"
-            Required = true
-            Type = Array Int64
-            CollectionFormat = Csv
-        }
+        { Name = "token"
+          In = Header
+          Description = "token to be passed as a header"
+          Required = true
+          Type = Array Int64
+          CollectionFormat = Csv }
 
 [<Fact>]
 let ``Parameter Object Examples: Other Parameters - Path String``() =
@@ -318,14 +274,12 @@ type: string
     |> SwaggerParser.parseYaml
     |> Parsers.parseParameterObject Parsers.emptyDict
     |> shouldEqual
-        {
-            Name = "username"
-            In = Path
-            Description = "username to fetch"
-            Required = true
-            Type = String
-            CollectionFormat = Csv
-        }
+        { Name = "username"
+          In = Path
+          Description = "username to fetch"
+          Required = true
+          Type = String
+          CollectionFormat = Csv }
 
 [<Fact>]
 let ``Parameter Object Examples: Other Parameters - Array String Multi``() =
@@ -342,14 +296,12 @@ collectionFormat: multi
     |> SwaggerParser.parseYaml
     |> Parsers.parseParameterObject Parsers.emptyDict
     |> shouldEqual
-        {
-            Name = "id"
-            In = Query
-            Description = "ID of the object to fetch"
-            Required = false
-            Type = Array String
-            CollectionFormat = Multi
-        }
+        { Name = "id"
+          In = Query
+          Description = "ID of the object to fetch"
+          Required = false
+          Type = Array String
+          CollectionFormat = Multi }
 
 [<Fact>]
 let ``Parameter Object Examples: Other Parameters - File``() =
@@ -363,14 +315,12 @@ type: file
     |> SwaggerParser.parseYaml
     |> Parsers.parseParameterObject Parsers.emptyDict
     |> shouldEqual
-        {
-            Name = "avatar"
-            In = FormData
-            Description = "The avatar of the user"
-            Required = true
-            Type = File
-            CollectionFormat = Csv
-        }
+        { Name = "avatar"
+          In = FormData
+          Description = "The avatar of the user"
+          Required = true
+          Type = File
+          CollectionFormat = Csv }
 
 [<Fact>]
 let ``Response Object Examples: Response of an array of a complex type``() =
@@ -384,10 +334,8 @@ schema:
     |> SwaggerParser.parseYaml
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
     |> shouldEqual
-        {
-            Description = "A complex object array response"
-            Schema = Some <| Array(Reference "#/definitions/VeryComplexType")
-        }
+        { Description = "A complex object array response"
+          Schema = Some <| Array(Reference "#/definitions/VeryComplexType") }
 
 [<Fact>]
 let ``Response Object Examples: Response with a string type``() =
@@ -399,10 +347,8 @@ schema:
     |> SwaggerParser.parseYaml
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
     |> shouldEqual
-        {
-            Description = "A simple string response"
-            Schema = Some String
-        }
+        { Description = "A simple string response"
+          Schema = Some String }
 
 [<Fact>]
 let ``Response Object Examples: Response with headers``() =
@@ -424,10 +370,8 @@ headers:
     |> SwaggerParser.parseYaml
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
     |> shouldEqual
-        {
-            Description = "A simple string response"
-            Schema = Some String
-        }
+        { Description = "A simple string response"
+          Schema = Some String }
 
 [<Fact>]
 let ``Response Object Examples: Response with no return value``() =
@@ -437,10 +381,8 @@ description: object created
     |> SwaggerParser.parseYaml
     |> Parsers.parseResponseObject(Parsers.ParserContext.Empty)
     |> shouldEqual
-        {
-            Description = "object created"
-            Schema = None
-        }
+        { Description = "object created"
+          Schema = None }
 
 [<Fact>]
 let ``Tag Object Example``() =
@@ -451,10 +393,9 @@ description: Pets operations
     |> SwaggerParser.parseYaml
     |> Parsers.parseTagObject
     |> shouldEqual(
-        {
-            Name = "pet"
-            Description = "Pets operations"
-        }: TagObject
+        { Name = "pet"
+          Description = "Pets operations" }
+        : TagObject
     )
 
 [<Fact>]
@@ -496,26 +437,19 @@ properties:
     |> SwaggerParser.parseYaml
     |> Parsers.parseSchemaObject Parsers.emptyDict
     |> shouldEqual(
-        Object [|
-            {
-                Name = "name"
-                Type = String
-                IsRequired = true
-                Description = ""
-            }
-            {
-                Name = "address"
-                Type = Reference "#/definitions/Address"
-                IsRequired = false
-                Description = ""
-            }
-            {
-                Name = "age"
-                Type = Int32
-                IsRequired = false
-                Description = ""
-            }
-        |]
+        Object
+            [| { Name = "name"
+                 Type = String
+                 IsRequired = true
+                 Description = "" }
+               { Name = "address"
+                 Type = Reference "#/definitions/Address"
+                 IsRequired = false
+                 Description = "" }
+               { Name = "age"
+                 Type = Int32
+                 IsRequired = false
+                 Description = "" } |]
     )
 
 [<Fact>]
@@ -561,20 +495,15 @@ example:
     |> SwaggerParser.parseYaml
     |> Parsers.parseSchemaObject Parsers.emptyDict
     |> shouldEqual(
-        Object [|
-            {
-                Name = "id"
-                Type = Int64
-                IsRequired = false
-                Description = ""
-            }
-            {
-                Name = "name"
-                Type = String
-                IsRequired = true
-                Description = ""
-            }
-        |]
+        Object
+            [| { Name = "id"
+                 Type = Int64
+                 IsRequired = false
+                 Description = "" }
+               { Name = "name"
+                 Type = String
+                 IsRequired = true
+                 Description = "" } |]
     )
 
 [<Fact>]
@@ -607,44 +536,30 @@ ExtendedErrorModel:
     |> Seq.map(fun x -> x.Key, x.Value.Value)
     |> Map.ofSeq
     |> shouldEqual(
-        [|
-            "#/definitions/ErrorModel",
-            (Object [|
-                {
-                    Name = "message"
+        [| "#/definitions/ErrorModel",
+           (Object
+               [| { Name = "message"
                     Type = String
                     IsRequired = true
-                    Description = ""
-                }
-                {
-                    Name = "code"
+                    Description = "" }
+                  { Name = "code"
                     Type = Int64
                     IsRequired = true
-                    Description = ""
-                }
-            |])
-            "#/definitions/ExtendedErrorModel",
-            (Object [|
-                {
-                    Name = "message"
+                    Description = "" } |])
+           "#/definitions/ExtendedErrorModel",
+           (Object
+               [| { Name = "message"
                     Type = String
                     IsRequired = true
-                    Description = ""
-                }
-                {
-                    Name = "code"
+                    Description = "" }
+                  { Name = "code"
                     Type = Int64
                     IsRequired = true
-                    Description = ""
-                }
-                {
-                    Name = "rootCause"
+                    Description = "" }
+                  { Name = "rootCause"
                     Type = String
                     IsRequired = true
-                    Description = ""
-                }
-            |])
-        |]
+                    Description = "" } |]) |]
         |> Map.ofArray
     )
 
@@ -724,38 +639,26 @@ Tag:
     |> Seq.map(fun x -> x.Key, x.Value.Value)
     |> Map.ofSeq
     |> shouldEqual(
-        [|
-            "#/definitions/Category",
-            (Object [|
-                {
-                    Name = "id"
+        [| "#/definitions/Category",
+           (Object
+               [| { Name = "id"
                     Type = Int64
                     IsRequired = false
-                    Description = ""
-                }
-                {
-                    Name = "name"
+                    Description = "" }
+                  { Name = "name"
                     Type = String
                     IsRequired = false
-                    Description = ""
-                }
-            |])
-            "#/definitions/Tag",
-            (Object [|
-                {
-                    Name = "id"
+                    Description = "" } |])
+           "#/definitions/Tag",
+           (Object
+               [| { Name = "id"
                     Type = Int64
                     IsRequired = false
-                    Description = ""
-                }
-                {
-                    Name = "name"
+                    Description = "" }
+                  { Name = "name"
                     Type = String
                     IsRequired = false
-                    Description = ""
-                }
-            |])
-        |]
+                    Description = "" } |]) |]
         |> Map.ofArray
     )
 
@@ -780,26 +683,20 @@ limitParam:
     |> SwaggerParser.parseYaml
     |> Parsers.parseParametersDefinition Parsers.emptyDict
     |> shouldEqual(
-        [|
-            "#/parameters/skipParam",
-            {
-                Name = "skip"
-                In = Query
-                Description = "number of items to skip"
-                Required = true
-                Type = Int32
-                CollectionFormat = Csv
-            }
-            "#/parameters/limitParam",
-            {
-                Name = "limit"
-                In = Query
-                Description = "max records to return"
-                Required = true
-                Type = Int32
-                CollectionFormat = Csv
-            }
-        |]
+        [| "#/parameters/skipParam",
+           { Name = "skip"
+             In = Query
+             Description = "number of items to skip"
+             Required = true
+             Type = Int32
+             CollectionFormat = Csv }
+           "#/parameters/limitParam",
+           { Name = "limit"
+             In = Query
+             Description = "max records to return"
+             Required = true
+             Type = Int32
+             CollectionFormat = Csv } |]
         |> Map.ofArray
     )
 
@@ -818,22 +715,14 @@ GeneralError:
     |> SwaggerParser.parseYaml
     |> Parsers.parseResponsesDefinition
     |> shouldEqual(
-        [|
-            "#/responses/NotFound",
-            {
-                Description = "Entity not found."
-                Schema = None
-            }
-            "#/responses/IllegalInput",
-            {
-                Description = "Illegal input for operation."
-                Schema = None
-            }
-            "#/responses/GeneralError",
-            {
-                Description = "General Error"
-                Schema = Some(Reference "#/definitions/GeneralError")
-            }
-        |]
+        [| "#/responses/NotFound",
+           { Description = "Entity not found."
+             Schema = None }
+           "#/responses/IllegalInput",
+           { Description = "Illegal input for operation."
+             Schema = None }
+           "#/responses/GeneralError",
+           { Description = "General Error"
+             Schema = Some(Reference "#/definitions/GeneralError") } |]
         |> Map.ofArray
     )

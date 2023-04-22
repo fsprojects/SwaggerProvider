@@ -54,16 +54,17 @@ type SchemaObject =
 
 
 /// The property of a data type.
-and DefinitionProperty = {
-    /// The name of the property.
-    Name: string
-    /// The type of the property.
-    Type: SchemaObject
-    /// True if the property is required.
-    IsRequired: bool
-    /// A description of the property.
-    Description: string
-}
+and DefinitionProperty =
+    {
+        /// The name of the property.
+        Name: string
+        /// The type of the property.
+        Type: SchemaObject
+        /// True if the property is required.
+        IsRequired: bool
+        /// A description of the property.
+        Description: string
+    }
 
 
 /// The type of the REST call.
@@ -153,79 +154,84 @@ type ParameterObject =
 
 /// Describes a single response from an API Operation.
 /// http://swagger.io/specification/#responseObject
-type ResponseObject = {
-    /// Required. A short description of the response.
-    Description: string
-    /// A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response.
-    Schema: SchemaObject option
-}
+type ResponseObject =
+    {
+        /// Required. A short description of the response.
+        Description: string
+        /// A definition of the response structure. It can be a primitive, an array or an object. If this field does not exist, it means no content is returned as part of the response.
+        Schema: SchemaObject option
+    }
 
 
 /// Describes a single API operation on a path.
 /// http://swagger.io/specification/#operationObject
-type OperationObject = {
-    /// The name of the operation.
-    Path: string
-    /// The type of the REST call.
-    Type: OperationType
-    /// A list of tags for API documentation control.
-    Tags: string[]
-    /// A short summary of what the operation does. This field SHOULD be less than 120 characters.
-    Summary: string
-    /// A verbose explanation of the operation behavior.
-    Description: string
-    /// Unique string used to identify the operation.
-    OperationId: string
-    /// A list of MIME types the operation can consume.
-    Consumes: string[]
-    /// A list of MIME types the operation can produce.
-    Produces: string[]
-    /// Required. The nonempty list of possible status codes and responses as they are returned from executing this operation.
-    Responses: (Option<int> * ResponseObject)[]
-    /// A list of parameters that are applicable for this operation. The list MUST NOT include duplicated parameters.
-    Parameters: ParameterObject[]
-    /// Declares this operation to be deprecated.
-    Deprecated: bool
-}
+type OperationObject =
+    {
+        /// The name of the operation.
+        Path: string
+        /// The type of the REST call.
+        Type: OperationType
+        /// A list of tags for API documentation control.
+        Tags: string[]
+        /// A short summary of what the operation does. This field SHOULD be less than 120 characters.
+        Summary: string
+        /// A verbose explanation of the operation behavior.
+        Description: string
+        /// Unique string used to identify the operation.
+        OperationId: string
+        /// A list of MIME types the operation can consume.
+        Consumes: string[]
+        /// A list of MIME types the operation can produce.
+        Produces: string[]
+        /// Required. The nonempty list of possible status codes and responses as they are returned from executing this operation.
+        Responses: (Option<int> * ResponseObject)[]
+        /// A list of parameters that are applicable for this operation. The list MUST NOT include duplicated parameters.
+        Parameters: ParameterObject[]
+        /// Declares this operation to be deprecated.
+        Deprecated: bool
+    }
 
 
 /// Basic swagger information, relevant to the type provider.
 /// http://swagger.io/specification/#infoObject
-type InfoObject = {
-    /// Required. The title of the application.
-    Title: string
-    /// A short description of the application.
-    Description: string
-    /// Required. Provides the version of the application API (not to be confused with the specification version).
-    Version: string
-}
+type InfoObject =
+    {
+        /// Required. The title of the application.
+        Title: string
+        /// A short description of the application.
+        Description: string
+        /// Required. Provides the version of the application API (not to be confused with the specification version).
+        Version: string
+    }
 
 
 /// Allows adding meta data to a single tag.
 /// http://swagger.io/specification/#tagObject
-type TagObject = {
-    /// Required. The name of the tag.
-    Name: string
-    /// A short description for the tag.
-    Description: string
-}
+type TagObject =
+    {
+        /// Required. The name of the tag.
+        Name: string
+        /// A short description for the tag.
+        Description: string
+    }
 
 
 /// This is the main object.
 /// http://swagger.io/specification/#swaggerObject
-type SwaggerObject = {
-    /// Required. Provides metadata about the API.
-    Info: InfoObject
-    /// The host (name or ip) serving the API.
-    Host: string
-    /// The base path on which the API is served, which is relative to the host.
-    BasePath: string
-    /// The transfer protocol of the API. Values MUST be from the list: "http", "https", "ws", "wss". (Only the first element of the list will be used)
-    Schemes: string[]
-    /// Required. A list of all operations.
-    Paths: OperationObject[]
-    /// An object to hold data types produced and consumed by operations.
-    Definitions: (string * SchemaObject)[]
-    /// A list of tags used by the specification with additional metadata.
-    Tags: TagObject[]
-}
+type SwaggerObject =
+    {
+        /// Required. Provides metadata about the API.
+        Info: InfoObject
+        /// The host (name or ip) serving the API.
+        Host: string
+        /// The base path on which the API is served, which is relative to the host.
+        BasePath: string
+        /// The transfer protocol of the API. Values MUST be from the list: "http", "https", "ws", "wss". (Only the first element of the list will be used)
+        Schemes: string[]
+        /// Required. A list of all operations.
+        Paths: OperationObject[]
+        /// An object to hold data types produced and consumed by operations.
+        Definitions: (string * SchemaObject)[]
+        /// A list of tags used by the specification with additional metadata.
+        Tags: TagObject[]
+    }

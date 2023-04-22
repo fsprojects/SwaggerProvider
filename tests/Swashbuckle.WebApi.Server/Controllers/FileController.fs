@@ -41,11 +41,12 @@ type ReturnFileController() =
         this.File(stream, MediaTypes.ApplicationOctetStream, "hello.txt") :> FileResult
 
     [<HttpPost("stream"); BinaryContent>]
-    member this.GetFileLength() = task {
-        use reader = new StreamReader(this.Request.Body)
-        let! content = reader.ReadToEndAsync()
-        return content.Length
-    }
+    member this.GetFileLength() =
+        task {
+            use reader = new StreamReader(this.Request.Body)
+            let! content = reader.ReadToEndAsync()
+            return content.Length
+        }
 
     [<HttpPost("single"); Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
     member this.PostFile(file: IFormFile) : FileResult =

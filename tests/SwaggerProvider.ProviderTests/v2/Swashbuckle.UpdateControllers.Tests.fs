@@ -146,33 +146,37 @@ let ``Update Seq Int POST Test``() =
 // }
 
 [<Fact>]
-let ``Update Object Point POST Test``() = task {
-    let p = WebAPI.PointClass()
-    p.X <- Some 1
-    p.Y <- Some 2
-    let! point = api.PostApiUpdateObjectPointClass(p)
-    point.X |> shouldEqual(Some 2)
-    point.Y |> shouldEqual(Some 1)
-}
+let ``Update Object Point POST Test``() =
+    task {
+        let p = WebAPI.PointClass()
+        p.X <- Some 1
+        p.Y <- Some 2
+        let! point = api.PostApiUpdateObjectPointClass(p)
+        point.X |> shouldEqual(Some 2)
+        point.Y |> shouldEqual(Some 1)
+    }
 
 [<Fact>]
-let ``Send and Receive object with byte[]``() = task {
-    let x = WebAPI.FileDescription(Name = "2.txt", Bytes = [| 42uy |])
-    let! y = api.PostApiUpdateObjectFileDescriptionClass(x)
-    x.Name |> shouldEqual y.Name
-    x.Bytes |> shouldEqual y.Bytes
-}
+let ``Send and Receive object with byte[]``() =
+    task {
+        let x = WebAPI.FileDescription(Name = "2.txt", Bytes = [| 42uy |])
+        let! y = api.PostApiUpdateObjectFileDescriptionClass(x)
+        x.Name |> shouldEqual y.Name
+        x.Bytes |> shouldEqual y.Bytes
+    }
 
 // System.Net.Http.HttpRequestException: Response status code does not indicate success: 400 (Bad Request).
 [<Fact>]
-let ``Send byte[] in query``() = task {
-    let bytes = api.Deserialize("\"NDI0Mg==\"", typeof<byte[]>) :?> byte[] // base64 encoded "4242"
-    let! y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
-    y.Bytes |> shouldEqual(bytes)
-}
+let ``Send byte[] in query``() =
+    task {
+        let bytes = api.Deserialize("\"NDI0Mg==\"", typeof<byte[]>) :?> byte[] // base64 encoded "4242"
+        let! y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
+        y.Bytes |> shouldEqual(bytes)
+    }
 
 [<Fact>]
-let ``Use Optional param Int``() = task {
-    do! api.GetApiUpdateWithOptionalInt(Some 1) |> asyncEqual 2
-    do! api.GetApiUpdateWithOptionalInt(Some 1, Some 2) |> asyncEqual 3
-}
+let ``Use Optional param Int``() =
+    task {
+        do! api.GetApiUpdateWithOptionalInt(Some 1) |> asyncEqual 2
+        do! api.GetApiUpdateWithOptionalInt(Some 1, Some 2) |> asyncEqual 3
+    }

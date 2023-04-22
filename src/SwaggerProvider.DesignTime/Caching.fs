@@ -66,15 +66,13 @@ let internal logTime category (instance: string) =
             let instance = instance.Replace("\r", null).Replace("\n", "\\n")
 
             sprintf "%s|%s|%d" category instance s.ElapsedMilliseconds
-            |> appendToLog "log.csv"
-    }
+            |> appendToLog "log.csv" }
 
 #else
 
 let internal dummyDisposable =
     { new IDisposable with
-        member _.Dispose() = ()
-    }
+        member _.Dispose() = () }
 
 let inline internal log(_: string) = ()
 let inline internal logWithStackTrace(_: string) = ()
@@ -96,19 +94,20 @@ type ICache<'TKey, 'TValue> =
 let createInMemoryCache(expiration: TimeSpan) =
     let dict = ConcurrentDictionary<'TKey_, 'TValue * DateTime>()
 
-    let rec invalidationFunction key = async {
-        do! Async.Sleep(int expiration.TotalMilliseconds)
+    let rec invalidationFunction key =
+        async {
+            do! Async.Sleep(int expiration.TotalMilliseconds)
 
-        match dict.TryGetValue(key) with
-        | true, (_, timestamp) ->
-            if DateTime.UtcNow - timestamp >= expiration then
-                match dict.TryRemove(key) with
-                | true, _ -> log $"Cache expired: {key}"
-                | _ -> ()
-            else
-                do! invalidationFunction key
-        | _ -> ()
-    }
+            match dict.TryGetValue(key) with
+            | true, (_, timestamp) ->
+                if DateTime.UtcNow - timestamp >= expiration then
+                    match dict.TryRemove(key) with
+                    | true, _ -> log $"Cache expired: {key}"
+                    | _ -> ()
+                else
+                    do! invalidationFunction key
+            | _ -> ()
+        }
 
     { new ICache<_, _> with
         member _.Set(key, value) =
@@ -132,5 +131,4 @@ let createInMemoryCache(expiration: TimeSpan) =
         member _.GetOrAdd(key, valueFactory) =
             let res, _ = dict.GetOrAdd(key, (fun k -> valueFactory(), DateTime.UtcNow))
             invalidationFunction key |> Async.Start
-            res
-    }
+            res }

@@ -15,7 +15,8 @@ module Exceptions =
 
     /// The `field` value is not specified in Swagger specification
     type UnknownFieldValueException<'T>(obj: 'T, value: string, field: string, specLink: string) =
-        inherit SwaggerSchemaParseException $"Value `%s{value}` is not allowed for field `%s{field}`(See %s{specLink} for more details).\nObject:%A{obj}"
+        inherit
+            SwaggerSchemaParseException $"Value `%s{value}` is not allowed for field `%s{field}`(See %s{specLink} for more details).\nObject:%A{obj}"
 
     /// The `value` has unexpected type
     type UnexpectedValueTypeException<'T>(obj: 'T, ty: string) =
@@ -96,8 +97,7 @@ module Parsers =
                     match obj.TryGetProperty("required") with
                     | Some(req) ->
                         { param with
-                            Required = req.AsBoolean()
-                        }
+                            Required = req.AsBoolean() }
                     | _ -> param
                 | None -> raise <| UnknownSwaggerReferenceException(ref))
 
@@ -114,19 +114,16 @@ module Parsers =
                     | true, def -> // Slightly strange use of `ref` from response to `definitions` rather than to `responses`
                         let schema = def.Value
 
-                        {
-                            Description = ""
-                            Schema = Some(schema)
-                        } // TODO: extract description from definition object
+                        { Description = ""
+                          Schema = Some(schema) } // TODO: extract description from definition object
                     | _ -> raise <| UnknownSwaggerReferenceException(ref))
 
         /// Default empty context
-        static member Empty = {
-            Definitions = emptyDict
-            Parameters = Map.empty<_, _>
-            Responses = Map.empty<_, _>
-            ApplicableParameters = [||]
-        }
+        static member Empty =
+            { Definitions = emptyDict
+              Parameters = Map.empty<_, _>
+              Responses = Map.empty<_, _>
+              ApplicableParameters = [||] }
 
 
     /// Verify if name follows Swagger Schema Extension name pattern
@@ -275,12 +272,11 @@ module Parsers =
 
 
     /// Parses DefinitionProperty
-    and parseDefinitionProperty parsedTys (name, obj, required) : DefinitionProperty = {
-        Name = name
-        Type = parseSchemaObject parsedTys obj
-        IsRequired = required
-        Description = obj.GetStringSafe("description")
-    }
+    and parseDefinitionProperty parsedTys (name, obj, required) : DefinitionProperty =
+        { Name = name
+          Type = parseSchemaObject parsedTys obj
+          IsRequired = required
+          Description = obj.GetStringSafe("description") }
 
     /// Parses string as a ParameterObjectLocation.
     let parseOperationParameterLocation obj (location: string) : ParameterObjectLocation =
@@ -302,31 +298,30 @@ module Parsers =
             obj.GetRequiredField("in", spec).AsString()
             |> (parseOperationParameterLocation obj)
 
-        {
-            Name = obj.GetRequiredField("name", spec).AsString()
-            In = location
-            Description = obj.GetStringSafe("description")
-            Required =
-                match obj.TryGetProperty("required") with
-                | Some(x) -> x.AsBoolean()
-                | None -> false
-            Type =
-                match location with
-                | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject definitions
-                | _ -> obj |> parseSchemaObject definitions
-            // The `type` value MUST be one of "string", "number", "integer", "boolean", "array" or "file"
-            CollectionFormat =
-                match location, obj.TryGetProperty("collectionFormat") with
-                | Body, Some _ -> failwith "The field collectionFormat is not applicable for parameters of type body"
-                | _, Some x when x.AsString() = "csv" -> Csv
-                | _, Some x when x.AsString() = "ssv" -> Ssv
-                | _, Some x when x.AsString() = "tsv" -> Tsv
-                | _, Some x when x.AsString() = "pipes" -> Pipes
-                | FormData, Some x when x.AsString() = "multi" -> Multi
-                | Query, Some x when x.AsString() = "multi" -> Multi
-                | _, Some x when x.AsString() = "multi" -> failwith "Format `multi` is only supported by Query and FormData"
-                | _, Some x -> failwithf $"Format `%s{x.AsString()}` is not supported"
-                | _, None -> Csv // Default value
+        { Name = obj.GetRequiredField("name", spec).AsString()
+          In = location
+          Description = obj.GetStringSafe("description")
+          Required =
+            match obj.TryGetProperty("required") with
+            | Some(x) -> x.AsBoolean()
+            | None -> false
+          Type =
+            match location with
+            | Body -> obj.GetRequiredField("schema", spec) |> parseSchemaObject definitions
+            | _ -> obj |> parseSchemaObject definitions
+          // The `type` value MUST be one of "string", "number", "integer", "boolean", "array" or "file"
+          CollectionFormat =
+            match location, obj.TryGetProperty("collectionFormat") with
+            | Body, Some _ -> failwith "The field collectionFormat is not applicable for parameters of type body"
+            | _, Some x when x.AsString() = "csv" -> Csv
+            | _, Some x when x.AsString() = "ssv" -> Ssv
+            | _, Some x when x.AsString() = "tsv" -> Tsv
+            | _, Some x when x.AsString() = "pipes" -> Pipes
+            | FormData, Some x when x.AsString() = "multi" -> Multi
+            | Query, Some x when x.AsString() = "multi" -> Multi
+            | _, Some x when x.AsString() = "multi" -> failwith "Format `multi` is only supported by Query and FormData"
+            | _, Some x -> failwithf $"Format `%s{x.AsString()}` is not supported"
+            | _, None -> Csv // Default value
         }
 
     /// Parse the SchemaNode as a Parameters Definition Object
@@ -341,12 +336,11 @@ module Parsers =
 
         match context.ResolveResponseObject obj with
         | Some(response) -> response
-        | None -> {
-            Description = obj.GetRequiredField("description", spec).AsString()
-            Schema =
+        | None ->
+            { Description = obj.GetRequiredField("description", spec).AsString()
+              Schema =
                 obj.TryGetProperty("schema")
-                |> Option.map(parseSchemaObject context.Definitions)
-          }
+                |> Option.map(parseSchemaObject context.Definitions) }
 
     /// Parses the SchemaNode as a Responses  Definition Object
     let parseResponsesDefinition(obj: SchemaNode) : Map<string, ResponseObject> =
@@ -392,34 +386,32 @@ module Parsers =
             |> List.rev
             |> Array.ofList
 
-        {
-            Path = path
-            Type = opType
-            Tags = obj.GetStringArraySafe("tags")
-            Summary = obj.GetStringSafe("summary")
-            Description = obj.GetStringSafe("description")
-            OperationId = obj.GetStringSafe("operationId")
-            Consumes = obj.GetStringArraySafe("consumes")
-            Produces = obj.GetStringArraySafe("produces")
-            Deprecated =
-                match obj.TryGetProperty("deprecated") with
-                | Some(value) -> value.AsBoolean()
-                | None -> false
-            Responses =
-                obj.GetRequiredField("responses", spec)
-                |> (parseResponsesObject context)
-            Parameters =
-                mergeParameters
-                    (match obj.TryGetProperty("parameters") with
-                     | Some(parameters) ->
-                         parameters.AsArray()
-                         |> Array.map(fun obj ->
-                             match context.ResolveParameterObject obj with
-                             | Some(param) -> param
-                             | None -> parseParameterObject context.Definitions obj)
-                     | None -> [||])
-                    context.ApplicableParameters
-        }
+        { Path = path
+          Type = opType
+          Tags = obj.GetStringArraySafe("tags")
+          Summary = obj.GetStringSafe("summary")
+          Description = obj.GetStringSafe("description")
+          OperationId = obj.GetStringSafe("operationId")
+          Consumes = obj.GetStringArraySafe("consumes")
+          Produces = obj.GetStringArraySafe("produces")
+          Deprecated =
+            match obj.TryGetProperty("deprecated") with
+            | Some(value) -> value.AsBoolean()
+            | None -> false
+          Responses =
+            obj.GetRequiredField("responses", spec)
+            |> (parseResponsesObject context)
+          Parameters =
+            mergeParameters
+                (match obj.TryGetProperty("parameters") with
+                 | Some(parameters) ->
+                     parameters.AsArray()
+                     |> Array.map(fun obj ->
+                         match context.ResolveParameterObject obj with
+                         | Some(param) -> param
+                         | None -> parseParameterObject context.Definitions obj)
+                 | None -> [||])
+                context.ApplicableParameters }
 
     /// Parse the SchemaNode as a PathItemObject[]
     let parsePathsObject (context: ParserContext) (obj: SchemaNode) : OperationObject[] =
@@ -445,8 +437,7 @@ module Parsers =
                         |> Array.map(fun paramObj ->
                             match context.ResolveParameterObject paramObj with
                             | Some(param) -> param
-                            | None -> parseParameterObject context.Definitions paramObj)
-                }
+                            | None -> parseParameterObject context.Definitions paramObj) }
 
         obj.Properties()
         |> Array.filter(fun (path, _) -> not <| isSwaggerSchemaExtensionName path)
@@ -469,20 +460,16 @@ module Parsers =
     let parseInfoObject(obj: SchemaNode) : InfoObject =
         let spec = "http://swagger.io/specification/#infoObject"
 
-        {
-            Title = obj.GetRequiredField("title", spec).AsString()
-            Description = obj.GetStringSafe("description")
-            Version = obj.GetRequiredField("version", spec).AsString()
-        }
+        { Title = obj.GetRequiredField("title", spec).AsString()
+          Description = obj.GetStringSafe("description")
+          Version = obj.GetRequiredField("version", spec).AsString() }
 
     /// Parses the SchemaNode as a TagObject.
     let parseTagObject(obj: SchemaNode) : TagObject =
         let spec = "http://swagger.io/specification/#tagObject"
 
-        {
-            Name = obj.GetRequiredField("name", spec).AsString()
-            Description = obj.GetStringSafe("description")
-        }
+        { Name = obj.GetRequiredField("name", spec).AsString()
+          Description = obj.GetStringSafe("description") }
 
     /// Parses the SchemaNode as a SwaggerSchema.
     let parseSwaggerObject(obj: SchemaNode) : SwaggerObject =
@@ -509,22 +496,19 @@ module Parsers =
                 Responses =
                     match obj.TryGetProperty("responses") with
                     | None -> Map.empty<_, _>
-                    | Some(responses) -> parseResponsesDefinition responses
-            }
+                    | Some(responses) -> parseResponsesDefinition responses }
 
-        {
-            Info = parseInfoObject(obj.GetRequiredField("info", spec))
-            Host = obj.GetStringSafe("host")
-            BasePath = obj.GetStringSafe("basePath")
-            Schemes = obj.GetStringArraySafe("schemes")
-            Tags =
-                match obj.TryGetProperty("tags") with
-                | None -> [||]
-                | Some(tags) -> tags.AsArray() |> Array.map parseTagObject
-            Paths = obj.GetRequiredField("paths", spec) |> (parsePathsObject context)
-            Definitions =
-                context.Definitions
-                |> Seq.map(fun x -> x.Key, x.Value.Value)
-                |> Seq.sortBy(id)
-                |> Array.ofSeq
-        }
+        { Info = parseInfoObject(obj.GetRequiredField("info", spec))
+          Host = obj.GetStringSafe("host")
+          BasePath = obj.GetStringSafe("basePath")
+          Schemes = obj.GetStringArraySafe("schemes")
+          Tags =
+            match obj.TryGetProperty("tags") with
+            | None -> [||]
+            | Some(tags) -> tags.AsArray() |> Array.map parseTagObject
+          Paths = obj.GetRequiredField("paths", spec) |> (parsePathsObject context)
+          Definitions =
+            context.Definitions
+            |> Seq.map(fun x -> x.Key, x.Value.Value)
+            |> Seq.sortBy(id)
+            |> Array.ofSeq }

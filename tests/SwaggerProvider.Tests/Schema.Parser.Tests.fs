@@ -37,19 +37,20 @@ module V3 =
         with e when e.Message.IndexOf("not supported yet") >= 0 ->
             ()
 
-let parserTestBody(path: string) = task {
-    let! schemaStr =
-        match Uri.TryCreate(path, UriKind.Absolute) with
-        | true, uri when path.IndexOf("http") >= 0 -> APIsGuru.httpClient.GetStringAsync(uri)
-        | _ when File.Exists(path) -> File.ReadAllTextAsync path
-        | _ -> failwithf $"Cannot find schema '%s{path}'"
+let parserTestBody(path: string) =
+    task {
+        let! schemaStr =
+            match Uri.TryCreate(path, UriKind.Absolute) with
+            | true, uri when path.IndexOf("http") >= 0 -> APIsGuru.httpClient.GetStringAsync(uri)
+            | _ when File.Exists(path) -> File.ReadAllTextAsync path
+            | _ -> failwithf $"Cannot find schema '%s{path}'"
 
-    if not <| String.IsNullOrEmpty(schemaStr) then
-        if path.IndexOf("v2") >= 0 then
-            V2.testSchema schemaStr
-        else
-            V3.testSchema schemaStr
-}
+        if not <| String.IsNullOrEmpty(schemaStr) then
+            if path.IndexOf("v2") >= 0 then
+                V2.testSchema schemaStr
+            else
+                V3.testSchema schemaStr
+    }
 
 let rootFolder =
     Path.Combine(__SOURCE_DIRECTORY__, "../SwaggerProvider.ProviderTests/Schemas")
