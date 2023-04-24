@@ -9,8 +9,8 @@ type AcmeApi = OpenApiClientProvider<Schema>
 
 let inst = AcmeApi.Client()
 
-let askDetailRequest = new AcmeProv.AskDetailRequest(11)
+let askDetailRequest = new AcmeApi.AskDetailRequest(11)
 
-let typedTask = inst.AskDetail(askDetailRequest: AcmeProv.AskDetailRequest)
+let typedTask = inst.AskDetail(askDetailRequest: AcmeApi.AskDetailRequest)
 
 typedTask.GetType().FullName.Contains("AskDetailResponse")
