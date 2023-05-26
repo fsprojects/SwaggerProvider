@@ -1,7 +1,7 @@
 group Test
     FSharp.Core
-    Microsoft.NET.Test.Sdk
+    FSharp.SystemTextJson
     FsUnit.xUnit
+    Microsoft.NET.Test.Sdk
     Microsoft.OpenApi.Readers
     System.Text.Json
-    FSharp.SystemTextJson

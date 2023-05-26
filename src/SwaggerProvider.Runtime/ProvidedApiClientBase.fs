@@ -6,10 +6,12 @@ open System.Threading.Tasks
 open System.Text.Json
 open System.Text.Json.Serialization
 
-type OpenApiException(code: int, description: string) =
+type OpenApiException(code: int, description: string, headers: Headers.HttpResponseHeaders, content: HttpContent) =
     inherit Exception(description)
     member _.StatusCode = code
     member _.Description = description
+    member _.Headers = headers
+    member _.Content = content
 
 type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOptions) =
 
@@ -48,7 +50,7 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                 |> Array.tryFindIndex((=) codeStr)
                 |> Option.iter(fun idx ->
                     let desc = errorDescriptions[idx]
-                    raise(OpenApiException(code, desc)))
+                    raise(OpenApiException(code, desc, response.Headers, response.Content)))
 
                 // fail with HttpRequestException if we do not know error description
                 return response.EnsureSuccessStatusCode().Content
