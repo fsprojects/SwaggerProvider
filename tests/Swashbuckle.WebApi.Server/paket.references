@@ -1,7 +1,8 @@
 group Server
+    FSharp.Core
     Microsoft.AspNetCore
     Microsoft.AspNetCore.Mvc
     Microsoft.AspNetCore.HttpsPolicy
-    Swashbuckle.AspNetCore
     Microsoft.OpenApi
-    FSharp.Core
+    Swashbuckle.AspNetCore
+    System.Text.Json

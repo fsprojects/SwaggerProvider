@@ -40,8 +40,8 @@ GITHUB
     src/ProvidedTypes.fs (b7c930b0bd9e0e0476981ba0813ac17e7d61742b)
     src/ProvidedTypes.fsi (b7c930b0bd9e0e0476981ba0813ac17e7d61742b)
   remote: fsprojects/FSharp.Data
-    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (ef2eda4cb33386335e25d03e694668b0af6f0945)
-    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (ef2eda4cb33386335e25d03e694668b0af6f0945)
+    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (bbe54edc63a2d1ca3616f3b847ee34c0a88f91f2)
+    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (bbe54edc63a2d1ca3616f3b847ee34c0a88f91f2)
 GROUP Server
 RESTRICTION: == net6.0
 NUGET
