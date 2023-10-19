@@ -52,7 +52,7 @@ module SchemaReader =
 
                     return
                         if String.IsNullOrEmpty err then
-                            raise wex
+                            wex.Reraise()
                         else
                             err.ToString()
                 | Choice2Of2 e -> return failwith(e.ToString())
