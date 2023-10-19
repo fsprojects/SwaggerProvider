@@ -21,14 +21,6 @@
       <Paket>True</Paket>
       <Link>paket-files/NameUtils.fs</Link>
     </Compile>
-    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fsi">
-      <Paket>True</Paket>
-      <Link>paket-files/ProvidedTypes.fsi</Link>
-    </Compile>
-    <Compile Include="..\..\paket-files\fsprojects\FSharp.TypeProviders.SDK\src\ProvidedTypes.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/ProvidedTypes.fs</Link>
-    </Compile>
     <Compile Include="..\SwaggerProvider.Runtime\ProvidedApiClientBase.fs">
       <Link>ProvidedApiClientBase.fs</Link>
     </Compile>

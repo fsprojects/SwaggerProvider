@@ -3,7 +3,6 @@ namespace SwaggerProvider.Internal.v3.Compilers
 open System
 open System.Reflection
 open ProviderImplementation.ProvidedTypes
-open UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
 open Swagger.Internal
 open SwaggerProvider.Internal
@@ -194,11 +193,11 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 ty,
                 getterCode =
                     (function
-                    | [ this ] -> Expr.FieldGetUnchecked(this, providedField)
+                    | [ this ] -> Expr.FieldGet(this, providedField)
                     | _ -> failwith "invalid property getter params"),
                 setterCode =
                     (function
-                    | [ this; v ] -> Expr.FieldSetUnchecked(this, providedField, v)
+                    | [ this; v ] -> Expr.FieldSet(this, providedField, v)
                     | _ -> failwith "invalid property setter params")
             )
 
@@ -307,7 +306,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                                 | _ -> failwith "Wrong constructor arguments"
 
                             List.zip args fields
-                            |> List.map(fun (arg, f) -> Expr.FieldSetUnchecked(this, f, arg))
+                            |> List.map(fun (arg, f) -> Expr.FieldSet(this, f, arg))
                             |> List.rev
                             |> List.fold (fun a b -> Expr.Sequential(a, b)) <@@ () @@>
                 )

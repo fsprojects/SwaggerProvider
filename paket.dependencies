@@ -1,10 +1,12 @@
 version 7.2.1
+storage: none
 source https://api.nuget.org/v3/index.json
 frameworks: net6.0, netstandard2.0
 
 nuget FSharp.Core ~> 6 // We need task{} CE from F# 6.0
-nuget System.Text.Json ~> 6
 nuget FSharp.SystemTextJson
+nuget FSharp.TypeProviders.SDK >= 8
+nuget System.Text.Json ~> 6
 nuget Microsoft.OpenApi.Readers
 nuget NETStandard.Library.NETFramework
 
@@ -13,10 +15,6 @@ nuget Microsoft.Bcl.AsyncInterfaces ~> 6
 
 # delete when we drop custom parser for v2
 nuget YamlDotNet
-
-# THis lines are used by Paket to get the latest version of the Type Provider SDK files
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
-github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
 github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/Pluralizer.fs
 github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/NameUtils.fs
