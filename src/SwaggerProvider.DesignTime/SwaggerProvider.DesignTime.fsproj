@@ -32,6 +32,7 @@
     <Compile Include="..\SwaggerProvider.Runtime\ProvidedApiClientBase.fs">
       <Link>ProvidedApiClientBase.fs</Link>
     </Compile>
+    <Compile Include="..\SwaggerProvider.Runtime\Exception.fs" />
     <Compile Include="..\SwaggerProvider.Runtime\RuntimeHelpers.fs" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
