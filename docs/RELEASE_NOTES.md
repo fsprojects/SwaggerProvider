@@ -1,4 +1,4 @@
-#### 2.0.0-theta-002 - Jun 30, 2023
+#### 2.0.0-theta-0023 - Nov 07, 2023
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
