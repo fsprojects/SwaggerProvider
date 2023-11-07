@@ -21,6 +21,7 @@
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
+    <Compile Include="Exception.fs" />
     <Compile Include="Runtime.fs" />
     <Compile Include="ProvidedApiClientBase.fs" />
     <Compile Include="RuntimeHelpers.fs" />

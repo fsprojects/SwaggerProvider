@@ -4,6 +4,7 @@ open SwaggerProvider.Internal.v2.Parser.Schema
 open SwaggerProvider.Internal.v2.Parser.Exceptions
 
 module internal JsonAdapter =
+
     open System.Text.Json
 
     /// Schema node for Swagger schemes in Json format
@@ -52,9 +53,11 @@ module internal JsonAdapter =
         (JsonDocument.Parse string).RootElement |> JsonNodeAdapter
 
 module internal YamlAdapter =
+
+    open System
+    open System.Collections.Generic
     open System.IO
     open YamlDotNet.Serialization
-    open System.Collections.Generic
 
     let (|List|_|)(node: obj) =
         match node with
@@ -138,7 +141,7 @@ module internal YamlAdapter =
             use reader = new StringReader(text)
             deserializer.Deserialize(reader) |> YamlNodeAdapter
         with
-        | :? YamlDotNet.Core.YamlException as e when not <| isNull e.InnerException -> raise e.InnerException // inner exceptions are much more informative
+        | :? YamlDotNet.Core.YamlException as e when not <| isNull e.InnerException -> e.InnerException.Reraise() // inner exceptions are much more informative
         | _ -> reraise()
 
 module SwaggerParser =

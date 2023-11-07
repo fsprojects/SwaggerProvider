@@ -361,9 +361,7 @@ module Parsers =
                 else
                     match Int32.TryParse(property) with
                     | true, value -> Some value
-                    | false, _ ->
-                        raise
-                        <| UnknownFieldValueException(obj, property, "HTTP Status Code", spec)
+                    | false, _ -> raise(UnknownFieldValueException(obj, property, "HTTP Status Code", spec))
 
             code, parseResponseObject context objValue)
 
