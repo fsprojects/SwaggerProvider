@@ -1,4 +1,4 @@
-#### 2.0.0-theta-002 - Jun 30, 2023
+#### 2.0.0-theta-0023 - Nov 07, 2023
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
@@ -6,8 +6,9 @@
 - Add `Accept` header to all request (Fixed [#196](https://github.com/fsprojects/SwaggerProvider/issues/196))
 - Supported requests with `octet-stream` body content [#203](https://github.com/fsprojects/SwaggerProvider/pull/203)
 - Added missing properties to OpenApiException [#222](https://github.com/fsprojects/SwaggerProvider/pull/222)
-- Microsoft.OpenApi (1.6.5)
-- FSharp.SystemTextJson (1.1.23)
+- Changed raise to calling Reraise() extension method to preserve the call stack [#230](https://github.com/fsprojects/SwaggerProvider/pull/230)
+- Microsoft.OpenApi (1.6.10)
+- FSharp.SystemTextJson (1.2.42)
 - Removed the `System.Net.Http` dependency (#221)
 - fix: accept "default" as "ok response" fallback (#223)
 
