@@ -1,4 +1,4 @@
-#### 2.0.0-theta-003 - Nov 07, 2023
+#### 2.0.0 - Nov 08, 2023
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
 - BREAKING: `task` CE wrap all exceptions in `AggregateException` (with `OpenApiException` inside)
@@ -11,6 +11,7 @@
 - FSharp.SystemTextJson (1.2.42)
 - Removed the `System.Net.Http` dependency (#221)
 - fix: accept "default" as "ok response" fallback (#223)
+- Minor performance tweaks (#233)
 
 #### 1.0.2 - Jul 10, 2022
 - SharpYaml 2.0.0
