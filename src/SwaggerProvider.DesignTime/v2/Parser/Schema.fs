@@ -69,6 +69,7 @@ and DefinitionProperty =
 
 /// The type of the REST call.
 /// http://swagger.io/specification/#pathItemObject
+[<Struct>]
 type OperationType =
     /// Returns en element or collection.
     | Get
@@ -94,6 +95,7 @@ type OperationType =
 
 
 /// Determines the format of the array if type array is used. Array value separator.
+[<Struct>]
 type CollectionFormat =
     /// Comma separated values.
     | Csv
@@ -116,6 +118,7 @@ type CollectionFormat =
 
 
 /// Required. The location of the parameter.
+[<Struct>]
 type ParameterObjectLocation =
     /// Parameter that are appended to the URL. For example, in /items?id=###, the query parameter is id.
     | Query
@@ -194,6 +197,7 @@ type OperationObject =
 
 /// Basic swagger information, relevant to the type provider.
 /// http://swagger.io/specification/#infoObject
+[<Struct>]
 type InfoObject =
     {
         /// Required. The title of the application.
@@ -207,6 +211,7 @@ type InfoObject =
 
 /// Allows adding meta data to a single tag.
 /// http://swagger.io/specification/#tagObject
+[<Struct>]
 type TagObject =
     {
         /// Required. The name of the tag.
