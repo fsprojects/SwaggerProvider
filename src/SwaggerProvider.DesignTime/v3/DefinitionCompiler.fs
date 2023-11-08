@@ -369,7 +369,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             match schemaObj with
             | null -> failwithf $"Cannot compile object '%s{tyName}' when schema is 'null'"
             | _ when
-                schemaObj.Reference <> null
+                (not(isNull schemaObj.Reference))
                 && not <| schemaObj.Reference.Id.EndsWith(tyName)
                 ->
                 ns.ReleaseNameReservation tyName
@@ -382,7 +382,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaObj.Reference.ReferenceV3}'"
             // TODO: fail on external references
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
-            | _ when schemaObj.Type = "object" && schemaObj.AdditionalProperties <> null -> // Dictionary ->
+            | _ when
+                schemaObj.Type = "object"
+                && not(isNull schemaObj.AdditionalProperties)
+                -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
                 let elSchema = schemaObj.AdditionalProperties
 
@@ -390,7 +393,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [ typeof<string>; elTy ])
-            | _ when schemaObj.Type = null || schemaObj.Type = "object" -> // Object props ->
+            | _ when isNull schemaObj.Type || schemaObj.Type = "object" -> // Object props ->
                 compileNewObject()
             | _ ->
                 ns.MarkTypeAsNameAlias tyName

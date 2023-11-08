@@ -21,6 +21,7 @@ open Swagger.Internal
 // Probably related to https://github.com/fsprojects/FSharp.TypeProviders.SDK/issues/274
 type ApiCall = string * OpenApiPathItem * OperationType
 
+[<Struct>]
 type PayloadType =
     | NoData
     | AppJson
@@ -218,9 +219,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                         let headers =
                             <@
-                                [ if payloadMime <> null then
+                                [ if not(isNull payloadMime) then
                                       "Content-Type", payloadMime
-                                  if retMime <> null then
+                                  if not(isNull retMime) then
                                       "Accept", MediaTypes.ApplicationJson ]
                             @>
 
