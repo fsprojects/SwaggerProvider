@@ -88,35 +88,35 @@ Serializer is configurable but not replaceable! Type provider emit type with [Js
 
 </Note>
 
-```fsharp {highlight:['9-10', '24-28', '33-34']}
+```fsharp {highlight:['20-28', '33-34']}
 open System
 open SwaggerProvider
-open Newtonsoft.Json
+open System.Text.Json
+open System.Text.Json.Serialization
 
 let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
 type PetStore = OpenApiClientProvider<Schema, PreferAsync=true>
+
+let jsonSerializerSettings =
+    // nuget: System.Text.Json
+    let settings = JsonSerializerOptions(
+                    //PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+                    // ...
+                    IgnoreNullValues = true
+    ) 
+    // nuget: FSharp.SystemTextJson
+    JsonFSharpOptions.Default().AddToJsonSerializerOptions settings
+    settings
 
 type MyApiClient() =
     // inherit from provided API client
     inherit PetStore.Client()
 
-    let jsonSerializerSettings =
-        let settings =
-            JsonSerializerSettings(
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.None)
-        [   // Your custom JsonConverter's for F# types
-            Swagger.Serialization.OptionConverter () :> JsonConverter
-            Swagger.Serialization.ByteArrayConverter () :> JsonConverter
-        ]
-        |> List.iter settings.Converters.Add
-        settings
-
     // Overload default implementation of Serialize & Deserialize
     override __.Serialize(value:obj): string =
-        JsonConvert.SerializeObject(value, jsonSerializerSettings)
+        JsonSerializer.Serialize(value, jsonSerializerSettings)
     override __.Deserialize(value, retTy:Type): obj =
-        JsonConvert.DeserializeObject(value, retTy, jsonSerializerSettings)
+        JsonSerializer.Deserialize(value, retTy, jsonSerializerSettings)
 
 
 [<EntryPoint>]
