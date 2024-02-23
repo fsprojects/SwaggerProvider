@@ -263,6 +263,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                         let pField, pProp = generateProperty propName pTy
 
+                        //
+                        if (schemaObj.Type, schemaObj.Format) = ("string", "date") then
+                            pProp.AddCustomAttribute(RuntimeHelpers.getDateTimeOffsetFullDateConverterAttribute())
+
                         if not <| String.IsNullOrWhiteSpace propSchema.Description then
                             pProp.AddXmlDoc propSchema.Description
 
