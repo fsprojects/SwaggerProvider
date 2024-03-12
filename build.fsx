@@ -1,19 +1,25 @@
-#r @"paket:
-source https://nuget.org/api/v2
-framework net6.0
-nuget FSharp.Core 6.0.0.0
-nuget Fake.Core.Target
-nuget Fake.Core.Process
-nuget Fake.Core.ReleaseNotes
-nuget Fake.IO.FileSystem
-nuget Fake.DotNet.Cli
-nuget Fake.DotNet.MSBuild
-nuget Fake.DotNet.AssemblyInfoFile
-nuget Fake.DotNet.Paket
-nuget Fake.DotNet.FSFormatting
-nuget Fake.Tools.Git
-nuget Fake.Api.GitHub //"
-#load "./.fake/build.fsx/intellisense.fsx"
+#load ".fake/build.fsx/intellisense.fsx"
+
+// Boilerplate - https://github.com/fsprojects/FAKE/issues/2719#issuecomment-1470687052
+System.Environment.GetCommandLineArgs()
+|> Array.skip 2 // skip fsi.exe; build.fsx
+|> Array.toList
+|> Fake.Core.Context.FakeExecutionContext.Create false __SOURCE_FILE__
+|> Fake.Core.Context.RuntimeContext.Fake
+|> Fake.Core.Context.setExecutionContext
+
+// the rest of your original build.fsx content...
+#r "nuget: Fake.Core.Target"
+#r "nuget: Fake.Core.Process"
+#r "nuget: Fake.Core.ReleaseNotes"
+#r "nuget: Fake.IO.FileSystem"
+#r "nuget: Fake.DotNet.Cli"
+#r "nuget: Fake.DotNet.MSBuild"
+#r "nuget: Fake.DotNet.AssemblyInfoFile"
+#r "nuget: Fake.DotNet.Paket"
+#r "nuget: Fake.DotNet.FSFormatting"
+#r "nuget: Fake.Tools.Git"
+#r "nuget: Fake.Api.GitHub"
 
 open Fake
 open Fake.Core.TargetOperators

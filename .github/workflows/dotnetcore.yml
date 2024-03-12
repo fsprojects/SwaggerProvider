@@ -16,13 +16,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET 6.0 SDK (for FAKE)
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
     - name: Setup .NET 8.0 SDK
       uses: actions/setup-dotnet@v2
       with:
@@ -32,4 +25,4 @@ jobs:
     - name: Paket Restore
       run: dotnet paket restore
     - name: Build and Test
-      run: dotnet fake run build.fsx
+      run: dotnet fsi build.fsx
