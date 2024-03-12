@@ -1,3 +1,6 @@
+#### 2.1.0-beta1 - Mar 12, 2024
+- Build and test with .NET 8.0
+
 #### 2.0.1 - Mar 12, 2024
 - fix: update ProvidedTypes.fs (#235)
 - FSharp.Data utilities update (#238)

@@ -1,15 +1,12 @@
-version 7.2.1
+version 8.0.3
 source https://api.nuget.org/v3/index.json
-frameworks: net6.0, netstandard2.0
+frameworks: net8.0, netstandard2.0
 
 nuget FSharp.Core ~> 6 // We need task{} CE from F# 6.0
 nuget System.Text.Json ~> 6
 nuget FSharp.SystemTextJson
 nuget Microsoft.OpenApi.Readers
 nuget NETStandard.Library.NETFramework
-
-nuget System.Text.Encodings.Web ~> 6
-nuget Microsoft.Bcl.AsyncInterfaces ~> 6
 
 # delete when we drop custom parser for v2
 nuget YamlDotNet
@@ -23,7 +20,7 @@ github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/NameUtils.f
 
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: net6.0
+    framework: net8.0
 
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
@@ -34,7 +31,7 @@ group Server
 
 group Test
     source https://api.nuget.org/v3/index.json
-    frameworks: net6.0
+    frameworks: net8.0
 
     nuget FSharp.Compiler.Service
     nuget FSharp.Core
