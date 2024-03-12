@@ -18,6 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - uses: actions/checkout@v1
     - name: Setup .NET 8.0 SDK
       uses: actions/setup-dotnet@v4
       with:
