@@ -1,3 +1,8 @@
+#### 2.0.1 - Mar 12, 2024
+- fix: update ProvidedTypes.fs (#235)
+- FSharp.Data utilities update (#238)
+- Updated custom serialization example to SwaggerProvider 2.0 (#239)
+
 #### 2.0.0 - Nov 08, 2023
 - F# 6 task{} instead of async{} under thee hood - [#200](https://github.com/fsprojects/SwaggerProvider/pull/200)
 - BREAKING: `ProvidedApiClientBase.CallAsync` returns `task` instead of `async`
