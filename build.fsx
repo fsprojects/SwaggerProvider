@@ -1,14 +1,3 @@
-#load ".fake/build.fsx/intellisense.fsx"
-
-// Boilerplate - https://github.com/fsprojects/FAKE/issues/2719#issuecomment-1470687052
-System.Environment.GetCommandLineArgs()
-|> Array.skip 2 // skip fsi.exe; build.fsx
-|> Array.toList
-|> Fake.Core.Context.FakeExecutionContext.Create false __SOURCE_FILE__
-|> Fake.Core.Context.RuntimeContext.Fake
-|> Fake.Core.Context.setExecutionContext
-
-// the rest of your original build.fsx content...
 #r "nuget: Fake.Core.Target"
 #r "nuget: Fake.Core.Process"
 #r "nuget: Fake.Core.ReleaseNotes"
@@ -20,6 +9,14 @@ System.Environment.GetCommandLineArgs()
 #r "nuget: Fake.DotNet.FSFormatting"
 #r "nuget: Fake.Tools.Git"
 #r "nuget: Fake.Api.GitHub"
+
+// Boilerplate - https://github.com/fsprojects/FAKE/issues/2719#issuecomment-1470687052
+System.Environment.GetCommandLineArgs()
+|> Array.skip 2 // skip fsi.exe; build.fsx
+|> Array.toList
+|> Fake.Core.Context.FakeExecutionContext.Create false __SOURCE_FILE__
+|> Fake.Core.Context.RuntimeContext.Fake
+|> Fake.Core.Context.setExecutionContext
 
 open Fake
 open Fake.Core.TargetOperators

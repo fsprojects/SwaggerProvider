@@ -19,9 +19,9 @@ jobs:
 
     steps:
     - name: Setup .NET 8.0 SDK
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: '8.0.x'
     - name: Install local tools
       run: dotnet tool restore
     - name: Paket Restore
