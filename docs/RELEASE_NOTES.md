@@ -1,4 +1,4 @@
-#### 2.1.0-beta1 - Mar 12, 2024
+#### 2.1.0 - Mar 14, 2024
 - Build and test with .NET 8.0
 
 #### 2.0.1 - Mar 12, 2024
