@@ -1,19 +1,22 @@
-#r @"paket:
-source https://nuget.org/api/v2
-framework net6.0
-nuget FSharp.Core 6.0.0.0
-nuget Fake.Core.Target
-nuget Fake.Core.Process
-nuget Fake.Core.ReleaseNotes
-nuget Fake.IO.FileSystem
-nuget Fake.DotNet.Cli
-nuget Fake.DotNet.MSBuild
-nuget Fake.DotNet.AssemblyInfoFile
-nuget Fake.DotNet.Paket
-nuget Fake.DotNet.FSFormatting
-nuget Fake.Tools.Git
-nuget Fake.Api.GitHub //"
-#load "./.fake/build.fsx/intellisense.fsx"
+#r "nuget: Fake.Core.Target"
+#r "nuget: Fake.Core.Process"
+#r "nuget: Fake.Core.ReleaseNotes"
+#r "nuget: Fake.IO.FileSystem"
+#r "nuget: Fake.DotNet.Cli"
+#r "nuget: Fake.DotNet.MSBuild"
+#r "nuget: Fake.DotNet.AssemblyInfoFile"
+#r "nuget: Fake.DotNet.Paket"
+#r "nuget: Fake.DotNet.FSFormatting"
+#r "nuget: Fake.Tools.Git"
+#r "nuget: Fake.Api.GitHub"
+
+// Boilerplate - https://github.com/fsprojects/FAKE/issues/2719#issuecomment-1470687052
+System.Environment.GetCommandLineArgs()
+|> Array.skip 2 // skip fsi.exe; build.fsx
+|> Array.toList
+|> Fake.Core.Context.FakeExecutionContext.Create false __SOURCE_FILE__
+|> Fake.Core.Context.RuntimeContext.Fake
+|> Fake.Core.Context.setExecutionContext
 
 open Fake
 open Fake.Core.TargetOperators
@@ -88,7 +91,7 @@ let webApiInputStream = StreamRef.Empty
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
-    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/net6.0/Swashbuckle.WebApi.Server.dll"
+    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/net8.0/Swashbuckle.WebApi.Server.dll"
     |> CreateProcess.withStandardInput(CreatePipe webApiInputStream)
     |> Proc.start
     |> ignore
@@ -113,9 +116,9 @@ Target.create "BuildTests" (fun _ -> dotnet "build" "SwaggerProvider.TestsAndDoc
 let runTests assembly =
     dotnet "test" $"{assembly} -c Release --no-build"
 
-Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net6.0/SwaggerProvider.Tests.dll")
+Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net8.0/SwaggerProvider.Tests.dll")
 
-Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net6.0/SwaggerProvider.ProviderTests.dll")
+Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net8.0/SwaggerProvider.ProviderTests.dll")
 
 Target.create "RunTests" ignore
 
