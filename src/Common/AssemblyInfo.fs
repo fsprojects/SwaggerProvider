@@ -5,13 +5,13 @@ open System.Reflection
 [<assembly: AssemblyTitleAttribute("SwaggerProvider")>]
 [<assembly: AssemblyProductAttribute("SwaggerProvider")>]
 [<assembly: AssemblyDescriptionAttribute("F# Type Provider for Swagger & Open API")>]
-[<assembly: AssemblyVersionAttribute("2.1.1")>]
-[<assembly: AssemblyFileVersionAttribute("2.1.1")>]
+[<assembly: AssemblyVersionAttribute("2.1.2")>]
+[<assembly: AssemblyFileVersionAttribute("2.1.2")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "SwaggerProvider"
     let [<Literal>] AssemblyProduct = "SwaggerProvider"
     let [<Literal>] AssemblyDescription = "F# Type Provider for Swagger & Open API"
-    let [<Literal>] AssemblyVersion = "2.1.1"
-    let [<Literal>] AssemblyFileVersion = "2.1.1"
+    let [<Literal>] AssemblyVersion = "2.1.2"
+    let [<Literal>] AssemblyFileVersion = "2.1.2"

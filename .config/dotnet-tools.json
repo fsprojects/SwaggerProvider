@@ -9,13 +9,13 @@
       ]
     },
     "dotnet-serve": {
-      "version": "1.10.172",
+      "version": "1.10.175",
       "commands": [
         "dotnet-serve"
       ]
     },
     "fantomas": {
-      "version": "6.3.1",
+      "version": "6.3.7",
       "commands": [
         "fantomas"
       ]

@@ -1,6 +1,7 @@
 #### 2.1.2 - Jun 3, 2024
 
-  - fix: Support DateTime/DateTimeOffset as required query parameter, using round-trip format (#244)
+- fix: Support DateTime/DateTimeOffset as required query parameter, using round-trip format (#244)
+- hk: Dependencies update
 
 #### 2.1.1 - Apr 8, 2024
 
