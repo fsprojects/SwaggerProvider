@@ -110,6 +110,8 @@ module RuntimeHelpers =
         | :? Option<string> as x -> x |> toStrOpt name
         | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
         | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
+        | :? DateTime as x -> [ name, x.ToString("O") ]
+        | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
         | :? Option<Guid> as x -> x |> toStrOpt name
         | _ -> [ name, (if isNull obj then null else obj.ToString()) ]
 
