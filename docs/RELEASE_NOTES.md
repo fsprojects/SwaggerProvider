@@ -1,3 +1,7 @@
+#### 2.1.3 - Sep 8, 2024
+
+- hk: Dependencies update
+
 #### 2.1.2 - Jun 3, 2024
 
 - fix: Support DateTime/DateTimeOffset as required query parameter, using round-trip format (#244)
@@ -169,8 +173,8 @@
 
 #### 0.6.0 - April 13, 2017
 
-- Supported `allOf` composition with `properties` definition in the same SchemaObject - https://github.com/fsprojects/SwaggerProvider/issues/72
-- Supported wrappers around primitive types - https://github.com/APIs-guru/openapi-directory/issues/98
+- Supported `allOf` composition with `properties` definition in the same SchemaObject - <https://github.com/fsprojects/SwaggerProvider/issues/72>
+- Supported wrappers around primitive types - <https://github.com/APIs-guru/openapi-directory/issues/98>
 - No runtime dependency on YamlDotNet
 - NuGet dependency on FSharp.Core
 
@@ -213,9 +217,9 @@
 
 #### 0.4.0 - April 10, 2016
 
-- Added support of anonymous types generations - https://github.com/fsprojects/SwaggerProvider/pull/24
+- Added support of anonymous types generations - <https://github.com/fsprojects/SwaggerProvider/pull/24>
 - Added support of recursively dependent type definitions
-- Added support of `$refs` in DefinitionProperty - https://github.com/fsprojects/SwaggerProvider/issues/23
+- Added support of `$refs` in DefinitionProperty - <https://github.com/fsprojects/SwaggerProvider/issues/23>
 - Added support of operations without `operationId`
 - Better XML docs
 
@@ -227,11 +231,11 @@
 
 #### 0.3.5 - February 25 2016
 
-- Added ability to override Host property at runtime - https://github.com/fsprojects/SwaggerProvider/issues/15
+- Added ability to override Host property at runtime - <https://github.com/fsprojects/SwaggerProvider/issues/15>
 
 #### 0.3.4 - January 20 2016
 
-- Fixed generation of obsolete provided methods - https://github.com/fsprojects/FSharp.TypeProviders.StarterPack/issues/70
+- Fixed generation of obsolete provided methods - <https://github.com/fsprojects/FSharp.TypeProviders.StarterPack/issues/70>
 
 #### 0.3.3 - January 18 2016
 
