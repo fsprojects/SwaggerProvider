@@ -1,6 +1,6 @@
 # OpenAPI Client Provider
 
-OpenApiClientProvider is generative F# Type Provider, build on top of [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) schema parser that supports 3.0 and 2.0 schema formats.
+OpenApiClientProvider is a generative F# Type Provider, built on top of [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) schema parser that supports 3.0 and 2.0 schema formats.
 
 ```fsharp
 open SwaggerProvider
@@ -12,7 +12,7 @@ let client = PetStore.Client()
 
 ## Parameters
 
-`OpenApiClientProvider` supports following configuration parametes
+`OpenApiClientProvider` supports the following configuration parameters
 
 | Parameter | Description |
 |-----------|-------------|
@@ -43,15 +43,15 @@ type PetStore = OpenApiClientProvider<Schema>
 let main argv =
     // `UseCookies = false` is required if you use Cookie Parameters
     let handler = new HttpClientHandler (UseCookies = false)
-    // `BaseAddress` uri should ends with '/' because TP generate relative uri
+    // `BaseAddress` uri should end with '/' because TP generate relative uri
     let baseUri = Uri("https://petstore.swagger.io/v2/")
     use httpClient = new HttpClient(handler, true, BaseAddress=baseUri)
-    // You can provide your instance of `HttpClient` to provided api client
+    // You can provide your instance of `HttpClient` to the provided api client
     // or change it any time in runtime using `client.HttpClient` property
     let client = PetStore.Client(httpClient)
 
     task {
-        // Create new instance of provided type and add to store
+        // Create a new instance of the provided type and add to store
         let pet = PetStore.Pet(Id = Some(24L), Name = "Shani")
         do! client.AddPet(pet)
 
