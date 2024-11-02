@@ -2,11 +2,11 @@
 
 <Note type="warning">
 
-The SwaggerClientProvider is outdated. There is no plans to improve custom Swagger 2.0 schema parser or bring new features to this type provider. We hope to remove it from source code when users migrate to [OpenApiClientProvider](/OpenApiClientProvider) and OpenApi 3.0 schemas.
+The SwaggerClientProvider is outdated. There are no plans to improve the custom Swagger 2.0 schema parser or bring new features to this type provider. We hope to remove it from the source code when users migrate to [OpenApiClientProvider](/OpenApiClientProvider) and OpenApi 3.0 schemas.
 
 </Note>
 
-SwaggerClientProvider is generative F# Type Provider, build on top of custom Swagger schema parser that supports **only** 2.0 schema format.
+SwaggerClientProvider is a generative F# Type Provider, built on top of a custom Swagger schema parser that supports **only** 2.0 schema format.
 
 ```fsharp
 open SwaggerProvider
@@ -18,12 +18,12 @@ let petStore = PetStore.Client()
 
 ## Parameters
 
-When you use TP you can specify following parameters
+When you use TP you can specify the following parameters
 
 | Parameter | Description |
 |-----------|-------------|
 | `Schema` | Url or Path to Swagger schema file. |
-| `Headers` | HTTP Headers requiried to access the schema. |
+| `Headers` | HTTP Headers required to access the schema. |
 | `IgnoreOperationId` | Do not use `operationsId` and generate method names using `path` only. Default value `false`. |
 | `IgnoreControllerPrefix` | Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`. |
 | `PreferNullable` | Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`. |
@@ -47,7 +47,7 @@ let main argv =
     // Type Provider creates HttpClient for you under the hood
     let client = PetStore.Client()
     async {
-        // Create new instance of provided type and add to store
+        // Create a new instance of the provided type and add it to the store
         let pet = PetStore.Pet(Id = Some(24L), Name = "Shani")
         do! client.AddPet(pet)
 
