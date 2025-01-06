@@ -1,4 +1,4 @@
-﻿module Swashbuckle.v2.ResourceControllersTests
+module Swashbuckle.v2.ResourceControllersTests
 
 open Xunit
 open FsUnitTyped
@@ -7,18 +7,18 @@ open Swashbuckle.v2.ReturnControllersTests
 [<Fact>]
 let ``ResourceStringString Add and get from resource dictionary``() =
     task {
-        do! api.PutApiResourceStringString("lang", "F#")
-        do! api.GetApiResourceStringString("lang") |> asyncEqual "F#"
+        do! api.PutApiResourceStringString("language", "Fsharp")
+        do! api.GetApiResourceStringString("language") |> asyncEqual "Fsharp"
     }
 
 [<Fact>]
 let ``ResourceStringString Update value in the resource dictionary``() =
     task {
-        do! api.PutApiResourceStringString("name", "Sergey")
-        do! api.GetApiResourceStringString("name") |> asyncEqual "Sergey"
+        do! api.PutApiResourceStringString("name2", "Sergey")
+        do! api.GetApiResourceStringString("name2") |> asyncEqual "Sergey"
 
-        do! api.PostApiResourceStringString("name", "Siarhei")
-        do! api.GetApiResourceStringString("name") |> asyncEqual "Siarhei"
+        do! api.PostApiResourceStringString("name2", "Siarhei")
+        do! api.GetApiResourceStringString("name2") |> asyncEqual "Siarhei"
     }
 
 let ``ResourceStringString Delete from the dictionary``() =

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFrameworks>net9.0</TargetFrameworks>
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -28,6 +29,7 @@
     <Compile Include="v3\Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ResourceControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.FileController.Tests.fs" />
+    <Compile Include="v3\Swashbuckle.NoContentControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.SpecialCasesControllers.Tests.fs" />
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
