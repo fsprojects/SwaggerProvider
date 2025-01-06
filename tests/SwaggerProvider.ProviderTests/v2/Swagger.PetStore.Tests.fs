@@ -25,7 +25,7 @@ let ``Test provided Host property``() =
     let store = PetStore.Client()
 
     store.HttpClient.BaseAddress.ToString()
-    |> shouldEqual "https://petstore.swagger.io/v2/"
+    |> shouldEqual "https://petstore.swagger.io/"
 
     store.HttpClient.BaseAddress <- Uri "http://petstore.swagger.io/v3/"
 
