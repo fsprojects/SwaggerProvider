@@ -1,3 +1,8 @@
+#### 2.2.0 - Jan 6, 2025
+
+- hk: build with .NET 9
+- hk: Dependencies update
+
 #### 2.1.3 - Sep 8, 2024
 
 - hk: Dependencies update

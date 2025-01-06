@@ -3,14 +3,13 @@ name: Build and Test
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   build:
-
     strategy:
       fail-fast: false
       matrix:
@@ -18,14 +17,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET 8.0 SDK
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    - name: Install local tools
-      run: dotnet tool restore
-    - name: Paket Restore
-      run: dotnet paket restore
-    - name: Build and Test
-      run: dotnet fsi build.fsx
+      - uses: actions/checkout@v1
+      - name: Setup .NET 9.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - name: Install local tools
+        run: dotnet tool restore
+      - name: Paket Restore
+        run: dotnet paket restore
+      - name: Build and Test
+        run: dotnet fsi build.fsx
