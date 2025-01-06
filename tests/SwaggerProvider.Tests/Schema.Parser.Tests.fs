@@ -76,7 +76,7 @@ let unsupportedSchemaPaths =
     |> List.filter(fun s -> s.IndexOf("unsupported") > 0)
     |> List.map(fun s -> [| box s |])
 
-[<Theory; MemberData(nameof(unsupportedSchemaPaths))>]
+[<Theory(Skip = "no samples"); MemberData(nameof(unsupportedSchemaPaths))>]
 let ``Fail to parse`` file =
     let file = Path.Combine(rootFolder, file)
     shouldFail(fun () -> parserTestBody file |> Async.AwaitTask |> Async.RunSynchronously)

@@ -114,7 +114,7 @@ Target.create "BuildTests" (fun _ -> dotnet "build" "SwaggerProvider.TestsAndDoc
 // Run the unit tests using test runner
 
 let runTests assembly =
-    dotnet "test" $"{assembly} -c Release --no-build"
+    dotnet $"{assembly}" ""
 
 Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net9.0/SwaggerProvider.Tests.dll")
 
