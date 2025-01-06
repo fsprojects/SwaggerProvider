@@ -5,16 +5,16 @@ open Swashbuckle.v3.ReturnControllersTests
 
 [<Fact>]
 let ``Test 204 with GET``() =
-    task { do! api.GetNoContent() }
+    task { do! api.GetApiNoContent() }
 
 [<Fact>]
 let ``Test 204 with POST``() =
-    task { do! api.PostNoContent() }
+    task { do! api.PostApiNoContent() }
 
 [<Fact>]
 let ``Test 204 with PUT``() =
-    task { do! api.PutNoContent() }
+    task { do! api.PutApiNoContent() }
 
 [<Fact>]
 let ``Test 204 with DELETE``() =
-    task { do! api.DeleteNoContent() }
+    task { do! api.DeleteApiNoContent() }
