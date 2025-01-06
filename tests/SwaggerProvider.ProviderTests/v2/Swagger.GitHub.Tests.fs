@@ -10,6 +10,11 @@ open System.Net.Http
 let Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/github.json"
 
 [<Literal>]
+let UserAgent =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+
+[<Literal>]
 let Host = "https://api.github.com"
 
 type GitHub = SwaggerClientProvider<Schema, PreferAsync=true>
@@ -18,9 +23,8 @@ let github() =
     let client = GitHub.Client()
     client.HttpClient.BaseAddress <- Uri Host
 
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    |> Headers.ProductInfoHeaderValue.Parse
-    |> client.HttpClient.DefaultRequestHeaders.UserAgent.Add
+    client.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent)
+    |> ignore
 
     client
 
@@ -32,9 +36,8 @@ let taskGitHub() =
     let client = TaskGitHub.Client()
     client.HttpClient.BaseAddress <- Uri Host
 
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-    |> Headers.ProductInfoHeaderValue.Parse
-    |> client.HttpClient.DefaultRequestHeaders.UserAgent.Add
+    client.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", UserAgent)
+    |> ignore
 
     client
 
