@@ -29,6 +29,7 @@
     <Compile Include="v3\Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ResourceControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.FileController.Tests.fs" />
+    <Compile Include="v3\Swashbuckle.NoContentControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.SpecialCasesControllers.Tests.fs" />
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
