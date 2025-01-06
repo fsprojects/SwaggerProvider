@@ -59,10 +59,8 @@ let ``throw custom exceptions from task``() =
         try
             let! _ = storeTask.GetPetById(342L)
             failwith "Call should fail"
-        with :? System.AggregateException as aex ->
-            match aex.InnerException with
-            | :? System.Net.Http.HttpRequestException as ex -> ex.Message |> shouldContainText "Not Found"
-            | _ -> raise aex
+        with :? System.Net.Http.HttpRequestException as ex ->
+            ex.Message |> shouldContainText "Not Found"
     }
 
 [<Fact>]
