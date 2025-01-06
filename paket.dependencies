@@ -20,7 +20,7 @@ github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/NameUtils.f
 
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: net8.0
+    framework: net9.0
 
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
@@ -28,10 +28,12 @@ group Server
     nuget Swashbuckle.AspNetCore
     nuget Microsoft.OpenApi
     nuget FSharp.Core
+    nuget System.Text.Json
+
 
 group Test
     source https://api.nuget.org/v3/index.json
-    frameworks: net8.0
+    frameworks: net9.0
 
     nuget FSharp.Compiler.Service
     nuget FSharp.Core
