@@ -57,7 +57,8 @@ type Startup private () =
 
         //app.UseHttpsRedirection() |> ignore
         app.UseRouting() |> ignore
-        app.UseEndpoints(fun endpoints ->
-            endpoints.MapControllers() |> ignore) |> ignore
+
+        app.UseEndpoints(fun endpoints -> endpoints.MapControllers() |> ignore)
+        |> ignore
 
     member val Configuration: IConfiguration = null with get, set
