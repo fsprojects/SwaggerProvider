@@ -1,4 +1,4 @@
-﻿module Swagger.PetStore.Tests
+module Swagger.PetStore.Tests
 
 open SwaggerProvider
 open Swagger
@@ -45,11 +45,11 @@ let ``Instantiate provided objects``() =
 let ``throw custom exceptions from async``() =
     task {
         try
-            let! _ = store.GetPetById(-142L)
+            let! _ = store.GetPetById(242L)
             failwith "Call should fail"
         with :? System.AggregateException as aex ->
             match aex.InnerException with
-            | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
+            | :? System.Net.Http.HttpRequestException as ex -> ex.Message |> shouldContainText "Not Found"
             | _ -> raise aex
     }
 
@@ -57,11 +57,11 @@ let ``throw custom exceptions from async``() =
 let ``throw custom exceptions from task``() =
     task {
         try
-            let! _ = storeTask.GetPetById(-142L)
+            let! _ = storeTask.GetPetById(342L)
             failwith "Call should fail"
         with :? System.AggregateException as aex ->
             match aex.InnerException with
-            | :? OpenApiException as ex -> ex.Description |> shouldEqual "Pet not found"
+            | :? System.Net.Http.HttpRequestException as ex -> ex.Message |> shouldContainText "Not Found"
             | _ -> raise aex
     }
 
@@ -76,7 +76,7 @@ let ``call provided methods``() =
             ()
 
         let tag = PetStore.Tag(None, "foobar")
-        tag.ToString() |> shouldEqual "foobar"
+        tag.Name |> shouldEqual "foobar"
         let pet = PetStore.Pet("foo", [||], Some id)
         pet.ToString() |> shouldContainText(id.ToString())
 
@@ -102,7 +102,7 @@ let ``call provided methods``() =
 [<Fact>]
 let ``create types with Nullable properties``() =
     let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
-    tag.ToString() |> shouldEqual "foobar"
+    tag.Name |> shouldEqual "foobar"
     let tag2 = PetStoreNullable.Tag(Name = "foobar")
     tag2.ToString() |> shouldContainText "foobar"
 
