@@ -90,11 +90,13 @@ let ``Parse PetStore``() =
     )
 
 [<Fact>]
-let ``Add definition for schema with only allOf properties`` () =
+let ``Add definition for schema with only allOf properties``() =
     let definitions =
-        __SOURCE_DIRECTORY__ + "/../SwaggerProvider.ProviderTests/Schemas/v3/issue255.yaml"
+        __SOURCE_DIRECTORY__
+        + "/../SwaggerProvider.ProviderTests/Schemas/v3/issue255.yaml"
         |> File.ReadAllText
         |> V3.testSchema
+
     definitions |> shouldHaveLength 1
     definitions[0].GetDeclaredProperty("FirstName") |> shouldNotEqual null
 

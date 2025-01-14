@@ -250,15 +250,16 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     match schemaObj.AllOf.Count > 0 with
                     | true ->
                         schemaObj.AllOf
-                        |> Seq.append [schemaObj]
-                        |> Seq.collect (fun x -> x.Properties)
+                        |> Seq.append [ schemaObj ]
+                        |> Seq.collect(fun x -> x.Properties)
                     | false -> schemaObj.Properties
+
                 let schemaObjRequired =
                     match schemaObj.AllOf.Count > 0 with
                     | true ->
                         schemaObj.AllOf
-                        |> Seq.append [schemaObj]
-                        |> Seq.collect (fun x -> x.Required)
+                        |> Seq.append [ schemaObj ]
+                        |> Seq.collect(fun x -> x.Required)
                         |> System.Collections.Generic.HashSet
                         :> System.Collections.Generic.ISet<string>
                     | false -> schemaObj.Required
