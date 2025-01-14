@@ -33,9 +33,9 @@ module V3 =
             let defCompiler = DefinitionCompiler(schema, false)
             let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
             opCompiler.CompileProvidedClients(defCompiler.Namespace)
-            ignore <| defCompiler.Namespace.GetProvidedTypes()
+            defCompiler.Namespace.GetProvidedTypes()
         with e when e.Message.IndexOf("not supported yet") >= 0 ->
-            ()
+            List.Empty
 
 let parserTestBody(path: string) =
     task {
@@ -49,7 +49,7 @@ let parserTestBody(path: string) =
             if path.IndexOf("v2") >= 0 then
                 V2.testSchema schemaStr
             else
-                V3.testSchema schemaStr
+                V3.testSchema schemaStr |> ignore
     }
 
 let rootFolder =
@@ -88,6 +88,15 @@ let ``Parse PetStore``() =
         __SOURCE_DIRECTORY__
         + "/../SwaggerProvider.ProviderTests/Schemas/v2/petstore.json"
     )
+
+[<Fact>]
+let ``Add definition for schema with only allOf properties`` () =
+    let definitions =
+        __SOURCE_DIRECTORY__ + "/../SwaggerProvider.ProviderTests/Schemas/v3/issue255.yaml"
+        |> File.ReadAllText
+        |> V3.testSchema
+    definitions |> shouldHaveLength 1
+    definitions[0].GetDeclaredProperty("FirstName") |> shouldNotEqual null
 
 (*
 [<Tests>]

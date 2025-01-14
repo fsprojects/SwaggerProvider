@@ -233,7 +233,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
     and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: OpenApiSchema) isRequired registerNew fromByPathCompiler =
         let compileNewObject() =
-            if schemaObj.Properties.Count = 0 then
+            if schemaObj.Properties.Count = 0 && schemaObj.AllOf.Count = 0 then
                 if not <| isNull tyName then
                     ns.MarkTypeAsNameAlias tyName
 
@@ -245,18 +245,36 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                 registerNew(tyName, ty :> Type)
 
+                // Combine composite schemas
+                let schemaObjProperties =
+                    match schemaObj.AllOf.Count with
+                    | c when c > 0 ->
+                        schemaObj.AllOf
+                        |> Seq.append [schemaObj]
+                        |> Seq.collect (fun x -> x.Properties)
+                    | _ -> schemaObj.Properties
+                let schemaObjRequired =
+                    match schemaObj.AllOf.Count with
+                    | c when c > 0 ->
+                        schemaObj.AllOf
+                        |> Seq.append [schemaObj]
+                        |> Seq.collect (fun x -> x.Required)
+                        |> System.Collections.Generic.HashSet
+                        :> System.Collections.Generic.ISet<string>
+                    | _ -> schemaObj.Required
+
                 // Generate fields and properties
                 let members =
                     let generateProperty = generateProperty(UniqueNameGenerator())
 
-                    List.ofSeq schemaObj.Properties
+                    List.ofSeq schemaObjProperties
                     |> List.map(fun p ->
                         let propName, propSchema = p.Key, p.Value
 
                         if String.IsNullOrEmpty(propName) then
                             failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
-                        let isRequired = schemaObj.Required.Contains(propName)
+                        let isRequired = schemaObjRequired.Contains(propName)
 
                         let pTy =
                             compileBySchema ns (ns.ReserveUniqueName tyName (nicePascalName propName)) propSchema isRequired ns.RegisterType false
@@ -279,15 +297,15 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 // Add full-init constructor
                 let ctorParams, fields =
                     let required, optional =
-                        List.zip (List.ofSeq schemaObj.Properties) members
-                        |> List.partition(fun (x, _) -> schemaObj.Required.Contains(x.Key))
+                        List.zip (List.ofSeq schemaObjProperties) members
+                        |> List.partition(fun (x, _) -> schemaObjRequired.Contains(x.Key))
 
                     (required @ optional)
                     |> List.map(fun (x, (f, p)) ->
                         let paramName = niceCamelName p.Name
 
                         let prParam =
-                            if schemaObj.Required.Contains(x.Key) then
+                            if schemaObjRequired.Contains(x.Key) then
                                 ProvidedParameter(paramName, f.FieldType)
                             else
                                 let paramDefaultValue = this.GetDefaultValue f.FieldType
