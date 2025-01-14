@@ -1,0 +1,14 @@
+openapi: 3.0.0
+paths:
+  /run:
+    summary: Do nothing.
+components:
+  schemas:
+    Person:
+      title: Person
+      allOf:
+      - type: object
+        properties:
+          first_name:
+            type: string
+            description: "First Name"
