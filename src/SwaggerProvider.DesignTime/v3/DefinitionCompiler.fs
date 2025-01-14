@@ -247,21 +247,21 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                 // Combine composite schemas
                 let schemaObjProperties =
-                    match schemaObj.AllOf.Count with
-                    | c when c > 0 ->
+                    match schemaObj.AllOf.Count > 0 with
+                    | true ->
                         schemaObj.AllOf
                         |> Seq.append [schemaObj]
                         |> Seq.collect (fun x -> x.Properties)
-                    | _ -> schemaObj.Properties
+                    | false -> schemaObj.Properties
                 let schemaObjRequired =
-                    match schemaObj.AllOf.Count with
-                    | c when c > 0 ->
+                    match schemaObj.AllOf.Count > 0 with
+                    | true ->
                         schemaObj.AllOf
                         |> Seq.append [schemaObj]
                         |> Seq.collect (fun x -> x.Required)
                         |> System.Collections.Generic.HashSet
                         :> System.Collections.Generic.ISet<string>
-                    | _ -> schemaObj.Required
+                    | false -> schemaObj.Required
 
                 // Generate fields and properties
                 let members =
