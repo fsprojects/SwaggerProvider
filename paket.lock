@@ -37,8 +37,8 @@ NUGET
     YamlDotNet (16.3)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (3a9510e466cb8ab04e0b86841dc777994909f881)
-    src/ProvidedTypes.fsi (3a9510e466cb8ab04e0b86841dc777994909f881)
+    src/ProvidedTypes.fs (b965f9485545d308ced1cde3779c9e66a2a298f2)
+    src/ProvidedTypes.fsi (b965f9485545d308ced1cde3779c9e66a2a298f2)
   remote: fsprojects/FSharp.Data
     src/FSharp.Data.Runtime.Utilities/NameUtils.fs (992bd093c6eacb65a69bf09097889b72bbba7146)
     src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (992bd093c6eacb65a69bf09097889b72bbba7146)
