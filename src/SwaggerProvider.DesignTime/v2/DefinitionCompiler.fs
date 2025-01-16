@@ -42,9 +42,7 @@ type DefinitionPath =
               ProvidedTypeNameCandidate = nicePascalName definitionPath }
         else
             let nsPath =
-                definitionPath
-                    .Substring(0, lastDot)
-                    .Split([| nsSeparator |], StringSplitOptions.RemoveEmptyEntries)
+                definitionPath.Substring(0, lastDot).Split([| nsSeparator |], StringSplitOptions.RemoveEmptyEntries)
                 |> List.ofArray
 
             let tyName = definitionPath.Substring(lastDot + 1)
@@ -360,9 +358,7 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | Enum(_, "string") -> typeof<string>
                 | Enum(_, "boolean") -> typeof<bool>
                 | Enum _ -> typeof<int32>
-                | Array eTy ->
-                    (compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy true ns.RegisterType)
-                        .MakeArrayType(1)
+                | Array eTy -> (compileSchemaObject ns (ns.ReserveUniqueName tyName "Item") eTy true ns.RegisterType).MakeArrayType(1)
                 | Dictionary eTy ->
                     ProvidedTypeBuilder.MakeGenericType(
                         typedefof<Map<string, obj>>,

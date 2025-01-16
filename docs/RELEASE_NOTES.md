@@ -1,3 +1,8 @@
+#### 2.2.1 - Jan 16, 2025
+
+- Added allOf properties to the schema definition (#256)
+- Update TypeProvider SDK (#257)
+
 #### 2.2.0 - Jan 6, 2025
 
 - hk: build with .NET 9
