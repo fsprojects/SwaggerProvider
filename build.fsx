@@ -63,7 +63,7 @@ Target.create "AssemblyInfo" (fun _ ->
 // Clean build results
 
 Target.create "Clean" (fun _ ->
-    !! "**/**/bin/" |> Shell.cleanDirs
+    !!"**/**/bin/" |> Shell.cleanDirs
     //!! "**/**/obj/" |> Shell.cleanDirs
 
     Shell.cleanDirs [ "bin"; "temp" ]
@@ -178,7 +178,7 @@ Target.create "Release" (fun _ ->
 Target.create "BuildPackage" ignore
 
 let sourceFiles =
-    !! "**/*.fs" ++ "**/*.fsx"
+    !!"**/*.fs" ++ "**/*.fsx"
     -- "packages/**/*.*"
     -- "paket-files/**/*.*"
     -- ".fake/**/*.*"

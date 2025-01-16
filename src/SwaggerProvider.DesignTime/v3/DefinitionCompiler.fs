@@ -44,9 +44,7 @@ type DefinitionPath =
               ProvidedTypeNameCandidate = nicePascalName definitionPath }
         else
             let nsPath =
-                definitionPath
-                    .Substring(0, lastDot)
-                    .Split([| nsSeparator |], StringSplitOptions.RemoveEmptyEntries)
+                definitionPath.Substring(0, lastDot).Split([| nsSeparator |], StringSplitOptions.RemoveEmptyEntries)
                 |> List.ofArray
 
             let tyName = definitionPath.Substring(lastDot + 1)
