@@ -1,3 +1,7 @@
+#### 2.2.2 - Jan 23, 2025
+
+- Improvement of design-time error handling (#259)
+
 #### 2.2.1 - Jan 16, 2025
 
 - Added allOf properties to the schema definition (#256)
