@@ -45,6 +45,16 @@ module SchemaReader =
 
                 match res with
                 | Choice1Of2 x -> return x
+                | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
+                    let content =
+                        ex.Content.ReadAsStringAsync()
+                        |> Async.AwaitTask
+                        |> Async.RunSynchronously
+
+                    if String.IsNullOrEmpty content then
+                        return ex.Reraise()
+                    else
+                        return content
                 | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
                     use stream = wex.Response.GetResponseStream()
                     use reader = new StreamReader(stream)
