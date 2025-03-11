@@ -1,3 +1,7 @@
+#### 2.2.3 - Mar 11, 2025
+
+- Update ProvidedTypes.fs to latest version of FSharp.TypeProvider.SDK (#262)
+
 #### 2.2.2 - Jan 23, 2025
 
 - Improvement of design-time error handling (#259)
