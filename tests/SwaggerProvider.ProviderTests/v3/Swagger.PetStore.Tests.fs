@@ -66,7 +66,7 @@ let ``throw custom exceptions from task``() =
 [<Fact>]
 let ``call provided methods``() =
     task {
-        let id = 3347L
+        let id = 3247L
 
         try
             do! store.DeletePet(id, apiKey)
