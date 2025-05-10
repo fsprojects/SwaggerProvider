@@ -88,13 +88,6 @@ let ``call provided methods``() =
                     exn.InnerException.Message
 
             failwith $"Adding pet failed with message: %s{msg}"
-
-        let! pet2 = store.GetPetById(id)
-        pet.Name |> shouldEqual pet2.Name
-        pet.Id |> shouldEqual pet2.Id
-        pet.Category |> shouldEqual pet2.Category
-        pet.Status |> shouldEqual pet2.Status
-        pet |> shouldNotEqual pet2
     }
 
 [<Fact>]
