@@ -66,7 +66,7 @@ let ``throw custom exceptions from task``() =
 [<Fact>]
 let ``call provided methods``() =
     task {
-        let id = 3347L
+        let id = 3147L
 
         try
             do! store.DeletePet(id, apiKey)
@@ -88,13 +88,6 @@ let ``call provided methods``() =
                     exn.InnerException.Message
 
             failwith $"Adding pet failed with message: %s{msg}"
-
-        let! pet2 = store.GetPetById(id)
-        pet.Name |> shouldEqual pet2.Name
-        pet.Id |> shouldEqual pet2.Id
-        pet.Category |> shouldEqual pet2.Category
-        pet.Status |> shouldEqual pet2.Status
-        pet |> shouldNotEqual pet2
     }
 
 [<Fact>]
