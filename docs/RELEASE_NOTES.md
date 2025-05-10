@@ -1,3 +1,7 @@
+#### 2.3.0 - May 10, 2025
+
+- Added .NET 8 runtime, updated Microsoft.OpenApi (#265)
+
 #### 2.2.3 - Mar 11, 2025
 
 - Update ProvidedTypes.fs to latest version of FSharp.TypeProvider.SDK (#262)
