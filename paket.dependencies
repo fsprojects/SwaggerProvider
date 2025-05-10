@@ -1,6 +1,6 @@
 version 8.0.3
 source https://api.nuget.org/v3/index.json
-frameworks: net8.0, netstandard2.0
+storage: none
 
 nuget FSharp.Core ~> 6 // We need task{} CE from F# 6.0
 nuget System.Text.Json ~> 6

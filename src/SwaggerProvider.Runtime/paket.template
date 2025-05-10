@@ -24,6 +24,7 @@ description
     F# Type Providers for Swagger & OpenAPI
 files
     bin/Release/netstandard2.0/SwaggerProvider.Runtime.* ==> lib/netstandard2.0
+    bin/Release/net8.0/SwaggerProvider.Runtime.* ==> lib/net8.0
     bin/Release/typeproviders/fsharp41/netstandard2.0/*.dll ==> typeproviders/fsharp41/netstandard2.0
     bin/Release/typeproviders/fsharp41/net8.0/*.dll ==> typeproviders/fsharp41/net8.0
 references
