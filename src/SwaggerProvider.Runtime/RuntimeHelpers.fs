@@ -2,6 +2,7 @@ namespace Swagger.Internal
 
 open System
 open System.Net.Http
+open System.Text.Json
 open System.Text.Json.Serialization
 open System.Threading.Tasks
 
@@ -18,6 +19,19 @@ module MediaTypes =
     [<Literal>]
     let MultipartFormData = "multipart/form-data"
 
+type DateTimeOffsetFullDateConverter() =
+
+    inherit JsonConverter<DateTimeOffset>()
+
+    override this.Read(reader: byref<Utf8JsonReader>, _typ: Type, options: JsonSerializerOptions) =
+        DateTimeOffset.Parse(reader.GetString())
+
+    override this.Write(writer: Utf8JsonWriter, value: DateTimeOffset, options: JsonSerializerOptions) =
+        writer.WriteStringValue(
+            // full-date: date-fullyear "-" date-month "-" date-mday according to https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
+            // this format is required for strings with format 'date' according to https://swagger.io/docs/specification/data-models/data-types/
+            value.ToUniversalTime().ToString("yyyy-MM-dd")
+        )
 
 type AsyncExtensions() =
     static member cast<'t> asyncOp =
@@ -122,6 +136,15 @@ module RuntimeHelpers =
 
             member _.ConstructorArguments =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
+
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+
+    let getDateTimeOffsetFullDateConverterAttribute() =
+        { new Reflection.CustomAttributeData() with
+            member _.Constructor = typeof<JsonConverterAttribute>.GetConstructor [| typeof<Type> |]
+
+            member _.ConstructorArguments =
+                [| Reflection.CustomAttributeTypedArgument(typeof<Type>, typeof<DateTimeOffsetFullDateConverter>) |] :> Collections.Generic.IList<_>
 
             member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
 
