@@ -45,7 +45,7 @@ let ``Instantiate provided objects``() =
 let ``throw custom exceptions from async``() =
     task {
         try
-            let! _ = store.GetPetById(242L)
+            let! _ = store.GetPetById(253L)
             failwith "Call should fail"
         with :? System.AggregateException as aex ->
             match aex.InnerException with

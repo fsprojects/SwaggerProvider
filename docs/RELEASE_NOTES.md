@@ -1,3 +1,7 @@
+#### 2.3.1 - May 13, 2025
+
+- Performance improvement: ProvidedTypes update to the most recent version (#267)
+
 #### 2.3.0 - May 10, 2025
 
 - Added .NET 8 runtime, updated Microsoft.OpenApi (#265)
