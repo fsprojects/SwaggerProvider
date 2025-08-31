@@ -1,3 +1,9 @@
+#### 2.4.0 - Aug 31, 2025
+
+- Microsoft.OpenApi v2.3.0
+- Removed dependency on Microsoft.OpenApi.Readers
+- Dependencies update
+
 #### 2.3.1 - May 13, 2025
 
 - Performance improvement: ProvidedTypes update to the most recent version (#267)

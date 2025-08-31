@@ -3,5 +3,5 @@ group Test
     FSharp.SystemTextJson
     FsUnit.xUnit
     Microsoft.NET.Test.Sdk
-    Microsoft.OpenApi.Readers
+    Microsoft.OpenApi
     System.Text.Json

@@ -1,11 +1,11 @@
-version 8.0.3
+version 9.0.2
 source https://api.nuget.org/v3/index.json
 storage: none
 
-nuget FSharp.Core ~> 6 // We need task{} CE from F# 6.0
-nuget System.Text.Json ~> 6
+nuget FSharp.Core ~> 8
+nuget System.Text.Json ~> 8
 nuget FSharp.SystemTextJson
-nuget Microsoft.OpenApi.Readers
+nuget Microsoft.OpenApi
 nuget NETStandard.Library.NETFramework
 
 # delete when we drop custom parser for v2
@@ -41,5 +41,5 @@ group Test
     nuget Microsoft.NET.Test.Sdk
     nuget FsUnit.Xunit
 
-    nuget Microsoft.OpenApi.Readers redirects: force
+    nuget Microsoft.OpenApi redirects: force
     nuget FSharp.SystemTextJson
