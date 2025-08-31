@@ -4,9 +4,17 @@ open System
 open System.IO
 open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Http
-open Microsoft.OpenApi.Models
-open Swagger.Internal
 open Swashbuckle.AspNetCore.SwaggerGen
+
+module MediaTypes =
+
+    open System.Net.Mime
+
+    [<Literal>]
+    let ApplicationOctetStream = MediaTypeNames.Application.Octet
+
+    [<Literal>]
+    let ApplicationJson = MediaTypeNames.Application.Json
 
 type FormWithFile() =
     member val Name: string = "" with get, set
