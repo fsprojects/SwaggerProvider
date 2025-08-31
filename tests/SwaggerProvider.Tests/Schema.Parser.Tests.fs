@@ -21,9 +21,8 @@ module V3 =
     open SwaggerProvider.Internal.v3.Compilers
 
     let testSchema schemaStr =
-        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
-
-        let schema, diagnostic = openApiReader.Read(schemaStr)
+        let readResult = Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr)
+        let schema = readResult.Document
         (*        if diagnostic.Errors.Count > 0 then
                failwithf "Schema parse errors:\n- %s"
                    (diagnostic.Errors

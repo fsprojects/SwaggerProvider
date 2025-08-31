@@ -41,5 +41,5 @@ group Test
     nuget Microsoft.NET.Test.Sdk
     nuget FsUnit.Xunit
 
-    nuget Microsoft.OpenApi redirects: force
+    nuget Microsoft.OpenApi
     nuget FSharp.SystemTextJson

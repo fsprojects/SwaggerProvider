@@ -1,6 +1,6 @@
 #### 2.4.0 - Aug 31, 2025
 
-- Microsoft.OpenApi v2.3.0
+- Microsoft.OpenApi v2.3.0 with OpenAPI v3.1 Support
 - Removed dependency on Microsoft.OpenApi.Readers
 - Dependencies update
 

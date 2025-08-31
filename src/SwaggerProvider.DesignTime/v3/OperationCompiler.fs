@@ -8,7 +8,7 @@ open System.Text.RegularExpressions
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
-open Microsoft.OpenApi.Models
+open Microsoft.OpenApi
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
 
@@ -19,7 +19,7 @@ open Swagger.Internal
 // We cannot use record here
 // TP cannot load DTC with OpenApiPathItem/OperationType props (from 3rd party assembly)
 // Probably related to https://github.com/fsprojects/FSharp.TypeProviders.SDK/issues/274
-type ApiCall = string * OpenApiPathItem * OperationType
+type ApiCall = string * IOpenApiPathItem * HttpMethod
 
 [<Struct>]
 type PayloadType =
@@ -63,7 +63,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         if String.IsNullOrWhiteSpace providedMethodName then
             failwithf $"Operation name could not be empty. See '%s{path}/%A{opTy}'"
 
-        let unambiguousName(par: OpenApiParameter) =
+        let unambiguousName(par: IOpenApiParameter) =
             $"%s{par.Name}In%A{par.In}"
 
         let openApiParameters = [ yield! pathItem.Parameters; yield! operation.Parameters ]
@@ -79,7 +79,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let payloadMime, parameters =
             /// handles de-duplicating Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
-            let uniqueParamName usedNames (param: OpenApiParameter) =
+            let uniqueParamName usedNames (param: IOpenApiParameter) =
                 let name = niceCamelName param.Name
 
                 if usedNames |> Set.contains name then
@@ -100,6 +100,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 Schema = schema,
                                 Required = true //operation.RequestBody.Required
                             )
+                            :> IOpenApiParameter
 
                         Some(payloadType, p)
 
@@ -124,7 +125,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                       if bodyFormatAndParam.IsSome then
                           yield bodyFormatAndParam.Value |> snd ]
                     |> List.distinctBy(fun op -> op.Name, op.In)
-                    |> List.partition(fun x -> x.Required)
+                    |> List.partition(_.Required)
 
                 List.append required optional
 
@@ -266,7 +267,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         let path, queryParams, headers =
                             let path, queryParams, headers, cookies =
                                 ((<@ path @>, <@ [] @>, headers, <@ [] @>), parameters)
-                                ||> List.fold(fun (path, query, headers, cookies) (param: OpenApiParameter, valueExpr) ->
+                                ||> List.fold(fun (path, query, headers, cookies) (param: IOpenApiParameter, valueExpr) ->
                                     if param.In.HasValue then
                                         let name = param.Name
 
@@ -438,9 +439,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
         List.ofSeq schema.Paths
         |> List.collect(fun path ->
-            if path.Value.UnresolvedReference then
-                failwith
-                    $"TP does not support unresolved paths / external references. Path '%s{path.Key}' refer to '%s{path.Value.Reference.ReferenceV3}'"
+            // if path.Value.UnresolvedReference then
+            //     failwith
+            //         $"TP does not support unresolved paths / external references. Path '%s{path.Key}' refer to '%s{path.Value.Reference.ReferenceV3}'"
 
             List.ofSeq path.Value.Operations
             |> List.map(fun kv -> path.Key, path.Value, kv.Key))

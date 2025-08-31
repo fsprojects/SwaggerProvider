@@ -8,7 +8,7 @@ open FSharp.Data.Runtime.NameUtils
 open Swagger.Internal
 open SwaggerProvider.Internal
 open Microsoft.FSharp.Quotations
-open Microsoft.OpenApi.Models
+open Microsoft.OpenApi
 
 type DefinitionPath =
     { Namespace: string list
@@ -229,7 +229,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
             | None -> failwithf $"Cannot find definition '%s{tyPath}' (references to relative documents are not supported yet)"
 
-    and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: OpenApiSchema) isRequired registerNew fromByPathCompiler =
+    and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: IOpenApiSchema) isRequired registerNew fromByPathCompiler =
         let compileNewObject() =
             if schemaObj.Properties.Count = 0 && schemaObj.AllOf.Count = 0 then
                 if not <| isNull tyName then
@@ -385,22 +385,19 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
         let tyType =
             match schemaObj with
             | null -> failwithf $"Cannot compile object '%s{tyName}' when schema is 'null'"
-            | _ when
-                (not(isNull schemaObj.Reference))
-                && not <| schemaObj.Reference.Id.EndsWith(tyName)
-                ->
+            | :? OpenApiSchemaReference as schemaRef when not <| schemaRef.Reference.Id.EndsWith(tyName) ->
                 ns.ReleaseNameReservation tyName
-                compileByPath <| schemaObj.Reference.ReferenceV3
-            | _ when schemaObj.UnresolvedReference ->
-                match pathToType.TryGetValue schemaObj.Reference.ReferenceV3 with
+                compileByPath <| schemaRef.Reference.Id
+            | :? OpenApiSchemaReference as schemaRef ->
+                match pathToType.TryGetValue schemaRef.Reference.Id with
                 | true, ty ->
                     ns.ReleaseNameReservation tyName
                     ty
-                | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaObj.Reference.ReferenceV3}'"
+                | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaRef.Reference.Id}'"
             // TODO: fail on external references
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when
-                schemaObj.Type = "object"
+                schemaObj.Type.Value = JsonSchemaType.Object
                 && not(isNull schemaObj.AdditionalProperties)
                 -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
@@ -410,26 +407,33 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [ typeof<string>; elTy ])
-            | _ when isNull schemaObj.Type || schemaObj.Type = "object" -> // Object props ->
+            | _ when
+                not schemaObj.Type.HasValue
+                || schemaObj.Type.Value = JsonSchemaType.Object
+                -> // Object props ->
                 compileNewObject()
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
 
-                match schemaObj.Type, schemaObj.Format with
-                | "integer", "int64" -> typeof<int64>
-                | "integer", _ -> typeof<int32>
-                | "number", "double" -> typeof<double>
-                | "number", _ -> typeof<float32>
-                | "boolean", _ -> typeof<bool>
-                | "string", "byte" -> typeof<byte>.MakeArrayType 1
-                | "string", "binary" // for `application/octet-stream` request body
-                | "file", _ -> // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
+                if not schemaObj.Type.HasValue then
+                    failwithf $"Schema type is not specified for '%s{tyName}'"
+
+                match schemaObj.Type.Value, schemaObj.Format with
+                | JsonSchemaType.Integer, "int64" -> typeof<int64>
+                | JsonSchemaType.Integer, _ -> typeof<int32>
+                | JsonSchemaType.Number, "double" -> typeof<double>
+                | JsonSchemaType.Number, _ -> typeof<float32>
+                | JsonSchemaType.Boolean, _ -> typeof<bool>
+                | JsonSchemaType.String, "byte" -> typeof<byte>.MakeArrayType 1
+                | JsonSchemaType.String, "binary" ->
+                    // for `application/octet-stream` request body
+                    // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                     typeof<IO.Stream>
-                | "string", "date"
-                | "string", "date-time" -> typeof<DateTimeOffset>
-                | "string", "uuid" -> typeof<Guid>
-                | "string", _ -> typeof<string>
-                | "array", _ ->
+                | JsonSchemaType.String, "date"
+                | JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
+                | JsonSchemaType.String, "uuid" -> typeof<Guid>
+                | JsonSchemaType.String, _ -> typeof<string>
+                | JsonSchemaType.Array, _ ->
                     ns.ReleaseNameReservation tyName
                     let elSchema = schemaObj.Items
 
@@ -437,7 +441,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                     elTy.MakeArrayType(1)
-                | ty, format -> failwithf $"Type %s{tyName}(%s{ty},%s{format}) should be caught by other match statement (%A{schemaObj.Type})"
+                | ty, format -> failwithf $"Type %s{tyName}(%A{ty},%s{format}) should be caught by other match statement (%A{schemaObj.Type})"
 
         if fromByPathCompiler then
             registerNew(tyName, tyType)

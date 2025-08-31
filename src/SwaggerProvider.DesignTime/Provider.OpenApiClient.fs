@@ -66,9 +66,9 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                 let addCache() =
                     lazy
                         let schemaData = SchemaReader.readSchemaPath "" schemaPath |> Async.RunSynchronously
-                        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
-                        let (schema, diagnostic) = openApiReader.Read(schemaData)
+                        let readResult = Microsoft.OpenApi.OpenApiDocument.Parse(schemaData)
+                        let schema, diagnostic = (readResult.Document, readResult.Diagnostic)
 
                         if diagnostic.Errors.Count > 0 then
                             failwithf
