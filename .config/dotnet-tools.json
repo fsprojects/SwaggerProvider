@@ -10,14 +10,14 @@
       "rollForward": false
     },
     "dotnet-serve": {
-      "version": "1.10.175",
+      "version": "1.10.190",
       "commands": [
         "dotnet-serve"
       ],
       "rollForward": false
     },
     "fantomas": {
-      "version": "7.0.0",
+      "version": "7.0.3",
       "commands": [
         "fantomas"
       ],
