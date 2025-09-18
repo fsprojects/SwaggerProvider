@@ -2,6 +2,7 @@ namespace SwaggerProvider
 
 open System
 open System.Reflection
+open Microsoft.OpenApi.Reader
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
 open Swagger
@@ -67,7 +68,12 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                     lazy
                         let schemaData = SchemaReader.readSchemaPath "" schemaPath |> Async.RunSynchronously
 
-                        let readResult = Microsoft.OpenApi.OpenApiDocument.Parse(schemaData)
+                        let settings = OpenApiReaderSettings()
+                        settings.AddYamlReader()
+
+                        let readResult =
+                            Microsoft.OpenApi.OpenApiDocument.Parse(schemaData, settings = settings)
+
                         let schema, diagnostic = (readResult.Document, readResult.Diagnostic)
 
                         if diagnostic.Errors.Count > 0 then

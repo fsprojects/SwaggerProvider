@@ -6,6 +6,7 @@ nuget FSharp.Core ~> 8
 nuget System.Text.Json ~> 8
 nuget FSharp.SystemTextJson
 nuget Microsoft.OpenApi
+nuget Microsoft.OpenApi.YamlReader
 nuget NETStandard.Library.NETFramework
 
 # delete when we drop custom parser for v2
