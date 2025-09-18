@@ -19,13 +19,14 @@ github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/Pluralizer.
 github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/NameUtils.fs
 
 group Server
+    source https://www.myget.org/F/domaindrivendev/api/v3/index.json
     source https://api.nuget.org/v3/index.json
     framework: net9.0
 
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
-    nuget Swashbuckle.AspNetCore
+    nuget Swashbuckle.AspNetCore ~> 10.0.0-pr.3283
     nuget Microsoft.OpenApi
     nuget FSharp.Core
     nuget System.Text.Json

@@ -4,6 +4,7 @@ open System
 open System.IO
 open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Http
+open Microsoft.OpenApi
 open Swashbuckle.AspNetCore.SwaggerGen
 
 module MediaTypes =
@@ -34,7 +35,7 @@ type BinaryContentFilter() =
 
                 op.RequestBody.Content.Add(
                     MediaTypes.ApplicationOctetStream,
-                    OpenApiMediaType(Schema = OpenApiSchema(Type = "string", Format = "binary"))
+                    OpenApiMediaType(Schema = OpenApiSchema(Type = JsonSchemaType.String, Format = "binary"))
                 )
 
 [<Route("api/[controller]")>]
