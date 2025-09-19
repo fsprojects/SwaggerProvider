@@ -15,7 +15,7 @@ let private apisGuruList =
              |> Async.RunSynchronously
 
          JsonDocument.Parse(list).RootElement.EnumerateObject()
-         |> Seq.map(fun x -> x.Value))
+         |> Seq.map(_.Value))
 
 let private getApisGuruSchemas propertyName =
     let getProp (prop: string) (obj: JsonElement) =
@@ -30,9 +30,9 @@ let private getApisGuruSchemas propertyName =
     |> Seq.choose(fun schema ->
         schema
         |> getProp "versions"
-        |> Option.bind(fun v -> v.EnumerateObject() |> Seq.map(fun y -> y.Value) |> Seq.last |> Some))
+        |> Option.bind(fun v -> v.EnumerateObject() |> Seq.map(_.Value) |> Seq.last |> Some))
     |> Seq.choose(getProp propertyName)
-    |> Seq.map(fun x -> x.GetString())
+    |> Seq.map(_.GetString())
     |> Seq.toArray
 
 let Schemas = lazy (getApisGuruSchemas "swaggerYamlUrl") // "swaggerUrl"

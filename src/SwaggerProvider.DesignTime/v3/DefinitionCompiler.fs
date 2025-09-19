@@ -249,7 +249,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     | true ->
                         schemaObj.AllOf
                         |> Seq.append [ schemaObj ]
-                        |> Seq.collect(fun x -> x.Properties)
+                        |> Seq.collect(_.Properties)
                     | false -> schemaObj.Properties
 
                 let schemaObjRequired =
@@ -257,7 +257,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     | true ->
                         schemaObj.AllOf
                         |> Seq.append [ schemaObj ]
-                        |> Seq.collect(fun x -> x.Required)
+                        |> Seq.collect(_.Required)
                         |> System.Collections.Generic.HashSet
                         :> System.Collections.Generic.ISet<string>
                     | false -> schemaObj.Required
