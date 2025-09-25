@@ -225,7 +225,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
                 ty :> Type
-            | None when tyPath.StartsWith(DefinitionPath.DefinitionPrefix) ->
+            | None when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
             | None -> failwithf $"Cannot find definition '%s{tyPath}' (references to relative documents are not supported yet)"
 
@@ -244,23 +244,27 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 registerNew(tyName, ty :> Type)
 
                 // Combine composite schemas
+                let hasAllOf =
+                    match schemaObj.AllOf with
+                    | null -> false
+                    | _ -> schemaObj.AllOf.Count > 0
+
                 let schemaObjProperties =
-                    match schemaObj.AllOf.Count > 0 with
+                    match hasAllOf with
                     | true ->
                         schemaObj.AllOf
                         |> Seq.append [ schemaObj ]
-                        |> Seq.collect(_.Properties)
+                        |> Seq.collect _.Properties
                     | false -> schemaObj.Properties
+                    |> fun x -> if isNull x then Seq.empty else x
+
 
                 let schemaObjRequired =
-                    match schemaObj.AllOf.Count > 0 with
-                    | true ->
-                        schemaObj.AllOf
-                        |> Seq.append [ schemaObj ]
-                        |> Seq.collect(_.Required)
-                        |> System.Collections.Generic.HashSet
-                        :> System.Collections.Generic.ISet<string>
+                    match hasAllOf with
+                    | true -> schemaObj.AllOf |> Seq.append [ schemaObj ] |> Seq.collect _.Required
                     | false -> schemaObj.Required
+                    |> fun x -> if isNull x then Seq.empty else x
+                    |> Set.ofSeq
 
                 // Generate fields and properties
                 let members =
@@ -270,10 +274,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     |> List.map(fun p ->
                         let propName, propSchema = p.Key, p.Value
 
-                        if String.IsNullOrEmpty(propName) then
+                        if String.IsNullOrEmpty propName then
                             failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
-                        let isRequired = schemaObjRequired.Contains(propName)
+                        let isRequired = schemaObjRequired.Contains propName
 
                         let pTy =
                             compileBySchema ns (ns.ReserveUniqueName tyName (nicePascalName propName)) propSchema isRequired ns.RegisterType false
