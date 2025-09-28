@@ -447,8 +447,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             //     failwith
             //         $"TP does not support unresolved paths / external references. Path '%s{path.Key}' refer to '%s{path.Value.Reference.ReferenceV3}'"
 
-            List.ofSeq path.Value.Operations
+            let safeSeq s =
+                if isNull s then Seq.empty else s
+
+            List.ofSeq(safeSeq path.Value.Operations)
             |> List.map(fun kv -> path.Key, path.Value, kv.Key))
+
         |> List.groupBy(fun (_, pathItem, opTy) ->
             if ignoreControllerPrefix then
                 String.Empty //
