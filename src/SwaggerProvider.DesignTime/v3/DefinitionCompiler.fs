@@ -20,10 +20,10 @@ type DefinitionPath =
     static member Parse(definition: string) =
         let nsSeparator = '.'
 
-        if (not <| definition.StartsWith(DefinitionPath.DefinitionPrefix)) then
+        if not <| definition.StartsWith DefinitionPath.DefinitionPrefix then
             failwithf $"Definition path ('%s{definition}') does not start with %s{DefinitionPath.DefinitionPrefix}"
 
-        let definitionPath = definition.Substring(DefinitionPath.DefinitionPrefix.Length)
+        let definitionPath = definition.Substring DefinitionPath.DefinitionPrefix.Length
 
         let rec getCharInTypeName ind =
             if ind = definitionPath.Length then
@@ -96,7 +96,7 @@ and NamespaceAbstraction(name: string) =
 
     /// Release previously reserved name
     member _.ReleaseNameReservation tyName =
-        updateReservation "release the name" tyName (fun () -> providedTys.Remove(tyName) |> ignore)
+        updateReservation "release the name" tyName (fun () -> providedTys.Remove tyName |> ignore)
 
     /// Mark type name as named alias for basic type
     member _.MarkTypeAsNameAlias tyName =
@@ -121,12 +121,12 @@ and NamespaceAbstraction(name: string) =
         | true, Namespace ns -> ns
         | true, NestedType(_, ns) -> ns
         | true, ProvidedType ty ->
-            let ns = NamespaceAbstraction(name)
+            let ns = NamespaceAbstraction name
             providedTys[name] <- NestedType(ty, ns)
             ns
         | false, _
         | true, Reservation ->
-            let ns = NamespaceAbstraction(name)
+            let ns = NamespaceAbstraction name
             providedTys[name] <- Namespace ns
             ns
         | true, value -> failwithf $"Name collision, cannot create namespace '%s{name}' because it used by '%A{value}'"
@@ -175,14 +175,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             |> Map.ofSeq
 
     let pathToType = Collections.Generic.Dictionary<_, Type>()
-    let nsRoot = NamespaceAbstraction("Root")
+    let nsRoot = NamespaceAbstraction "Root"
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"
 
     let generateProperty (scope: UniqueNameGenerator) propName ty =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
         let providedField =
-            let fieldName = $"_%c{Char.ToLower propertyName[0]}%s{propertyName.Substring(1)}"
+            let fieldName = $"_%c{Char.ToLower propertyName[0]}%s{propertyName.Substring 1}"
 
             ProvidedField(fieldName, ty)
 
@@ -231,7 +231,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
     and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: IOpenApiSchema) isRequired registerNew fromByPathCompiler =
         let compileNewObject() =
-            if schemaObj.Properties.Count = 0 && schemaObj.AllOf.Count = 0 then
+            let hasProperties =
+                not(isNull schemaObj.Properties) && schemaObj.Properties.Count > 0
+
+            let hasAllOf = not(isNull schemaObj.AllOf) && schemaObj.AllOf.Count > 0
+
+            if not hasProperties && not hasAllOf then
                 if not <| isNull tyName then
                     ns.MarkTypeAsNameAlias tyName
 
@@ -244,11 +249,6 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 registerNew(tyName, ty :> Type)
 
                 // Combine composite schemas
-                let hasAllOf =
-                    match schemaObj.AllOf with
-                    | null -> false
-                    | _ -> schemaObj.AllOf.Count > 0
-
                 let schemaObjProperties =
                     match hasAllOf with
                     | true ->
@@ -422,29 +422,32 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 if not schemaObj.Type.HasValue then
                     failwithf $"Schema type is not specified for '%s{tyName}'"
 
+                let (|HasFlag|_|) (flag: JsonSchemaType) (value: JsonSchemaType) =
+                    if value.HasFlag flag then Some() else None
+
                 match schemaObj.Type.Value, schemaObj.Format with
-                | JsonSchemaType.Integer, "int64" -> typeof<int64>
-                | JsonSchemaType.Integer, _ -> typeof<int32>
-                | JsonSchemaType.Number, "double" -> typeof<double>
-                | JsonSchemaType.Number, _ -> typeof<float32>
-                | JsonSchemaType.Boolean, _ -> typeof<bool>
-                | JsonSchemaType.String, "byte" -> typeof<byte>.MakeArrayType 1
-                | JsonSchemaType.String, "binary" ->
+                | HasFlag JsonSchemaType.Boolean, _ -> typeof<bool>
+                | HasFlag JsonSchemaType.Integer, "int64" -> typeof<int64>
+                | HasFlag JsonSchemaType.Integer, _ -> typeof<int32>
+                | HasFlag JsonSchemaType.Number, "double" -> typeof<double>
+                | HasFlag JsonSchemaType.Number, _ -> typeof<float32>
+                | HasFlag JsonSchemaType.String, "byte" -> typeof<byte>.MakeArrayType 1
+                | HasFlag JsonSchemaType.String, "binary" ->
                     // for `application/octet-stream` request body
                     // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                     typeof<IO.Stream>
-                | JsonSchemaType.String, "date"
-                | JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
-                | JsonSchemaType.String, "uuid" -> typeof<Guid>
-                | JsonSchemaType.String, _ -> typeof<string>
-                | JsonSchemaType.Array, _ ->
+                | HasFlag JsonSchemaType.String, "date"
+                | HasFlag JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
+                | HasFlag JsonSchemaType.String, "uuid" -> typeof<Guid>
+                | HasFlag JsonSchemaType.String, _ -> typeof<string>
+                | HasFlag JsonSchemaType.Array, _ ->
                     ns.ReleaseNameReservation tyName
                     let elSchema = schemaObj.Items
 
                     let elTy =
                         compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
-                    elTy.MakeArrayType(1)
+                    elTy.MakeArrayType 1
                 | ty, format -> failwithf $"Type %s{tyName}(%A{ty},%s{format}) should be caught by other match statement (%A{schemaObj.Type})"
 
         if fromByPathCompiler then

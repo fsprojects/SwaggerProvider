@@ -66,11 +66,15 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let unambiguousName(par: IOpenApiParameter) =
             $"%s{par.Name}In%A{par.In}"
 
-        let openApiParameters = [ yield! pathItem.Parameters; yield! operation.Parameters ]
+        let openApiParameters =
+            [ if not(isNull pathItem.Parameters) then
+                  yield! pathItem.Parameters
+              if not(isNull operation.Parameters) then
+                  yield! operation.Parameters ]
 
         let (|MediaType|_|) contentType (content: IDictionary<string, OpenApiMediaType>) =
             match content.TryGetValue contentType with
-            | true, mediaTyObj -> Some(mediaTyObj)
+            | true, mediaTyObj -> Some mediaTyObj
             | _ -> None
 
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
