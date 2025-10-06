@@ -18,6 +18,9 @@ module MediaTypes =
     [<Literal>]
     let MultipartFormData = "multipart/form-data"
 
+    let isTextMediaType(mediaType: string) =
+        not(isNull mediaType) && mediaType.StartsWith("text/")
+
 
 type AsyncExtensions() =
     static member cast<'t> asyncOp =
