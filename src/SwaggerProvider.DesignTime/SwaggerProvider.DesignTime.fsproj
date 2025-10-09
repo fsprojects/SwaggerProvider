@@ -50,6 +50,7 @@
     <Compile Include="Caching.fs" />
     <Compile Include="Provider.OpenApiClient.fs" />
     <Compile Include="Provider.SwaggerClient.fs" />
+      <Compile Include="Provider.SwaggerClient.fs"/>
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

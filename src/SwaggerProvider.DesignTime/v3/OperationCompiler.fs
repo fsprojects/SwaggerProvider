@@ -377,6 +377,17 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 }
                             @>
 
+                        let responseString =
+                            <@
+                                let x = %action
+
+                                task {
+                                    let! response = x
+                                    let! data = response.ReadAsStringAsync()
+                                    return data
+                                }
+                            @>
+
                         let responseUnit =
                             <@
                                 let x = %action
@@ -390,18 +401,20 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // if we're an async method, then we can just return the above, coerced to the overallReturnType.
                         // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
                         if not asAsync then
-                            match retTy with
-                            | None -> responseUnit.Raw
-                            | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
-                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
+                            match retTy, retMime with
+                            | None, _ -> responseUnit.Raw
+                            | Some t, _ when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
+                            | Some t, MediaTypes.TextReturn m -> <@ %responseString @>.Raw
+                            | Some t, _ -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
                         else
                             let awaitTask t =
                                 <@ Async.AwaitTask(%t) @>
 
-                            match retTy with
-                            | None -> (awaitTask responseUnit).Raw
-                            | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
-                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
+                            match retTy, retMime with
+                            | None, _ -> (awaitTask responseUnit).Raw
+                            | Some t, _ when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
+                            | Some t, MediaTypes.TextReturn m -> <@ %(awaitTask responseString) @>.Raw
+                            | Some t, _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
             )
 
         if not <| String.IsNullOrEmpty(operation.Summary) then
