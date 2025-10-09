@@ -176,10 +176,11 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
 
                     Some(MediaTypes.ApplicationOctetStream, ty)
-                | content when content.Keys |> Seq.exists MediaTypes.isTextMediaType ->
-                    let textKey = content.Keys |> Seq.find MediaTypes.isTextMediaType
-                    Some(textKey, typeof<string>)
-                | _ -> None)
+                | content ->
+                    content.Keys
+                    |> Seq.tryPick (function
+                        | MediaTypes.TextReturn key -> Some(key, typeof<string>)
+                        | _ -> None))
 
         let retMime = retMimeAndTy |> Option.map fst |> Option.defaultValue null
         let retTy = retMimeAndTy |> Option.map snd
