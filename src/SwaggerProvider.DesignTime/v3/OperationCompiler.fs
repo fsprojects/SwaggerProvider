@@ -73,6 +73,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             | true, mediaTyObj -> Some(mediaTyObj)
             | _ -> None
 
+        let (|TextReturn|_|)(input: string) =
+            if input.StartsWith("text/") then Some(input) else None
+
+        let (|TextMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
+            content.Keys |> Seq.tryPick (|TextReturn|_|)
+
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
             if content.Count = 0 then Some() else None
 
@@ -176,11 +182,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
 
                     Some(MediaTypes.ApplicationOctetStream, ty)
-                | content ->
-                    content.Keys
-                    |> Seq.tryPick (function
-                        | MediaTypes.TextReturn key -> Some(key, typeof<string>)
-                        | _ -> None))
+                | TextMediaType mediaTy -> Some(mediaTy, typeof<string>)
+                | _ -> None)
 
         let retMime = retMimeAndTy |> Option.map fst |> Option.defaultValue null
         let retTy = retMimeAndTy |> Option.map snd
@@ -401,20 +404,24 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // if we're an async method, then we can just return the above, coerced to the overallReturnType.
                         // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
                         if not asAsync then
-                            match retTy, retMime with
-                            | None, _ -> responseUnit.Raw
-                            | Some t, _ when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
-                            | Some t, MediaTypes.TextReturn m -> <@ %responseString @>.Raw
-                            | Some t, _ -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
+                            match retTy with
+                            | None -> responseUnit.Raw
+                            | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
+                            | Some t ->
+                                match retMime with
+                                | TextReturn _ -> <@ %responseString @>.Raw
+                                | _ -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
                         else
                             let awaitTask t =
                                 <@ Async.AwaitTask(%t) @>
 
-                            match retTy, retMime with
-                            | None, _ -> (awaitTask responseUnit).Raw
-                            | Some t, _ when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
-                            | Some t, MediaTypes.TextReturn m -> <@ %(awaitTask responseString) @>.Raw
-                            | Some t, _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
+                            match retTy with
+                            | None -> (awaitTask responseUnit).Raw
+                            | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
+                            | Some t ->
+                                match retMime with
+                                | TextReturn _ -> <@ %(awaitTask responseString) @>.Raw
+                                | _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
             )
 
         if not <| String.IsNullOrEmpty(operation.Summary) then

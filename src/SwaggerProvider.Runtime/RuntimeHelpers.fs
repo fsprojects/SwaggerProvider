@@ -18,9 +18,6 @@ module MediaTypes =
     [<Literal>]
     let MultipartFormData = "multipart/form-data"
 
-    let (|TextReturn|_|)(input: string) =
-        if input.StartsWith("text/") then Some(input) else None
-
 type AsyncExtensions() =
     static member cast<'t> asyncOp =
         async {
