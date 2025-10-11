@@ -77,6 +77,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             | true, mediaTyObj -> Some mediaTyObj
             | _ -> None
 
+        let (|TextReturn|_|)(input: string) =
+            if input.StartsWith("text/") then Some(input) else None
+
+        let (|TextMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
+            content.Keys |> Seq.tryPick (|TextReturn|_|)
+
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
             if content.Count = 0 then Some() else None
 
@@ -181,6 +187,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             defCompiler.CompileTy providedMethodName "Response" mediaTy.Schema true
 
                     Some(MediaTypes.ApplicationOctetStream, ty)
+                | TextMediaType mediaTy -> Some(mediaTy, typeof<string>)
                 | _ -> None)
 
         let retMime = retMimeAndTy |> Option.map fst |> Option.defaultValue null
@@ -378,6 +385,17 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 }
                             @>
 
+                        let responseString =
+                            <@
+                                let x = %action
+
+                                task {
+                                    let! response = x
+                                    let! data = response.ReadAsStringAsync()
+                                    return data
+                                }
+                            @>
+
                         let responseUnit =
                             <@
                                 let x = %action
@@ -394,7 +412,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             match retTy with
                             | None -> responseUnit.Raw
                             | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
-                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
+                            | Some t ->
+                                match retMime with
+                                | TextReturn _ -> <@ %responseString @>.Raw
+                                | _ -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
                         else
                             let awaitTask t =
                                 <@ Async.AwaitTask(%t) @>
@@ -402,7 +423,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             match retTy with
                             | None -> (awaitTask responseUnit).Raw
                             | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
-                            | Some t -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
+                            | Some t ->
+                                match retMime with
+                                | TextReturn _ -> <@ %(awaitTask responseString) @>.Raw
+                                | _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
             )
 
         if not <| String.IsNullOrEmpty(operation.Summary) then

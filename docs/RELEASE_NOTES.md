@@ -4,6 +4,10 @@
 - Removed dependency on Microsoft.OpenApi.Readers
 - Dependencies update
 
+#### 2.3.2 - Oct 11, 2025
+
+- Added support for `text/*` media type (#270) by @spaasis
+
 #### 2.3.1 - May 13, 2025
 
 - Performance improvement: ProvidedTypes update to the most recent version (#267)
