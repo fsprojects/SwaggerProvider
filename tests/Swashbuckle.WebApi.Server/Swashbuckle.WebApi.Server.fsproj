@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="Controllers\Types.fs" />
     <Compile Include="Controllers\ReturnControllers.fs" />
+    <Compile Include="Controllers\ReturnTextControllers.fs" />
     <Compile Include="Controllers\UpdateControllers.fs" />
     <Compile Include="Controllers\ResourceControllers.fs" />
     <Compile Include="Controllers\ValuesController.fs" />

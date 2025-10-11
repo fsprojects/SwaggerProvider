@@ -18,7 +18,6 @@ module MediaTypes =
     [<Literal>]
     let MultipartFormData = "multipart/form-data"
 
-
 type AsyncExtensions() =
     static member cast<'t> asyncOp =
         async {
