@@ -8,14 +8,14 @@ open Swagger.Internal
 [<Route("api/[controller]")>]
 [<ApiController>]
 type ReturnPlainController() =
-    [<HttpGet; Consumes(MediaTypes.ApplicationJson); Produces("text/plain")>]
+    [<HttpGet; Produces("text/plain")>]
     member this.Get() =
         "Hello world" |> ActionResult<string>
 
 [<Route("api/[controller]")>]
 [<ApiController>]
 type ReturnCsvController() =
-    [<HttpGet; Consumes(MediaTypes.ApplicationJson); Produces("text/csv")>]
+    [<HttpGet; Produces("text/csv")>]
     member this.Get() =
         "Hello,world" |> ActionResult<string>
 
