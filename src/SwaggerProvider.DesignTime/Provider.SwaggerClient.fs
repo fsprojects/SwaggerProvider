@@ -35,7 +35,8 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
               ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-              ProvidedStaticParameter("PreferAsync", typeof<bool>, false) ]
+              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
+              ProvidedStaticParameter("SsrfProtection", typeof<bool>, true) ]
 
         t.AddXmlDoc
             """<summary>Statically typed Swagger provider.</summary>
@@ -44,7 +45,8 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
                <param name='IgnoreOperationId'>Do not use `operationsId` and generate method names using `path` only. Default value `false`.</param>
                <param name='IgnoreControllerPrefix'>Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`.</param>
                <param name='PreferNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`.</param>
-               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>"""
+               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>
+               <param name='SsrfProtection'>Enable SSRF protection (blocks HTTP and localhost). Set to false for development/testing. Default value `true`.</param>"""
 
         t.DefineStaticParameters(
             staticParams,
@@ -58,15 +60,16 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
                 let ignoreControllerPrefix = unbox<bool> args.[3]
                 let preferNullable = unbox<bool> args.[4]
                 let preferAsync = unbox<bool> args.[5]
+                let ssrfProtection = unbox<bool> args.[6]
 
                 let cacheKey =
-                    (schemaPath, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
+                    (schemaPath, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
                     |> sprintf "%A"
 
                 let addCache() =
                     lazy
                         let schemaData =
-                            SchemaReader.readSchemaPath headersStr schemaPath
+                            SchemaReader.readSchemaPath (not ssrfProtection) headersStr schemaPath
                             |> Async.RunSynchronously
 
                         let schema = SwaggerParser.parseSchema schemaData

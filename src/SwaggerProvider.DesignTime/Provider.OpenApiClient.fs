@@ -36,7 +36,8 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
               ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
               ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
               ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-              ProvidedStaticParameter("PreferAsync", typeof<bool>, false) ]
+              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
+              ProvidedStaticParameter("SsrfProtection", typeof<bool>, true) ]
 
         t.AddXmlDoc
             """<summary>Statically typed OpenAPI provider.</summary>
@@ -44,7 +45,8 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                <param name='IgnoreOperationId'>Do not use `operationsId` and generate method names using `path` only. Default value `false`.</param>
                <param name='IgnoreControllerPrefix'>Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`.</param>
                <param name='PreferNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`.</param>
-               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>"""
+               <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>
+               <param name='SsrfProtection'>Enable SSRF protection (blocks HTTP and localhost). Set to false for development/testing. Default value `true`.</param>"""
 
         t.DefineStaticParameters(
             staticParams,
@@ -57,15 +59,19 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                 let ignoreControllerPrefix = unbox<bool> args.[2]
                 let preferNullable = unbox<bool> args.[3]
                 let preferAsync = unbox<bool> args.[4]
+                let ssrfProtection = unbox<bool> args.[5]
 
                 let cacheKey =
-                    (schemaPath, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync)
+                    (schemaPath, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
                     |> sprintf "%A"
 
 
                 let addCache() =
                     lazy
-                        let schemaData = SchemaReader.readSchemaPath "" schemaPath |> Async.RunSynchronously
+                        let schemaData =
+                            SchemaReader.readSchemaPath (not ssrfProtection) "" schemaPath
+                            |> Async.RunSynchronously
+
                         let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
 
                         let (schema, diagnostic) = openApiReader.Read(schemaData)
