@@ -29,42 +29,29 @@ module SchemaReader =
             // Prevent access to private IP ranges (SSRF protection)
             let host = url.Host.ToLowerInvariant()
 
-            // Block localhost and loopback
-            if
-                host = "localhost"
-                || host.StartsWith "127."
-                || host = "::1"
-                || host = "0.0.0.0"
-            then
-                failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
-
-            // Block private IP ranges (RFC 1918)
-            if
-                host.StartsWith "10."
-                || host.StartsWith "192.168."
-                || host.StartsWith "172.16."
-                || host.StartsWith "172.17."
-                || host.StartsWith "172.18."
-                || host.StartsWith "172.19."
-                || host.StartsWith "172.20."
-                || host.StartsWith "172.21."
-                || host.StartsWith "172.22."
-                || host.StartsWith "172.23."
-                || host.StartsWith "172.24."
-                || host.StartsWith "172.25."
-                || host.StartsWith "172.26."
-                || host.StartsWith "172.27."
-                || host.StartsWith "172.28."
-                || host.StartsWith "172.29."
-                || host.StartsWith "172.30."
-                || host.StartsWith "172.31."
-            then
-                failwithf "Cannot fetch schemas from private IP addresses: %s (set SsrfProtection=false for development)" host
-
-            // Block link-local addresses
-            if host.StartsWith "169.254." then
-                failwithf "Cannot fetch schemas from link-local addresses: %s (set SsrfProtection=false for development)" host
-
+            // Block localhost and loopback, and private IP ranges using proper IP address parsing
+            let isIp, ipAddr = System.Net.IPAddress.TryParse(host)
+            if isIp then
+                // Loopback
+                if System.Net.IPAddress.IsLoopback(ipAddr) || ipAddr.ToString() = "0.0.0.0" then
+                    failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
+                // Private IPv4 ranges
+                let bytes = ipAddr.GetAddressBytes()
+                let isPrivate =
+                    // 10.0.0.0/8
+                    (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 10uy)
+                    // 172.16.0.0/12
+                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 172uy && bytes.[1] >= 16uy && bytes.[1] <= 31uy)
+                    // 192.168.0.0/16
+                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 192uy && bytes.[1] = 168uy)
+                    // Link-local 169.254.0.0/16
+                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 169uy && bytes.[1] = 254uy)
+                if isPrivate then
+                    failwithf "Cannot fetch schemas from private or link-local IP addresses: %s (set SsrfProtection=false for development)" host
+            else
+                // Block localhost by name
+                if host = "localhost" then
+                    failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
     let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (schemaPathRaw: string) =
         async {
             let uri = Uri schemaPathRaw
