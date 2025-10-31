@@ -146,7 +146,7 @@ module SchemaReader =
                             schemaPathRaw
                 else
                     // Development mode: allow HTTP
-                    validateSchemaUrl ignoreSsrfProtection uri // Still validate private IPs even in dev mode
+                    validateSchemaUrl ignoreSsrfProtection uri
 
                     let headers =
                         headersStr.Split '|'
