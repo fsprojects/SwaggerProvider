@@ -31,27 +31,57 @@ module SchemaReader =
 
             // Block localhost and loopback, and private IP ranges using proper IP address parsing
             let isIp, ipAddr = System.Net.IPAddress.TryParse(host)
+
             if isIp then
                 // Loopback
-                if System.Net.IPAddress.IsLoopback(ipAddr) || ipAddr.ToString() = "0.0.0.0" then
+                if
+                    System.Net.IPAddress.IsLoopback(ipAddr)
+                    || ipAddr.ToString() = "0.0.0.0"
+                then
                     failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
                 // Private IPv4 ranges
                 let bytes = ipAddr.GetAddressBytes()
+
                 let isPrivate =
                     // 10.0.0.0/8
-                    (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 10uy)
+                    (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
+                     && bytes.[0] = 10uy)
                     // 172.16.0.0/12
-                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 172uy && bytes.[1] >= 16uy && bytes.[1] <= 31uy)
+                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
+                        && bytes.[0] = 172uy
+                        && bytes.[1] >= 16uy
+                        && bytes.[1] <= 31uy)
                     // 192.168.0.0/16
-                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 192uy && bytes.[1] = 168uy)
+                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
+                        && bytes.[0] = 192uy
+                        && bytes.[1] = 168uy)
                     // Link-local 169.254.0.0/16
-                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork && bytes.[0] = 169uy && bytes.[1] = 254uy)
+                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
+                        && bytes.[0] = 169uy
+                        && bytes.[1] = 254uy)
+
                 if isPrivate then
                     failwithf "Cannot fetch schemas from private or link-local IP addresses: %s (set SsrfProtection=false for development)" host
-            else
+            else if
                 // Block localhost by name
-                if host = "localhost" then
-                    failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
+                host = "localhost"
+            then
+                failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
+
+    let validateContentType(contentType: Headers.MediaTypeHeaderValue) =
+        if not(isNull contentType) then
+            let mediaType = contentType.MediaType.ToLowerInvariant()
+
+            if
+                not(
+                    mediaType.Contains "json"
+                    || mediaType.Contains "yaml"
+                    || mediaType.Contains "text"
+                    || mediaType.Contains "application/octet-stream"
+                )
+            then
+                failwithf "Invalid Content-Type for schema: %s. Expected JSON or YAML." mediaType
+
     let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (schemaPathRaw: string) =
         async {
             let uri = Uri schemaPathRaw
@@ -82,20 +112,7 @@ module SchemaReader =
                         let! response = client.SendAsync request |> Async.AwaitTask
 
                         // Validate Content-Type to ensure we're parsing the correct format
-                        let contentType = response.Content.Headers.ContentType
-
-                        if not(isNull contentType) then
-                            let mediaType = contentType.MediaType.ToLowerInvariant()
-
-                            if
-                                not(
-                                    mediaType.Contains "json"
-                                    || mediaType.Contains "yaml"
-                                    || mediaType.Contains "text"
-                                    || mediaType.Contains "application/octet-stream"
-                                )
-                            then
-                                failwithf "Invalid Content-Type for schema: %s. Expected JSON or YAML." mediaType
+                        validateContentType response.Content.Headers.ContentType
 
                         return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
                     }
@@ -152,6 +169,10 @@ module SchemaReader =
                     let! res =
                         async {
                             let! response = client.SendAsync(request) |> Async.AwaitTask
+
+                            // Validate Content-Type to ensure we're parsing the correct format
+                            validateContentType response.Content.Headers.ContentType
+
                             return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
                         }
                         |> Async.Catch
