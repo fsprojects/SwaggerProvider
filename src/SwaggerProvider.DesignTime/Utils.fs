@@ -68,19 +68,41 @@ module SchemaReader =
             then
                 failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
 
-    let validateContentType(contentType: Headers.MediaTypeHeaderValue) =
-        if not(isNull contentType) then
+    let validateContentType (ignoreSsrfProtection: bool) (contentType: Headers.MediaTypeHeaderValue) =
+        // Skip validation if SSRF protection is disabled
+        if ignoreSsrfProtection || isNull contentType then
+            ()
+        else
             let mediaType = contentType.MediaType.ToLowerInvariant()
 
-            if
-                not(
-                    mediaType.Contains "json"
-                    || mediaType.Contains "yaml"
-                    || mediaType.Contains "text"
-                    || mediaType.Contains "application/octet-stream"
-                )
-            then
-                failwithf "Invalid Content-Type for schema: %s. Expected JSON or YAML." mediaType
+            // Allow only Content-Types that are valid for OpenAPI/Swagger schema files
+            // This prevents SSRF attacks where an attacker tries to make the provider
+            // fetch and process non-schema files (HTML, images, binaries, etc.)
+            let isValidSchemaContentType =
+                // JSON formats
+                mediaType = "application/json"
+                || mediaType = "application/json; charset=utf-8"
+                || mediaType.StartsWith "application/json;"
+                // YAML formats
+                || mediaType = "application/yaml"
+                || mediaType = "application/x-yaml"
+                || mediaType = "text/yaml"
+                || mediaType = "text/x-yaml"
+                || mediaType.StartsWith "application/yaml;"
+                || mediaType.StartsWith "application/x-yaml;"
+                || mediaType.StartsWith "text/yaml;"
+                || mediaType.StartsWith "text/x-yaml;"
+                // Plain text (sometimes used for YAML)
+                || mediaType = "text/plain"
+                || mediaType.StartsWith "text/plain;"
+                // Generic binary (fallback for misconfigured servers)
+                || mediaType = "application/octet-stream"
+                || mediaType.StartsWith "application/octet-stream;"
+
+            if not isValidSchemaContentType then
+                failwithf
+                    "Invalid Content-Type for schema: %s. Expected JSON or YAML content types only. This protects against SSRF attacks. Set SsrfProtection=false to disable this validation."
+                    mediaType
 
     let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (schemaPathRaw: string) =
         async {
@@ -112,7 +134,7 @@ module SchemaReader =
                         let! response = client.SendAsync request |> Async.AwaitTask
 
                         // Validate Content-Type to ensure we're parsing the correct format
-                        validateContentType response.Content.Headers.ContentType
+                        validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
 
                         return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
                     }
@@ -171,7 +193,7 @@ module SchemaReader =
                             let! response = client.SendAsync(request) |> Async.AwaitTask
 
                             // Validate Content-Type to ensure we're parsing the correct format
-                            validateContentType response.Content.Headers.ContentType
+                            validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
 
                             return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
                         }
