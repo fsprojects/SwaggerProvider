@@ -277,7 +277,7 @@ module SchemaReader =
                         // SECURITY: Reject unknown URL schemes to prevent SSRF attacks via file://, ftp://, etc.
                         return
                             failwithf
-                                "Unsupported URL scheme in schema path: '%s'. Only HTTPS and HTTP schemes are supported for remote schemas. If using a local file, ensure the path is absolute or relative to the resolution folder."
+                                "Unsupported URL scheme in schema path: '%s'. Only HTTPS is supported for remote schemas (HTTP requires SsrfProtection=false). For local files, ensure the path is absolute or relative to the resolution folder."
                                 resolvedPath
         }
 
