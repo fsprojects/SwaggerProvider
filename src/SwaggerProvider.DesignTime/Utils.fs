@@ -69,7 +69,6 @@ module SchemaReader =
             let isValidSchemaContentType =
                 // JSON formats
                 mediaType = "application/json"
-                || mediaType = "application/json; charset=utf-8"
                 || mediaType.StartsWith "application/json;"
                 // YAML formats
                 || mediaType = "application/yaml"
