@@ -17,7 +17,7 @@ module UnknownSchemeTests =
             let! ex =
                 Assert.ThrowsAsync<Exception>(fun () ->
                     task {
-                        let! _ = readSchemaPath false "" fileUrl
+                        let! _ = readSchemaPath false "" "" fileUrl
                         return ()
                     })
 
@@ -35,7 +35,7 @@ module UnknownSchemeTests =
             let! ex =
                 Assert.ThrowsAsync<Exception>(fun () ->
                     task {
-                        let! _ = readSchemaPath false "" ftp_url
+                        let! _ = readSchemaPath false "" "" ftp_url
                         return ()
                     })
 
@@ -51,7 +51,7 @@ module UnknownSchemeTests =
             let! ex =
                 Assert.ThrowsAsync<Exception>(fun () ->
                     task {
-                        let! _ = readSchemaPath false "" gopher_url
+                        let! _ = readSchemaPath false "" "" gopher_url
                         return ()
                     })
 
@@ -67,7 +67,7 @@ module UnknownSchemeTests =
             let! ex =
                 Assert.ThrowsAsync<Exception>(fun () ->
                     task {
-                        let! _ = readSchemaPath false "" dict_url
+                        let! _ = readSchemaPath false "" "" dict_url
                         return ()
                     })
 
@@ -275,7 +275,7 @@ module RelativeFilePathTests =
             let schemaPath = __SOURCE_DIRECTORY__ + "/../Schemas/v2/petstore.json"
 
             try
-                let! _ = readSchemaPath false "" schemaPath
+                let! _ = readSchemaPath false "" "" schemaPath
                 () // If file exists, that's fine
             with
             | :? Swagger.OpenApiException ->

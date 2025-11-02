@@ -8,7 +8,7 @@ open Swagger
 open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v3.Compilers
 
-module Cache =
+module OpenApiCache =
     let providedTypes = Caching.createInMemoryCache(TimeSpan.FromSeconds 30.0)
 
 /// The Open API Provider.
@@ -51,10 +51,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
         t.DefineStaticParameters(
             staticParams,
             fun typeName args ->
-                let schemaPath =
-                    let schemaPathRaw = unbox<string> args.[0]
-                    SchemaReader.getAbsolutePath cfg.ResolutionFolder schemaPathRaw
-
+                let schemaPathRaw = unbox<string> args.[0]
                 let ignoreOperationId = unbox<bool> args.[1]
                 let ignoreControllerPrefix = unbox<bool> args.[2]
                 let preferNullable = unbox<bool> args.[3]
@@ -62,14 +59,13 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                 let ssrfProtection = unbox<bool> args.[5]
 
                 let cacheKey =
-                    (schemaPath, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
+                    (schemaPathRaw, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
                     |> sprintf "%A"
-
 
                 let addCache() =
                     lazy
                         let schemaData =
-                            SchemaReader.readSchemaPath (not ssrfProtection) "" schemaPath
+                            SchemaReader.readSchemaPath (not ssrfProtection) "" cfg.ResolutionFolder schemaPathRaw
                             |> Async.RunSynchronously
 
                         let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
@@ -96,18 +92,18 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                         let ty =
                             ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
 
-                        ty.AddXmlDoc("OpenAPI Provider for " + schemaPath)
+                        ty.AddXmlDoc("OpenAPI Provider for " + schemaPathRaw)
                         ty.AddMembers tys
                         tempAsm.AddTypes [ ty ]
 
                         ty
 
                 try
-                    Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                    OpenApiCache.providedTypes.GetOrAdd(cacheKey, addCache).Value
                 with _ ->
-                    Cache.providedTypes.Remove(cacheKey) |> ignore
+                    OpenApiCache.providedTypes.Remove(cacheKey) |> ignore
 
-                    Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                    OpenApiCache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
 
         t

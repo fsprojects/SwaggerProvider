@@ -127,162 +127,158 @@ module SchemaReader =
                     "Invalid Content-Type for schema: %s. Expected JSON or YAML content types only. This protects against SSRF attacks. Set SsrfProtection=false to disable this validation."
                     mediaType
 
-    let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (schemaPathRaw: string) =
-         async {
-             // Check if this is a local file path (not a remote URL)
-             // First try to treat it as a local file path (absolute or relative)
-             let possibleFilePath =
-                 try
-                     if Path.IsPathRooted schemaPathRaw then
-                         // Already an absolute path
-                         if File.Exists schemaPathRaw then Some schemaPathRaw else None
-                     else
-                         // Try to resolve relative paths (e.g., paths with ../ or from __SOURCE_DIRECTORY__)
-                         let resolved = Path.GetFullPath schemaPathRaw
-                         if File.Exists resolved then Some resolved else None
-                 with
-                 | _ -> None
+    let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (resolutionFolder: string) (schemaPathRaw: string) =
+        async {
+            // Resolve the schema path to absolute path first
+            let resolvedPath = getAbsolutePath resolutionFolder schemaPathRaw
 
-             match possibleFilePath with
-             | Some filePath ->
-                 // Handle local file - read from disk
-                 try
-                     return File.ReadAllText filePath
-                 with
-                 | :? FileNotFoundException -> return failwithf "Schema file not found: %s" filePath
-                 | ex -> return failwithf "Error reading schema file '%s': %s" filePath ex.Message
-             | None ->
-                 // Handle as remote URL (HTTP/HTTPS)
-                 let checkUri = Uri(schemaPathRaw, UriKind.RelativeOrAbsolute)
-                 // Only treat truly local paths as local files (no scheme or relative paths)
-                 // Reject file:// scheme as unsupported to prevent SSRF attacks
-                 let isLocalFile = not checkUri.IsAbsoluteUri
+            // Check if this is a local file path (not a remote URL)
+            // First try to treat it as a local file path (absolute or relative)
+            let possibleFilePath =
+                try
+                    if Path.IsPathRooted resolvedPath then
+                        // Already an absolute path
+                        if File.Exists resolvedPath then Some resolvedPath else None
+                    else
+                        // Try to resolve relative paths (e.g., paths with ../ or from __SOURCE_DIRECTORY__)
+                        let resolved = Path.GetFullPath resolvedPath
+                        if File.Exists resolved then Some resolved else None
+                with _ ->
+                    None
 
-                 if isLocalFile then
-                     // This shouldn't happen as we already checked for file existence above,
-                     // but keep this for consistency with original logic
-                     let filePath = getAbsolutePath "" schemaPathRaw
+            match possibleFilePath with
+            | Some filePath ->
+                // Handle local file - read from disk
+                try
+                    return File.ReadAllText filePath
+                with
+                | :? FileNotFoundException -> return failwithf "Schema file not found: %s" filePath
+                | ex -> return failwithf "Error reading schema file '%s': %s" filePath ex.Message
+            | None ->
+                // Handle as remote URL (HTTP/HTTPS)
+                let checkUri = Uri(resolvedPath, UriKind.RelativeOrAbsolute)
+                // Only treat truly local paths as local files (no scheme or relative paths)
+                // Reject file:// scheme as unsupported to prevent SSRF attacks
+                let isLocalFile = not checkUri.IsAbsoluteUri
 
-                     try
-                         return File.ReadAllText filePath
-                     with
-                     | :? FileNotFoundException -> return failwithf "Schema file not found: %s" filePath
-                     | ex -> return failwithf "Error reading schema file '%s': %s" filePath ex.Message
-                  else
-                      // Handle remote URL (HTTP/HTTPS)
-                      let uri = Uri schemaPathRaw
+                if isLocalFile then
+                    // If we reach here with a local file that wasn't found, report the error
+                    return failwithf "Schema file not found: %s" resolvedPath
+                else
+                    // Handle remote URL (HTTP/HTTPS)
+                    let uri = Uri resolvedPath
 
-                      match uri.Scheme with
-                      | "https" ->
-                          // Validate URL to prevent SSRF (unless explicitly disabled)
-                          validateSchemaUrl ignoreSsrfProtection uri
+                    match uri.Scheme with
+                    | "https" ->
+                        // Validate URL to prevent SSRF (unless explicitly disabled)
+                        validateSchemaUrl ignoreSsrfProtection uri
 
-                          let headers =
-                              headersStr.Split '|'
-                              |> Seq.choose(fun x ->
-                                  let pair = x.Split '='
-                                  if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
+                        let headers =
+                            headersStr.Split '|'
+                            |> Seq.choose(fun x ->
+                                let pair = x.Split '='
+                                if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
 
-                          let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
+                        let request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
 
-                          for name, value in headers do
-                              request.Headers.TryAddWithoutValidation(name, value) |> ignore
+                        for name, value in headers do
+                            request.Headers.TryAddWithoutValidation(name, value) |> ignore
 
-                          // SECURITY: Remove UseDefaultCredentials to prevent credential leakage (always enforced)
-                          use handler = new HttpClientHandler(UseDefaultCredentials = false)
-                          use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
+                        // SECURITY: Remove UseDefaultCredentials to prevent credential leakage (always enforced)
+                        use handler = new HttpClientHandler(UseDefaultCredentials = false)
+                        use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
 
-                          let! res =
-                              async {
-                                  let! response = client.SendAsync request |> Async.AwaitTask
+                        let! res =
+                            async {
+                                let! response = client.SendAsync request |> Async.AwaitTask
 
-                                  // Validate Content-Type to ensure we're parsing the correct format
-                                  validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
+                                // Validate Content-Type to ensure we're parsing the correct format
+                                validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
 
-                                  return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                              }
-                              |> Async.Catch
+                                return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                            }
+                            |> Async.Catch
 
-                          match res with
-                          | Choice1Of2 x -> return x
-                          | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
-                              let content =
-                                  ex.Content.ReadAsStringAsync()
-                                  |> Async.AwaitTask
-                                  |> Async.RunSynchronously
+                        match res with
+                        | Choice1Of2 x -> return x
+                        | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
+                            let content =
+                                ex.Content.ReadAsStringAsync()
+                                |> Async.AwaitTask
+                                |> Async.RunSynchronously
 
-                              if String.IsNullOrEmpty content then
-                                  return ex.Reraise()
-                              else
-                                  return content
-                          | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                              use stream = wex.Response.GetResponseStream()
-                              use reader = new StreamReader(stream)
-                              let err = reader.ReadToEnd()
+                            if String.IsNullOrEmpty content then
+                                return ex.Reraise()
+                            else
+                                return content
+                        | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
+                            use stream = wex.Response.GetResponseStream()
+                            use reader = new StreamReader(stream)
+                            let err = reader.ReadToEnd()
 
-                              return
-                                  if String.IsNullOrEmpty err then
-                                      wex.Reraise()
-                                  else
-                                      err.ToString()
-                          | Choice2Of2 e -> return failwith(e.ToString())
+                            return
+                                if String.IsNullOrEmpty err then
+                                    wex.Reraise()
+                                else
+                                    err.ToString()
+                        | Choice2Of2 e -> return failwith(e.ToString())
 
-                      | "http" ->
-                          // HTTP is allowed only when SSRF protection is explicitly disabled (development/testing mode)
-                          if not ignoreSsrfProtection then
-                              return
-                                  failwithf
-                                      "HTTP URLs are not supported for security reasons. Use HTTPS or set SsrfProtection=false for development: %s"
-                                      schemaPathRaw
-                          else
-                              // Development mode: allow HTTP
-                              validateSchemaUrl ignoreSsrfProtection uri
+                    | "http" ->
+                        // HTTP is allowed only when SSRF protection is explicitly disabled (development/testing mode)
+                        if not ignoreSsrfProtection then
+                            return
+                                failwithf
+                                    "HTTP URLs are not supported for security reasons. Use HTTPS or set SsrfProtection=false for development: %s"
+                                    resolvedPath
+                        else
+                            // Development mode: allow HTTP
+                            validateSchemaUrl ignoreSsrfProtection uri
 
-                              let headers =
-                                  headersStr.Split '|'
-                                  |> Seq.choose(fun x ->
-                                      let pair = x.Split '='
-                                      if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
+                            let headers =
+                                headersStr.Split '|'
+                                |> Seq.choose(fun x ->
+                                    let pair = x.Split '='
+                                    if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
 
-                              let request = new HttpRequestMessage(HttpMethod.Get, schemaPathRaw)
+                            let request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
 
-                              for name, value in headers do
-                                  request.Headers.TryAddWithoutValidation(name, value) |> ignore
+                            for name, value in headers do
+                                request.Headers.TryAddWithoutValidation(name, value) |> ignore
 
-                              use handler = new HttpClientHandler(UseDefaultCredentials = false)
-                              use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
+                            use handler = new HttpClientHandler(UseDefaultCredentials = false)
+                            use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
 
-                              let! res =
-                                  async {
-                                      let! response = client.SendAsync(request) |> Async.AwaitTask
+                            let! res =
+                                async {
+                                    let! response = client.SendAsync(request) |> Async.AwaitTask
 
-                                      // Validate Content-Type to ensure we're parsing the correct format
-                                      validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
+                                    // Validate Content-Type to ensure we're parsing the correct format
+                                    validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
 
-                                      return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                                  }
-                                  |> Async.Catch
+                                    return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                                }
+                                |> Async.Catch
 
-                              match res with
-                              | Choice1Of2 x -> return x
-                              | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                                  use stream = wex.Response.GetResponseStream()
-                                  use reader = new StreamReader(stream)
-                                  let err = reader.ReadToEnd()
+                            match res with
+                            | Choice1Of2 x -> return x
+                            | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
+                                use stream = wex.Response.GetResponseStream()
+                                use reader = new StreamReader(stream)
+                                let err = reader.ReadToEnd()
 
-                                  return
-                                      if String.IsNullOrEmpty err then
-                                          wex.Reraise()
-                                      else
-                                          err.ToString()
-                              | Choice2Of2 e -> return failwith(e.ToString())
+                                return
+                                    if String.IsNullOrEmpty err then
+                                        wex.Reraise()
+                                    else
+                                        err.ToString()
+                            | Choice2Of2 e -> return failwith(e.ToString())
 
-                      | _ ->
-                          // SECURITY: Reject unknown URL schemes to prevent SSRF attacks via file://, ftp://, etc.
-                          return
-                              failwithf
-                                  "Unsupported URL scheme in schema path: '%s'. Only HTTPS and HTTP schemes are supported for remote schemas. If using a local file, ensure the path is absolute or relative to the resolution folder."
-                                  schemaPathRaw
+                    | _ ->
+                        // SECURITY: Reject unknown URL schemes to prevent SSRF attacks via file://, ftp://, etc.
+                        return
+                            failwithf
+                                "Unsupported URL scheme in schema path: '%s'. Only HTTPS and HTTP schemes are supported for remote schemas. If using a local file, ensure the path is absolute or relative to the resolution folder."
+                                resolvedPath
         }
 
 type UniqueNameGenerator() =
