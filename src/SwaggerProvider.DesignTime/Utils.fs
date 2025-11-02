@@ -12,7 +12,7 @@ module SchemaReader =
         if uri.IsAbsoluteUri then
             schemaPathRaw
         elif Path.IsPathRooted schemaPathRaw then
-            Path.Combine(Path.GetPathRoot(resolutionFolder), schemaPathRaw.Substring(1))
+            Path.Combine(Path.GetPathRoot resolutionFolder, schemaPathRaw.Substring 1)
         else
             Path.Combine(resolutionFolder, schemaPathRaw)
 
@@ -30,35 +30,23 @@ module SchemaReader =
             let host = url.Host.ToLowerInvariant()
 
             // Block localhost and loopback, and private IP ranges using proper IP address parsing
-            let isIp, ipAddr = System.Net.IPAddress.TryParse(host)
+            let isIp, ipAddr = IPAddress.TryParse host
 
             if isIp then
                 // Loopback
-                if
-                    System.Net.IPAddress.IsLoopback(ipAddr)
-                    || ipAddr.ToString() = "0.0.0.0"
-                then
+                if IPAddress.IsLoopback ipAddr || ipAddr.ToString() = "0.0.0.0" then
                     failwithf "Cannot fetch schemas from localhost/loopback addresses: %s (set SsrfProtection=false for development)" host
                 // Private IPv4 ranges
                 let bytes = ipAddr.GetAddressBytes()
 
                 let isPrivate =
-                    // 10.0.0.0/8
-                    (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
-                     && bytes.[0] = 10uy)
-                    // 172.16.0.0/12
-                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
-                        && bytes.[0] = 172uy
-                        && bytes.[1] >= 16uy
-                        && bytes.[1] <= 31uy)
-                    // 192.168.0.0/16
-                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
-                        && bytes.[0] = 192uy
-                        && bytes.[1] = 168uy)
-                    // Link-local 169.254.0.0/16
-                    || (ipAddr.AddressFamily = System.Net.Sockets.AddressFamily.InterNetwork
-                        && bytes.[0] = 169uy
-                        && bytes.[1] = 254uy)
+                    ipAddr.AddressFamily = Sockets.AddressFamily.InterNetwork
+                    && match bytes with
+                       | [| 10uy; _; _; _ |] -> true // 10.0.0.0/8
+                       | [| 172uy; b1; _; _ |] when b1 >= 16uy && b1 <= 31uy -> true // 172.16.0.0/12
+                       | [| 192uy; 168uy; _; _ |] -> true // 192.168.0.0/16
+                       | [| 169uy; 254uy; _; _ |] -> true // Link-local 169.254.0.0/16
+                       | _ -> false
 
                 if isPrivate then
                     failwithf "Cannot fetch schemas from private or link-local IP addresses: %s (set SsrfProtection=false for development)" host
