@@ -1,4 +1,4 @@
-﻿module Swashbuckle.v2.ReturnControllersTests
+module Swashbuckle.v2.ReturnControllersTests
 
 open FsUnitTyped
 open Xunit
@@ -6,7 +6,7 @@ open SwaggerProvider
 open System
 open System.Net.Http
 
-type WebAPI = SwaggerClientProvider<"http://localhost:5000/swagger/v1/swagger.json", IgnoreOperationId=true>
+type WebAPI = SwaggerClientProvider<"http://localhost:5000/swagger/v1/swagger.json", IgnoreOperationId=true, SsrfProtection=false>
 
 let api =
     let handler = new HttpClientHandler(UseCookies = false)

@@ -28,8 +28,25 @@ When you use TP you can specify the following parameters
 | `IgnoreControllerPrefix` | Do not parse `operationsId` as `<controllerName>_<methodName>` and generate one client class for all operations. Default value `true`. |
 | `PreferNullable` | Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`. |
 | `PreferAsync` | Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`. |
+| `SsrfProtection` | Enable SSRF protection (blocks HTTP and localhost). Set to `false` for development/testing. Default value `true`. |
 
 More configuration scenarios are described in [Customization section](/Customization)
+
+## Security (SSRF Protection)
+
+By default, SwaggerProvider blocks HTTP URLs and localhost/private IP addresses to prevent [SSRF attacks](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery).
+
+For **development and testing** with local servers, disable SSRF protection:
+
+```fsharp
+// Development: Allow HTTP and localhost  
+type LocalApi = SwaggerClientProvider<"http://localhost:5000/swagger.json", SsrfProtection=false>
+
+// Production: HTTPS with SSRF protection (default)
+type ProdApi = SwaggerClientProvider<"https://api.example.com/swagger.json">
+```
+
+**Warning:** Never set `SsrfProtection=false` in production code.
 
 ## Sample
 

@@ -13,7 +13,7 @@ type CallLoggingHandler(messageHandler) =
         printfn $"[SendAsync]: %A{request.RequestUri}"
         base.SendAsync(request, cancellationToken)
 
-type WebAPI = OpenApiClientProvider<"http://localhost:5000/swagger/v1/openapi.json", IgnoreOperationId=true>
+type WebAPI = OpenApiClientProvider<"http://localhost:5000/swagger/v1/openapi.json", IgnoreOperationId=true, SsrfProtection=false>
 
 let api =
     let handler = new HttpClientHandler(UseCookies = false)

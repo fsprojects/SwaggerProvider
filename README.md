@@ -6,6 +6,8 @@ This SwaggerProvider can be used to access RESTful API generated using [Swagger.
 
 Documentation: <http://fsprojects.github.io/SwaggerProvider/>
 
+**Security:** SSRF protection is enabled by default. For local development, use static parameter `SsrfProtection=false`.
+
 ## Swagger RESTful API Documentation Specification
 
 Swagger is available for ASP.NET WebAPI APIs with [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle).
