@@ -9,6 +9,9 @@ open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v2.Parser
 open SwaggerProvider.Internal.v2.Compilers
 
+module SwaggerCache =
+    let providedTypes = Caching.createInMemoryCache(TimeSpan.FromSeconds 30.0)
+
 /// The Swagger Type Provider.
 [<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v3 schema formats.")>]
 type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
@@ -51,10 +54,7 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
         t.DefineStaticParameters(
             staticParams,
             fun typeName args ->
-                let schemaPath =
-                    let schemaPathRaw = unbox<string> args.[0]
-                    SchemaReader.getAbsolutePath cfg.ResolutionFolder schemaPathRaw
-
+                let schemaPathRaw = unbox<string> args.[0]
                 let headersStr = unbox<string> args.[1]
                 let ignoreOperationId = unbox<bool> args.[2]
                 let ignoreControllerPrefix = unbox<bool> args.[3]
@@ -63,13 +63,13 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
                 let ssrfProtection = unbox<bool> args.[6]
 
                 let cacheKey =
-                    (schemaPath, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
+                    (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
                     |> sprintf "%A"
 
                 let addCache() =
                     lazy
                         let schemaData =
-                            SchemaReader.readSchemaPath (not ssrfProtection) headersStr schemaPath
+                            SchemaReader.readSchemaPath (not ssrfProtection) headersStr cfg.ResolutionFolder schemaPathRaw
                             |> Async.RunSynchronously
 
                         let schema = SwaggerParser.parseSchema schemaData
@@ -87,13 +87,13 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
                         let ty =
                             ProvidedTypeDefinition(tempAsm, ns, typeName, Some typeof<obj>, isErased = false, hideObjectMethods = true)
 
-                        ty.AddXmlDoc("Swagger Provider for " + schemaPath)
+                        ty.AddXmlDoc("Swagger Provider for " + schemaPathRaw)
                         ty.AddMembers tys
                         tempAsm.AddTypes [ ty ]
 
                         ty
 
-                Cache.providedTypes.GetOrAdd(cacheKey, addCache).Value
+                SwaggerCache.providedTypes.GetOrAdd(cacheKey, addCache).Value
         )
 
         t
