@@ -31,7 +31,7 @@ type BinaryContentFilter() =
             let att = ctx.MethodInfo.GetCustomAttributes(typeof<BinaryContentAttribute>, false)
 
             if att.Length > 0 then
-                op.RequestBody <- OpenApiRequestBody(Required = true, Content = System.Collections.Generic.Dictionary<string, OpenApiMediaType>())
+                op.RequestBody <- OpenApiRequestBody(Required = true, Content = System.Collections.Generic.Dictionary<string, IOpenApiMediaType>())
 
                 op.RequestBody.Content.Add(
                     MediaTypes.ApplicationOctetStream,

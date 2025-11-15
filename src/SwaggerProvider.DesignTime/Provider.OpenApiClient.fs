@@ -69,8 +69,6 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                             SchemaReader.readSchemaPath (not ssrfProtection) "" cfg.ResolutionFolder schemaPathRaw
                             |> Async.RunSynchronously
 
-                        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
-
                         let settings = OpenApiReaderSettings()
                         settings.AddYamlReader()
 

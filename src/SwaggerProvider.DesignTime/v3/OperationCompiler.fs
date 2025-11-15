@@ -72,7 +72,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
               if not(isNull operation.Parameters) then
                   yield! operation.Parameters ]
 
-        let (|MediaType|_|) contentType (content: IDictionary<string, OpenApiMediaType>) =
+        let (|MediaType|_|) contentType (content: IDictionary<string, IOpenApiMediaType>) =
             match content.TryGetValue contentType with
             | true, mediaTyObj -> Some mediaTyObj
             | _ -> None
@@ -80,10 +80,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let (|TextReturn|_|)(input: string) =
             if input.StartsWith("text/") then Some(input) else None
 
-        let (|TextMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
+        let (|TextMediaType|_|)(content: IDictionary<string, IOpenApiMediaType>) =
             content.Keys |> Seq.tryPick (|TextReturn|_|)
 
-        let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
+        let (|NoMediaType|_|)(content: IDictionary<string, IOpenApiMediaType>) =
             if content.Count = 0 then Some() else None
 
         let payloadMime, parameters =

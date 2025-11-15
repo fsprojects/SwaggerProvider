@@ -4,17 +4,17 @@
 - **Format Check**: `dotnet fake build -t CheckFormat` (validates Fantomas formatting)
 - **Format**: `dotnet fake build -t Format` (applies Fantomas formatting)
 - **All Tests**: `dotnet fake build -t RunTests` (builds + starts test server + runs all tests)
-- **Unit Tests Only**: `dotnet build && dotnet tests/SwaggerProvider.Tests/bin/Release/net9.0/SwaggerProvider.Tests.dll`
+- **Unit Tests Only**: `dotnet build && dotnet tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll`
 - **Provider Tests (Integration)**:
   1. Build test server: `dotnet build tests/Swashbuckle.WebApi.Server/Swashbuckle.WebApi.Server.fsproj -c Release`
-  2. Start server in background: `dotnet tests/Swashbuckle.WebApi.Server/bin/Release/net9.0/Swashbuckle.WebApi.Server.dll`
+  2. Start server in background: `dotnet tests/Swashbuckle.WebApi.Server/bin/Release/net10.0/Swashbuckle.WebApi.Server.dll`
   3. Build tests: `dotnet build SwaggerProvider.TestsAndDocs.sln -c Release`
-  4. Run tests: `dotnet tests/SwaggerProvider.ProviderTests/bin/Release/net9.0/SwaggerProvider.ProviderTests.dll`
+  4. Run tests: `dotnet tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll`
 - **Single Test**: Run via xunit runner: `dotnet [assembly] [filter]`
 
 ## Code Style Guidelines
 
-**Language**: F# (net9.0 target framework)
+**Language**: F# (net10.0 target framework)
 
 **Imports & Namespaces**:
 
@@ -60,4 +60,4 @@
 
 - Type Providers use `ProvidedApiClientBase` and compiler pipeline (DefinitionCompiler, OperationCompiler)
 - SSRF protection enabled by default; disable with `SsrfProtection=false` static parameter
-- Target net9.0; use implicit async/await (task expressions)
+- Target net10.0; use implicit async/await (task expressions)
