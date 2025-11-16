@@ -1,3 +1,11 @@
+#### 3.0.0 - Nov 15, 2025
+
+- Server-Side Request Forgery (SSRF) protection (#271)
+- SSRF for IP V6 and Tests (#272)
+- Microsoft.OpenApi v3.0 with OpenAPI v3.1 Support
+- Removed dependency on Microsoft.OpenApi.Readers
+- Dependencies update
+
 #### 2.3.2 - Oct 11, 2025
 
 - Added support for `text/*` media type (#270) by @spaasis

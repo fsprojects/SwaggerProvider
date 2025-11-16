@@ -91,7 +91,7 @@ let webApiInputStream = StreamRef.Empty
 Target.create "StartServer" (fun _ ->
     Target.activateFinal "StopServer"
 
-    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/net9.0/Swashbuckle.WebApi.Server.dll"
+    CreateProcess.fromRawCommandLine "dotnet" "tests/Swashbuckle.WebApi.Server/bin/Release/net10.0/Swashbuckle.WebApi.Server.dll"
     |> CreateProcess.withStandardInput(CreatePipe webApiInputStream)
     |> Proc.start
     |> ignore
@@ -116,9 +116,9 @@ Target.create "BuildTests" (fun _ -> dotnet "build" "SwaggerProvider.TestsAndDoc
 let runTests assembly =
     dotnet $"{assembly}" ""
 
-Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net9.0/SwaggerProvider.Tests.dll")
+Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll")
 
-Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net9.0/SwaggerProvider.ProviderTests.dll")
+Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll")
 
 Target.create "RunTests" ignore
 

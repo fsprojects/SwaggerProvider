@@ -32,7 +32,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                 else
                     Set.add name existing, name
 
-            let required, optional = op.Parameters |> Array.partition(fun x -> x.Required)
+            let required, optional = op.Parameters |> Array.partition(_.Required)
 
             Array.append required optional
             |> Array.fold

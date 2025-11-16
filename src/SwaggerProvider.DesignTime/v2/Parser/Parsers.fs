@@ -61,7 +61,7 @@ type SchemaNode() =
     /// Gets the string array for the property if it exists. Empty array otherwise.
     member this.GetStringArraySafe(propertyName) =
         match this.TryGetProperty(propertyName) with
-        | Some(value) -> value.AsArray() |> Array.map(fun x -> x.AsString())
+        | Some(value) -> value.AsArray() |> Array.map(_.AsString())
         | None -> [||]
 
 module Parsers =
@@ -138,11 +138,11 @@ module Parsers =
         let (|IsEnum|_|)(obj: SchemaNode) =
             // Parse `enum` - http://json-schema.org/latest/json-schema-validation.html#anchor76
             obj.TryGetProperty("enum")
-            |> Option.map(fun cases -> cases.AsArray() |> Array.map(fun x -> x.AsString()))
+            |> Option.map(fun cases -> cases.AsArray() |> Array.map(_.AsString()))
 
         let (|IsRef|_|)(obj: SchemaNode) =
             obj.TryGetProperty("$ref") // Parse `$refs`
-            |> Option.map(fun ref -> ref.AsString())
+            |> Option.map(_.AsString())
 
         let (|IsArray|_|)(obj: SchemaNode) =
             // Parse Arrays - http://json-schema.org/latest/json-schema-validation.html#anchor36
@@ -182,7 +182,7 @@ module Parsers =
                 let requiredProperties =
                     match obj.TryGetProperty("required") with
                     | None -> Set.empty<_>
-                    | Some(req) -> req.AsArray() |> Array.map(fun x -> x.AsString()) |> Set.ofArray
+                    | Some(req) -> req.AsArray() |> Array.map(_.AsString()) |> Set.ofArray
 
                 let properties =
                     properties.Properties()
@@ -203,7 +203,7 @@ module Parsers =
 
         let (|IsAllOf|_|)(obj: SchemaNode) =
             // Identify composition element 'allOf'
-            obj.TryGetProperty("allOf") |> Option.map(fun x -> x.AsArray())
+            obj.TryGetProperty("allOf") |> Option.map(_.AsArray())
 
         let (|IsComposition|_|)(obj: SchemaNode) =
             // Models with Object Composition
@@ -252,7 +252,7 @@ module Parsers =
         | IsEnum cases ->
             let ty =
                 obj.TryGetProperty("type")
-                |> Option.map(fun x -> x.AsString())
+                |> Option.map(_.AsString())
                 |> Option.defaultValue "string"
 
             Enum(cases, ty)
