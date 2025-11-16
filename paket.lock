@@ -8,10 +8,10 @@ NUGET
     Microsoft.Bcl.AsyncInterfaces (10.0) - restriction: || (>= net462) (&& (< net6.0) (>= netstandard2.0))
       System.Threading.Tasks.Extensions (>= 4.6.3) - restriction: || (>= net462) (&& (>= netstandard2.0) (< netstandard2.1))
     Microsoft.NETCore.Platforms (7.0.4) - restriction: >= net461
-    Microsoft.OpenApi (3.0)
+    Microsoft.OpenApi (2.3.9)
       System.Text.Json (>= 8.0.5) - restriction: >= netstandard2.0
-    Microsoft.OpenApi.YamlReader (3.0)
-      Microsoft.OpenApi (>= 3.0) - restriction: >= netstandard2.0
+    Microsoft.OpenApi.YamlReader (2.3.9)
+      Microsoft.OpenApi (>= 2.3.9) - restriction: >= netstandard2.0
       SharpYaml (>= 2.1.4) - restriction: >= netstandard2.0
       System.Text.Json (>= 8.0.5) - restriction: >= netstandard2.0
     NETStandard.Library (2.0.3) - restriction: >= net461
@@ -457,7 +457,7 @@ NUGET
       Microsoft.Extensions.Options (>= 10.0)
     Microsoft.Net.Http.Headers (10.0)
       Microsoft.Extensions.Primitives (>= 10.0)
-    Microsoft.OpenApi (3.0)
+    Microsoft.OpenApi (2.3.9)
       System.Text.Json (>= 8.0.5)
     Newtonsoft.Json (13.0.4)
     Newtonsoft.Json.Bson (1.0.3)
@@ -520,7 +520,7 @@ NUGET
     Microsoft.NET.Test.Sdk (18.0.1)
       Microsoft.CodeCoverage (>= 18.0.1)
       Microsoft.TestPlatform.TestHost (>= 18.0.1)
-    Microsoft.OpenApi (3.0)
+    Microsoft.OpenApi (2.3.9)
       System.Text.Json (>= 8.0.5)
     Microsoft.Testing.Extensions.Telemetry (2.0.2)
       Microsoft.ApplicationInsights (>= 2.23)

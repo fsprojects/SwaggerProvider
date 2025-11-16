@@ -5,7 +5,7 @@ storage: none
 nuget FSharp.Core ~> 8
 nuget System.Text.Json ~> 8
 nuget FSharp.SystemTextJson
-nuget Microsoft.OpenApi
+nuget Microsoft.OpenApi ~> 2 # https://github.com/microsoft/OpenAPI.NET/blob/main/CONTRIBUTING.md#branches-and-support-policy
 nuget Microsoft.OpenApi.YamlReader
 nuget NETStandard.Library.NETFramework
 
@@ -27,7 +27,7 @@ group Server
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
     nuget Swashbuckle.AspNetCore
-    nuget Microsoft.OpenApi
+    nuget Microsoft.OpenApi ~> 2
     nuget FSharp.Core
     nuget System.Text.Json
 
@@ -42,5 +42,5 @@ group Test
     nuget Microsoft.NET.Test.Sdk
     nuget FsUnit.Xunit
 
-    nuget Microsoft.OpenApi
+    nuget Microsoft.OpenApi ~> 2
     nuget FSharp.SystemTextJson
