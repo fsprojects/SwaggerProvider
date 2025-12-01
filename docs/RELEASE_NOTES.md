@@ -1,3 +1,7 @@
+#### 3.0.0-beta01 - Dec 1, 2025
+
+- Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
+
 #### 2.3.2 - Oct 11, 2025
 
 - Added support for `text/*` media type (#270) by @spaasis
