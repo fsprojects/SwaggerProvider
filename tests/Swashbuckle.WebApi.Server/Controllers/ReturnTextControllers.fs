@@ -19,6 +19,13 @@ type ReturnCsvController() =
     member this.Get() =
         "Hello,world" |> ActionResult<string>
 
+[<Route("api/[controller]")>]
+[<ApiController>]
+type ConsumesTextController() =
+    [<HttpPost; Consumes("text/plain"); Produces("text/plain")>]
+    member this.Post([<FromBody>] request: string) =
+        request |> ActionResult<string>
+
 // Simple CSV output formatter
 // This formatter assumes the controller returns a string (already CSV-formatted)
 type CsvOutputFormatter() as this =
