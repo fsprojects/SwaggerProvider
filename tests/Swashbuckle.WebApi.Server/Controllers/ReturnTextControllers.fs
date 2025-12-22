@@ -57,8 +57,8 @@ type TextPlainInputFormatter() as this =
         this.SupportedEncodings.Add(Encoding.UTF8)
         this.SupportedEncodings.Add(Encoding.Unicode)
 
-    override _.CanRead(context) =
-        context.ModelType = typeof<string>
+    override this.CanRead(context) =
+        base.CanRead(context) && context.ModelType = typeof<string>
 
     override _.ReadRequestBodyAsync(context, encoding) =
         task {
