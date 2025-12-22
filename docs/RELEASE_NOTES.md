@@ -1,6 +1,8 @@
-#### 3.0.0-beta01 - Dec 1, 2025
+#### 3.0.0-beta02 - Dec 22, 2025
 
 - Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
+- feat: handle text/plain payload types (#276)
+- fix: error messages when `operationId` is not provided (minimal api) (#277)
 
 #### 2.3.2 - Oct 11, 2025
 
