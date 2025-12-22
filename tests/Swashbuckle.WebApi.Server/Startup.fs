@@ -24,7 +24,9 @@ type Startup private () =
                 let converters = options.JsonSerializerOptions.Converters
                 converters.Add(JsonFSharpConverter())
                 converters.Add(JsonStringEnumConverter()))
-            .AddMvcOptions(_.OutputFormatters.Add(CsvOutputFormatter()))
+            .AddMvcOptions(fun options ->
+                options.OutputFormatters.Add(CsvOutputFormatter())
+                options.InputFormatters.Insert(0, TextPlainInputFormatter()))
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
