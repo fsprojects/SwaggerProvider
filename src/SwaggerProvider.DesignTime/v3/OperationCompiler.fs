@@ -120,7 +120,14 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         formatAndParam NoData defSchema
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
-                        failwithf $"Operation '%s{operation.OperationId}' does not contain supported media types [%A{keys}]"
+
+                        let operationId =
+                            if String.IsNullOrWhiteSpace(operation.OperationId) then
+                                $"%s{path}/%A{opTy}"
+                            else
+                                operation.OperationId
+
+                        failwithf $"Operation '%s{operationId}' does not contain supported media types [%A{keys}]"
 
             let payloadTy = bodyFormatAndParam |> Option.map fst |> Option.defaultValue NoData
 
