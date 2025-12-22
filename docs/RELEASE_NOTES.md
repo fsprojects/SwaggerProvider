@@ -1,10 +1,11 @@
 #### 3.0.0 - Nov 15, 2025
 
-- Server-Side Request Forgery (SSRF) protection (#271)
-- SSRF for IP V6 and Tests (#272)
+- Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
 - Microsoft.OpenApi v3.0 with OpenAPI v3.1 Support
 - Removed dependency on Microsoft.OpenApi.Readers
 - Dependencies update
+- feat: handle text/plain payload types (#276)
+- fix: error messages when `operationId` is not provided (minimal api) (#277)
 
 #### 2.3.2 - Oct 11, 2025
 

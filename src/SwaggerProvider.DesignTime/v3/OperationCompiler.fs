@@ -28,6 +28,7 @@ type PayloadType =
     | AppOctetStream
     | AppFormUrlEncoded
     | MultipartFormData
+    | TextPlain
 
     override x.ToString() =
         match x with
@@ -36,6 +37,7 @@ type PayloadType =
         | AppOctetStream -> "octetStream"
         | AppFormUrlEncoded -> "formUrlEncoded"
         | MultipartFormData -> "formData"
+        | TextPlain -> "textPlain"
 
     member x.ToMediaType() =
         match x with
@@ -44,6 +46,7 @@ type PayloadType =
         | AppOctetStream -> MediaTypes.ApplicationOctetStream
         | AppFormUrlEncoded -> MediaTypes.ApplicationFormUrlEncoded
         | MultipartFormData -> MediaTypes.MultipartFormData
+        | TextPlain -> MediaTypes.TextPlain
 
     static member Parse =
         function
@@ -52,6 +55,7 @@ type PayloadType =
         | "octetStream" -> AppOctetStream
         | "formUrlEncoded" -> AppFormUrlEncoded
         | "formData" -> MultipartFormData
+        | "textPlain" -> TextPlain
         | name -> failwithf $"Payload '%s{name}' is not supported"
 
 /// Object for compiling operations.
@@ -119,13 +123,21 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     | MediaType MediaTypes.ApplicationOctetStream mediaTyObj -> formatAndParam AppOctetStream mediaTyObj.Schema
                     | MediaType MediaTypes.MultipartFormData mediaTyObj -> formatAndParam MultipartFormData mediaTyObj.Schema
                     | MediaType MediaTypes.ApplicationFormUrlEncoded mediaTyObj -> formatAndParam AppFormUrlEncoded mediaTyObj.Schema
+                    | MediaType MediaTypes.TextPlain mediaTyObj -> formatAndParam TextPlain mediaTyObj.Schema
                     | NoMediaType ->
                         // Assume that server treat it as `applicationJson`
                         let defSchema = OpenApiSchema() // todo: we need to test it
                         formatAndParam NoData defSchema
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
-                        failwithf $"Operation '%s{operation.OperationId}' does not contain supported media types [%A{keys}]"
+
+                        let operationId =
+                            if String.IsNullOrWhiteSpace(operation.OperationId) then
+                                $"%s{path}/%A{opTy}"
+                            else
+                                operation.OperationId
+
+                        failwithf $"Operation '%s{operationId}' does not contain supported media types [%A{keys}]"
 
             let payloadTy = bodyFormatAndParam |> Option.map fst |> Option.defaultValue NoData
 
@@ -355,6 +367,13 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                     let data = RuntimeHelpers.getPropertyValues(%%formUrlEncoded: obj)
                                     let msg = %httpRequestMessage
                                     msg.Content <- RuntimeHelpers.toFormUrlEncodedContent(data)
+                                    msg
+                                @>
+                            | Some(TextPlain, textObj) ->
+                                <@
+                                    let text = (%%textObj: obj).ToString()
+                                    let msg = %httpRequestMessage
+                                    msg.Content <- RuntimeHelpers.toTextContent(text)
                                     msg
                                 @>
 

@@ -15,3 +15,7 @@ let ``Return text/plain GET Test``() =
 [<Fact>]
 let ``Return text/csv GET Test``() =
     api.GetApiReturnCsv() |> asyncEqual "Hello,world"
+
+[<Fact>]
+let ``Send & return text/plain POST Test``() =
+    api.PostApiConsumesText("hello") |> asyncEqual "hello"
