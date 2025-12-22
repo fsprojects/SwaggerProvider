@@ -18,6 +18,9 @@ module MediaTypes =
     [<Literal>]
     let MultipartFormData = "multipart/form-data"
 
+    [<Literal>]
+    let TextPlain = "text/plain"
+
 type AsyncExtensions() =
     static member cast<'t> asyncOp =
         async {
@@ -126,6 +129,9 @@ module RuntimeHelpers =
 
     let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
+
+    let toTextContent(valueStr: string) =
+        new StringContent(valueStr, Text.Encoding.UTF8, "text/plain")
 
     let toStreamContent(boxedStream: obj) =
         match boxedStream with
