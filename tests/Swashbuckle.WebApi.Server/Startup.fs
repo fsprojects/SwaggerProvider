@@ -26,7 +26,7 @@ type Startup private () =
                 converters.Add(JsonStringEnumConverter()))
             .AddMvcOptions(fun options ->
                 options.OutputFormatters.Add(CsvOutputFormatter())
-                options.InputFormatters.Insert(0, TextPlainInputFormatter()))
+                options.InputFormatters.Add(TextPlainInputFormatter()))
         |> ignore
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
