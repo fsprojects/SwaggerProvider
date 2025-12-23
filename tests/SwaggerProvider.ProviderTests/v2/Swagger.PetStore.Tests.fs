@@ -45,7 +45,7 @@ let ``Instantiate provided objects``() =
 let ``throw custom exceptions from async``() =
     task {
         try
-            let! _ = store.GetPetById(253L)
+            let! _ = store.GetPetById(-253L)
             failwith "Call should fail"
         with :? System.AggregateException as aex ->
             match aex.InnerException with
@@ -57,7 +57,7 @@ let ``throw custom exceptions from async``() =
 let ``throw custom exceptions from task``() =
     task {
         try
-            let! _ = storeTask.GetPetById(342L)
+            let! _ = storeTask.GetPetById(-342L)
             failwith "Call should fail"
         with :? System.Net.Http.HttpRequestException as ex ->
             ex.Message |> shouldContainText "Not Found"

@@ -77,18 +77,24 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                   yield! operation.Parameters ]
 
         let (|MediaType|_|) contentType (content: IDictionary<string, OpenApiMediaType>) =
-            match content.TryGetValue contentType with
-            | true, mediaTyObj -> Some mediaTyObj
-            | _ -> None
+            if isNull content then
+                None
+            else
+                match content.TryGetValue contentType with
+                | true, mediaTyObj -> Some mediaTyObj
+                | _ -> None
 
         let (|TextReturn|_|)(input: string) =
             if input.StartsWith("text/") then Some(input) else None
 
         let (|TextMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
-            content.Keys |> Seq.tryPick (|TextReturn|_|)
+            if isNull content then
+                None
+            else
+                content.Keys |> Seq.tryPick (|TextReturn|_|)
 
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
-            if content.Count = 0 then Some() else None
+            if isNull content || content.Count = 0 then Some() else None
 
         let payloadMime, parameters =
             /// handles de-duplicating Swagger parameter names if the same parameter name

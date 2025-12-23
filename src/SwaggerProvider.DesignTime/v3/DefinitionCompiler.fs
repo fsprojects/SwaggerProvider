@@ -406,14 +406,26 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             else
                 None
 
+        // Helper to get full definition path from reference ID
+        let getFullPath(refId: string) =
+            if refId.StartsWith DefinitionPath.DefinitionPrefix then
+                refId
+            else
+                DefinitionPath.DefinitionPrefix + refId
+
         let tyType =
             match schemaObj with
             | null -> failwithf $"Cannot compile object '%s{tyName}' when schema is 'null'"
-            | :? OpenApiSchemaReference as schemaRef when not <| schemaRef.Reference.Id.EndsWith tyName ->
+            | :? OpenApiSchemaReference as schemaRef when
+                not(isNull schemaRef.Reference)
+                && not <| schemaRef.Reference.Id.EndsWith tyName
+                ->
                 ns.ReleaseNameReservation tyName
-                compileByPath <| schemaRef.Reference.Id
-            | :? OpenApiSchemaReference as schemaRef ->
-                match pathToType.TryGetValue schemaRef.Reference.Id with
+                compileByPath <| getFullPath schemaRef.Reference.Id
+            | :? OpenApiSchemaReference as schemaRef when not(isNull schemaRef.Reference) ->
+                let fullPath = getFullPath schemaRef.Reference.Id
+
+                match pathToType.TryGetValue fullPath with
                 | true, ty ->
                     ns.ReleaseNameReservation tyName
                     ty
@@ -431,7 +443,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [ typeof<string>; elTy ])
-            | _ when resolvedType.IsNone || resolvedType = Some JsonSchemaType.Object -> compileNewObject()
+            | _ when
+                resolvedType.IsNone
+                || resolvedType = Some JsonSchemaType.Object
+                || resolvedType = Some(JsonSchemaType.Null ||| JsonSchemaType.Object)
+                ->
+                compileNewObject()
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
 
