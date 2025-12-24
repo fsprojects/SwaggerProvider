@@ -7,6 +7,11 @@ module SchemaReader =
     open System.Net.Http
     open System.Runtime.InteropServices
 
+    /// Checks if a path starts with relative markers like ../ or ./
+    let private startsWithRelativeMarker(path: string) =
+        let normalized = path.Replace('\\', '/')
+        normalized.StartsWith("/../") || normalized.StartsWith("/./")
+
     /// Determines if a path is truly absolute (not just rooted)
     /// On Windows: C:\path is absolute, \path is rooted (combine with drive), but \..\path is relative
     /// On Unix: /path is absolute, but /../path or /./path are relative
@@ -26,20 +31,12 @@ module SchemaReader =
                     true
                 else
                     // Rooted but no drive - check if it starts with relative markers
-                    // \..\ or /../ or /..\ etc. are relative, not absolute
-                    // \.\ or /./ or /\ etc. are also relative
-                    let normalized = path.Replace('\\', '/')
-
-                    not(
-                        normalized.StartsWith("/../")
-                        || normalized.StartsWith("/./")
-                        || normalized.StartsWith("/..\\")
-                        || normalized.StartsWith("/.\\")
-                    )
+                    // \..\ or /../ are relative, not absolute
+                    not(startsWithRelativeMarker path)
             else
                 // On Unix, a rooted path is absolute if it starts with /
                 // BUT: if the path starts with /../ or /./, it's relative
-                root = "/" && not(path.StartsWith("/../") || path.StartsWith("/./"))
+                root = "/" && not(startsWithRelativeMarker path)
 
     let getAbsolutePath (resolutionFolder: string) (schemaPathRaw: string) =
         if String.IsNullOrWhiteSpace(schemaPathRaw) then
