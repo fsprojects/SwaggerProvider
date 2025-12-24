@@ -389,11 +389,11 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 ty :> Type
 
         let resolvedType =
-            // If schemaObj.Type is missing, but allOf is present and first allOf subschema has a type, use that
+            // If schemaObj.Type is missing, but allOf is present andallOf subschema has one element, use that
             if
                 not schemaObj.Type.HasValue
                 && not(isNull schemaObj.AllOf)
-                && schemaObj.AllOf.Count > 0
+                && schemaObj.AllOf.Count = 1
             then
                 let firstAllOf = schemaObj.AllOf.[0]
 
