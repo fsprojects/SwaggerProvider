@@ -1,6 +1,6 @@
 # SwaggerProvider
 
-![NuGet Version](https://badgen.net/nuget/v/SwaggerProvider) ![NuGet Downloads](https://badgen.net/nuget/dt/SwaggerProvider)
+[![NuGet Version](https://badgen.net/nuget/v/SwaggerProvider)](https://www.nuget.org/packages/SwaggerProvider) [![NuGet Downloads](https://badgen.net/nuget/dt/SwaggerProvider)](https://www.nuget.org/packages/SwaggerProvider)
 
 This SwaggerProvider can be used to access RESTful API generated using [Swagger.io](http://swagger.io)
 
