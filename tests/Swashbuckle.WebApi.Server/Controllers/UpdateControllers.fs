@@ -37,7 +37,7 @@ type UpdateStringController() =
     inherit UpdateController<string>((+) "Hello, ")
 
 type UpdateDateTimeController() =
-    inherit UpdateController<DateTime>(fun x -> x.AddDays(1.0))
+    inherit UpdateController<DateTime>(_.AddDays(1.0))
 
 type UpdateGuidController() =
     inherit UpdateController<Guid>(id)

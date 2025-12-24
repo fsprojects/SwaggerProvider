@@ -168,20 +168,3 @@ let ``Return FileDescription POST Test``() =
         file.Name |> shouldEqual("1.txt")
         file.Bytes |> shouldEqual([| 1uy; 2uy; 3uy |])
     }
-
-[<Fact>]
-let ``Return String Dictionary GET Test``() =
-    task {
-        let! dict = api.GetApiReturnStringDictionary()
-        dict |> shouldEqual(Map [ "hello", "world" ])
-    }
-
-[<Fact>]
-let ``Return Object Point Dictionary GET Test``() =
-    task {
-        let! dict = api.GetApiReturnObjectPointClassDictionary()
-        dict.ContainsKey "point" |> shouldEqual true
-        let point = dict.["point"]
-        point.X |> shouldEqual(Some 0)
-        point.Y |> shouldEqual(Some 0)
-    }

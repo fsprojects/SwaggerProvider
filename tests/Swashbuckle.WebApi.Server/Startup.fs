@@ -5,7 +5,7 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
-open Microsoft.OpenApi.Models
+open Microsoft.OpenApi
 open System.Text.Json.Serialization
 open Swashbuckle.WebApi.Server.Controllers
 
@@ -28,6 +28,7 @@ type Startup private () =
                 options.OutputFormatters.Add(CsvOutputFormatter())
                 options.InputFormatters.Add(TextPlainInputFormatter()))
         |> ignore
+
         // Register the Swagger & OpenApi services
         services.AddSwaggerGen(fun c ->
             c.SwaggerDoc("v1", OpenApiInfo(Title = "My API", Version = "v1"))
@@ -43,14 +44,12 @@ type Startup private () =
         // Register the Swagger generator and the Swagger UI middlewares
         app.UseSwagger(fun c ->
             c.RouteTemplate <- "/swagger/{documentName}/swagger.json"
-            c.SerializeAsV2 <- true // false = v3 = OpenApi
-        )
+            c.OpenApiVersion <- OpenApiSpecVersion.OpenApi2_0)
         |> ignore
 
         app.UseSwagger(fun c ->
             c.RouteTemplate <- "/swagger/{documentName}/openapi.json"
-            c.SerializeAsV2 <- false // false = v3 = OpenApi
-        )
+            c.OpenApiVersion <- OpenApiSpecVersion.OpenApi3_0)
         |> ignore
 
         app.UseSwaggerUI(fun c ->

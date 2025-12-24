@@ -4,9 +4,18 @@ open System
 open System.IO
 open Microsoft.AspNetCore.Mvc
 open Microsoft.AspNetCore.Http
-open Microsoft.OpenApi.Models
-open Swagger.Internal
+open Microsoft.OpenApi
 open Swashbuckle.AspNetCore.SwaggerGen
+
+module MediaTypes =
+
+    open System.Net.Mime
+
+    [<Literal>]
+    let ApplicationOctetStream = MediaTypeNames.Application.Octet
+
+    [<Literal>]
+    let ApplicationJson = MediaTypeNames.Application.Json
 
 type FormWithFile() =
     member val Name: string = "" with get, set
@@ -22,11 +31,11 @@ type BinaryContentFilter() =
             let att = ctx.MethodInfo.GetCustomAttributes(typeof<BinaryContentAttribute>, false)
 
             if att.Length > 0 then
-                op.RequestBody <- OpenApiRequestBody(Required = true)
+                op.RequestBody <- OpenApiRequestBody(Required = true, Content = System.Collections.Generic.Dictionary<string, OpenApiMediaType>())
 
                 op.RequestBody.Content.Add(
                     MediaTypes.ApplicationOctetStream,
-                    OpenApiMediaType(Schema = OpenApiSchema(Type = "string", Format = "binary"))
+                    OpenApiMediaType(Schema = OpenApiSchema(Type = JsonSchemaType.String, Format = "binary"))
                 )
 
 [<Route("api/[controller]")>]

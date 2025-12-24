@@ -2,8 +2,8 @@ File: ProvidedTypes.fsi
 File: ProvidedTypes.fs
 File: Pluralizer.fs
 File: NameUtils.fs
-
 System.Text.Json
-Microsoft.OpenApi.Readers
+Microsoft.OpenApi
+Microsoft.OpenApi.YamlReader
 
 YamlDotNet

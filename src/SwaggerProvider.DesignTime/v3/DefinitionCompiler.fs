@@ -8,7 +8,7 @@ open FSharp.Data.Runtime.NameUtils
 open Swagger.Internal
 open SwaggerProvider.Internal
 open Microsoft.FSharp.Quotations
-open Microsoft.OpenApi.Models
+open Microsoft.OpenApi
 
 type DefinitionPath =
     { Namespace: string list
@@ -20,10 +20,10 @@ type DefinitionPath =
     static member Parse(definition: string) =
         let nsSeparator = '.'
 
-        if (not <| definition.StartsWith(DefinitionPath.DefinitionPrefix)) then
+        if not <| definition.StartsWith DefinitionPath.DefinitionPrefix then
             failwithf $"Definition path ('%s{definition}') does not start with %s{DefinitionPath.DefinitionPrefix}"
 
-        let definitionPath = definition.Substring(DefinitionPath.DefinitionPrefix.Length)
+        let definitionPath = definition.Substring DefinitionPath.DefinitionPrefix.Length
 
         let rec getCharInTypeName ind =
             if ind = definitionPath.Length then
@@ -96,7 +96,7 @@ and NamespaceAbstraction(name: string) =
 
     /// Release previously reserved name
     member _.ReleaseNameReservation tyName =
-        updateReservation "release the name" tyName (fun () -> providedTys.Remove(tyName) |> ignore)
+        updateReservation "release the name" tyName (fun () -> providedTys.Remove tyName |> ignore)
 
     /// Mark type name as named alias for basic type
     member _.MarkTypeAsNameAlias tyName =
@@ -121,12 +121,12 @@ and NamespaceAbstraction(name: string) =
         | true, Namespace ns -> ns
         | true, NestedType(_, ns) -> ns
         | true, ProvidedType ty ->
-            let ns = NamespaceAbstraction(name)
+            let ns = NamespaceAbstraction name
             providedTys[name] <- NestedType(ty, ns)
             ns
         | false, _
         | true, Reservation ->
-            let ns = NamespaceAbstraction(name)
+            let ns = NamespaceAbstraction name
             providedTys[name] <- Namespace ns
             ns
         | true, value -> failwithf $"Name collision, cannot create namespace '%s{name}' because it used by '%A{value}'"
@@ -175,14 +175,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             |> Map.ofSeq
 
     let pathToType = Collections.Generic.Dictionary<_, Type>()
-    let nsRoot = NamespaceAbstraction("Root")
+    let nsRoot = NamespaceAbstraction "Root"
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"
 
     let generateProperty (scope: UniqueNameGenerator) propName ty =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
         let providedField =
-            let fieldName = $"_%c{Char.ToLower propertyName[0]}%s{propertyName.Substring(1)}"
+            let fieldName = $"_%c{Char.ToLower propertyName[0]}%s{propertyName.Substring 1}"
 
             ProvidedField(fieldName, ty)
 
@@ -225,13 +225,19 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
                 ty :> Type
-            | None when tyPath.StartsWith(DefinitionPath.DefinitionPrefix) ->
+            | None when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
             | None -> failwithf $"Cannot find definition '%s{tyPath}' (references to relative documents are not supported yet)"
 
-    and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: OpenApiSchema) isRequired registerNew fromByPathCompiler =
+    and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: IOpenApiSchema) isRequired registerNew fromByPathCompiler =
         let compileNewObject() =
-            if schemaObj.Properties.Count = 0 && schemaObj.AllOf.Count = 0 then
+            let inline toSeq x =
+                if isNull x then Seq.empty else x :> seq<_>
+
+            let properties = schemaObj.Properties |> toSeq
+            let allOf = schemaObj.AllOf |> toSeq
+
+            if Seq.isEmpty properties && Seq.isEmpty allOf then
                 if not <| isNull tyName then
                     ns.MarkTypeAsNameAlias tyName
 
@@ -245,22 +251,22 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                 // Combine composite schemas
                 let schemaObjProperties =
-                    match schemaObj.AllOf.Count > 0 with
-                    | true ->
-                        schemaObj.AllOf
-                        |> Seq.append [ schemaObj ]
-                        |> Seq.collect(fun x -> x.Properties)
-                    | false -> schemaObj.Properties
+                    let getProps(s: IOpenApiSchema) =
+                        s.Properties |> toSeq
+
+                    match Seq.isEmpty allOf with
+                    | false -> allOf |> Seq.append [ schemaObj ] |> Seq.collect getProps
+                    | true -> getProps schemaObj
+
 
                 let schemaObjRequired =
-                    match schemaObj.AllOf.Count > 0 with
-                    | true ->
-                        schemaObj.AllOf
-                        |> Seq.append [ schemaObj ]
-                        |> Seq.collect(fun x -> x.Required)
-                        |> System.Collections.Generic.HashSet
-                        :> System.Collections.Generic.ISet<string>
-                    | false -> schemaObj.Required
+                    let getReq(s: IOpenApiSchema) =
+                        s.Required |> toSeq
+
+                    match Seq.isEmpty allOf with
+                    | false -> allOf |> Seq.append [ schemaObj ] |> Seq.collect getReq
+                    | true -> getReq schemaObj
+                    |> Set.ofSeq
 
                 // Generate fields and properties
                 let members =
@@ -270,10 +276,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     |> List.map(fun p ->
                         let propName, propSchema = p.Key, p.Value
 
-                        if String.IsNullOrEmpty(propName) then
+                        if String.IsNullOrEmpty propName then
                             failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
-                        let isRequired = schemaObjRequired.Contains(propName)
+                        let isRequired = schemaObjRequired.Contains propName
 
                         let pTy =
                             compileBySchema ns (ns.ReserveUniqueName tyName (nicePascalName propName)) propSchema isRequired ns.RegisterType false
@@ -297,14 +303,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ctorParams, fields =
                     let required, optional =
                         List.zip (List.ofSeq schemaObjProperties) members
-                        |> List.partition(fun (x, _) -> schemaObjRequired.Contains(x.Key))
+                        |> List.partition(fun (x, _) -> schemaObjRequired.Contains x.Key)
 
-                    (required @ optional)
+                    required @ optional
                     |> List.map(fun (x, (f, p)) ->
                         let paramName = niceCamelName p.Name
 
                         let prParam =
-                            if schemaObjRequired.Contains(x.Key) then
+                            if schemaObjRequired.Contains x.Key then
                                 ProvidedParameter(paramName, f.FieldType)
                             else
                                 let paramDefaultValue = this.GetDefaultValue f.FieldType
@@ -320,7 +326,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         fun args ->
                             let this, args =
                                 match args with
-                                | x :: xs -> (x, xs)
+                                | x :: xs -> x, xs
                                 | _ -> failwith "Wrong constructor arguments"
 
                             List.zip args fields
@@ -350,7 +356,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                                 let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
 
                                 <@@
-                                    let values = (%%pValuesArr: array<obj>)
+                                    let values = %%pValuesArr: array<obj>
 
                                     let rec formatValue(v: obj) =
                                         if isNull v then
@@ -382,25 +388,52 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                 ty :> Type
 
+        let resolvedType =
+            // If schemaObj.Type is missing, but allOf is present andallOf subschema has one element, use that
+            if
+                not schemaObj.Type.HasValue
+                && not(isNull schemaObj.AllOf)
+                && schemaObj.AllOf.Count = 1
+            then
+                let firstAllOf = schemaObj.AllOf.[0]
+
+                if not(isNull firstAllOf) && firstAllOf.Type.HasValue then
+                    Some firstAllOf.Type.Value
+                else
+                    None
+            else if schemaObj.Type.HasValue then
+                Some schemaObj.Type.Value
+            else
+                None
+
+        // Helper to get full definition path from reference ID
+        let getFullPath(refId: string) =
+            if refId.StartsWith DefinitionPath.DefinitionPrefix then
+                refId
+            else
+                DefinitionPath.DefinitionPrefix + refId
+
         let tyType =
             match schemaObj with
             | null -> failwithf $"Cannot compile object '%s{tyName}' when schema is 'null'"
-            | _ when
-                (not(isNull schemaObj.Reference))
-                && not <| schemaObj.Reference.Id.EndsWith(tyName)
+            | :? OpenApiSchemaReference as schemaRef when
+                not(isNull schemaRef.Reference)
+                && not <| schemaRef.Reference.Id.EndsWith tyName
                 ->
                 ns.ReleaseNameReservation tyName
-                compileByPath <| schemaObj.Reference.ReferenceV3
-            | _ when schemaObj.UnresolvedReference ->
-                match pathToType.TryGetValue schemaObj.Reference.ReferenceV3 with
+                compileByPath <| getFullPath schemaRef.Reference.Id
+            | :? OpenApiSchemaReference as schemaRef when not(isNull schemaRef.Reference) ->
+                let fullPath = getFullPath schemaRef.Reference.Id
+
+                match pathToType.TryGetValue fullPath with
                 | true, ty ->
                     ns.ReleaseNameReservation tyName
                     ty
-                | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaObj.Reference.ReferenceV3}'"
+                | _ -> failwithf $"Cannot compile object '%s{tyName}' based on unresolved reference '{schemaRef.Reference.Id}'"
             // TODO: fail on external references
             //| _ when schemaObj.Reference <> null && tyName <> schemaObj.Reference.Id ->
             | _ when
-                schemaObj.Type = "object"
+                resolvedType = Some JsonSchemaType.Object
                 && not(isNull schemaObj.AdditionalProperties)
                 -> // Dictionary ->
                 ns.ReleaseNameReservation tyName
@@ -410,34 +443,45 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [ typeof<string>; elTy ])
-            | _ when isNull schemaObj.Type || schemaObj.Type = "object" -> // Object props ->
+            | _ when
+                resolvedType.IsNone
+                || resolvedType = Some JsonSchemaType.Object
+                || resolvedType = Some(JsonSchemaType.Null ||| JsonSchemaType.Object)
+                ->
                 compileNewObject()
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
 
-                match schemaObj.Type, schemaObj.Format with
-                | "integer", "int64" -> typeof<int64>
-                | "integer", _ -> typeof<int32>
-                | "number", "double" -> typeof<double>
-                | "number", _ -> typeof<float32>
-                | "boolean", _ -> typeof<bool>
-                | "string", "byte" -> typeof<byte>.MakeArrayType 1
-                | "string", "binary" // for `application/octet-stream` request body
-                | "file", _ -> // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
-                    typeof<IO.Stream>
-                | "string", "date"
-                | "string", "date-time" -> typeof<DateTimeOffset>
-                | "string", "uuid" -> typeof<Guid>
-                | "string", _ -> typeof<string>
-                | "array", _ ->
-                    ns.ReleaseNameReservation tyName
-                    let elSchema = schemaObj.Items
+                match resolvedType with
+                | None -> failwithf $"Schema type is not specified for '%s{tyName}'"
+                | Some t ->
+                    let (|HasFlag|_|) (flag: JsonSchemaType) (value: JsonSchemaType) =
+                        if value.HasFlag flag then Some() else None
 
-                    let elTy =
-                        compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
+                    match t, schemaObj.Format with
+                    | HasFlag JsonSchemaType.Boolean, _ -> typeof<bool>
+                    | HasFlag JsonSchemaType.Integer, "int64" -> typeof<int64>
+                    | HasFlag JsonSchemaType.Integer, _ -> typeof<int32>
+                    | HasFlag JsonSchemaType.Number, "double" -> typeof<double>
+                    | HasFlag JsonSchemaType.Number, _ -> typeof<float32>
+                    | HasFlag JsonSchemaType.String, "byte" -> typeof<byte>.MakeArrayType 1
+                    | HasFlag JsonSchemaType.String, "binary" ->
+                        // for `application/octet-stream` request body
+                        // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
+                        typeof<IO.Stream>
+                    | HasFlag JsonSchemaType.String, "date"
+                    | HasFlag JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
+                    | HasFlag JsonSchemaType.String, "uuid" -> typeof<Guid>
+                    | HasFlag JsonSchemaType.String, _ -> typeof<string>
+                    | HasFlag JsonSchemaType.Array, _ ->
+                        ns.ReleaseNameReservation tyName
+                        let elSchema = schemaObj.Items
 
-                    elTy.MakeArrayType(1)
-                | ty, format -> failwithf $"Type %s{tyName}(%s{ty},%s{format}) should be caught by other match statement (%A{schemaObj.Type})"
+                        let elTy =
+                            compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
+
+                        elTy.MakeArrayType 1
+                    | ty, format -> failwithf $"Type %s{tyName}(%A{ty},%s{format}) should be caught by other match statement (%A{resolvedType})"
 
         if fromByPathCompiler then
             registerNew(tyName, tyType)

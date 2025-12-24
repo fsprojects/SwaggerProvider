@@ -1,5 +1,6 @@
 module SwaggerProvider.Tests.v3
 
+open Microsoft.OpenApi.Reader
 open Xunit
 open FsUnitTyped
 open System
@@ -21,9 +22,13 @@ module V3 =
     open SwaggerProvider.Internal.v3.Compilers
 
     let testSchema schemaStr =
-        let openApiReader = Microsoft.OpenApi.Readers.OpenApiStringReader()
+        let settings = OpenApiReaderSettings()
+        settings.AddYamlReader()
 
-        let schema, diagnostic = openApiReader.Read(schemaStr)
+        let readResult =
+            Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
+
+        let schema = readResult.Document
         (*        if diagnostic.Errors.Count > 0 then
                failwithf "Schema parse errors:\n- %s"
                    (diagnostic.Errors

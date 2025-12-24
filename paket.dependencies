@@ -1,11 +1,12 @@
-version 8.0.3
+version 9.0.2
 source https://api.nuget.org/v3/index.json
 storage: none
 
-nuget FSharp.Core ~> 6 // We need task{} CE from F# 6.0
-nuget System.Text.Json ~> 6
+nuget FSharp.Core ~> 8
+nuget System.Text.Json ~> 8
 nuget FSharp.SystemTextJson
-nuget Microsoft.OpenApi.Readers
+nuget Microsoft.OpenApi ~> 2 # https://github.com/microsoft/OpenAPI.NET/blob/main/CONTRIBUTING.md#branches-and-support-policy
+nuget Microsoft.OpenApi.YamlReader
 nuget NETStandard.Library.NETFramework
 
 # delete when we drop custom parser for v2
@@ -20,20 +21,20 @@ github fsprojects/FSharp.Data:main src/FSharp.Data.Runtime.Utilities/NameUtils.f
 
 group Server
     source https://api.nuget.org/v3/index.json
-    framework: net9.0
+    framework: net10.0
 
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
     nuget Swashbuckle.AspNetCore
-    nuget Microsoft.OpenApi
+    nuget Microsoft.OpenApi ~> 2
     nuget FSharp.Core
     nuget System.Text.Json
 
 
 group Test
     source https://api.nuget.org/v3/index.json
-    frameworks: net9.0
+    frameworks: net10.0
 
     nuget FSharp.Compiler.Service
     nuget FSharp.Core
@@ -41,5 +42,5 @@ group Test
     nuget Microsoft.NET.Test.Sdk
     nuget FsUnit.Xunit
 
-    nuget Microsoft.OpenApi.Readers redirects: force
+    nuget Microsoft.OpenApi ~> 2
     nuget FSharp.SystemTextJson
