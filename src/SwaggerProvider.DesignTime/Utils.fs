@@ -10,30 +10,36 @@ module SchemaReader =
     /// Determines if a path is truly absolute (not just rooted)
     /// On Windows: C:\path is absolute, \path is rooted (combine with drive), but \..\path is relative
     /// On Unix: /path is absolute, but /../path or /./path are relative
-    let private isTrulyAbsolute (path: string) =
-        if not (Path.IsPathRooted path) then
+    let private isTrulyAbsolute(path: string) =
+        if not(Path.IsPathRooted path) then
             false
         else
             let root = Path.GetPathRoot path
+
             if String.IsNullOrEmpty root then
                 false
-            else
-                if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
-                    // On Windows, a truly absolute path has a volume (C:\, D:\, etc.)
-                    // Paths like \path or /path are rooted but may be relative if they start with .. or .
-                    if root.Contains(':') then
-                        // Has drive letter, truly absolute
-                        true
-                    else
-                        // Rooted but no drive - check if it starts with relative markers
-                        // \..\ or /../ or /..\ etc. are relative, not absolute
-                        // \.\ or /./ or /\ etc. are also relative
-                        let normalized = path.Replace('\\', '/')
-                        not (normalized.StartsWith("/../") || normalized.StartsWith("/./") || normalized.StartsWith("/..\\") || normalized.StartsWith("/.\\"))
+            else if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
+                // On Windows, a truly absolute path has a volume (C:\, D:\, etc.)
+                // Paths like \path or /path are rooted but may be relative if they start with .. or .
+                if root.Contains(':') then
+                    // Has drive letter, truly absolute
+                    true
                 else
-                    // On Unix, a rooted path is absolute if it starts with /
-                    // BUT: if the path starts with /../ or /./, it's relative
-                    root = "/" && not (path.StartsWith("/../") || path.StartsWith("/./"))
+                    // Rooted but no drive - check if it starts with relative markers
+                    // \..\ or /../ or /..\ etc. are relative, not absolute
+                    // \.\ or /./ or /\ etc. are also relative
+                    let normalized = path.Replace('\\', '/')
+
+                    not(
+                        normalized.StartsWith("/../")
+                        || normalized.StartsWith("/./")
+                        || normalized.StartsWith("/..\\")
+                        || normalized.StartsWith("/.\\")
+                    )
+            else
+                // On Unix, a rooted path is absolute if it starts with /
+                // BUT: if the path starts with /../ or /./, it's relative
+                root = "/" && not(path.StartsWith("/../") || path.StartsWith("/./"))
 
     let getAbsolutePath (resolutionFolder: string) (schemaPathRaw: string) =
         if String.IsNullOrWhiteSpace(schemaPathRaw) then
@@ -46,7 +52,10 @@ module SchemaReader =
         elif isTrulyAbsolute schemaPathRaw then
             // Truly absolute path (e.g., C:\path on Windows, /path on Unix)
             // On Windows, if path is like \path without drive, combine with drive from resolutionFolder
-            if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && not (Path.GetPathRoot(schemaPathRaw).Contains(':')) then
+            if
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                && not(Path.GetPathRoot(schemaPathRaw).Contains(':'))
+            then
                 Path.Combine(Path.GetPathRoot resolutionFolder, schemaPathRaw.Substring 1)
             else
                 schemaPathRaw
