@@ -169,7 +169,3 @@ let ``Return FileDescription POST Test``() =
         file.Bytes |> shouldEqual([| 1uy; 2uy; 3uy |])
     }
 
-// NOTE: Dictionary tests removed because Swashbuckle doesn't generate 'additionalProperties' in Swagger 2.0 for dictionaries
-// The swagger.json produces: {"type": "object"} instead of {"type": "object", "additionalProperties": {"$ref": "#/definitions/PointClass"}}
-// The corresponding OpenAPI 3.0 tests in v3/Swashbuckle.ReturnControllers.Tests.fs cover this functionality
-// See: tests/SwaggerProvider.ProviderTests/v3/Swashbuckle.ReturnControllers.Tests.fs for working dictionary tests
