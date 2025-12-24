@@ -26,7 +26,7 @@ module SchemaReader =
             else if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
                 // On Windows, a truly absolute path has a volume (C:\, D:\, etc.)
                 // Paths like \path or /path are rooted but may be relative if they start with .. or .
-                if root.Contains(':') then
+                if root.Contains(":") then
                     // Has drive letter, truly absolute
                     true
                 else
@@ -51,7 +51,7 @@ module SchemaReader =
             // On Windows, if path is like \path without drive, combine with drive from resolutionFolder
             if
                 RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                && not(Path.GetPathRoot(schemaPathRaw).Contains(':'))
+                && not(Path.GetPathRoot(schemaPathRaw).Contains(":"))
             then
                 Path.Combine(Path.GetPathRoot resolutionFolder, schemaPathRaw.Substring 1)
             else
