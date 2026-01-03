@@ -1,10 +1,13 @@
-#### 3.0.0-beta03 - Dec 24, 2025
+#### 3.0.0-beta04 - Jan 3, 2026
 
 - feat: Microsoft.OpenApi v2.x with OpenAPI v3.1 Support
 - feat: Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
 - feat: handle text/plain payload types (#276)
 - fix: removed dependency on Microsoft.OpenApi.Readers
 - fix: error messages when `operationId` is not provided (minimal api) (#277)
+- feat: include TP config information in cache key (#283)
+- feat: add windows-latest ci (#282)
+- feat: Handle allOf with single reference (#284)
 - hk: dependencies update
 
 #### 2.3.2 - Oct 11, 2025
