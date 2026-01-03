@@ -1,0 +1,69 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Issue 279 - Null type test",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/assets/{id}": {
+      "get": {
+        "operationId": "getAsset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssetResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "stack": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AssetStackResponseDto"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": ["id"]
+      },
+      "AssetStackResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "assetCount": {
+            "type": "integer"
+          }
+        },
+        "required": ["id", "assetCount"]
+      }
+    }
+  }
+}
