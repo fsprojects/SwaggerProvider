@@ -177,8 +177,10 @@ module SchemaReader =
             let possibleFilePath =
                 try
                     if Path.IsPathRooted resolvedPath then
-                        // Already an absolute path
-                        if File.Exists resolvedPath then Some resolvedPath else None
+                        // Already a rooted path - normalize it to handle .. and . components
+                        // This is important on Windows where paths like D:\foo\..\bar need normalization
+                        let normalized = Path.GetFullPath resolvedPath
+                        if File.Exists normalized then Some normalized else None
                     else
                         // Try to resolve relative paths (e.g., paths with ../ or from __SOURCE_DIRECTORY__)
                         let resolved = Path.GetFullPath resolvedPath
