@@ -62,8 +62,20 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
                 let preferAsync = unbox<bool> args.[5]
                 let ssrfProtection = unbox<bool> args.[6]
 
+                // Cache key includes cfg.RuntimeAssembly, cfg.ResolutionFolder, and cfg.SystemRuntimeAssemblyVersion
+                // to differentiate between different TFM builds (same approach as FSharp.Data)
+                // See: https://github.com/fsprojects/FSharp.Data/blob/main/src/FSharp.Data.DesignTime/CommonProviderImplementation/Helpers.fs
                 let cacheKey =
-                    (schemaPathRaw, headersStr, ignoreOperationId, ignoreControllerPrefix, preferNullable, preferAsync, ssrfProtection)
+                    (schemaPathRaw,
+                     headersStr,
+                     ignoreOperationId,
+                     ignoreControllerPrefix,
+                     preferNullable,
+                     preferAsync,
+                     ssrfProtection,
+                     cfg.RuntimeAssembly,
+                     cfg.ResolutionFolder,
+                     cfg.SystemRuntimeAssemblyVersion)
                     |> sprintf "%A"
 
                 let addCache() =
