@@ -446,6 +446,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
             | _ when
                 resolvedType.IsNone
                 || resolvedType = Some JsonSchemaType.Object
+                || resolvedType = Some JsonSchemaType.Null
                 || resolvedType = Some(JsonSchemaType.Null ||| JsonSchemaType.Object)
                 ->
                 compileNewObject()
