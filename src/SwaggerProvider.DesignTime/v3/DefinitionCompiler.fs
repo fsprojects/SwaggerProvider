@@ -443,9 +443,21 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     compileBySchema ns (ns.ReserveUniqueName tyName "Item") elSchema true ns.RegisterType false
 
                 ProvidedTypeBuilder.MakeGenericType(typedefof<Map<string, obj>>, [ typeof<string>; elTy ])
+            // Handle allOf with single reference (e.g., nullable reference to another type)
+            | _ when
+                not(isNull schemaObj.AllOf)
+                && schemaObj.AllOf.Count = 1
+                && (schemaObj.Properties |> isNull || schemaObj.Properties.Count = 0)
+                ->
+                match schemaObj.AllOf.[0] with
+                | :? OpenApiSchemaReference as schemaRef when not(isNull schemaRef.Reference) ->
+                    ns.ReleaseNameReservation tyName
+                    compileByPath <| getFullPath schemaRef.Reference.Id
+                | _ -> compileNewObject()
             | _ when
                 resolvedType.IsNone
                 || resolvedType = Some JsonSchemaType.Object
+                || resolvedType = Some JsonSchemaType.Null
                 || resolvedType = Some(JsonSchemaType.Null ||| JsonSchemaType.Object)
                 ->
                 compileNewObject()

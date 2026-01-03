@@ -25,6 +25,7 @@
     <Compile Include="v3\Swagger.I0173.Tests.fs" />
     <Compile Include="v3\Swagger.I0181.Tests.fs" />
     <Compile Include="v3\Swagger.I0219.Tests.fs" />
+    <Compile Include="v3\Swagger.I0279.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ReturnControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.ReturnTextControllers.Tests.fs" />
     <Compile Include="v3\Swashbuckle.UpdateControllers.Tests.fs" />
