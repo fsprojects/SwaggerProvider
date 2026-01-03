@@ -177,8 +177,10 @@ module SchemaReader =
             let possibleFilePath =
                 try
                     if Path.IsPathRooted resolvedPath then
-                        // Already an absolute path
-                        if File.Exists resolvedPath then Some resolvedPath else None
+                        // Already a rooted path - normalize it to handle .. and . components
+                        // This is important on Windows where paths like D:\foo\..\bar need normalization
+                        let normalized = Path.GetFullPath resolvedPath
+                        if File.Exists normalized then Some normalized else None
                     else
                         // Try to resolve relative paths (e.g., paths with ../ or from __SOURCE_DIRECTORY__)
                         let resolved = Path.GetFullPath resolvedPath
@@ -196,12 +198,21 @@ module SchemaReader =
                 | ex -> return failwithf "Error reading schema file '%s': %s" filePath ex.Message
             | None ->
                 // Handle as remote URL (HTTP/HTTPS)
-                let checkUri = Uri(resolvedPath, UriKind.RelativeOrAbsolute)
-                // Only treat truly local paths as local files (no scheme or relative paths)
-                // Reject file:// scheme as unsupported to prevent SSRF attacks
-                let isLocalFile = not checkUri.IsAbsoluteUri
+                // First check if this looks like a local file path (Windows or Unix)
+                // On Windows, paths like D:\path are parsed as URIs with scheme "D", so we need special handling
+                let looksLikeWindowsPath =
+                    resolvedPath.Length >= 2
+                    && Char.IsLetter(resolvedPath.[0])
+                    && resolvedPath.[1] = ':'
 
-                if isLocalFile then
+                let looksLikeUnixAbsolutePath = resolvedPath.StartsWith("/")
+
+                // If it looks like a local file path, treat it as such (file not found)
+                if
+                    looksLikeWindowsPath
+                    || looksLikeUnixAbsolutePath
+                    || not(resolvedPath.Contains("://"))
+                then
                     // If we reach here with a local file that wasn't found, report the error
                     return failwithf "Schema file not found: %s" resolvedPath
                 else
