@@ -43,12 +43,9 @@ type ProdApi = OpenApiClientProvider<"https://api.example.com/swagger.json">
 
 ## Sample
 
-Sample uses [TaskBuilder.fs](https://github.com/rspeele/TaskBuilder.fs) (F# computation expression builder for System.Threading.Tasks) that will become part of [Fsharp.Core.dll] one day [[WIP, RFC FS-1072] task support](https://github.com/dotnet/fsharp/pull/6811).
-
 ```fsharp
 open System
 open System.Net.Http
-open FSharp.Control.Tasks.V2
 open SwaggerProvider
 
 let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
