@@ -279,7 +279,11 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         if String.IsNullOrEmpty propName then
                             failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
-                        let isRequired = schemaObjRequired.Contains propName
+                        // Check if the property is nullable (OpenAPI 3.0 nullable becomes Null type flag in 3.1)
+                        let isNullable =
+                            propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
+
+                        let isRequired = schemaObjRequired.Contains propName && not isNullable
 
                         let pTy =
                             compileBySchema ns (ns.ReserveUniqueName tyName (nicePascalName propName)) propSchema isRequired ns.RegisterType false

@@ -1,0 +1,31 @@
+openapi: 3.0.0
+info:
+  title: Nullable Date Test API
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      operationId: getTest
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDto'
+components:
+  schemas:
+    PersonDto:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date
+          nullable: true
