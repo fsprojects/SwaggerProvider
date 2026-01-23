@@ -20,7 +20,7 @@ let ``PersonDto should have nullable birthDate property``() =
     propType.IsGenericType |> shouldEqual true
     
     let genericTypeDef = propType.GetGenericTypeDefinition()
-    let isOptionOrNullable = 
+    let hasNullableWrapper = 
         genericTypeDef = typedefof<Option<_>> || genericTypeDef = typedefof<System.Nullable<_>>
     
-    isOptionOrNullable |> shouldEqual true
+    hasNullableWrapper |> shouldEqual true

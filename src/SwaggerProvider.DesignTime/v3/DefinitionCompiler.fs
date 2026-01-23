@@ -268,6 +268,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     | true -> getReq schemaObj
                     |> Set.ofSeq
 
+                // Helper to check if a schema has the Null type flag (OpenAPI 3.0 nullable)
+                let isSchemaNullable (schema: IOpenApiSchema) =
+                    schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null)
+
                 // Generate fields and properties
                 let members =
                     let generateProperty = generateProperty(UniqueNameGenerator())
@@ -280,8 +284,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                             failwithf $"Property cannot be created with empty name. TypeName:%A{tyName}; SchemaObj:%A{schemaObj}"
 
                         // Check if the property is nullable (OpenAPI 3.0 nullable becomes Null type flag in 3.1)
-                        let isNullable =
-                            propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
+                        let isNullable = isSchemaNullable propSchema
 
                         // A property is "required" for type generation if it's in the required list AND not nullable.
                         // Nullable properties must be wrapped as Option<T>/Nullable<T> to represent null values,
@@ -311,18 +314,13 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     let required, optional =
                         List.zip (List.ofSeq schemaObjProperties) members
                         |> List.partition(fun (x, _) -> 
-                            let propSchema = x.Value
-                            let isNullable =
-                                propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
+                            let isNullable = isSchemaNullable x.Value
                             schemaObjRequired.Contains x.Key && not isNullable)
 
                     required @ optional
                     |> List.map(fun (x, (f, p)) ->
                         let paramName = niceCamelName p.Name
-                        
-                        let propSchema = x.Value
-                        let isNullable =
-                            propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
+                        let isNullable = isSchemaNullable x.Value
 
                         let prParam =
                             if schemaObjRequired.Contains x.Key && not isNullable then
