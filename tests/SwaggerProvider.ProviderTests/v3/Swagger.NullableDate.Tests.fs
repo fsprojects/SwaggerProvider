@@ -15,7 +15,7 @@ let ``PersonDto should have nullable birthDate property``() =
     let birthDateProp = personType.GetProperty("BirthDate")
     birthDateProp |> shouldNotEqual null
     
-    // The property should be Option<DateTimeOffset> or Nullable<DateTimeOffset>
+    // The property should be Option<DateTimeOffset> (default) or Nullable<DateTimeOffset> (with PreferNullable=true)
     let propType = birthDateProp.PropertyType
     propType.IsGenericType |> shouldEqual true
     
@@ -24,4 +24,3 @@ let ``PersonDto should have nullable birthDate property``() =
         genericTypeDef = typedefof<Option<_>> || genericTypeDef = typedefof<System.Nullable<_>>
     
     isOptionOrNullable |> shouldEqual true
-    "BirthDate should be wrapped as Option or Nullable because it's marked as nullable in the schema" |> ignore

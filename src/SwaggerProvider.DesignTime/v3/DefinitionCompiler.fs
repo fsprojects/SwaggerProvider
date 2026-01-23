@@ -283,6 +283,9 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         let isNullable =
                             propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
 
+                        // A property is "required" for type generation if it's in the required list AND not nullable.
+                        // Nullable properties must be wrapped as Option<T>/Nullable<T> to represent null values,
+                        // even if they're in the required list (required + nullable means must be present but can be null).
                         let isRequired = schemaObjRequired.Contains propName && not isNullable
 
                         let pTy =
