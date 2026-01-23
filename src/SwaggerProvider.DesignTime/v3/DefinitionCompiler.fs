@@ -310,14 +310,22 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ctorParams, fields =
                     let required, optional =
                         List.zip (List.ofSeq schemaObjProperties) members
-                        |> List.partition(fun (x, _) -> schemaObjRequired.Contains x.Key)
+                        |> List.partition(fun (x, _) -> 
+                            let propSchema = x.Value
+                            let isNullable =
+                                propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
+                            schemaObjRequired.Contains x.Key && not isNullable)
 
                     required @ optional
                     |> List.map(fun (x, (f, p)) ->
                         let paramName = niceCamelName p.Name
+                        
+                        let propSchema = x.Value
+                        let isNullable =
+                            propSchema.Type.HasValue && propSchema.Type.Value.HasFlag(JsonSchemaType.Null)
 
                         let prParam =
-                            if schemaObjRequired.Contains x.Key then
+                            if schemaObjRequired.Contains x.Key && not isNullable then
                                 ProvidedParameter(paramName, f.FieldType)
                             else
                                 let paramDefaultValue = this.GetDefaultValue f.FieldType
