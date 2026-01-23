@@ -270,7 +270,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
 
                 // Helper to check if a schema has the Null type flag (OpenAPI 3.0 nullable)
                 let isSchemaNullable (schema: IOpenApiSchema) =
-                    schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null)
+                    not (isNull schema) && schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null)
 
                 // Generate fields and properties
                 let members =
