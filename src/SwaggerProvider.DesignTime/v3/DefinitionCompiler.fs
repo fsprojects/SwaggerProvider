@@ -269,8 +269,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                     |> Set.ofSeq
 
                 // Helper to check if a schema has the Null type flag (OpenAPI 3.0 nullable)
-                let isSchemaNullable (schema: IOpenApiSchema) =
-                    not (isNull schema) && schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null)
+                let isSchemaNullable(schema: IOpenApiSchema) =
+                    not(isNull schema)
+                    && schema.Type.HasValue
+                    && schema.Type.Value.HasFlag(JsonSchemaType.Null)
 
                 // Generate fields and properties
                 let members =
@@ -313,7 +315,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                 let ctorParams, fields =
                     let required, optional =
                         List.zip (List.ofSeq schemaObjProperties) members
-                        |> List.partition(fun (x, _) -> 
+                        |> List.partition(fun (x, _) ->
                             let isNullable = isSchemaNullable x.Value
                             schemaObjRequired.Contains x.Key && not isNullable)
 

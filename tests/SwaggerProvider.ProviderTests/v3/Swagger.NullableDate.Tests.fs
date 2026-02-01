@@ -14,13 +14,15 @@ let ``PersonDto should have nullable birthDate property``() =
     let personType = typeof<TestApi.PersonDto>
     let birthDateProp = personType.GetProperty("BirthDate")
     birthDateProp |> shouldNotEqual null
-    
+
     // The property should be Option<DateTimeOffset> (default) or Nullable<DateTimeOffset> (with PreferNullable=true)
     let propType = birthDateProp.PropertyType
     propType.IsGenericType |> shouldEqual true
-    
+
     let genericTypeDef = propType.GetGenericTypeDefinition()
-    let hasNullableWrapper = 
-        genericTypeDef = typedefof<Option<_>> || genericTypeDef = typedefof<System.Nullable<_>>
-    
+
+    let hasNullableWrapper =
+        genericTypeDef = typedefof<Option<_>>
+        || genericTypeDef = typedefof<System.Nullable<_>>
+
     hasNullableWrapper |> shouldEqual true
