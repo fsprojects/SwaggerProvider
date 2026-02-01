@@ -23,9 +23,9 @@ module SchemaReader =
 
             if String.IsNullOrEmpty root then
                 false
+            // On Windows, a truly absolute path has a volume (C:\, D:\, etc.)
+            // Paths like \path or /path are rooted but may be relative if they start with .. or .
             else if RuntimeInformation.IsOSPlatform(OSPlatform.Windows) then
-                // On Windows, a truly absolute path has a volume (C:\, D:\, etc.)
-                // Paths like \path or /path are rooted but may be relative if they start with .. or .
                 if root.Contains(":") then
                     // Has drive letter, truly absolute
                     true
