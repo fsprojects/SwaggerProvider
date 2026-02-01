@@ -11,11 +11,11 @@ type ProvidedApiClientBase(httpClient: HttpClient) =
     abstract member Deserialize: string * Type -> obj
 ```
 
-The snippet shows only the most important parts of `ProvidedApiClientBase`, the full source code provides a default implementation for `Serialize` & `Deserialize` methods that tightly coupled with [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/).
+The snippet shows only the most important parts of `ProvidedApiClientBase`, the full source code provides a default implementation for `Serialize` & `Deserialize` methods that are tightly coupled with [System.Text.Json](https://learn.microsoft.com/en-us/dotnet/api/system.text.json?view=net-10.0).
 
 **Key features:**
 1. You can provide your own instance of `HttpClient` during API client construction and control HTTP request execution (If you will not provide `HttpClient`, the type provider creates the default one for you).
-2. `Serialize` and `Deserialize` methods are abstract. If you are not happy with the default `JsonSerializerSettings` you can override them and configure `Newtonsoft.Json` as you like.
+2. `Serialize` and `Deserialize` methods are abstract. If you are not happy with the default `JsonSerializerOptions` you can override them and configure `System.Text.Json` as you like.
 
 ## Request interception
 
@@ -84,7 +84,7 @@ Serialization is also quite flexible. All you need is to define your own type fo
 
 <Note type="note">
 
-Serializer is configurable but not replaceable! Type provider emit type with [JsonPropertyAttribute](https://www.newtonsoft.com/json/help/html/T_Newtonsoft_Json_JsonPropertyAttribute.htm) on properties for seamless serialization.
+The serializer is configurable but not replaceable! The Type provider emits types with [JsonPropertyNameAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonpropertynameattribute?view=net-10.0) on properties for seamless serialization.
 
 </Note>
 
