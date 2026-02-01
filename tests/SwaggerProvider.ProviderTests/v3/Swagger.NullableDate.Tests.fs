@@ -75,7 +75,7 @@ let ``PersonDto can deserialize JSON with valid birthDate using type provider de
     person.Name |> shouldEqual "John Doe"
 
     // BirthDate should be Some value
-    person.BirthDate |> should(not'(equal None))
+    person.BirthDate |> shouldNotEqual None
 
     match person.BirthDate with
     | Some date ->
