@@ -17,11 +17,28 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Setup .NET 10.0 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            ~/.local/share/NuGet
+            %LOCALAPPDATA%\NuGet\v3-cache
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/paket.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Cache .paket directory
+        uses: actions/cache@v4
+        with:
+          path: .paket
+          key: ${{ runner.os }}-paket-${{ hashFiles('**/paket.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-paket-
       - name: Install local tools
         run: dotnet tool restore
       - name: Paket Restore
