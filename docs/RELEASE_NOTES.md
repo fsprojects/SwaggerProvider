@@ -1,4 +1,4 @@
-#### 3.0.0-beta04 - Jan 3, 2026
+#### 3.0.0-beta05 - Feb 1, 2026
 
 - feat: Microsoft.OpenApi v2.x with OpenAPI v3.1 Support
 - feat: Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
@@ -8,6 +8,9 @@
 - feat: include TP config information in cache key (#283)
 - feat: add windows-latest ci (#282)
 - feat: Handle allOf with single reference (#284)
+- fix: nullable date deserialization for OpenAPI v3 schemas (#287)
+- docs: the Serialization documentation to mention use of System.Text.Json rather than Newtonsoft.Json (#288)
+- docs: Remove note about TaskBuilder.fs from the OpenApiClientProvider docs (#285)
 - hk: dependencies update
 
 #### 2.3.2 - Oct 11, 2025
