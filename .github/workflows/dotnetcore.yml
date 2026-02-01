@@ -45,5 +45,3 @@ jobs:
         run: dotnet paket restore
       - name: Build and Test
         run: dotnet fsi build.fsx
-        env:
-          skipTests: true
