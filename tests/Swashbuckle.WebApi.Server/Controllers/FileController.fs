@@ -52,9 +52,13 @@ type ReturnFileController() =
     [<HttpPost("stream"); BinaryContent>]
     member this.GetFileLength() =
         task {
-            use reader = new StreamReader(this.Request.Body)
-            let! content = reader.ReadToEndAsync()
-            return content.Length
+
+            if this.Request.ContentType <> "application/octet-stream" then
+                return ActionResult<int>(UnsupportedMediaTypeResult())
+            else
+                use reader = new StreamReader(this.Request.Body)
+                let! content = reader.ReadToEndAsync()
+                return ActionResult<int>(this.Ok(content.Length))
         }
 
     [<HttpPost("single"); Produces(MediaTypes.ApplicationOctetStream, Type = typeof<FileResult>)>]
