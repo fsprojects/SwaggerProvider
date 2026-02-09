@@ -2,6 +2,7 @@ namespace Swagger.Internal
 
 open System
 open System.Net.Http
+open System.Net.Http.Headers
 open System.Text.Json.Serialization
 open System.Threading.Tasks
 
@@ -133,9 +134,15 @@ module RuntimeHelpers =
     let toTextContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "text/plain")
 
-    let toStreamContent(boxedStream: obj) =
+    let toStreamContent(boxedStream: obj, contentType: string) =
         match boxedStream with
-        | :? IO.Stream as stream -> new StreamContent(stream)
+        | :? IO.Stream as stream ->
+            let content = new StreamContent(stream)
+
+            if (not <| String.IsNullOrEmpty(contentType)) then
+                content.Headers.ContentType <- MediaTypeHeaderValue(contentType)
+
+            content
         | _ -> failwith $"Unexpected parameter type {boxedStream.GetType().Name} instead of IO.Stream"
 
     let getPropertyValues(object: obj) =
