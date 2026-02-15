@@ -1,4 +1,4 @@
-#### 3.0.0-beta06 - Feb 15, 2026
+#### 3.0.0-beta07 - Feb 15, 2026
 
 - feat: Microsoft.OpenApi v2.x with OpenAPI v3.1 Support
 - feat: Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
@@ -12,6 +12,7 @@
 - docs: the Serialization documentation to mention use of System.Text.Json rather than Newtonsoft.Json (#288)
 - docs: Remove note about TaskBuilder.fs from the OpenApiClientProvider docs (#285)
 - feat: Set the "Accept" request header to the specified type (#290)
+- feat: Specify a Content-Type header on stream type requests when the payload type is known (#292)
 - hk: dependencies update
 
 #### 2.3.2 - Oct 11, 2025
