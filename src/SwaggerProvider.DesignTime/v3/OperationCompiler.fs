@@ -358,7 +358,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 <@
                                     let stream: obj = %%streamObj
                                     let msg = %httpRequestMessage
-                                    msg.Content <- RuntimeHelpers.toStreamContent(stream)
+                                    msg.Content <- RuntimeHelpers.toStreamContent(stream, payloadMime)
                                     msg
                                 @>
                             | Some(MultipartFormData, formData) ->
