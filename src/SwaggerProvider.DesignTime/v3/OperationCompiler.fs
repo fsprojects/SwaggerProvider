@@ -252,7 +252,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 [ if not(isNull payloadMime) then
                                       "Content-Type", payloadMime
                                   if not(isNull retMime) then
-                                      "Accept", MediaTypes.ApplicationJson ]
+                                      "Accept", retMime ]
                             @>
 
                         // Locates parameters matching the arguments
