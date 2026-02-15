@@ -21,6 +21,32 @@ type ReturnCsvController() =
     member this.Get() =
         "Hello,world" |> ActionResult<string>
 
+// CheckAcceptsPlainController and CheckAcceptsCsvController are tests for https://github.com/fsprojects/SwaggerProvider/pull/290
+//    to test that the generated 'Accept' headers contain the expected values
+[<Route("api/[controller]")>]
+[<ApiController>]
+type CheckAcceptsPlainController() =
+    inherit ControllerBase()
+
+    [<HttpGet; Produces("text/plain")>]
+    member this.Get() =
+        if this.Request.Headers.Accept.Equals("text/plain") then
+            "Hello world" |> ActionResult<string>
+        else
+            ActionResult<string>(UnsupportedMediaTypeResult())
+
+[<Route("api/[controller]")>]
+[<ApiController>]
+type CheckAcceptsCsvController() =
+    inherit ControllerBase()
+
+    [<HttpGet; Produces("text/csv")>]
+    member this.Get() =
+        if this.Request.Headers.Accept.Equals("text/csv") then
+            "Hello,world" |> ActionResult<string>
+        else
+            ActionResult<string>(UnsupportedMediaTypeResult())
+
 [<Route("api/[controller]")>]
 [<ApiController>]
 type ConsumesTextController() =
