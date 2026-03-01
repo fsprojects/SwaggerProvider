@@ -1,4 +1,4 @@
-#### 3.0.0-beta08 - Feb 26, 2026
+#### 3.0.0 - Mar 1, 2026
 
 - feat: Microsoft.OpenApi v2.x with OpenAPI v3.1 Support
 - feat: Server-Side Request Forgery (SSRF) protection for IP V4 (#271) and V6 (#272)
