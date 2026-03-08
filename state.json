@@ -1,10 +1,10 @@
 {
-  "last_run": "2026-03-08T22:41:37Z",
-  "last_run_id": "22831531313",
+  "last_run": "2026-03-08T22:55:33Z",
+  "last_run_id": "22831766817",
   "monthly_summary_issue_number": 296,
   "labelling_cursor": 293,
-  "open_repo_assist_prs": [295, "repo-assist/fix-issue-214-form-data-option-unwrap"],
-  "comments_made": [{"issue": 214, "run": "22831531313"}],
-  "fix_attempts": [{"issue": 214, "branch": "repo-assist/fix-issue-214-form-data-option-unwrap", "status": "open"}],
-  "notes": "Run 1: labelled 25 issues, created PR #295 (RuntimeHelpers tests). Run 2: fixed #214 (form data Option unwrap), updated global.json SDK to 10.0.100+latestPatch. Next: integration test for #214, comment on #252/#261, investigate #240."
+  "open_repo_assist_prs": [295, 298],
+  "comments_made": [{"issue": 214}, {"issue": 261}],
+  "fix_attempts": [{"issue": 214, "pr": 298}, {"issue": 261, "pr": "TBD"}],
+  "notes": "PRs: #295=RuntimeHelpers tests, #298=form-data Option fix. Commented: #214 #261. IgnoreParseErrors PR pending. Next: verify PR#, investigate #261 subschema issue."
 }
