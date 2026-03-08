@@ -1,13 +1,10 @@
 {
-  "last_run": "2026-03-08T22:28:00Z",
-  "last_run_id": "22831304044",
-  "monthly_summary_issue": "2026-03",
+  "last_run": "2026-03-08T22:41:37Z",
+  "last_run_id": "22831531313",
+  "monthly_summary_issue_number": 296,
   "labelling_cursor": 293,
-  "labels_applied": [116, 122, 132, 140, 141, 146, 150, 160, 163, 178, 179, 182, 185, 190, 213, 214, 215, 226, 231, 240, 248, 250, 261, 264, 293],
-  "open_repo_assist_prs": [
-    {"title": "Add unit tests for RuntimeHelpers module", "branch": "repo-assist/improve-runtime-helpers-tests-2026-03"}
-  ],
-  "comments_made": [],
-  "fix_attempts": [],
-  "notes": "First run. Labelled 25 issues. Created PR for RuntimeHelpers unit tests (44 tests). Monthly summary created as issue. Next: comment on bugs #252, #261, #240 with investigation; look at PR #241 (date format) for test guidance."
+  "open_repo_assist_prs": [295, "repo-assist/fix-issue-214-form-data-option-unwrap"],
+  "comments_made": [{"issue": 214, "run": "22831531313"}],
+  "fix_attempts": [{"issue": 214, "branch": "repo-assist/fix-issue-214-form-data-option-unwrap", "status": "open"}],
+  "notes": "Run 1: labelled 25 issues, created PR #295 (RuntimeHelpers tests). Run 2: fixed #214 (form data Option unwrap), updated global.json SDK to 10.0.100+latestPatch. Next: integration test for #214, comment on #252/#261, investigate #240."
 }
