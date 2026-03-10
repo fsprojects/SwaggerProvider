@@ -152,8 +152,8 @@ module ToQueryParamsTests =
 
     [<Fact>]
     let ``toQueryParams returns empty list for null input (treated as Option None)``() =
-        // In F#, None for reference option types is compiled as null at the .NET level,
-        // so a null obj matches Option<string> None and returns an empty list.
+        // In F#, None for any option type is compiled as null at the .NET level,
+        // so a null obj is treated as Option None and returns an empty list.
         let result = toQueryParams "q" null stubClient
         result |> shouldEqual []
 
