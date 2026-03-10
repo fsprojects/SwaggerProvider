@@ -85,6 +85,10 @@ module RuntimeHelpers =
         | _ -> obj.ToString()
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
+        if isNull obj then
+            []
+        else
+
         match obj with
         | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
         | :? array<bool> as xs -> xs |> toStrArray name
