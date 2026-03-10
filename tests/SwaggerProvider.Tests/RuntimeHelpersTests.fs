@@ -170,6 +170,42 @@ module ToQueryParamsTests =
         let result = toQueryParams "id" (box [| g1; g2 |]) stubClient
         result |> shouldEqual [ ("id", g1.ToString()); ("id", g2.ToString()) ]
 
+    [<Fact>]
+    let ``toQueryParams handles float32 array``() =
+        let result = toQueryParams "v" (box [| 1.5f; 2.5f |]) stubClient
+        result |> shouldEqual [ ("v", "1.5"); ("v", "2.5") ]
+
+    [<Fact>]
+    let ``toQueryParams handles double array``() =
+        let result = toQueryParams "v" (box [| 1.5; 2.5 |]) stubClient
+        result |> shouldEqual [ ("v", "1.5"); ("v", "2.5") ]
+
+    [<Fact>]
+    let ``toQueryParams handles byte array as base64``() =
+        // byte[] is serialized via client.Serialize (JSON base64) with surrounding quotes trimmed
+        let bytes = [| 72uy; 101uy; 108uy; 108uy; 111uy |] // "Hello" in ASCII
+        let expected = (JsonSerializer.Serialize bytes).Trim('"')
+        let result = toQueryParams "data" (box bytes) stubClient
+        result |> shouldEqual [ ("data", expected) ]
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<string> array``() =
+        let values: Option<string>[] = [| Some "a"; None; Some "c" |]
+        let result = toQueryParams "q" (box values) stubClient
+        result |> shouldEqual [ ("q", "a"); ("q", "c") ]
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<float32> array``() =
+        let values: Option<float32>[] = [| Some 1.5f; None; Some 3.5f |]
+        let result = toQueryParams "v" (box values) stubClient
+        result |> shouldEqual [ ("v", "1.5"); ("v", "3.5") ]
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<double> array``() =
+        let values: Option<double>[] = [| Some 1.5; None; Some 3.5 |]
+        let result = toQueryParams "v" (box values) stubClient
+        result |> shouldEqual [ ("v", "1.5"); ("v", "3.5") ]
+
 
 module CombineUrlTests =
 
