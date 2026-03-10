@@ -145,6 +145,22 @@ module RuntimeHelpers =
             content
         | _ -> failwith $"Unexpected parameter type {boxedStream.GetType().Name} instead of IO.Stream"
 
+    // Unwraps F# option values: returns the inner value for Some, null for None.
+    // This prevents `Some(value)` from being sent as-is in form data.
+    let private unwrapFSharpOption(value: obj) : obj =
+        if isNull value then
+            null
+        else
+            let ty = value.GetType()
+
+            if
+                ty.IsGenericType
+                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+            then
+                ty.GetProperty("Value").GetValue(value)
+            else
+                value
+
     let getPropertyValues(object: obj) =
         if isNull object then
             Seq.empty
@@ -162,6 +178,7 @@ module RuntimeHelpers =
                     | _ -> prop.Name
 
                 prop.GetValue(object)
+                |> unwrapFSharpOption
                 |> Option.ofObj
                 |> Option.map(fun value -> (name, value)))
 
