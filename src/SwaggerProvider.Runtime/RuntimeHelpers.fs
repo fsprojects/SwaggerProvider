@@ -116,7 +116,7 @@ module RuntimeHelpers =
         | :? DateTime as x -> [ name, x.ToString("O") ]
         | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
         | :? Option<Guid> as x -> x |> toStrOpt name
-        | _ -> [ name, (if isNull obj then null else obj.ToString()) ]
+        | _ -> [ name, obj.ToString() ]
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
