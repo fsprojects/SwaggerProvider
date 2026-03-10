@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-03-09T16:31:46Z",
-  "last_run_id": "22863598032",
+  "last_run": "2026-03-10T16:31:46Z",
+  "last_run_id": "22913020653",
   "monthly_issue": 296,
-  "prs": [295, 298, 300, "CI-concurrency-pending"],
+  "prs": [295, 298, 300, "fix-issue-141-pending", "ci-concurrency-pending"],
   "comments": [214, 261, 240],
-  "notes": "PR#300=IgnoreParseErrors. PR#298=form-data fix. PR#295=RuntimeHelpers tests. CI-concurrency PR pending (branch: repo-assist/eng-ci-concurrency-2026-03). #241 needs API fix (propSchema not schemaObj, JsonSchemaType not string) + SpecialCasesControllers tests."
+  "notes": "PR#300=IgnoreParseErrors. PR#298=form-data fix. PR#295=RuntimeHelpers tests. PR=fix-issue-141 (branch: repo-assist/fix-issue-141-dollar-sign-path-param, escapes $ in path param replacement). PR=ci-concurrency (branch: repo-assist/eng-ci-concurrency-2026-03). #141 fix: both v2+v3 OperationCompiler escape $ with $$ before Regex.Replace."
 }
