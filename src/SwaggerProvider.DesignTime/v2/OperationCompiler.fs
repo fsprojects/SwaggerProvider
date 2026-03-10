@@ -132,7 +132,9 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
 
                         let replacePathTemplate (path: Expr<string>) (name: string) (value: Expr<string>) =
                             let pattern = $"{{%s{name}}}"
-                            <@ Regex.Replace(%path, pattern, %value) @>
+                            // Escape $ in the replacement to avoid regex back-reference interpretation ($0, $& etc.)
+                            let escaped = <@ (%value).Replace("$", "$$") @>
+                            <@ Regex.Replace(%path, pattern, %escaped) @>
 
                         let addPayload load (param: ParameterObject) (exp: Expr) =
                             let name = param.Name

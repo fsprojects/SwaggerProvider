@@ -304,7 +304,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                         | ParameterLocation.Path ->
                                             let value = coerceString valueExpr
                                             let pattern = $"{{%s{name}}}"
-                                            let path' = <@ Regex.Replace(%path, pattern, %value) @>
+                                            // Escape $ in the replacement to avoid regex back-reference interpretation ($0, $& etc.)
+                                            let escaped = <@ (%value).Replace("$", "$$") @>
+                                            let path' = <@ Regex.Replace(%path, pattern, %escaped) @>
                                             (path', query, headers, cookies)
                                         | ParameterLocation.Query ->
                                             let listValues = coerceQueryString name valueExpr
