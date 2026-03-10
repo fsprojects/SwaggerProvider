@@ -89,38 +89,38 @@ module RuntimeHelpers =
             []
         else
 
-        match obj with
-        | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
-        | :? array<bool> as xs -> xs |> toStrArray name
-        | :? array<int32> as xs -> xs |> toStrArray name
-        | :? array<int64> as xs -> xs |> toStrArray name
-        | :? array<float32> as xs -> xs |> toStrArray name
-        | :? array<double> as xs -> xs |> toStrArray name
-        | :? array<string> as xs -> xs |> toStrArray name
-        | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
-        | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
-        | :? array<Guid> as xs -> xs |> toStrArray name
-        | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<float32>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
-        | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
-        | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
-        | :? array<Option<Guid>> as xs -> xs |> toStrArray name
-        | :? Option<bool> as x -> x |> toStrOpt name
-        | :? Option<int32> as x -> x |> toStrOpt name
-        | :? Option<int64> as x -> x |> toStrOpt name
-        | :? Option<float32> as x -> x |> toStrOpt name
-        | :? Option<double> as x -> x |> toStrOpt name
-        | :? Option<string> as x -> x |> toStrOpt name
-        | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
-        | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
-        | :? DateTime as x -> [ name, x.ToString("O") ]
-        | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
-        | :? Option<Guid> as x -> x |> toStrOpt name
-        | _ -> [ name, obj.ToString() ]
+            match obj with
+            | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
+            | :? array<bool> as xs -> xs |> toStrArray name
+            | :? array<int32> as xs -> xs |> toStrArray name
+            | :? array<int64> as xs -> xs |> toStrArray name
+            | :? array<float32> as xs -> xs |> toStrArray name
+            | :? array<double> as xs -> xs |> toStrArray name
+            | :? array<string> as xs -> xs |> toStrArray name
+            | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
+            | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
+            | :? array<Guid> as xs -> xs |> toStrArray name
+            | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
+            | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
+            | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name
+            | :? array<Option<float32>> as xs -> xs |> toStrArrayOpt name
+            | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
+            | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
+            | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
+            | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
+            | :? array<Option<Guid>> as xs -> xs |> toStrArray name
+            | :? Option<bool> as x -> x |> toStrOpt name
+            | :? Option<int32> as x -> x |> toStrOpt name
+            | :? Option<int64> as x -> x |> toStrOpt name
+            | :? Option<float32> as x -> x |> toStrOpt name
+            | :? Option<double> as x -> x |> toStrOpt name
+            | :? Option<string> as x -> x |> toStrOpt name
+            | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
+            | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
+            | :? DateTime as x -> [ name, x.ToString("O") ]
+            | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
+            | :? Option<Guid> as x -> x |> toStrOpt name
+            | _ -> [ name, obj.ToString() ]
 
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
