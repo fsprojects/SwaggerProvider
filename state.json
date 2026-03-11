@@ -1,8 +1,7 @@
 {
-  "last_run": "2026-03-11T10:56:38Z",
-  "last_run_id": "22949099431",
+  "last_run": "2026-03-11T16:27:44Z",
+  "last_run_id": "22963019268",
   "monthly_issue": 296,
-  "prs": ["fix-2xx-response-handling-pending"],
-  "comments": [240, 261, 214],
-  "notes": "PRs #295 #298 #300 merged by sergey-tihon on 2026-03-10. Issue #141 closed. New PR: repo-assist/fix-2xx-response-handling (fix v2 selector all 2xx + v3 unit-return guard, closes #252). No active fix-issue-141 or ci-concurrency PRs."
+  "comments": [240],
+  "notes": "PR#313 open (fix-2xx). New PRs pending: perf/cache-GetOrAdd-timer (branch perf-cache-getOrAdd-timer-2026-03-11) and test/UniqueNameGenerator (branch test-unique-name-generator-2026-03-11). Monthly #296 updated. Items #261,#214 removed from Suggested Actions."
 }
