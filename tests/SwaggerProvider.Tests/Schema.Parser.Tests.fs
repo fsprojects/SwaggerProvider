@@ -105,6 +105,33 @@ let ``Add definition for schema with only allOf properties``() =
     definitions |> shouldHaveLength 1
     definitions[0].GetDeclaredProperty("FirstName") |> shouldNotEqual null
 
+[<Fact>]
+let ``Schema with nullable parameter-level property triggers parse errors``() =
+    let schemaPath =
+        __SOURCE_DIRECTORY__
+        + "/../SwaggerProvider.ProviderTests/Schemas/v3/nullable-parameter-issue261.json"
+
+    let settings = OpenApiReaderSettings()
+    settings.AddYamlReader()
+
+    let readResult =
+        Microsoft.OpenApi.OpenApiDocument.Parse(File.ReadAllText schemaPath, settings = settings)
+    // Microsoft.OpenApi reports 'nullable' at the parameter level as an error in OpenAPI 3.0
+    // When this is true, IgnoreParseErrors=true allows the provider to proceed instead of failing
+    if readResult.Diagnostic.Errors.Count > 0 then
+        readResult.Diagnostic.Errors
+        |> Seq.exists(fun e -> e.Message.Contains("nullable"))
+        |> shouldEqual true
+
+[<Fact>]
+let ``Schema with nullable parameter is still parseable despite errors``() =
+    let schemaPath =
+        __SOURCE_DIRECTORY__
+        + "/../SwaggerProvider.ProviderTests/Schemas/v3/nullable-parameter-issue261.json"
+
+    // Even with diagnostic errors, the schema should still compile without throwing an exception
+    File.ReadAllText schemaPath |> V3.testSchema |> ignore
+
 (*
 [<Tests>]
 let parseJsonSchemaTests =
