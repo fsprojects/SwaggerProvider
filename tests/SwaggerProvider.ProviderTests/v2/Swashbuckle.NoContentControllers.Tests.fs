@@ -1,8 +1,8 @@
-module Swashbuckle.v3.NoContentControllersTests
+module Swashbuckle.v2.NoContentControllersTests
 
 open FsUnitTyped
 open Xunit
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.v2.ReturnControllersTests
 
 [<Fact>]
 let ``Test 204 with GET``() =
