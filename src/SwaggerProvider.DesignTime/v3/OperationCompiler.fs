@@ -184,7 +184,13 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let retMimeAndTy =
             let okResponse =
                 operation.Responses
-                |> Seq.tryFind(fun resp -> resp.Key = "200" || resp.Key.StartsWith("20") || resp.Key = "default")
+                |> Seq.tryFind(fun resp -> resp.Key = "200")
+                |> Option.orElseWith(fun () ->
+                    operation.Responses
+                    |> Seq.tryFind(fun resp ->
+                        let (ok, code) = Int32.TryParse(resp.Key)
+                        ok && code >= 200 && code < 300))
+                |> Option.orElseWith(fun () -> operation.Responses |> Seq.tryFind(fun resp -> resp.Key = "default"))
 
             okResponse
             |> Option.bind(fun kv ->
