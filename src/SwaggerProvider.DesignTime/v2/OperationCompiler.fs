@@ -60,7 +60,9 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
         let retTy =
             let okResponse =
                 op.Responses
-                |> Array.tryFind(fun (code, _) -> code.IsNone || (code.IsSome && code.Value >= 200 && code.Value < 300))
+                |> Array.tryFind(fun (code, _) -> code.IsSome && code.Value >= 200 && code.Value < 300)
+                |> Option.orElseWith(fun () ->
+                    op.Responses |> Array.tryFind(fun (code, _) -> code.IsNone))
 
             match okResponse with
             | Some(_, resp) ->
