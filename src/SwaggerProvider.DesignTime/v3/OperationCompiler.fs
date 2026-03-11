@@ -187,7 +187,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 |> Seq.tryFind(fun resp -> resp.Key = "200")
                 |> Option.orElseWith(fun () ->
                     operation.Responses
-                    |> Seq.tryFind(fun resp -> resp.Key.Length = 3 && resp.Key.StartsWith("20")))
+                    |> Seq.tryFind(fun resp ->
+                        let (ok, code) = Int32.TryParse(resp.Key)
+                        ok && code >= 200 && code < 300))
                 |> Option.orElseWith(fun () -> operation.Responses |> Seq.tryFind(fun resp -> resp.Key = "default"))
 
             okResponse
