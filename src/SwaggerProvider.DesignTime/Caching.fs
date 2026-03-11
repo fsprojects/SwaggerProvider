@@ -129,6 +129,17 @@ let createInMemoryCache(expiration: TimeSpan) =
             | _ -> ()
 
         member _.GetOrAdd(key, valueFactory) =
-            let res, _ = dict.GetOrAdd(key, (fun k -> valueFactory(), DateTime.UtcNow))
-            invalidationFunction key |> Async.Start
+            let mutable added = false
+
+            let res, _ =
+                dict.GetOrAdd(
+                    key,
+                    fun _ ->
+                        added <- true
+                        valueFactory(), DateTime.UtcNow
+                )
+
+            if added then
+                invalidationFunction key |> Async.Start
+
             res }
