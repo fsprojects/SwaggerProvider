@@ -19,6 +19,7 @@
     <Compile Include="PathResolutionTests.fs" />
     <Compile Include="SsrfSecurityTests.fs" />
     <Compile Include="RuntimeHelpersTests.fs" />
+    <Compile Include="UtilsTests.fs" />
     <None Include="paket.references" />
     <ProjectReference Include="..\..\src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" />
   </ItemGroup>
