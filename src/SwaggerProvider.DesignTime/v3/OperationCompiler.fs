@@ -438,6 +438,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         if not asAsync then
                             match retTy with
                             | None -> responseUnit.Raw
+                            | Some t when t = typeof<unit> -> responseUnit.Raw
                             | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
                             | Some t ->
                                 match retMime with
@@ -449,6 +450,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                             match retTy with
                             | None -> (awaitTask responseUnit).Raw
+                            | Some t when t = typeof<unit> -> (awaitTask responseUnit).Raw
                             | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
                             | Some t ->
                                 match retMime with

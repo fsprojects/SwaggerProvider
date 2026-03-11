@@ -58,9 +58,9 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
 
         // find the inner type value
         let retTy =
-            let okResponse = // BUG :  wrong selector
+            let okResponse =
                 op.Responses
-                |> Array.tryFind(fun (code, _) -> (code.IsSome && (code.Value = 200 || code.Value = 201)) || code.IsNone)
+                |> Array.tryFind(fun (code, _) -> code.IsNone || (code.IsSome && code.Value >= 200 && code.Value < 300))
 
             match okResponse with
             | Some(_, resp) ->
