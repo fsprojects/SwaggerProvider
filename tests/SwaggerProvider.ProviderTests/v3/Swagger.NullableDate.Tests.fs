@@ -17,7 +17,7 @@ let ``PersonDto should have nullable birthDate property``() =
     let birthDateProp = personType.GetProperty("BirthDate")
     birthDateProp |> shouldNotEqual null
 
-    // The property should be Option<DateTimeOffset> (default) or Nullable<DateTimeOffset> (with PreferNullable=true)
+    // The property should be Option<DateOnly> (on .NET 6+) or Option<DateTimeOffset> (netstandard2.0)
     let propType = birthDateProp.PropertyType
     propType.IsGenericType |> shouldEqual true
 
@@ -28,6 +28,18 @@ let ``PersonDto should have nullable birthDate property``() =
         || genericTypeDef = typedefof<System.Nullable<_>>
 
     hasNullableWrapper |> shouldEqual true
+
+#if NET6_0_OR_GREATER
+[<Fact>]
+let ``PersonDto birthDate property should be Option<DateOnly> on NET6+``() =
+    let personType = typeof<TestApi.PersonDto>
+    let birthDateProp = personType.GetProperty("BirthDate")
+    birthDateProp |> shouldNotEqual null
+
+    // On NET6+, format: date should map to DateOnly wrapped in Option<T>
+    let propType = birthDateProp.PropertyType
+    propType |> shouldEqual typedefof<Option<DateOnly>>
+#endif
 
 [<Fact>]
 let ``PersonDto can deserialize JSON with null birthDate using type provider deserialization``() =

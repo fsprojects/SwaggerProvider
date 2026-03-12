@@ -496,7 +496,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         // for `application/octet-stream` request body
                         // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                         typeof<IO.Stream>
-                    | HasFlag JsonSchemaType.String, "date"
+                    | HasFlag JsonSchemaType.String, "date" ->
+#if NET6_0_OR_GREATER
+                        typeof<DateOnly>
+#else
+                        typeof<DateTimeOffset>
+#endif
                     | HasFlag JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
                     | HasFlag JsonSchemaType.String, "uuid" -> typeof<Guid>
                     | HasFlag JsonSchemaType.String, _ -> typeof<string>

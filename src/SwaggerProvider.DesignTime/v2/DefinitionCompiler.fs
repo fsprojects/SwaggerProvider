@@ -352,7 +352,12 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | Float -> typeof<float32>
                 | Double -> typeof<double>
                 | String -> typeof<string>
-                | Date
+                | Date ->
+#if NET6_0_OR_GREATER
+                    typeof<DateOnly>
+#else
+                    typeof<DateTime>
+#endif
                 | DateTime -> typeof<DateTime>
                 | File -> typeof<byte>.MakeArrayType 1
                 | Enum(_, "string") -> typeof<string>
