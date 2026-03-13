@@ -88,7 +88,7 @@ module RuntimeHelpers =
             // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
             if
                 ty.IsGenericType
-                && ty.GetGenericTypeDefinition() = typedefof<Option<_>>
+                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
             then
                 let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
 
