@@ -86,7 +86,8 @@ type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
 
                         let schema = SwaggerParser.parseSchema schemaData
 
-                        let defCompiler = DefinitionCompiler(schema, preferNullable)
+                        let useDateOnly = cfg.SystemRuntimeAssemblyVersion.Major >= 6
+                        let defCompiler = DefinitionCompiler(schema, preferNullable, useDateOnly)
 
                         let opCompiler =
                             OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
