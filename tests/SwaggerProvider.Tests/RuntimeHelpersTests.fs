@@ -45,6 +45,33 @@ module ToParamTests =
         let result = toParam(box g)
         result |> shouldEqual(g.ToString())
 
+    [<Fact>]
+    let ``toParam unwraps Some(Guid) — fixes issue #140``() =
+        let g = Guid("d3b07384-d9a2-4e3f-9a4b-1234567890ab")
+        let result = toParam(box(Some g))
+        result |> shouldEqual(g.ToString())
+
+    [<Fact>]
+    let ``toParam returns null for None(Guid) — fixes issue #140``() =
+        let result = toParam(box(None: Guid option))
+        result |> shouldEqual null
+
+    [<Fact>]
+    let ``toParam unwraps Some(string)``() =
+        let result = toParam(box(Some "token-value"))
+        result |> shouldEqual "token-value"
+
+    [<Fact>]
+    let ``toParam returns null for None(string)``() =
+        let result = toParam(box(None: string option))
+        result |> shouldEqual null
+
+    [<Fact>]
+    let ``toParam unwraps Some(DateTimeOffset) and formats as ISO 8601``() =
+        let dto = DateTimeOffset(2024, 1, 15, 12, 0, 0, TimeSpan.Zero)
+        let result = toParam(box(Some dto))
+        result |> shouldEqual(dto.ToString("O"))
+
 
 module ToQueryParamsTests =
 
