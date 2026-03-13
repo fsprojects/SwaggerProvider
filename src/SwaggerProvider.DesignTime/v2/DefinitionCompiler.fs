@@ -353,11 +353,11 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | Double -> typeof<double>
                 | String -> typeof<string>
                 | Date ->
-#if NET6_0_OR_GREATER
-                    typeof<DateOnly>
-#else
-                    typeof<DateTime>
-#endif
+                    // Runtime detection: design-time assembly targets netstandard2.0 so
+                    // compile-time NET6_0_OR_GREATER is not available; DateOnly exists on .NET 6+
+                    System.Type.GetType("System.DateOnly")
+                    |> Option.ofObj
+                    |> Option.defaultValue typeof<DateTime>
                 | DateTime -> typeof<DateTime>
                 | File -> typeof<byte>.MakeArrayType 1
                 | Enum(_, "string") -> typeof<string>

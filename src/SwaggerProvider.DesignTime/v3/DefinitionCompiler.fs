@@ -497,11 +497,11 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable) as this =
                         // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                         typeof<IO.Stream>
                     | HasFlag JsonSchemaType.String, "date" ->
-#if NET6_0_OR_GREATER
-                        typeof<DateOnly>
-#else
-                        typeof<DateTimeOffset>
-#endif
+                        // Runtime detection: design-time assembly targets netstandard2.0 so
+                        // compile-time NET6_0_OR_GREATER is not available; DateOnly exists on .NET 6+
+                        System.Type.GetType("System.DateOnly")
+                        |> Option.ofObj
+                        |> Option.defaultValue typeof<DateTimeOffset>
                     | HasFlag JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
                     | HasFlag JsonSchemaType.String, "uuid" -> typeof<Guid>
                     | HasFlag JsonSchemaType.String, _ -> typeof<string>

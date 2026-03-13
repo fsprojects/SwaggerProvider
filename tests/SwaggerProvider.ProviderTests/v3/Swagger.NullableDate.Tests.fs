@@ -29,7 +29,6 @@ let ``PersonDto should have nullable birthDate property``() =
 
     hasNullableWrapper |> shouldEqual true
 
-#if NET6_0_OR_GREATER
 [<Fact>]
 let ``PersonDto birthDate property should be Option<DateOnly> on NET6+``() =
     let personType = typeof<TestApi.PersonDto>
@@ -38,8 +37,7 @@ let ``PersonDto birthDate property should be Option<DateOnly> on NET6+``() =
 
     // On NET6+, format: date should map to DateOnly wrapped in Option<T>
     let propType = birthDateProp.PropertyType
-    propType |> shouldEqual typedefof<Option<DateOnly>>
-#endif
+    propType |> shouldEqual typeof<Option<System.DateOnly>>
 
 [<Fact>]
 let ``PersonDto can deserialize JSON with null birthDate using type provider deserialization``() =
