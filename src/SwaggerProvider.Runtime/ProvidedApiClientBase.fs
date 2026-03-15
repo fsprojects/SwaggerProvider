@@ -6,12 +6,20 @@ open System.Threading.Tasks
 open System.Text.Json
 open System.Text.Json.Serialization
 
-type OpenApiException(code: int, description: string, headers: Headers.HttpResponseHeaders, content: HttpContent) =
-    inherit Exception(description)
+type OpenApiException(code: int, description: string, headers: Headers.HttpResponseHeaders, content: HttpContent, ?responseBody: string) =
+    inherit
+        Exception(
+            match responseBody with
+            | Some body when not(String.IsNullOrEmpty(body)) -> sprintf "%s\nResponse body: %s" description body
+            | _ -> description
+        )
+
     member _.StatusCode = code
     member _.Description = description
     member _.Headers = headers
     member _.Content = content
+    /// The raw response body returned by the server, if available.
+    member _.ResponseBody = defaultArg responseBody ""
 
 type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOptions) =
 
@@ -46,12 +54,12 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                 let code = response.StatusCode |> int
                 let codeStr = code |> string
 
-                errorCodes
-                |> Array.tryFindIndex((=) codeStr)
-                |> Option.iter(fun idx ->
+                match errorCodes |> Array.tryFindIndex((=) codeStr) with
+                | Some idx ->
                     let desc = errorDescriptions[idx]
-                    raise(OpenApiException(code, desc, response.Headers, response.Content)))
-
-                // fail with HttpRequestException if we do not know error description
-                return response.EnsureSuccessStatusCode().Content
+                    let! body = response.Content.ReadAsStringAsync()
+                    return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
+                | None ->
+                    // fail with HttpRequestException if we do not know error description
+                    return response.EnsureSuccessStatusCode().Content
         }
