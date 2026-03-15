@@ -57,6 +57,7 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                 match errorCodes |> Array.tryFindIndex((=) codeStr) with
                 | Some idx ->
                     let desc = errorDescriptions[idx]
+
                     let! body =
                         task {
                             try
@@ -66,6 +67,7 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                                 // fall back to an empty body so we can still throw OpenApiException.
                                 return ""
                         }
+
                     return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
                 | None ->
                     // fail with HttpRequestException if we do not know error description
