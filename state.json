@@ -1,7 +1,7 @@
 {
-  "last_run": "2026-03-14T16:15:14Z",
-  "last_run_id": "23091570668",
+  "last_run": "2026-03-15T16:15:32Z",
+  "last_run_id": "23114193865",
   "monthly_issue": 296,
-  "comments": [240, 122, 193, 160],
-  "notes": "PR #321 open (CI passing, DateOnly fix closes #240). PR #322 merged (Option<T> in toParam, closes #140). Commented on #160 (IgnoreParseErrors=true partial step, SchemaReaderErrors not yet implemented). Open contributor PRs: #241 (superseded by #321), #225 (test for #219). Future work: nullable string Option<string> for #122 (breaking change), response headers #179, SchemaReaderErrors provided member #160."
+  "comments": [240, 122, 193, 160, 264, 250, 132],
+  "notes": "PR #321 open (CI passing, DateOnly fix closes #240). Commented on #264 (FSharp.Core 2.3.0 fix, awaiting user confirmation). PR created for #250 fix (include response body in OpenApiException.Message). Commented on #132 partial fix. Open contributor PRs: #241 (superseded by #321), #225 (test for #219). Future work: nullable string Option<string> for #122 (breaking change), response headers #179, SchemaReaderErrors provided member #160, undocumented error codes throw OpenApiException for #132 (breaking change)."
 }
