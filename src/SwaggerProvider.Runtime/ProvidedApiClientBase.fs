@@ -57,7 +57,15 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                 match errorCodes |> Array.tryFindIndex((=) codeStr) with
                 | Some idx ->
                     let desc = errorDescriptions[idx]
-                    let! body = response.Content.ReadAsStringAsync()
+                    let! body =
+                        task {
+                            try
+                                return! response.Content.ReadAsStringAsync()
+                            with _ ->
+                                // If reading the body fails (e.g., disposed stream or invalid charset),
+                                // fall back to an empty body so we can still throw OpenApiException.
+                                return ""
+                        }
                     return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
                 | None ->
                     // fail with HttpRequestException if we do not know error description
