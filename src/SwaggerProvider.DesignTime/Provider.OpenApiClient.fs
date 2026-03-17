@@ -5,6 +5,8 @@ open System.Reflection
 open Microsoft.OpenApi.Reader
 open ProviderImplementation.ProvidedTypes
 open Microsoft.FSharp.Core.CompilerServices
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Reflection
 open Swagger
 open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v3.Compilers
@@ -27,6 +29,14 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
 
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
     do assert (typeof<ProvidedApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
+
+    let buildStringListExpr(items: string list) : Expr =
+        let cases = FSharpType.GetUnionCases typeof<string list>
+        let nilCase = cases |> Array.find(fun c -> c.Name = "Empty")
+        let consCase = cases |> Array.find(fun c -> c.Name = "Cons")
+        let nil = Expr.NewUnionCase(nilCase, [])
+
+        List.foldBack (fun (s: string) acc -> Expr.NewUnionCase(consCase, [ Expr.Value(s, typeof<string>); acc ])) items nil
 
     let myParamType =
         let t =
@@ -103,6 +113,11 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                                      |> Seq.map(fun e -> $"%s{e.Message} @ %s{e.Pointer}")
                                      |> String.concat "\n")
 
+                        let parseErrors =
+                            diagnostic.Errors
+                            |> Seq.map(fun e -> $"%s{e.Message} @ %s{e.Pointer}")
+                            |> Seq.toList
+
                         let defCompiler = DefinitionCompiler(schema, preferNullable)
 
                         let opCompiler =
@@ -118,6 +133,19 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
 
                         ty.AddXmlDoc("OpenAPI Provider for " + schemaPathRaw)
                         ty.AddMembers tys
+
+                        let errProp =
+                            ProvidedProperty(
+                                "SchemaReaderErrors",
+                                typeof<string list>,
+                                isStatic = true,
+                                getterCode = fun _ -> buildStringListExpr parseErrors
+                            )
+
+                        errProp.AddXmlDoc
+                            "List of OpenAPI parse errors tolerated by this provider instance. Non-empty only when IgnoreParseErrors=true and the schema has validation issues."
+
+                        ty.AddMember errProp
                         tempAsm.AddTypes [ ty ]
 
                         ty
