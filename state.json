@@ -1,7 +1,1 @@
-{
-  "last_run": "2026-03-16T16:33:17Z",
-  "last_run_id": "23154515974",
-  "monthly_issue": 296,
-  "comments": [240, 122, 193, 160, 264, 250, 132],
-  "notes": "PR #321 open (DateOnly fix closes #240). Created PR today for SchemaReaderErrors property (closes #160) + CI dotnet tools caching. PR #324 (OpenApiException response body, closes #250) merged by sergey-tihon. Open contributor PRs: #241 (superseded by #321), #225 (test for #219). Future work: nullable string Option<string> for #122 (breaking change), response headers #179, undocumented error codes throw OpenApiException for #132 (breaking change)."
-}
+{"last_run":"2026-03-17T16:34:56Z","last_run_id":"23205126302","monthly_issue":296,"comments":[240,122,193,160,264,250,132,263],"notes":"PR#321(DateOnly#240)open. Issue#326(SchemaReaderErrors prev blocked). This run: SchemaReaderErrors implemented, PR push→patch artifact run 23205126302. Comment#263(IgnoreParseErrors workaround). Contributor PRs:#241(superseded #321),#225(#219 test). Future:Option(string)#122,headers#179,undoc errors#132."}
