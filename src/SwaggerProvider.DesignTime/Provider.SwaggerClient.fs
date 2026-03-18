@@ -10,7 +10,7 @@ open SwaggerProvider.Internal.v2.Parser
 open SwaggerProvider.Internal.v2.Compilers
 
 module SwaggerCache =
-    let providedTypes = Caching.createInMemoryCache(TimeSpan.FromSeconds 30.0)
+    let providedTypes = Caching.createInMemoryCache(TimeSpan.FromMinutes 5.0)
 
 /// The Swagger Type Provider.
 [<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v3 schema formats.")>]
