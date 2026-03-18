@@ -12,7 +12,7 @@ open SwaggerProvider.Internal
 open SwaggerProvider.Internal.v3.Compilers
 
 module OpenApiCache =
-    let providedTypes = Caching.createInMemoryCache(TimeSpan.FromSeconds 30.0)
+    let providedTypes = Caching.createInMemoryCache(TimeSpan.FromMinutes 5.0)
 
 /// The Open API Provider.
 [<TypeProvider>]
