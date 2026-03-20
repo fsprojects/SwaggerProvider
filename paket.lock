@@ -45,11 +45,11 @@ NUGET
     YamlDotNet (16.3)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (821de018b4fad3c9f8b4e2b743b99b86ff4e475f)
-    src/ProvidedTypes.fsi (821de018b4fad3c9f8b4e2b743b99b86ff4e475f)
+    src/ProvidedTypes.fs (32fd6037e053d5d7ed532b84b836eb92fc8784b3)
+    src/ProvidedTypes.fsi (32fd6037e053d5d7ed532b84b836eb92fc8784b3)
   remote: fsprojects/FSharp.Data
-    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (00034f9ae8b1803c296261d82dead736428e50d9)
-    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (00034f9ae8b1803c296261d82dead736428e50d9)
+    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (1ee7eaf811a08a780addbfb2e40dbb69700e7b2b)
+    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (1ee7eaf811a08a780addbfb2e40dbb69700e7b2b)
 GROUP Server
 RESTRICTION: == net10.0
 NUGET
