@@ -1,7 +1,6 @@
-module SwaggerProvider.Tests.V3TypeMappingTests
+module SwaggerProvider.Tests.v3.Schema.TypeMappingTests
 
 open System
-open System.IO
 open Microsoft.OpenApi.Reader
 open SwaggerProvider.Internal.v3.Compilers
 open Xunit
@@ -39,8 +38,21 @@ components:
     let readResult =
         Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
 
-    let schema = readResult.Document
+    // Ensure the schema was parsed successfully before using it
+    match readResult.Diagnostic with
+    | null -> ()
+    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
+        let errorText =
+            diagnostic.Errors
+            |> Seq.map string
+            |> String.concat Environment.NewLine
+        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
+    | _ -> ()
 
+    let schema =
+        match readResult.Document with
+        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
+        | doc -> doc
     let defCompiler = DefinitionCompiler(schema, false)
     let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
