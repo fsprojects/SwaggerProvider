@@ -45,16 +45,16 @@ NUGET
     YamlDotNet (16.3)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (32fd6037e053d5d7ed532b84b836eb92fc8784b3)
-    src/ProvidedTypes.fsi (32fd6037e053d5d7ed532b84b836eb92fc8784b3)
+    src/ProvidedTypes.fs (821de018b4fad3c9f8b4e2b743b99b86ff4e475f)
+    src/ProvidedTypes.fsi (821de018b4fad3c9f8b4e2b743b99b86ff4e475f)
   remote: fsprojects/FSharp.Data
-    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (1ee7eaf811a08a780addbfb2e40dbb69700e7b2b)
-    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (1ee7eaf811a08a780addbfb2e40dbb69700e7b2b)
+    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (00034f9ae8b1803c296261d82dead736428e50d9)
+    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (00034f9ae8b1803c296261d82dead736428e50d9)
 GROUP Server
 RESTRICTION: == net10.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FSharp.Core (11.0.100)
+    FSharp.Core (10.1.201)
     Microsoft.AspNetCore (2.3.9)
       Microsoft.AspNetCore.Diagnostics (>= 2.3)
       Microsoft.AspNetCore.HostFiltering (>= 2.3)
@@ -604,11 +604,11 @@ NUGET
     OpenTelemetry.PersistentStorage.FileSystem (1.0.2)
       OpenTelemetry.PersistentStorage.Abstractions (>= 1.0.2)
     System.Buffers (4.6.1)
-    System.ClientModel (1.9)
-      Microsoft.Extensions.Configuration.Abstractions (>= 10.0.2)
-      Microsoft.Extensions.Hosting.Abstractions (>= 10.0.2)
-      Microsoft.Extensions.Logging.Abstractions (>= 10.0.2)
-      System.Memory.Data (>= 10.0.1)
+    System.ClientModel (1.10)
+      Microsoft.Extensions.Configuration.Abstractions (>= 10.0.3)
+      Microsoft.Extensions.Hosting.Abstractions (>= 10.0.3)
+      Microsoft.Extensions.Logging.Abstractions (>= 10.0.3)
+      System.Memory.Data (>= 10.0.3)
     System.Collections.Immutable (10.0.5)
     System.Diagnostics.DiagnosticSource (10.0.5)
     System.Memory (4.6.3)
