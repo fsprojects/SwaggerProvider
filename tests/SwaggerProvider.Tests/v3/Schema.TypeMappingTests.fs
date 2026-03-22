@@ -46,6 +46,7 @@ components:
             diagnostic.Errors
             |> Seq.map string
             |> String.concat Environment.NewLine
+
         failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
     | _ -> ()
 
@@ -53,6 +54,7 @@ components:
         match readResult.Document with
         | null -> failwith "Failed to parse OpenAPI schema: Document is null."
         | doc -> doc
+
     let defCompiler = DefinitionCompiler(schema, false)
     let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
