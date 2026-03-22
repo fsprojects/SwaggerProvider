@@ -3,12 +3,9 @@
 #r "nuget: Fake.Core.ReleaseNotes"
 #r "nuget: Fake.IO.FileSystem"
 #r "nuget: Fake.DotNet.Cli"
-#r "nuget: Fake.DotNet.MSBuild"
 #r "nuget: Fake.DotNet.AssemblyInfoFile"
 #r "nuget: Fake.DotNet.Paket"
-#r "nuget: Fake.DotNet.FSFormatting"
 #r "nuget: Fake.Tools.Git"
-#r "nuget: Fake.Api.GitHub"
 
 // Boilerplate - https://github.com/fsprojects/FAKE/issues/2719#issuecomment-1470687052
 System.Environment.GetCommandLineArgs()
