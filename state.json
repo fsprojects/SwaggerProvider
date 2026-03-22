@@ -1,1 +1,1 @@
-{"run":"2026-03-20","rid":"23352076703","monthly":296,"prs":{"321":"open","331":"open"},"notes":"331=v3TypeMappingTests+FAKEcleanup.Future:DateOnly#321,Option(str)#122,headers#179"}
+{"run":"2026-03-22","rid":"23407090921","monthly":296,"prs":{"321":"open"},"notes":"NewPR=improve-tests-ci-2026-03-22(ref-alias-tests+CI-cache). 321=DateOnly still open. Future:Option(str)#122,headers#179"}
