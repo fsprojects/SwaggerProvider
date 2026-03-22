@@ -46,6 +46,7 @@ components:
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
 
     let types = defCompiler.Namespace.GetProvidedTypes()
+
     let testType = types |> List.find(fun t -> t.Name = "TestType")
 
     match testType.GetDeclaredProperty("Value") with
@@ -118,7 +119,8 @@ let ``required string byte format maps to byte array``() =
     let ty = compilePropertyType "          type: string\n          format: byte\n" true
 
     // DefinitionCompiler creates a rank-1 explicit array via MakeArrayType(1)
-    ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+    let expected = typeof<byte>.MakeArrayType(1)
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``required string binary format maps to Stream``() =
@@ -133,50 +135,55 @@ let ``required string binary format maps to Stream``() =
 let ``optional boolean maps to Option<bool>``() =
     let ty = compilePropertyType "          type: boolean\n" false
 
-    ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<bool>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<bool>)
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``optional integer maps to Option<int32>``() =
     let ty = compilePropertyType "          type: integer\n" false
 
-    ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<int32>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<int32>)
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``optional integer int64 maps to Option<int64>``() =
     let ty =
         compilePropertyType "          type: integer\n          format: int64\n" false
 
-    ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<int64>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<int64>)
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``optional number maps to Option<float32>``() =
     let ty = compilePropertyType "          type: number\n" false
 
-    ty
-    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<float32>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<float32>)
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``optional number double maps to Option<double>``() =
     let ty =
         compilePropertyType "          type: number\n          format: double\n" false
 
-    ty
-    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<double>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<double>)
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``optional DateTimeOffset maps to Option<DateTimeOffset>``() =
     let ty =
         compilePropertyType "          type: string\n          format: date-time\n" false
 
-    ty
-    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<DateTimeOffset>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<DateTimeOffset>)
+
+    ty |> shouldEqual expected
 
 [<Fact>]
 let ``optional Guid maps to Option<Guid>``() =
     let ty =
         compilePropertyType "          type: string\n          format: uuid\n" false
 
-    ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<Guid>))
+    let expected = typedefof<Option<_>>.MakeGenericType(typeof<Guid>)
+    ty |> shouldEqual expected
 
 // ── Optional reference types are NOT wrapped (they are already nullable) ─────
 
@@ -184,7 +191,7 @@ let ``optional Guid maps to Option<Guid>``() =
 let ``optional string is not wrapped in Option``() =
     let ty = compilePropertyType "          type: string\n" false
 
-    // string is a reference type — not wrapped in Option<T> even when non-required
+    // string is a reference type -- not wrapped in Option<T> even when non-required
     ty |> shouldEqual typeof<string>
 
 [<Fact>]
@@ -192,5 +199,6 @@ let ``optional byte array is not wrapped in Option``() =
     let ty =
         compilePropertyType "          type: string\n          format: byte\n" false
 
-    // byte[*] is a reference type — not wrapped in Option<T>
-    ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+    // byte[*] is a reference type -- not wrapped in Option<T>
+    let expected = typeof<byte>.MakeArrayType(1)
+    ty |> shouldEqual expected
