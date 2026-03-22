@@ -340,4 +340,5 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-.ionidebuild.fsx.lock
+.ionide
+build.fsx.lock
