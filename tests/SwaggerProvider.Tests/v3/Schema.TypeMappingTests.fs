@@ -1,4 +1,4 @@
-module SwaggerProvider.Tests.v3.Schema.TypeMappingTests
+module SwaggerProvider.Tests.v3_Schema_TypeMappingTests
 
 open System
 open Microsoft.OpenApi.Reader
