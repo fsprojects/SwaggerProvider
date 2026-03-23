@@ -45,8 +45,13 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
         JsonSerializer.Deserialize(value, retTy, options)
 
     member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> =
+        this.CallAsync(request, errorCodes, errorDescriptions, System.Threading.CancellationToken.None)
+
+    member this.CallAsync
+        (request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[], cancellationToken: System.Threading.CancellationToken)
+        : Task<HttpContent> =
         task {
-            let! response = this.HttpClient.SendAsync(request)
+            let! response = this.HttpClient.SendAsync(request, cancellationToken)
 
             if response.IsSuccessStatusCode then
                 return response.Content

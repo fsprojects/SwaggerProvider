@@ -178,7 +178,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 // reverse it again so that all required properties come first
                 |> List.rev
 
-            payloadTy.ToMediaType(), providedParameters
+            let ctParam =
+                ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>, optionalValue = box Threading.CancellationToken.None)
+
+            payloadTy.ToMediaType(), providedParameters @ [ ctParam ]
 
         // find the inner type value
         let retMimeAndTy =
@@ -263,31 +266,45 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                         // Locates parameters matching the arguments
                         let mutable payloadExp = None
+                        let mutable ctExpr: Expr<Threading.CancellationToken> option = None
 
                         let parameters =
                             List.tail args // skip `this` param
                             |> List.choose (function
                                 | ShapeVar sVar as expr ->
-                                    let param =
-                                        openApiParameters
-                                        |> Seq.tryFind(fun x ->
-                                            // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
-                                            let baseName = niceCamelName x.Name
-                                            baseName = sVar.Name || (unambiguousName x) = sVar.Name)
+                                    // cancellationToken is added by the compiler, not from OpenAPI spec
+                                    if sVar.Name = "cancellationToken" then
+                                        ctExpr <-
+                                            Some(
+                                                Expr.Coerce(expr, typeof<Threading.CancellationToken>)
+                                                |> Expr.Cast<Threading.CancellationToken>
+                                            )
 
-                                    match param with
-                                    | Some(par) -> Some(par, expr)
-                                    | _ ->
-                                        let payloadType = PayloadType.Parse sVar.Name
+                                        None
+                                    else
 
-                                        match payloadExp with
-                                        | None ->
-                                            payloadExp <- Some(payloadType, Expr.Coerce(expr, typeof<obj>))
-                                            None
-                                        | Some _ ->
-                                            failwithf
-                                                $"More than one payload parameter is specified: '%A{payloadType}' & '%A{payloadExp.Value |> fst}'"
+                                        let param =
+                                            openApiParameters
+                                            |> Seq.tryFind(fun x ->
+                                                // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
+                                                let baseName = niceCamelName x.Name
+                                                baseName = sVar.Name || (unambiguousName x) = sVar.Name)
+
+                                        match param with
+                                        | Some(par) -> Some(par, expr)
+                                        | _ ->
+                                            let payloadType = PayloadType.Parse sVar.Name
+
+                                            match payloadExp with
+                                            | None ->
+                                                payloadExp <- Some(payloadType, Expr.Coerce(expr, typeof<obj>))
+                                                None
+                                            | Some _ ->
+                                                failwithf
+                                                    $"More than one payload parameter is specified: '%A{payloadType}' & '%A{payloadExp.Value |> fst}'"
                                 | _ -> failwithf $"Function '%s{providedMethodName}' does not support functions as arguments.")
+
+                        let ct = ctExpr |> Option.defaultValue <@ Threading.CancellationToken.None @>
 
                         // Makes argument a string // TODO: Make body an exception
                         let coerceString exp =
@@ -392,7 +409,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 @>
 
                         let action =
-                            <@ (%this).CallAsync(%httpRequestMessageWithPayload, errorCodes, errorDescriptions) @>
+                            <@ (%this).CallAsync(%httpRequestMessageWithPayload, errorCodes, errorDescriptions, %ct) @>
 
                         let responseObj =
                             let innerReturnType = defaultArg retTy null

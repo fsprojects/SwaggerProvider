@@ -372,7 +372,8 @@ module ToContentTests =
 type private StubHttpMessageHandler(statusCode: HttpStatusCode, responseBody: string) =
     inherit HttpMessageHandler()
 
-    override _.SendAsync(_request: HttpRequestMessage, _cancellationToken: CancellationToken) =
+    override _.SendAsync(_request: HttpRequestMessage, cancellationToken: CancellationToken) =
+        cancellationToken.ThrowIfCancellationRequested()
         let response = new HttpResponseMessage(statusCode)
         response.Content <- new StringContent(responseBody)
         Task.FromResult(response)
@@ -490,6 +491,37 @@ module OpenApiExceptionTests =
                 Assert.ThrowsAsync<HttpRequestException>(fun () ->
                     task {
                         let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |])
+                        ()
+                    })
+
+            ()
+        }
+
+    [<Fact>]
+    let ``CallAsync with CancellationToken returns content on success``() =
+        task {
+            use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "result")
+            let client = makeClient handler
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+            let! content = client.CallAsync(request, [||], [||], CancellationToken.None)
+            let! body = content.ReadAsStringAsync()
+            body |> shouldEqual "result"
+        }
+
+    [<Fact>]
+    let ``CallAsync with already-cancelled token raises OperationCanceledException``() =
+        task {
+            use cts = new CancellationTokenSource()
+            cts.Cancel()
+
+            use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "ok")
+            let client = makeClient handler
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+
+            let! _ =
+                Assert.ThrowsAnyAsync<OperationCanceledException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [||], [||], cts.Token)
                         ()
                     })
 
