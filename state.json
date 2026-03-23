@@ -1,1 +1,1 @@
-{"run":"2026-03-22","rid":"23407090921","monthly":296,"prs":{"321":"open"},"notes":"NewPR=improve-tests-ci-2026-03-22(ref-alias-tests+CI-cache). 321=DateOnly still open. Future:Option(str)#122,headers#179"}
+{"run":"2026-03-23","rid":"23448168351","monthly":296,"prs":{"321":"open"},"notes":"NewPR(patch)=feat-cancellationtoken-issue-212-2026-03-23(CancellationToken+2tests,225pass). 335=ref-alias-tests+CI-cache(patch,needs human push). 321=DateOnly still open. Future:Option(str)#122,headers#179,CT-v2-followup"}
