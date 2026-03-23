@@ -60,7 +60,7 @@ type PayloadType =
 
 /// Object for compiling operations.
 type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
-    let compileOperation (providedMethodName: string) (apiCall: ApiCall) (includeCancellationToken: bool) =
+    let compileOperation (providedMethodName: string) (apiCall: ApiCall) =
         let path, pathItem, opTy = apiCall
         let operation = pathItem.Operations[opTy]
 
@@ -179,13 +179,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 |> List.rev
 
             let parameters =
-                if includeCancellationToken then
-                    let ctParam =
-                        ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>)
+                let ctParam =
+                    ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>, optionalValue = (null: obj))
 
-                    providedParameters @ [ ctParam ]
-                else
-                    providedParameters
+                providedParameters @ [ ctParam ]
 
             payloadTy.ToMediaType(), parameters
 
@@ -273,18 +270,15 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // Locates parameters matching the arguments
                         let mutable payloadExp = None
 
-                        // When the CancellationToken overload is generated, CancellationToken is always appended last.
+                        // CancellationToken is always appended last as an optional parameter.
                         // Extract it by position to avoid name-collision issues and invalid Expr.Coerce
                         // on a struct type (which generates an invalid castclass IL instruction).
                         let apiArgs, ct =
                             let allArgs = List.tail args // skip `this`
 
-                            if includeCancellationToken then
-                                match List.rev allArgs with
-                                | ctArg :: revApiArgs -> List.rev revApiArgs, Expr.Cast<Threading.CancellationToken>(ctArg)
-                                | [] -> failwith "Expected CancellationToken argument but argument list was empty"
-                            else
-                                allArgs, <@ Threading.CancellationToken.None @>
+                            match List.rev allArgs with
+                            | ctArg :: revApiArgs -> List.rev revApiArgs, Expr.Cast<Threading.CancellationToken>(ctArg)
+                            | [] -> failwith "Expected CancellationToken argument but argument list was empty"
 
                         let parameters =
                             apiArgs
@@ -622,10 +616,5 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
                 let uniqueName = methodNameScope.MakeUnique name
-                // Generate two overloads: one without CancellationToken (backward compatible)
-                // and one with an explicit CancellationToken parameter.
-                // We cannot use an optional struct parameter with a default value because
-                // struct values (e.g., CancellationToken.None) cannot be stored in DefaultParameterValue
-                // custom attributes.
-                [ compileOperation uniqueName op false; compileOperation uniqueName op true ])
+                [ compileOperation uniqueName op ])
             |> ty.AddMembers)
