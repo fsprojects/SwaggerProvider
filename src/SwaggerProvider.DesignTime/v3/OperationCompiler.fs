@@ -60,7 +60,7 @@ type PayloadType =
 
 /// Object for compiling operations.
 type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
-    let compileOperation (providedMethodName: string) (apiCall: ApiCall) =
+    let compileOperation (providedMethodName: string) (apiCall: ApiCall) (includeCancellationToken: bool) =
         let path, pathItem, opTy = apiCall
         let operation = pathItem.Operations[opTy]
 
@@ -178,10 +178,16 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 // reverse it again so that all required properties come first
                 |> List.rev
 
-            let ctParam =
-                ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>, optionalValue = box Threading.CancellationToken.None)
+            let parameters =
+                if includeCancellationToken then
+                    let ctParam =
+                        ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>)
 
-            payloadTy.ToMediaType(), providedParameters @ [ ctParam ]
+                    providedParameters @ [ ctParam ]
+                else
+                    providedParameters
+
+            payloadTy.ToMediaType(), parameters
 
         // find the inner type value
         let retMimeAndTy =
@@ -608,7 +614,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             let methodNameScope = UniqueNameGenerator()
 
             operations
-            |> List.map(fun op ->
+            |> List.collect(fun op ->
                 let skipLength =
                     if String.IsNullOrEmpty clientName then
                         0
@@ -616,5 +622,11 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         clientName.Length + 1
 
                 let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
-                compileOperation (methodNameScope.MakeUnique name) op)
+                let uniqueName = methodNameScope.MakeUnique name
+                // Generate two overloads: one without CancellationToken (backward compatible)
+                // and one with an explicit CancellationToken parameter.
+                // We cannot use an optional struct parameter with a default value because
+                // struct values (e.g., CancellationToken.None) cannot be stored in DefaultParameterValue
+                // custom attributes.
+                [ compileOperation uniqueName op false; compileOperation uniqueName op true ])
             |> ty.AddMembers)
