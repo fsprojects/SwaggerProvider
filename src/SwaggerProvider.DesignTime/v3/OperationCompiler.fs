@@ -96,7 +96,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
             if isNull content || content.Count = 0 then Some() else None
 
-        let payloadMime, parameters =
+        let payloadMime, parameters, ctArgIndex =
             /// handles de-duplicating Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
             let uniqueParamName usedNames (param: IOpenApiParameter) =
@@ -147,18 +147,15 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
             let payloadTy = bodyFormatAndParam |> Option.map fst |> Option.defaultValue NoData
 
-            let orderedParameters =
-                let required, optional =
-                    [ yield! openApiParameters
-                      if bodyFormatAndParam.IsSome then
-                          yield bodyFormatAndParam.Value |> snd ]
-                    |> List.distinctBy(fun op -> op.Name, op.In)
-                    |> List.partition(_.Required)
+            let requiredOpenApiParams, optionalOpenApiParams =
+                [ yield! openApiParameters
+                  if bodyFormatAndParam.IsSome then
+                      yield bodyFormatAndParam.Value |> snd ]
+                |> List.distinctBy(fun op -> op.Name, op.In)
+                |> List.partition(_.Required)
 
-                List.append required optional
-
-            let providedParameters =
-                ((Set.empty, []), orderedParameters)
+            let buildProvidedParameters usedNames (paramList: IOpenApiParameter list) =
+                ((usedNames, []), paramList)
                 ||> List.fold(fun (names, parameters) current ->
                     let names, paramName = uniqueParamName names current
 
@@ -173,21 +170,37 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             ProvidedParameter(paramName, paramType, false, paramDefaultValue)
 
                     (names, providedParam :: parameters))
-                |> snd
-                // because we built up our list in reverse order with the fold,
-                // reverse it again so that all required properties come first
-                |> List.rev
+                |> fun (finalNames, ps) -> finalNames, List.rev ps
 
-            let parameters =
+            let namesAfterRequired, requiredProvidedParams =
+                buildProvidedParameters Set.empty requiredOpenApiParams
+
+            let _, optionalProvidedParams =
+                buildProvidedParameters namesAfterRequired optionalOpenApiParams
+
+            let ctArgIndex, parameters =
                 if includeCancellationToken then
-                    let ctParam =
-                        ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>)
+                    // Collect all used param names to generate a unique CT parameter name
+                    let usedNames =
+                        (requiredProvidedParams @ optionalProvidedParams)
+                        |> List.map(fun p -> p.Name)
+                        |> Set.ofList
 
-                    providedParameters @ [ ctParam ]
+                    let rec findUniqueName candidate n =
+                        if Set.contains candidate usedNames then
+                            findUniqueName $"cancellationToken{n}" (n + 1)
+                        else
+                            candidate
+
+                    let ctName = findUniqueName "cancellationToken" 1
+                    let ctParam = ProvidedParameter(ctName, typeof<Threading.CancellationToken>)
+                    // CT is inserted after required params so it never follows optional params
+                    let ctArgIndex = List.length requiredProvidedParams
+                    ctArgIndex, requiredProvidedParams @ [ ctParam ] @ optionalProvidedParams
                 else
-                    providedParameters
+                    -1, requiredProvidedParams @ optionalProvidedParams
 
-            payloadTy.ToMediaType(), parameters
+            payloadTy.ToMediaType(), parameters, ctArgIndex
 
         // find the inner type value
         let retMimeAndTy =
@@ -273,16 +286,21 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // Locates parameters matching the arguments
                         let mutable payloadExp = None
 
-                        // When the CancellationToken overload is generated, CancellationToken is always appended last.
-                        // Extract it by position to avoid name-collision issues and invalid Expr.Coerce
-                        // on a struct type (which generates an invalid castclass IL instruction).
+                        // When the CancellationToken overload is generated, CT is inserted at ctArgIndex
+                        // (after required params, before optional params). Extract it by that known index
+                        // to avoid name-collision issues and invalid Expr.Coerce on a struct type.
                         let apiArgs, ct =
                             let allArgs = List.tail args // skip `this`
 
                             if includeCancellationToken then
-                                match List.rev allArgs with
-                                | ctArg :: revApiArgs -> List.rev revApiArgs, Expr.Cast<Threading.CancellationToken>(ctArg)
-                                | [] -> failwith "Expected CancellationToken argument but argument list was empty"
+                                let ctArg = List.item ctArgIndex allArgs
+
+                                let apiArgs =
+                                    allArgs
+                                    |> List.indexed
+                                    |> List.choose(fun (i, a) -> if i = ctArgIndex then None else Some a)
+
+                                apiArgs, Expr.Cast<Threading.CancellationToken>(ctArg)
                             else
                                 allArgs, <@ Threading.CancellationToken.None @>
 
