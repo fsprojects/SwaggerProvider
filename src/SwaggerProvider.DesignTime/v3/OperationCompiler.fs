@@ -179,6 +179,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 |> List.rev
 
             let parameters =
+                // Passing null as optionalValue encodes default(CancellationToken) in CLI metadata,
+                // which is the standard way to represent `ct = default` for struct parameters
+                // (equivalent to CancellationToken.None). A boxed struct value cannot be used
+                // here because CancellationToken is not a valid custom attribute argument type.
                 let ctParam =
                     ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>, optionalValue = (null: obj))
 
