@@ -8,7 +8,7 @@ open FsUnitTyped
 
 /// Parse and compile a full OpenAPI v3 schema string, then return the .NET type of
 /// the `Value` property on the `TestType` component schema.
-let private compileSchemaAndGetValueType (schemaStr: string) : Type =
+let private compileSchemaAndGetValueType(schemaStr: string) : Type =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
 
