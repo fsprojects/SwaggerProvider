@@ -213,7 +213,7 @@ let ``optional byte array is not wrapped in Option``() =
 
 /// Compile a schema where `TestType.Value` directly references a component alias schema
 /// (e.g., `$ref: '#/components/schemas/AliasType'`) and return the resolved .NET type.
-let private compileDirectRefType (aliasYaml: string) : Type =
+let private compileDirectRefType(aliasYaml: string) : Type =
     let schemaStr =
         sprintf
             """openapi: "3.0.0"
@@ -269,7 +269,7 @@ components:
 
 /// Compile a schema where `TestType.Value` uses `allOf: [$ref]` to reference a component alias
 /// (the standard OpenAPI 3.0 pattern for annotating a reference) and return the resolved .NET type.
-let private compileAllOfRefType (aliasYaml: string) : Type =
+let private compileAllOfRefType(aliasYaml: string) : Type =
     let schemaStr =
         sprintf
             """openapi: "3.0.0"
