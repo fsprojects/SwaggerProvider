@@ -208,3 +208,164 @@ let ``optional byte array is not wrapped in Option``() =
 
     // byte[*] is a reference type — not wrapped in Option<T>
     ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+
+// ── $ref primitive-type alias helpers ────────────────────────────────────────
+
+/// Compile a schema where `TestType.Value` directly references a component alias schema
+/// (e.g., `$ref: '#/components/schemas/AliasType'`) and return the resolved .NET type.
+let private compileDirectRefType (aliasYaml: string) : Type =
+    let schemaStr =
+        sprintf
+            """openapi: "3.0.0"
+info:
+  title: RefAliasTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    AliasType:
+%s    TestType:
+      type: object
+      required:
+        - Value
+      properties:
+        Value:
+          $ref: '#/components/schemas/AliasType'
+"""
+            aliasYaml
+
+    let settings = OpenApiReaderSettings()
+    settings.AddYamlReader()
+
+    let readResult =
+        Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
+
+    match readResult.Diagnostic with
+    | null -> ()
+    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
+        let errorText =
+            diagnostic.Errors
+            |> Seq.map string
+            |> String.concat Environment.NewLine
+
+        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
+    | _ -> ()
+
+    let schema =
+        match readResult.Document with
+        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
+        | doc -> doc
+
+    let defCompiler = DefinitionCompiler(schema, false)
+    let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+
+    let types = defCompiler.Namespace.GetProvidedTypes()
+    let testType = types |> List.find(fun t -> t.Name = "TestType")
+
+    match testType.GetDeclaredProperty("Value") with
+    | null -> failwith "Property 'Value' not found on TestType"
+    | prop -> prop.PropertyType
+
+/// Compile a schema where `TestType.Value` uses `allOf: [$ref]` to reference a component alias
+/// (the standard OpenAPI 3.0 pattern for annotating a reference) and return the resolved .NET type.
+let private compileAllOfRefType (aliasYaml: string) : Type =
+    let schemaStr =
+        sprintf
+            """openapi: "3.0.0"
+info:
+  title: AllOfRefAliasTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    AliasType:
+%s    TestType:
+      type: object
+      required:
+        - Value
+      properties:
+        Value:
+          allOf:
+            - $ref: '#/components/schemas/AliasType'
+"""
+            aliasYaml
+
+    let settings = OpenApiReaderSettings()
+    settings.AddYamlReader()
+
+    let readResult =
+        Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
+
+    match readResult.Diagnostic with
+    | null -> ()
+    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
+        let errorText =
+            diagnostic.Errors
+            |> Seq.map string
+            |> String.concat Environment.NewLine
+
+        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
+    | _ -> ()
+
+    let schema =
+        match readResult.Document with
+        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
+        | doc -> doc
+
+    let defCompiler = DefinitionCompiler(schema, false)
+    let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+
+    let types = defCompiler.Namespace.GetProvidedTypes()
+    let testType = types |> List.find(fun t -> t.Name = "TestType")
+
+    match testType.GetDeclaredProperty("Value") with
+    | null -> failwith "Property 'Value' not found on TestType"
+    | prop -> prop.PropertyType
+
+// ── $ref to primitive-type alias (direct $ref) ───────────────────────────────
+
+[<Fact>]
+let ``direct $ref to string alias resolves to string``() =
+    let ty = compileDirectRefType "      type: string\n"
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``direct $ref to integer alias resolves to int32``() =
+    let ty = compileDirectRefType "      type: integer\n"
+    ty |> shouldEqual typeof<int32>
+
+[<Fact>]
+let ``direct $ref to int64 alias resolves to int64``() =
+    let ty = compileDirectRefType "      type: integer\n      format: int64\n"
+    ty |> shouldEqual typeof<int64>
+
+[<Fact>]
+let ``direct $ref to number alias resolves to float32``() =
+    let ty = compileDirectRefType "      type: number\n"
+    ty |> shouldEqual typeof<float32>
+
+[<Fact>]
+let ``direct $ref to boolean alias resolves to bool``() =
+    let ty = compileDirectRefType "      type: boolean\n"
+    ty |> shouldEqual typeof<bool>
+
+[<Fact>]
+let ``direct $ref to uuid string alias resolves to Guid``() =
+    let ty = compileDirectRefType "      type: string\n      format: uuid\n"
+    ty |> shouldEqual typeof<Guid>
+
+// ── $ref to primitive-type alias (via allOf wrapper) ─────────────────────────
+// allOf: [$ref] is the standard OpenAPI 3.0 pattern for annotating a $ref with
+// additional constraints (e.g. description, nullable) without repeating the schema.
+
+[<Fact>]
+let ``allOf $ref to string alias resolves to string``() =
+    let ty = compileAllOfRefType "      type: string\n"
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``allOf $ref to integer alias resolves to int32``() =
+    let ty = compileAllOfRefType "      type: integer\n"
+    ty |> shouldEqual typeof<int32>
