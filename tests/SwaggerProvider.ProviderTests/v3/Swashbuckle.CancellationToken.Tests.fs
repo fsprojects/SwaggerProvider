@@ -92,3 +92,43 @@ let ``Call async generated method with explicit CancellationToken``() =
         let! result = apiAsync.GetApiReturnInt32(cts.Token)
         result |> shouldEqual 42
     }
+
+[<Fact>]
+let ``Call stream-returning method with explicit CancellationToken``() =
+    task {
+        use cts = new CancellationTokenSource()
+        let! result = api.GetApiReturnFile(cts.Token)
+        use reader = new IO.StreamReader(result)
+        let! content = reader.ReadToEndAsync()
+        content |> shouldEqual "I am totally a file's\ncontent"
+    }
+
+[<Fact>]
+let ``Call text-returning method with explicit CancellationToken``() =
+    task {
+        use cts = new CancellationTokenSource()
+        let! result = api.GetApiReturnPlain(cts.Token)
+        result |> shouldEqual "Hello world"
+    }
+
+[<Fact>]
+let ``Call async generated method with already-cancelled token raises OperationCanceledException``() =
+    async {
+        use cts = new CancellationTokenSource()
+        cts.Cancel()
+
+        try
+            let! _ = apiAsync.GetApiReturnString(cts.Token)
+            failwith "Expected OperationCanceledException"
+        with
+        | :? OperationCanceledException -> ()
+        | :? AggregateException as aex when (aex.InnerException :? OperationCanceledException) -> ()
+    }
+
+[<Fact>]
+let ``Call async POST generated method with explicit CancellationToken``() =
+    async {
+        use cts = new CancellationTokenSource()
+        let! result = apiAsync.PostApiReturnString(cts.Token)
+        result |> shouldEqual "Hello world"
+    }
