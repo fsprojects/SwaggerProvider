@@ -41,16 +41,29 @@ let taskGitHub() =
 
     client
 
+let isRateLimitError (ex: exn) =
+    ex.Message.Contains("rate limit") || ex.Message.Contains("403 (rate limit")
+
 [<Fact>] // Explicit
 let ``Get fsprojects from GitHub``() =
     task {
-        let! repos = github().OrgRepos("fsprojects")
-        repos.Length |> shouldBeGreaterThan 0
+        try
+            let! repos = github().OrgRepos("fsprojects")
+            repos.Length |> shouldBeGreaterThan 0
+        with :? HttpRequestException as ex when isRateLimitError ex ->
+            Skip.Always("GitHub API rate limit exceeded - transient CI failure")
+        | :? AggregateException as aex when isRateLimitError aex ->
+            Skip.Always("GitHub API rate limit exceeded - transient CI failure")
     }
 
 [<Fact>]
 let ``Get fsproject from GitHub with Task``() =
     task {
-        let! repos = taskGitHub().OrgRepos("fsprojects")
-        repos.Length |> shouldBeGreaterThan 0
+        try
+            let! repos = taskGitHub().OrgRepos("fsprojects")
+            repos.Length |> shouldBeGreaterThan 0
+        with :? HttpRequestException as ex when isRateLimitError ex ->
+            Skip.Always("GitHub API rate limit exceeded - transient CI failure")
+        | :? AggregateException as aex when isRateLimitError aex ->
+            Skip.Always("GitHub API rate limit exceeded - transient CI failure")
     }
