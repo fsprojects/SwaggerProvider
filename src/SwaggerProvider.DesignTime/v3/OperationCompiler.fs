@@ -185,10 +185,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 |> List.iter(fun p -> scope.MakeUnique p.Name |> ignore)
 
                 let ctName = scope.MakeUnique "cancellationToken"
-                // null default value is interpreted as default(CancellationToken) == CancellationToken.None
+
                 let ctParam =
                     ProvidedParameter(ctName, typeof<Threading.CancellationToken>, false, null)
-                // CT is appended last so it comes after all optional params
+                // CT is appended last to preserve existing positional argument calls
                 let ctArgIndex =
                     List.length requiredProvidedParams
                     + List.length optionalProvidedParams
@@ -281,7 +281,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // Locates parameters matching the arguments
                         let mutable payloadExp = None
 
-                        // CT is always the last argument (at ctArgIndex). Extract it by position.
+                        // CT is inserted at ctArgIndex. Extract it by position.
                         let apiArgs, ct =
                             let allArgs = List.tail args // skip `this`
                             let ctArg = List.item ctArgIndex allArgs
@@ -620,7 +620,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             let methodNameScope = UniqueNameGenerator()
 
             operations
-            |> List.collect(fun op ->
+            |> List.map(fun op ->
                 let skipLength =
                     if String.IsNullOrEmpty clientName then
                         0
@@ -629,5 +629,5 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
                 let uniqueName = methodNameScope.MakeUnique name
-                [ compileOperation uniqueName op ])
+                compileOperation uniqueName op)
             |> ty.AddMembers)

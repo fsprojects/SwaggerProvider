@@ -3,8 +3,28 @@ module Swashbuckle.v3.CancellationTokenTests
 open Xunit
 open FsUnitTyped
 open System
+open System.Net.Http
 open System.Threading
+open SwaggerProvider
 open Swashbuckle.v3.ReturnControllersTests
+
+type WebAPIAsync =
+    OpenApiClientProvider<"http://localhost:5000/swagger/v1/openapi.json", IgnoreOperationId=true, SsrfProtection=false, PreferAsync=true>
+
+let apiAsync =
+    let handler = new HttpClientHandler(UseCookies = false)
+
+    let client =
+        new HttpClient(handler, true, BaseAddress = Uri("http://localhost:5000"))
+
+    WebAPIAsync.Client(client)
+
+[<Fact>]
+let ``Call generated method without CancellationToken uses default token``() =
+    task {
+        let! result = api.GetApiReturnBoolean()
+        result |> shouldEqual true
+    }
 
 [<Fact>]
 let ``Call generated method with explicit CancellationToken None``() =
@@ -40,4 +60,11 @@ let ``Call POST generated method with explicit CancellationToken None``() =
     task {
         let! result = api.PostApiReturnString(CancellationToken.None)
         result |> shouldEqual "Hello world"
+    }
+
+[<Fact>]
+let ``Call async generated method without CancellationToken uses default token``() =
+    async {
+        let! result = apiAsync.GetApiReturnBoolean()
+        result |> shouldEqual true
     }
