@@ -63,7 +63,11 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                     let! body =
                         task {
                             try
+#if NET5_0_OR_GREATER
+                                return! response.Content.ReadAsStringAsync(cancellationToken)
+#else
                                 return! response.Content.ReadAsStringAsync()
+#endif
                             with _ ->
                                 // If reading the body fails (e.g., disposed stream or invalid charset),
                                 // fall back to an empty body so we can still throw OpenApiException.

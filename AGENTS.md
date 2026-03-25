@@ -1,3 +1,7 @@
+## Git Policy
+
+- **NEVER commit or push unless the user explicitly asks you to.** Only create commits when directly requested.
+
 ## Build, Test & Lint Commands
 
 - **Build**: `dotnet fake build -t Build` (Release configuration)

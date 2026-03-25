@@ -273,6 +273,20 @@ module RuntimeHelpers =
 
         castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| asyncOp |])
 
+    let readContentAsString (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<string> =
+#if NET5_0_OR_GREATER
+        content.ReadAsStringAsync(ct)
+#else
+        content.ReadAsStringAsync()
+#endif
+
+    let readContentAsStream (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<IO.Stream> =
+#if NET5_0_OR_GREATER
+        content.ReadAsStreamAsync(ct)
+#else
+        content.ReadAsStreamAsync()
+#endif
+
     let taskCast runtimeTy (task: Task<obj>) =
         let castFn = typeof<TaskExtensions>.GetMethod "cast"
 

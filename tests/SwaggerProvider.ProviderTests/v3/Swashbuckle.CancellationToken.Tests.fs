@@ -68,3 +68,27 @@ let ``Call async generated method without CancellationToken uses default token``
         let! result = apiAsync.GetApiReturnBoolean()
         result |> shouldEqual true
     }
+
+[<Fact>]
+let ``Call method with required param and explicit CancellationToken``() =
+    task {
+        use cts = new CancellationTokenSource()
+        let! result = api.GetApiUpdateString("Serge", cts.Token)
+        result |> shouldEqual "Hello, Serge"
+    }
+
+[<Fact>]
+let ``Call method with optional param and explicit CancellationToken``() =
+    task {
+        use cts = new CancellationTokenSource()
+        let! result = api.GetApiUpdateBool(Some true, cts.Token)
+        result |> shouldEqual false
+    }
+
+[<Fact>]
+let ``Call async generated method with explicit CancellationToken``() =
+    async {
+        use cts = new CancellationTokenSource()
+        let! result = apiAsync.GetApiReturnInt32(cts.Token)
+        result |> shouldEqual 42
+    }
