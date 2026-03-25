@@ -68,6 +68,7 @@ let ``Call async generated method without CancellationToken uses default token``
         let! result = apiAsync.GetApiReturnBoolean()
         result |> shouldEqual true
     }
+    |> Async.StartAsTask
 
 [<Fact>]
 let ``Call method with required param and explicit CancellationToken``() =
@@ -92,6 +93,7 @@ let ``Call async generated method with explicit CancellationToken``() =
         let! result = apiAsync.GetApiReturnInt32(cts.Token)
         result |> shouldEqual 42
     }
+    |> Async.StartAsTask
 
 [<Fact>]
 let ``Call stream-returning method with explicit CancellationToken``() =
@@ -124,6 +126,7 @@ let ``Call async generated method with already-cancelled token raises OperationC
         | :? OperationCanceledException -> ()
         | :? AggregateException as aex when (aex.InnerException :? OperationCanceledException) -> ()
     }
+    |> Async.StartAsTask
 
 [<Fact>]
 let ``Call async POST generated method with explicit CancellationToken``() =
@@ -132,3 +135,4 @@ let ``Call async POST generated method with explicit CancellationToken``() =
         let! result = apiAsync.PostApiReturnString(cts.Token)
         result |> shouldEqual "Hello world"
     }
+    |> Async.StartAsTask
