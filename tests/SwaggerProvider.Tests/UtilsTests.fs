@@ -71,3 +71,25 @@ module UniqueNameGeneratorTests =
         let gen = UniqueNameGenerator()
         gen.MakeUnique "" |> shouldEqual ""
         gen.MakeUnique "" |> shouldEqual "1"
+
+    [<Fact>]
+    let ``occupied names seed prevents first-use from returning the reserved name unchanged``() =
+        let gen = UniqueNameGenerator(occupiedNames = [ "Foo" ])
+        gen.MakeUnique "Foo" |> shouldEqual "Foo1"
+
+    [<Fact>]
+    let ``occupied names seed is case-insensitive``() =
+        let gen = UniqueNameGenerator(occupiedNames = [ "foo" ])
+        gen.MakeUnique "Foo" |> shouldEqual "Foo1"
+
+    [<Fact>]
+    let ``multiple occupied names are all reserved``() =
+        let gen = UniqueNameGenerator(occupiedNames = [ "Alpha"; "Beta" ])
+        gen.MakeUnique "Alpha" |> shouldEqual "Alpha1"
+        gen.MakeUnique "Beta" |> shouldEqual "Beta1"
+        gen.MakeUnique "Gamma" |> shouldEqual "Gamma"
+
+    [<Fact>]
+    let ``empty occupied names sequence behaves like default constructor``() =
+        let gen = UniqueNameGenerator(occupiedNames = [])
+        gen.MakeUnique "Foo" |> shouldEqual "Foo"

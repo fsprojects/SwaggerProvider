@@ -44,9 +44,11 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
     default _.Deserialize(value, retTy: Type) : obj =
         JsonSerializer.Deserialize(value, retTy, options)
 
-    member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> =
+    member this.CallAsync
+        (request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[], cancellationToken: System.Threading.CancellationToken)
+        : Task<HttpContent> =
         task {
-            let! response = this.HttpClient.SendAsync(request)
+            let! response = this.HttpClient.SendAsync(request, cancellationToken)
 
             if response.IsSuccessStatusCode then
                 return response.Content
@@ -61,7 +63,11 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                     let! body =
                         task {
                             try
+#if NET5_0_OR_GREATER
+                                return! response.Content.ReadAsStringAsync(cancellationToken)
+#else
                                 return! response.Content.ReadAsStringAsync()
+#endif
                             with _ ->
                                 // If reading the body fails (e.g., disposed stream or invalid charset),
                                 // fall back to an empty body so we can still throw OpenApiException.
