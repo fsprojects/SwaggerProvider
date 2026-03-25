@@ -157,7 +157,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 List.append required optional
 
-            let providedParameters =
+            let usedNames, providedParameters =
                 ((Set.empty, []), orderedParameters)
                 ||> List.fold(fun (names, parameters) current ->
                     let names, paramName = uniqueParamName names current
@@ -173,16 +173,21 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             ProvidedParameter(paramName, paramType, false, paramDefaultValue)
 
                     (names, providedParam :: parameters))
-                |> snd
-                // because we built up our list in reverse order with the fold,
-                // reverse it again so that all required properties come first
-                |> List.rev
+                |> fun (names, ps) -> names, List.rev ps
 
             let parameters =
                 if includeCancellationToken then
-                    let ctParam =
-                        ProvidedParameter("cancellationToken", typeof<Threading.CancellationToken>)
+                    // Find a unique name for the CancellationToken parameter that doesn't
+                    // conflict with any OpenAPI parameter already in use.
+                    let ctParamName =
+                        Seq.initInfinite(fun i ->
+                            if i = 0 then
+                                "cancellationToken"
+                            else
+                                $"cancellationToken{i}")
+                        |> Seq.find(fun n -> not(Set.contains n usedNames))
 
+                    let ctParam = ProvidedParameter(ctParamName, typeof<Threading.CancellationToken>)
                     providedParameters @ [ ctParam ]
                 else
                     providedParameters
