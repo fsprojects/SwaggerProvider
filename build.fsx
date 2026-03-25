@@ -105,7 +105,12 @@ Target.createFinal "StopServer" (fun _ ->
 //Process.killAllByName "dotnet"
 )
 
-Target.create "BuildTests" (fun _ -> dotnet "build" "SwaggerProvider.TestsAndDocs.sln -c Release")
+Target.create "BuildTests" (fun _ ->
+    // Explicit restore ensures project.assets.json has all target frameworks before the build.
+    // Without this, the inner-build restores triggered by Paket.Restore.targets may overwrite
+    // the assets file with only one TFM, causing NETSDK1005 for the other TFM.
+    dotnet "restore" "SwaggerProvider.TestsAndDocs.sln"
+    dotnet "build" "SwaggerProvider.TestsAndDocs.sln -c Release --no-restore")
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
