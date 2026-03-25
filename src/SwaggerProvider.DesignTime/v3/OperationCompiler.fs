@@ -180,19 +180,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
             let ctArgIndex, parameters =
                 if includeCancellationToken then
-                    // Collect all used param names to generate a unique CT parameter name
-                    let usedNames =
-                        (requiredProvidedParams @ optionalProvidedParams)
-                        |> List.map(fun p -> p.Name)
-                        |> Set.ofList
+                    let scope = UniqueNameGenerator()
 
-                    let rec findUniqueName candidate n =
-                        if Set.contains candidate usedNames then
-                            findUniqueName $"cancellationToken{n}" (n + 1)
-                        else
-                            candidate
+                    (requiredProvidedParams @ optionalProvidedParams)
+                    |> List.iter(fun p -> scope.MakeUnique p.Name |> ignore)
 
-                    let ctName = findUniqueName "cancellationToken" 1
+                    let ctName = scope.MakeUnique "cancellationToken"
                     let ctParam = ProvidedParameter(ctName, typeof<Threading.CancellationToken>)
                     // CT is inserted after required params so it never follows optional params
                     let ctArgIndex = List.length requiredProvidedParams
