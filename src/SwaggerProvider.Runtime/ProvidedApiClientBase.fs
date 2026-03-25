@@ -44,9 +44,6 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
     default _.Deserialize(value, retTy: Type) : obj =
         JsonSerializer.Deserialize(value, retTy, options)
 
-    member this.CallAsync(request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[]) : Task<HttpContent> =
-        this.CallAsync(request, errorCodes, errorDescriptions, System.Threading.CancellationToken.None)
-
     member this.CallAsync
         (request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[], cancellationToken: System.Threading.CancellationToken)
         : Task<HttpContent> =

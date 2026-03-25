@@ -60,7 +60,7 @@ type PayloadType =
 
 /// Object for compiling operations.
 type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
-    let compileOperation (providedMethodName: string) (apiCall: ApiCall) (includeCancellationToken: bool) =
+    let compileOperation (providedMethodName: string) (apiCall: ApiCall) =
         let path, pathItem, opTy = apiCall
         let operation = pathItem.Operations[opTy]
 
@@ -179,19 +179,21 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 buildProvidedParameters namesAfterRequired optionalOpenApiParams
 
             let ctArgIndex, parameters =
-                if includeCancellationToken then
-                    let scope = UniqueNameGenerator()
+                let scope = UniqueNameGenerator()
 
-                    (requiredProvidedParams @ optionalProvidedParams)
-                    |> List.iter(fun p -> scope.MakeUnique p.Name |> ignore)
+                (requiredProvidedParams @ optionalProvidedParams)
+                |> List.iter(fun p -> scope.MakeUnique p.Name |> ignore)
 
-                    let ctName = scope.MakeUnique "cancellationToken"
-                    let ctParam = ProvidedParameter(ctName, typeof<Threading.CancellationToken>)
-                    // CT is inserted after required params so it never follows optional params
-                    let ctArgIndex = List.length requiredProvidedParams
-                    ctArgIndex, requiredProvidedParams @ [ ctParam ] @ optionalProvidedParams
-                else
-                    -1, requiredProvidedParams @ optionalProvidedParams
+                let ctName = scope.MakeUnique "cancellationToken"
+                // null default value is interpreted as default(CancellationToken) == CancellationToken.None
+                let ctParam =
+                    ProvidedParameter(ctName, typeof<Threading.CancellationToken>, false, null)
+                // CT is appended last so it comes after all optional params
+                let ctArgIndex =
+                    List.length requiredProvidedParams
+                    + List.length optionalProvidedParams
+
+                ctArgIndex, requiredProvidedParams @ optionalProvidedParams @ [ ctParam ]
 
             payloadTy.ToMediaType(), parameters, ctArgIndex
 
@@ -279,23 +281,17 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // Locates parameters matching the arguments
                         let mutable payloadExp = None
 
-                        // When the CancellationToken overload is generated, CT is inserted at ctArgIndex
-                        // (after required params, before optional params). Extract it by that known index
-                        // to avoid name-collision issues and invalid Expr.Coerce on a struct type.
+                        // CT is always the last argument (at ctArgIndex). Extract it by position.
                         let apiArgs, ct =
                             let allArgs = List.tail args // skip `this`
+                            let ctArg = List.item ctArgIndex allArgs
 
-                            if includeCancellationToken then
-                                let ctArg = List.item ctArgIndex allArgs
+                            let apiArgs =
+                                allArgs
+                                |> List.indexed
+                                |> List.choose(fun (i, a) -> if i = ctArgIndex then None else Some a)
 
-                                let apiArgs =
-                                    allArgs
-                                    |> List.indexed
-                                    |> List.choose(fun (i, a) -> if i = ctArgIndex then None else Some a)
-
-                                apiArgs, Expr.Cast<Threading.CancellationToken>(ctArg)
-                            else
-                                allArgs, <@ Threading.CancellationToken.None @>
+                            apiArgs, Expr.Cast<Threading.CancellationToken>(ctArg)
 
                         let parameters =
                             apiArgs
@@ -633,10 +629,5 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 let name = OperationCompiler.GetMethodNameCandidate op skipLength ignoreOperationId
                 let uniqueName = methodNameScope.MakeUnique name
-                // Generate two overloads: one without CancellationToken (backward compatible)
-                // and one with an explicit CancellationToken parameter.
-                // We cannot use an optional struct parameter with a default value because
-                // struct values (e.g., CancellationToken.None) cannot be stored in DefaultParameterValue
-                // custom attributes.
-                [ compileOperation uniqueName op false; compileOperation uniqueName op true ])
+                [ compileOperation uniqueName op ])
             |> ty.AddMembers)
