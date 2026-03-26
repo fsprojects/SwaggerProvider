@@ -332,8 +332,12 @@ module SchemaReader =
                                 resolvedPath
         }
 
-type UniqueNameGenerator() =
+type UniqueNameGenerator(?occupiedNames: string seq) =
     let hash = System.Collections.Generic.HashSet<_>()
+
+    do
+        for name in (defaultArg occupiedNames Seq.empty) do
+            hash.Add(name.ToLowerInvariant()) |> ignore
 
     let rec findUniq prefix i =
         let newName = sprintf "%s%s" prefix (if i = 0 then "" else i.ToString())

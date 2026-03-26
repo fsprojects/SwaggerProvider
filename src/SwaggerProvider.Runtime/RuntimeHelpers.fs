@@ -77,12 +77,27 @@ module RuntimeHelpers =
         | Some(x) -> [ name, x.ToString("O") ]
         | None -> []
 
-    let toParam(obj: obj) =
+    let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
         | :? DateTimeOffset as dto -> dto.ToString("O")
         | null -> null
-        | _ -> obj.ToString()
+        | _ ->
+            let ty = obj.GetType()
+
+            // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
+            if
+                ty.IsGenericType
+                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+            then
+                let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
+
+                if case.Name = "Some" && values.Length > 0 then
+                    toParam values.[0]
+                else
+                    null
+            else
+                obj.ToString()
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         if isNull obj then
@@ -257,6 +272,20 @@ module RuntimeHelpers =
         let castFn = typeof<AsyncExtensions>.GetMethod "cast"
 
         castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| asyncOp |])
+
+    let readContentAsString (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<string> =
+#if NET5_0_OR_GREATER
+        content.ReadAsStringAsync(ct)
+#else
+        content.ReadAsStringAsync()
+#endif
+
+    let readContentAsStream (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<IO.Stream> =
+#if NET5_0_OR_GREATER
+        content.ReadAsStreamAsync(ct)
+#else
+        content.ReadAsStreamAsync()
+#endif
 
     let taskCast runtimeTy (task: Task<obj>) =
         let castFn = typeof<TaskExtensions>.GetMethod "cast"

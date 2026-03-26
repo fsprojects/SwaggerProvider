@@ -2,8 +2,11 @@ namespace SwaggerProvider.Tests.RuntimeHelpersTests
 
 open System
 open System.IO
+open System.Net
 open System.Net.Http
 open System.Text.Json
+open System.Threading
+open System.Threading.Tasks
 open Xunit
 open FsUnitTyped
 open Swagger.Internal.RuntimeHelpers
@@ -44,6 +47,33 @@ module ToParamTests =
         let g = Guid("d3b07384-d9a2-4e3f-9a4b-1234567890ab")
         let result = toParam(box g)
         result |> shouldEqual(g.ToString())
+
+    [<Fact>]
+    let ``toParam unwraps Some(Guid) — fixes issue #140``() =
+        let g = Guid("d3b07384-d9a2-4e3f-9a4b-1234567890ab")
+        let result = toParam(box(Some g))
+        result |> shouldEqual(g.ToString())
+
+    [<Fact>]
+    let ``toParam returns null for None(Guid) — fixes issue #140``() =
+        let result = toParam(box(None: Guid option))
+        result |> shouldEqual null
+
+    [<Fact>]
+    let ``toParam unwraps Some(string)``() =
+        let result = toParam(box(Some "token-value"))
+        result |> shouldEqual "token-value"
+
+    [<Fact>]
+    let ``toParam returns null for None(string)``() =
+        let result = toParam(box(None: string option))
+        result |> shouldEqual null
+
+    [<Fact>]
+    let ``toParam unwraps Some(DateTimeOffset) and formats as ISO 8601``() =
+        let dto = DateTimeOffset(2024, 1, 15, 12, 0, 0, TimeSpan.Zero)
+        let result = toParam(box(Some dto))
+        result |> shouldEqual(dto.ToString("O"))
 
 
 module ToQueryParamsTests =
@@ -336,3 +366,164 @@ module ToContentTests =
     let ``toStreamContent throws for non-stream input``() =
         Assert.Throws<Exception>(fun () -> toStreamContent(box "not a stream", "application/json") |> ignore)
         |> ignore
+
+
+/// A stub HttpMessageHandler that always returns a fixed status code and body.
+type private StubHttpMessageHandler(statusCode: HttpStatusCode, responseBody: string) =
+    inherit HttpMessageHandler()
+
+    override _.SendAsync(_request: HttpRequestMessage, cancellationToken: CancellationToken) =
+        cancellationToken.ThrowIfCancellationRequested()
+        let response = new HttpResponseMessage(statusCode)
+        response.Content <- new StringContent(responseBody)
+        Task.FromResult(response)
+
+
+module OpenApiExceptionTests =
+
+    let private makeClient(handler: HttpMessageHandler) =
+        let httpClient = new HttpClient(handler)
+        httpClient.BaseAddress <- Uri("http://stub/")
+
+        { new Swagger.ProvidedApiClientBase(httpClient, JsonSerializerOptions()) with
+            override _.Serialize(v) =
+                JsonSerializer.Serialize v
+
+            override _.Deserialize(s, t) =
+                JsonSerializer.Deserialize(s, t) }
+
+    [<Fact>]
+    let ``OpenApiException message includes description when no body``() =
+        use content = new StringContent("")
+        use response = new HttpResponseMessage(HttpStatusCode.NotFound)
+        let ex = Swagger.OpenApiException(404, "Not Found", response.Headers, content)
+        ex.Message |> shouldEqual "Not Found"
+
+    [<Fact>]
+    let ``OpenApiException message includes body when body is provided``() =
+        use content = new StringContent("{\"error\":\"missing\"}")
+        use response = new HttpResponseMessage(HttpStatusCode.NotFound)
+
+        let ex =
+            Swagger.OpenApiException(404, "Not Found", response.Headers, content, "{\"error\":\"missing\"}")
+
+        ex.Message |> shouldContainText "Not Found"
+        ex.Message |> shouldContainText "{\"error\":\"missing\"}"
+
+    [<Fact>]
+    let ``OpenApiException ResponseBody is empty string when not provided``() =
+        use content = new StringContent("")
+        use response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        let ex = Swagger.OpenApiException(400, "Bad Request", response.Headers, content)
+        ex.ResponseBody |> shouldEqual ""
+
+    [<Fact>]
+    let ``OpenApiException ResponseBody returns the provided body``() =
+        use content = new StringContent("error detail")
+        use response = new HttpResponseMessage(HttpStatusCode.UnprocessableEntity)
+
+        let ex =
+            Swagger.OpenApiException(422, "Unprocessable Entity", response.Headers, content, "error detail")
+
+        ex.ResponseBody |> shouldEqual "error detail"
+
+    [<Fact>]
+    let ``OpenApiException message is only description when body is empty string``() =
+        use content = new StringContent("")
+        use response = new HttpResponseMessage(HttpStatusCode.Forbidden)
+        let ex = Swagger.OpenApiException(403, "Forbidden", response.Headers, content, "")
+        ex.Message |> shouldEqual "Forbidden"
+
+    [<Fact>]
+    let ``CallAsync raises OpenApiException with response body for documented error code``() =
+        task {
+            let expectedBody = "{\"message\":\"pet not found\"}"
+
+            use handler = new StubHttpMessageHandler(HttpStatusCode.NotFound, expectedBody)
+            let client = makeClient handler
+
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+
+            let! ex =
+                Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        ()
+                    })
+
+            ex.StatusCode |> shouldEqual 404
+            ex.ResponseBody |> shouldEqual expectedBody
+            ex.Message |> shouldContainText "Pet not found"
+            ex.Message |> shouldContainText expectedBody
+        }
+
+    [<Fact>]
+    let ``CallAsync raises OpenApiException without body text when body is empty``() =
+        task {
+            use handler = new StubHttpMessageHandler(HttpStatusCode.NotFound, "")
+            let client = makeClient handler
+
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+
+            let! ex =
+                Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        ()
+                    })
+
+            ex.StatusCode |> shouldEqual 404
+            ex.Message |> shouldEqual "Pet not found"
+        }
+
+    [<Fact>]
+    let ``CallAsync raises HttpRequestException for undocumented error code``() =
+        task {
+            use handler =
+                new StubHttpMessageHandler(HttpStatusCode.InternalServerError, "server error")
+
+            let client = makeClient handler
+
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+
+            // 500 is not in the documented error codes, so HttpRequestException should be raised
+            let! _ =
+                Assert.ThrowsAsync<HttpRequestException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        ()
+                    })
+
+            ()
+        }
+
+    [<Fact>]
+    let ``CallAsync with CancellationToken returns content on success``() =
+        task {
+            use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "result")
+            let client = makeClient handler
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+            let! content = client.CallAsync(request, [||], [||], CancellationToken.None)
+            let! body = content.ReadAsStringAsync()
+            body |> shouldEqual "result"
+        }
+
+    [<Fact>]
+    let ``CallAsync with already-cancelled token raises OperationCanceledException``() =
+        task {
+            use cts = new CancellationTokenSource()
+            cts.Cancel()
+
+            use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "ok")
+            let client = makeClient handler
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+
+            let! _ =
+                Assert.ThrowsAnyAsync<OperationCanceledException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [||], [||], cts.Token)
+                        ()
+                    })
+
+            ()
+        }

@@ -3,12 +3,9 @@
 #r "nuget: Fake.Core.ReleaseNotes"
 #r "nuget: Fake.IO.FileSystem"
 #r "nuget: Fake.DotNet.Cli"
-#r "nuget: Fake.DotNet.MSBuild"
 #r "nuget: Fake.DotNet.AssemblyInfoFile"
 #r "nuget: Fake.DotNet.Paket"
-#r "nuget: Fake.DotNet.FSFormatting"
 #r "nuget: Fake.Tools.Git"
-#r "nuget: Fake.Api.GitHub"
 
 // Boilerplate - https://github.com/fsprojects/FAKE/issues/2719#issuecomment-1470687052
 System.Environment.GetCommandLineArgs()
@@ -108,7 +105,12 @@ Target.createFinal "StopServer" (fun _ ->
 //Process.killAllByName "dotnet"
 )
 
-Target.create "BuildTests" (fun _ -> dotnet "build" "SwaggerProvider.TestsAndDocs.sln -c Release")
+Target.create "BuildTests" (fun _ ->
+    // Explicit restore ensures project.assets.json has all target frameworks before the build.
+    // Without this, the inner-build restores triggered by Paket.Restore.targets may overwrite
+    // the assets file with only one TFM, causing NETSDK1005 for the other TFM.
+    dotnet "restore" "SwaggerProvider.TestsAndDocs.sln"
+    dotnet "build" "SwaggerProvider.TestsAndDocs.sln -c Release --no-restore")
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner

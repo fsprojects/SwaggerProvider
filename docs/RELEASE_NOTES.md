@@ -1,3 +1,20 @@
+#### 3.1.0 - Mar 22, 2026
+
+- feat: Add `IgnoreParseErrors` parameter to OpenApiClientProvider (#300)
+- feat: Add `SchemaReaderErrors` property to OpenApiClientProvider (fixes #160) (#327)
+- fix: include response body in OpenApiException message (closes #250) (#324)
+- fix: unwrap F# `Option<T>` in `toParam` for header/path/cookie parameters (closes #140) (#322)
+- fix: 2xx response handling in v2 and v3 OperationCompilers (#313)
+- fix: `$0` in path parameter values treated as regex back-reference (#310)
+- fix: Option types in form data not being unwrapped (issue #214) (#298)
+- perf: avoid redundant cache invalidation timers in GetOrAdd (#318)
+- perf: increase type provider cache timeout from 30s to 5 minutes (#329)
+- hk: update FSharp.TypeProviders.SDK (enum custom attribute bug fix) (#330)
+- test: add v3 DefinitionCompiler type-mapping unit tests (#331)
+- test: add UniqueNameGenerator unit tests (#319)
+- test: add unit tests for RuntimeHelpers module (#295)
+- ci: add concurrency group to CI workflow to cancel redundant builds (#309)
+
 #### 3.0.0 - Mar 1, 2026
 
 - feat: Microsoft.OpenApi v2.x with OpenAPI v3.1 Support
