@@ -13,7 +13,7 @@ module V2 =
     let testSchema schemaStr =
         let schema = SwaggerParser.parseSchema schemaStr
 
-        let defCompiler = DefinitionCompiler(schema, false)
+        let defCompiler = DefinitionCompiler(schema, false, Environment.Version.Major >= 6)
         let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
         opCompiler.CompileProvidedClients(defCompiler.Namespace)
         ignore <| defCompiler.Namespace.GetProvidedTypes()
@@ -35,7 +35,7 @@ module V3 =
                     |> Seq.map (fun e -> e.Message)
                     |> String.concat ";\n- ")*)
         try
-            let defCompiler = DefinitionCompiler(schema, false)
+            let defCompiler = DefinitionCompiler(schema, false, Environment.Version.Major >= 6)
             let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
             opCompiler.CompileProvidedClients(defCompiler.Namespace)
             defCompiler.Namespace.GetProvidedTypes()

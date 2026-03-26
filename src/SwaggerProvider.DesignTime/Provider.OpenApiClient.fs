@@ -118,7 +118,8 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                             |> Seq.map(fun e -> $"%s{e.Message} @ %s{e.Pointer}")
                             |> Seq.toList
 
-                        let defCompiler = DefinitionCompiler(schema, preferNullable)
+                        let useDateOnly = cfg.SystemRuntimeAssemblyVersion.Major >= 6
+                        let defCompiler = DefinitionCompiler(schema, preferNullable, useDateOnly)
 
                         let opCompiler =
                             OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)

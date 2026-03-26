@@ -31,7 +31,7 @@ let private compileSchemaAndGetValueType(schemaStr: string) : Type =
         | null -> failwith "Failed to parse OpenAPI schema: Document is null."
         | doc -> doc
 
-    let defCompiler = DefinitionCompiler(schema, false)
+    let defCompiler = DefinitionCompiler(schema, false, false)
     let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
 

@@ -150,7 +150,7 @@ and NamespaceAbstraction(name: string) =
                 Some ty)
 
 /// Object for compiling definitions.
-type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
+type DefinitionCompiler(schema: SwaggerObject, provideNullable, useDateOnly: bool) as this =
     let definitionToSchemaObject = Map.ofSeq schema.Definitions
     let definitionToType = Collections.Generic.Dictionary<_, _>()
     let nsRoot = NamespaceAbstraction("Root")
@@ -352,7 +352,16 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable) as this =
                 | Float -> typeof<float32>
                 | Double -> typeof<double>
                 | String -> typeof<string>
-                | Date
+                | Date ->
+                    // Use DateOnly only when the target runtime supports it (.NET 6+).
+                    // We check useDateOnly (derived from cfg.SystemRuntimeAssemblyVersion) rather than
+                    // probing the design-time host process, which may differ from the consumer's runtime.
+                    if useDateOnly then
+                        System.Type.GetType("System.DateOnly")
+                        |> Option.ofObj
+                        |> Option.defaultValue typeof<DateTime>
+                    else
+                        typeof<DateTime>
                 | DateTime -> typeof<DateTime>
                 | File -> typeof<byte>.MakeArrayType 1
                 | Enum(_, "string") -> typeof<string>
