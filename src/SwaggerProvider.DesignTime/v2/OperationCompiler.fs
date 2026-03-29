@@ -56,6 +56,18 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
             // reverse it again so that all required properties come first
             |> List.rev
 
+        // Append an optional CancellationToken parameter last (after all OpenAPI params).
+        // Using a UniqueNameGenerator avoids collisions with existing parameter names.
+        let ctArgIndex = List.length parameters
+
+        let parameters =
+            let scope = UniqueNameGenerator()
+            parameters |> List.iter(fun p -> scope.MakeUnique p.Name |> ignore)
+            let ctName = scope.MakeUnique "cancellationToken"
+
+            parameters
+            @ [ ProvidedParameter(ctName, typeof<Threading.CancellationToken>, false, null) ]
+
         // find the inner type value
         let retTy =
             let okResponse =
@@ -110,9 +122,15 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                                        "Content-Type", MediaTypes.ApplicationJson |]
                             @>
 
-                        // Locates parameters matching the arguments
+                        // Extract CancellationToken (appended at ctArgIndex) and separate from OpenAPI params.
+                        let allArgs = List.tail args // skip `this` param
+                        let ct = List.item ctArgIndex allArgs |> Expr.Cast<Threading.CancellationToken>
+
+                        // Locates parameters matching the arguments (excluding CT arg)
                         let parameters =
-                            List.tail args // skip `this` param
+                            allArgs
+                            |> List.indexed
+                            |> List.choose(fun (i, arg) -> if i = ctArgIndex then None else Some arg)
                             |> List.map (function
                                 | ShapeVar sVar as expr ->
                                     let param =
@@ -212,11 +230,7 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                             <@
                                 let msg = %httpRequestMessageWithPayload
                                 RuntimeHelpers.fillHeaders msg %heads
-
-                                task {
-                                    let! response = (%this).HttpClient.SendAsync(msg)
-                                    return response.EnsureSuccessStatusCode().Content
-                                }
+                                (%this).CallAsync(msg, [||], [||], %ct)
                             @>
 
                         let responseObj =

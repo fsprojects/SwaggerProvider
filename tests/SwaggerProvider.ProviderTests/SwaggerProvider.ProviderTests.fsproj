@@ -12,6 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="v2\Swashbuckle.ReturnControllers.Tests.fs" />
+    <Compile Include="v2\Swashbuckle.CancellationToken.Tests.fs" />
     <Compile Include="v2\Swashbuckle.UpdateControllers.Tests.fs" />
     <Compile Include="v2\Swashbuckle.ResourceControllers.Tests.fs" />
     <Compile Include="v2\Swashbuckle.NoContentControllers.Tests.fs" />
