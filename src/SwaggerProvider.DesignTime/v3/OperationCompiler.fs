@@ -96,7 +96,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
             if isNull content || content.Count = 0 then Some() else None
 
-        let payloadMime, parameters, ctArgIndex =
+        let payloadTy, payloadMime, parameters, ctArgIndex =
             /// handles de-duplicating Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
             let uniqueParamName usedNames (param: IOpenApiParameter) =
@@ -195,7 +195,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 ctArgIndex, requiredProvidedParams @ optionalProvidedParams @ [ ctParam ]
 
-            payloadTy.ToMediaType(), parameters, ctArgIndex
+            payloadTy, payloadTy.ToMediaType(), parameters, ctArgIndex
 
         // find the inner type value
         let retMimeAndTy =
@@ -494,8 +494,40 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 | _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
             )
 
-        if not <| String.IsNullOrEmpty(operation.Summary) then
-            m.AddXmlDoc(operation.Summary) // TODO: Use description of parameters in docs
+        let xmlDoc =
+            let esc(s: string) =
+                s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+
+            let summaryPart =
+                if String.IsNullOrEmpty operation.Summary then
+                    ""
+                else
+                    $"<summary>{esc operation.Summary}</summary>"
+
+            let remarksPart =
+                if
+                    String.IsNullOrEmpty operation.Description
+                    || operation.Description = operation.Summary
+                then
+                    ""
+                else
+                    $"<remarks>{esc operation.Description}</remarks>"
+
+            let paramParts =
+                [ for p in openApiParameters do
+                      if not(String.IsNullOrWhiteSpace p.Description) then
+                          yield $"<param name=\"{niceCamelName p.Name}\">{esc p.Description}</param>"
+                  if
+                      not(isNull operation.RequestBody)
+                      && not(String.IsNullOrWhiteSpace operation.RequestBody.Description)
+                  then
+                      yield $"<param name=\"{niceCamelName(payloadTy.ToString())}\">{esc operation.RequestBody.Description}</param>" ]
+                |> String.concat ""
+
+            summaryPart + remarksPart + paramParts
+
+        if not(String.IsNullOrEmpty xmlDoc) then
+            m.AddXmlDoc xmlDoc
 
         if operation.Deprecated then
             m.AddObsoleteAttribute("Operation is deprecated", false)
