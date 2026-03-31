@@ -252,8 +252,14 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
                         | true, None -> (awaitTask responseUnit).Raw
             )
 
-        if not <| String.IsNullOrEmpty(op.Summary) then
-            m.AddXmlDoc(op.Summary) // TODO: Use description of parameters in docs
+        let xmlDoc =
+            let paramDescriptions =
+                [ for p in op.Parameters -> niceCamelName p.Name, p.Description ]
+
+            XmlDoc.buildXmlDoc op.Summary op.Description paramDescriptions
+
+        if not(String.IsNullOrEmpty xmlDoc) then
+            m.AddXmlDoc xmlDoc
 
         if op.Deprecated then
             m.AddObsoleteAttribute("Operation is deprecated", false)

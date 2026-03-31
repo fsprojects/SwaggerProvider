@@ -332,6 +332,35 @@ module SchemaReader =
                                 resolvedPath
         }
 
+module XmlDoc =
+    open System
+
+    let private escapeXml(s: string) =
+        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+
+    /// Builds a structured XML doc string from summary, description, and parameter descriptions.
+    /// paramDescriptions is a sequence of (camelCaseName, description) pairs.
+    let buildXmlDoc (summary: string) (description: string) (paramDescriptions: (string * string) seq) =
+        let summaryPart =
+            if String.IsNullOrEmpty summary then
+                ""
+            else
+                $"<summary>{escapeXml summary}</summary>"
+
+        let remarksPart =
+            if String.IsNullOrEmpty description || description = summary then
+                ""
+            else
+                $"<remarks>{escapeXml description}</remarks>"
+
+        let paramParts =
+            [ for name, desc in paramDescriptions do
+                  if not(String.IsNullOrWhiteSpace desc) then
+                      yield $"<param name=\"{name}\">{escapeXml desc}</param>" ]
+            |> String.concat ""
+
+        summaryPart + remarksPart + paramParts
+
 type UniqueNameGenerator(?occupiedNames: string seq) =
     let hash = System.Collections.Generic.HashSet<_>()
 

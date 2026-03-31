@@ -96,7 +96,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
             if isNull content || content.Count = 0 then Some() else None
 
-        let payloadMime, parameters, ctArgIndex =
+        let payloadTy, payloadMime, parameters, ctArgIndex =
             /// handles de-duplicating Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
             let uniqueParamName usedNames (param: IOpenApiParameter) =
@@ -195,7 +195,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 ctArgIndex, requiredProvidedParams @ optionalProvidedParams @ [ ctParam ]
 
-            payloadTy.ToMediaType(), parameters, ctArgIndex
+            payloadTy, payloadTy.ToMediaType(), parameters, ctArgIndex
 
         // find the inner type value
         let retMimeAndTy =
@@ -494,8 +494,16 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 | _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
             )
 
-        if not <| String.IsNullOrEmpty(operation.Summary) then
-            m.AddXmlDoc(operation.Summary) // TODO: Use description of parameters in docs
+        let xmlDoc =
+            let paramDescriptions =
+                [ for p in openApiParameters -> niceCamelName p.Name, p.Description
+                  if not(isNull operation.RequestBody) then
+                      yield niceCamelName(payloadTy.ToString()), operation.RequestBody.Description ]
+
+            XmlDoc.buildXmlDoc operation.Summary operation.Description paramDescriptions
+
+        if not(String.IsNullOrEmpty xmlDoc) then
+            m.AddXmlDoc xmlDoc
 
         if operation.Deprecated then
             m.AddObsoleteAttribute("Operation is deprecated", false)
