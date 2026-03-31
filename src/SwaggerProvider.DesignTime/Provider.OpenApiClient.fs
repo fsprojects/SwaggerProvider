@@ -102,6 +102,15 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
 
                         let schema, diagnostic = (readResult.Document, readResult.Diagnostic)
 
+                        if diagnostic.SpecificationVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0 then
+                            failwithf
+                                "The schema '%s' is a Swagger 2.0 (OpenAPI v2) specification. \
+OpenApiClientProvider supports OpenAPI v3 schemas only. \
+For Swagger 2.0 schemas, use SwaggerClientProvider instead:\n    \
+type Api = SwaggerClientProvider<\"%s\">"
+                                schemaPathRaw
+                                schemaPathRaw
+
                         if diagnostic.Errors.Count > 0 then
                             if ignoreParseErrors then
                                 diagnostic.Errors
