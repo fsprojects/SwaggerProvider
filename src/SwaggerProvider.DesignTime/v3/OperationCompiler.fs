@@ -495,36 +495,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             )
 
         let xmlDoc =
-            let esc(s: string) =
-                s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+            let paramDescriptions =
+                [ for p in openApiParameters -> niceCamelName p.Name, p.Description
+                  if not(isNull operation.RequestBody) then
+                      yield niceCamelName(payloadTy.ToString()), operation.RequestBody.Description ]
 
-            let summaryPart =
-                if String.IsNullOrEmpty operation.Summary then
-                    ""
-                else
-                    $"<summary>{esc operation.Summary}</summary>"
-
-            let remarksPart =
-                if
-                    String.IsNullOrEmpty operation.Description
-                    || operation.Description = operation.Summary
-                then
-                    ""
-                else
-                    $"<remarks>{esc operation.Description}</remarks>"
-
-            let paramParts =
-                [ for p in openApiParameters do
-                      if not(String.IsNullOrWhiteSpace p.Description) then
-                          yield $"<param name=\"{niceCamelName p.Name}\">{esc p.Description}</param>"
-                  if
-                      not(isNull operation.RequestBody)
-                      && not(String.IsNullOrWhiteSpace operation.RequestBody.Description)
-                  then
-                      yield $"<param name=\"{niceCamelName(payloadTy.ToString())}\">{esc operation.RequestBody.Description}</param>" ]
-                |> String.concat ""
-
-            summaryPart + remarksPart + paramParts
+            XmlDoc.buildXmlDoc operation.Summary operation.Description paramDescriptions
 
         if not(String.IsNullOrEmpty xmlDoc) then
             m.AddXmlDoc xmlDoc

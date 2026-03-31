@@ -253,28 +253,10 @@ type OperationCompiler(schema: SwaggerObject, defCompiler: DefinitionCompiler, i
             )
 
         let xmlDoc =
-            let esc(s: string) =
-                s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+            let paramDescriptions =
+                [ for p in op.Parameters -> niceCamelName p.Name, p.Description ]
 
-            let summaryPart =
-                if String.IsNullOrEmpty op.Summary then
-                    ""
-                else
-                    $"<summary>{esc op.Summary}</summary>"
-
-            let remarksPart =
-                if String.IsNullOrEmpty op.Description || op.Description = op.Summary then
-                    ""
-                else
-                    $"<remarks>{esc op.Description}</remarks>"
-
-            let paramParts =
-                [ for p in op.Parameters do
-                      if not(String.IsNullOrWhiteSpace p.Description) then
-                          yield $"<param name=\"{niceCamelName p.Name}\">{esc p.Description}</param>" ]
-                |> String.concat ""
-
-            summaryPart + remarksPart + paramParts
+            XmlDoc.buildXmlDoc op.Summary op.Description paramDescriptions
 
         if not(String.IsNullOrEmpty xmlDoc) then
             m.AddXmlDoc xmlDoc
