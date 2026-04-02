@@ -298,8 +298,42 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let pField, pProp = generateProperty propName pTy
 
-                        if not <| String.IsNullOrWhiteSpace propSchema.Description then
-                            pProp.AddXmlDoc propSchema.Description
+                        let enumValuesDoc =
+                            if not(isNull propSchema.Enum) && propSchema.Enum.Count > 0 then
+                                let values =
+                                    propSchema.Enum
+                                    |> Seq.map(fun v ->
+                                        if isNull v then
+                                            "null"
+                                        else
+                                            // JsonNode.ToString() returns JSON representation (e.g. "\"active\"" for strings).
+                                            // Strip surrounding quotes for string values so docs read as plain identifiers.
+                                            let s = string v
+
+                                            if s.Length >= 2 && s.[0] = '"' && s.[s.Length - 1] = '"' then
+                                                s.Substring(1, s.Length - 2)
+                                            else
+                                                s)
+                                    |> String.concat ", "
+
+                                Some $"Allowed values: {values}"
+                            else
+                                None
+
+                        let propDoc =
+                            match
+                                propSchema.Description
+                                |> Option.ofObj
+                                |> Option.filter(String.IsNullOrWhiteSpace >> not),
+                                enumValuesDoc
+                            with
+                            | None, None -> null
+                            | Some d, None -> d
+                            | None, Some ev -> ev
+                            | Some d, Some ev -> $"{d}\n{ev}"
+
+                        if not(isNull propDoc) then
+                            pProp.AddXmlDoc propDoc
 
                         pField, pProp)
 
