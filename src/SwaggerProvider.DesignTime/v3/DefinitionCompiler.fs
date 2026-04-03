@@ -298,28 +298,23 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let pField, pProp = generateProperty propName pTy
 
-                        let formatEnumValue (v: Microsoft.OpenApi.Any.IOpenApiAny) =
+                        let formatEnumValue(v: System.Text.Json.Nodes.JsonNode) =
                             if isNull v then
                                 "null"
                             else
-                                // Format known OpenAPI Any scalar types directly so documentation does not depend
+                                // Format known JsonNode scalar types directly so documentation does not depend
                                 // on JSON serialization/escaping or specific ToString() implementations.
-                                match box v with
-                                | :? Microsoft.OpenApi.Any.OpenApiString as s -> s.Value
-                                | :? Microsoft.OpenApi.Any.OpenApiInteger as i -> string i.Value
-                                | :? Microsoft.OpenApi.Any.OpenApiLong as l -> string l.Value
-                                | :? Microsoft.OpenApi.Any.OpenApiFloat as f -> string f.Value
-                                | :? Microsoft.OpenApi.Any.OpenApiDouble as d -> string d.Value
-                                | :? Microsoft.OpenApi.Any.OpenApiBoolean as b -> string b.Value
-                                | :? Microsoft.OpenApi.Any.OpenApiNull -> "null"
-                                | _ -> string v
+                                match v with
+                                | :? System.Text.Json.Nodes.JsonValue as jv ->
+                                    match jv.GetValueKind() with
+                                    | System.Text.Json.JsonValueKind.String -> jv.GetValue<string>()
+                                    | System.Text.Json.JsonValueKind.Null -> "null"
+                                    | _ -> jv.ToString()
+                                | _ -> v.ToString()
 
                         let enumValuesDoc =
                             if not(isNull propSchema.Enum) && propSchema.Enum.Count > 0 then
-                                let values =
-                                    propSchema.Enum
-                                    |> Seq.map formatEnumValue
-                                    |> String.concat ", "
+                                let values = propSchema.Enum |> Seq.map formatEnumValue |> String.concat ", "
 
                                 Some $"Allowed values: {values}"
                             else
