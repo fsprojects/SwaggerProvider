@@ -298,22 +298,27 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let pField, pProp = generateProperty propName pTy
 
+                        let formatEnumValue (v: Microsoft.OpenApi.Any.IOpenApiAny) =
+                            if isNull v then
+                                "null"
+                            else
+                                // Format known OpenAPI Any scalar types directly so documentation does not depend
+                                // on JSON serialization/escaping or specific ToString() implementations.
+                                match box v with
+                                | :? Microsoft.OpenApi.Any.OpenApiString as s -> s.Value
+                                | :? Microsoft.OpenApi.Any.OpenApiInteger as i -> string i.Value
+                                | :? Microsoft.OpenApi.Any.OpenApiLong as l -> string l.Value
+                                | :? Microsoft.OpenApi.Any.OpenApiFloat as f -> string f.Value
+                                | :? Microsoft.OpenApi.Any.OpenApiDouble as d -> string d.Value
+                                | :? Microsoft.OpenApi.Any.OpenApiBoolean as b -> string b.Value
+                                | :? Microsoft.OpenApi.Any.OpenApiNull -> "null"
+                                | _ -> string v
+
                         let enumValuesDoc =
                             if not(isNull propSchema.Enum) && propSchema.Enum.Count > 0 then
                                 let values =
                                     propSchema.Enum
-                                    |> Seq.map(fun v ->
-                                        if isNull v then
-                                            "null"
-                                        else
-                                            // JsonNode.ToString() returns JSON representation (e.g. "\"active\"" for strings).
-                                            // Strip surrounding quotes for string values so docs read as plain identifiers.
-                                            let s = string v
-
-                                            if s.Length >= 2 && s.[0] = '"' && s.[s.Length - 1] = '"' then
-                                                s.Substring(1, s.Length - 2)
-                                            else
-                                                s)
+                                    |> Seq.map formatEnumValue
                                     |> String.concat ", "
 
                                 Some $"Allowed values: {values}"
