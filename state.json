@@ -1,11 +1,12 @@
 {
-  "run": "2026-04-02",
-  "rid": "23923717823",
+  "run": "2026-04-03",
+  "rid": "23963519508",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
     "351": "open - test: add v3 array/map type-mapping tests and v2 schema compilation tests",
-    "new_enum_xmldoc": "open - improve: add allowed enum values to generated property XmlDoc comments"
+    "353": "merged - improve: add allowed enum values to generated property XmlDoc comments",
+    "fix_132": "open - fix: throw OpenApiException for undocumented HTTP error codes (branch: repo-assist/fix-issue-132-undocumented-errors-20260403)"
   },
   "comments_made": {
     "122": "2026-03-12",
@@ -18,7 +19,8 @@
     "263": "2026-03-17",
     "226": "2026-03-25",
     "231": "2026-03-31",
-    "146": "2026-04-02"
+    "146": "2026-04-02",
+    "33": "2026-04-03"
   },
-  "notes": "KEY: Maintainer closed PR #350 - plan is to DROP SwaggerClientProvider and make OpenApiClientProvider the only provider. Comments: #122,#132,#163,#116,#178,#182,#243,#263,#226,#231,#146. April issue #352 active. PR #351 (tests) still open. PR for enum XmlDoc improvement created this run."
+  "notes": "KEY: Maintainer closed PR #350 - plan is to DROP SwaggerClientProvider and make OpenApiClientProvider the only provider. PR #351 (array/map tests) still open. PR #353 (enum XmlDoc) merged 2026-04-03. PR fix_132 created this run: changes None branch in CallAsync to throw OpenApiException with body instead of HttpRequestException - breaking change for OpenApiClientProvider v3 only (not v2). Source Link integration for #175 failed due to explicit SDK import format in Runtime.fsproj. Issues with no RA comment: #150,#179,#190,#215,#175."
 }
