@@ -76,6 +76,23 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
 
                     return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
                 | None ->
-                    // fail with HttpRequestException if we do not know error description
-                    return response.EnsureSuccessStatusCode().Content
+                    let! body =
+                        task {
+                            try
+#if NET5_0_OR_GREATER
+                                return! response.Content.ReadAsStringAsync(cancellationToken)
+#else
+                                return! response.Content.ReadAsStringAsync()
+#endif
+                            with _ ->
+                                return ""
+                        }
+
+                    let desc =
+                        if String.IsNullOrEmpty(response.ReasonPhrase) then
+                            $"HTTP {code}"
+                        else
+                            response.ReasonPhrase
+
+                    return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
         }

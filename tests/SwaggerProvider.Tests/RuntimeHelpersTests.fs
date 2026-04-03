@@ -477,7 +477,7 @@ module OpenApiExceptionTests =
         }
 
     [<Fact>]
-    let ``CallAsync raises HttpRequestException for undocumented error code``() =
+    let ``CallAsync raises OpenApiException for undocumented error code``() =
         task {
             use handler =
                 new StubHttpMessageHandler(HttpStatusCode.InternalServerError, "server error")
@@ -486,15 +486,16 @@ module OpenApiExceptionTests =
 
             use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
 
-            // 500 is not in the documented error codes, so HttpRequestException should be raised
-            let! _ =
-                Assert.ThrowsAsync<HttpRequestException>(fun () ->
+            // 500 is not in the documented error codes; OpenApiException should be raised with response body
+            let! ex =
+                Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
                     task {
                         let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
                         ()
                     })
 
-            ()
+            ex.StatusCode |> shouldEqual 500
+            ex.ResponseBody |> shouldEqual "server error"
         }
 
     [<Fact>]
