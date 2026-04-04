@@ -56,37 +56,29 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                 let code = response.StatusCode |> int
                 let codeStr = code |> string
 
+                let readBody() =
+                    task {
+                        try
+#if NET5_0_OR_GREATER
+                            return! response.Content.ReadAsStringAsync(cancellationToken)
+#else
+                            return! response.Content.ReadAsStringAsync()
+#endif
+                        with
+                        | :? OperationCanceledException as e -> return raise e
+                        | _ ->
+                            // If reading the body fails (e.g., disposed stream or invalid charset),
+                            // fall back to an empty body so we can still throw OpenApiException.
+                            return ""
+                    }
+
                 match errorCodes |> Array.tryFindIndex((=) codeStr) with
                 | Some idx ->
                     let desc = errorDescriptions[idx]
-
-                    let! body =
-                        task {
-                            try
-#if NET5_0_OR_GREATER
-                                return! response.Content.ReadAsStringAsync(cancellationToken)
-#else
-                                return! response.Content.ReadAsStringAsync()
-#endif
-                            with _ ->
-                                // If reading the body fails (e.g., disposed stream or invalid charset),
-                                // fall back to an empty body so we can still throw OpenApiException.
-                                return ""
-                        }
-
+                    let! body = readBody()
                     return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
                 | None ->
-                    let! body =
-                        task {
-                            try
-#if NET5_0_OR_GREATER
-                                return! response.Content.ReadAsStringAsync(cancellationToken)
-#else
-                                return! response.Content.ReadAsStringAsync()
-#endif
-                            with _ ->
-                                return ""
-                        }
+                    let! body = readBody()
 
                     let desc =
                         if String.IsNullOrEmpty(response.ReasonPhrase) then
