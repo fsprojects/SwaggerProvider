@@ -14,13 +14,24 @@ open Xunit
 open FsUnitTyped
 
 /// Parse a Swagger 2.0 JSON schema and compile it with the v3 compiler pipeline.
-/// Returns (definedTypeNames, propertyNamesOnType, providedPropertyType).
+/// Returns the compiled provided types as a ProvidedTypeDefinition list.
 let private compileV2Schema(jsonSchema: string) : ProviderImplementation.ProvidedTypes.ProvidedTypeDefinition list =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
 
     let readResult =
         Microsoft.OpenApi.OpenApiDocument.Parse(jsonSchema, settings = settings)
+
+    match readResult.Diagnostic with
+    | null -> ()
+    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
+        let errorText =
+            diagnostic.Errors
+            |> Seq.map string
+            |> String.concat Environment.NewLine
+
+        failwithf "Failed to parse v2 schema:%s%s" Environment.NewLine errorText
+    | _ -> ()
 
     let schema =
         match readResult.Document with
@@ -31,6 +42,11 @@ let private compileV2Schema(jsonSchema: string) : ProviderImplementation.Provide
     let opCompiler = OperationCompiler(schema, defCompiler, true, false, false)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
     defCompiler.Namespace.GetProvidedTypes()
+
+let private getProp (t: ProviderImplementation.ProvidedTypes.ProvidedTypeDefinition) (name: string) =
+    match t.GetDeclaredProperty(name) with
+    | null -> failwithf "Property '%s' not found on type '%s'" name t.Name
+    | prop -> prop
 
 let private minimalPetstoreV2 =
     """{
@@ -118,9 +134,9 @@ let ``v2 petstore schema generates Pet definition type``() =
 let ``v2 petstore Pet type has correct property types``() =
     let types = compileV2Schema minimalPetstoreV2
     let petType = types |> List.find(fun t -> t.Name = "Pet")
-    let idProp = petType.GetDeclaredProperty("Id")
-    let nameProp = petType.GetDeclaredProperty("Name")
-    let tagProp = petType.GetDeclaredProperty("Tag")
+    let idProp = getProp petType "Id"
+    let nameProp = getProp petType "Name"
+    let tagProp = getProp petType "Tag"
     // required int64
     idProp.PropertyType |> shouldEqual typeof<int64>
     // required string
@@ -163,6 +179,6 @@ let ``v2 schema with integer enum property compiles``() =
 
     let types = compileV2Schema schema
     let statusType = types |> List.find(fun t -> t.Name = "Status")
-    let codeProp = statusType.GetDeclaredProperty("Code")
+    let codeProp = getProp statusType "Code"
     // integer enum — Microsoft.OpenApi maps this to the integer base type
     codeProp.PropertyType |> shouldEqual typeof<int32>
