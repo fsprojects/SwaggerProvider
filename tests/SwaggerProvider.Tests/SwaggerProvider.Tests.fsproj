@@ -19,6 +19,7 @@
     <Compile Include="v3\Schema.TypeMappingTests.fs" />
     <Compile Include="v3\Schema.ArrayAndMapTypeMappingTests.fs" />
     <Compile Include="v3\Schema.V2SchemaCompilationTests.fs" />
+    <Compile Include="v3\Schema.XmlDocTests.fs" />
     <Compile Include="PathResolutionTests.fs" />
     <Compile Include="SsrfSecurityTests.fs" />
     <Compile Include="RuntimeHelpersTests.fs" />
