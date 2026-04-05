@@ -1,13 +1,14 @@
 {
-  "run": "2026-04-04",
-  "rid": "23988289013",
+  "run": "2026-04-05",
+  "rid": "24011225185",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
     "351": "merged - test: add v3 array/map type-mapping tests and v2 schema compilation tests",
     "353": "merged - improve: add allowed enum values to generated property XmlDoc comments",
     "354": "merged - fix: throw OpenApiException for undocumented HTTP error codes (closes #132)",
-    "sdk_update": "open - eng: update FSharp.TypeProviders.SDK (perf fix O(n2) -> O(n) ILMethodDefs) - branch: repo-assist/eng-update-sdk-20260404"
+    "355": "merged - eng: update FSharp.TypeProviders.SDK (perf fix O(n2) -> O(n) ILMethodDefs)",
+    "perf_tostring": "open - perf: reduce DLL-emit time for large schemas via reflection-based ToString() + Map->Dictionary - branch: repo-assist/perf-reflection-based-tostring"
   },
   "comments_made": {
     "122": "2026-03-12",
@@ -24,5 +25,5 @@
     "33": "2026-04-03",
     "179": "2026-04-04"
   },
-  "notes": "KEY: Maintainer closed PR #350 - plan is to DROP SwaggerClientProvider and make OpenApiClientProvider the only provider. PRs #351, #353, #354 all merged by sergey-tihon 2026-04-04. Issue #132 closed. PR sdk_update open: updates ProvidedTypes.fs/fsi from e70ad10 to 41c3167 (perf fix for O(n2) ILMethodDefs). Issues with no RA comment: #150, #190, #215, #175."
+  "notes": "KEY: Maintainer closed PR #350 - plan is to DROP SwaggerClientProvider and make OpenApiClientProvider the only provider. PRs #351, #353, #354, #355 all merged by sergey-tihon. Issue #132 closed. New PR perf_tostring open: replaces O(N) ToString() with O(1) reflection-based body + changes Map->Dictionary for schema lookups. Issues with no RA comment: #150, #190, #215, #175."
 }
