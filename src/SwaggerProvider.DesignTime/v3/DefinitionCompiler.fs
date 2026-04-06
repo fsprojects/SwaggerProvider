@@ -165,7 +165,9 @@ and NamespaceAbstraction(name: string) =
                 Some ty)
 
 /// Object for compiling definitions.
-type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: bool) as this =
+type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: bool, ?wrapNullableStrings: bool) as this =
+    let wrapNullableStrings = defaultArg wrapNullableStrings false
+
     let pathToSchema =
         let dict = Collections.Generic.Dictionary<string, IOpenApiSchema>()
 
@@ -538,6 +540,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     typedefof<Option<obj>>
 
             ProvidedTypeBuilder.MakeGenericType(baseGenTy, [ tyType ])
+        else if wrapNullableStrings && tyType = typeof<string> then
+            ProvidedTypeBuilder.MakeGenericType(typedefof<Option<obj>>, [ tyType ])
         else
             tyType
 

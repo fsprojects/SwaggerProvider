@@ -279,3 +279,33 @@ let ``optional allOf $ref to integer alias resolves to Option<int32>``() =
 let ``optional allOf $ref to int64 alias resolves to Option<int64>``() =
     let ty = compileAllOfRefType "      type: integer\n      format: int64\n" false
     ty |> shouldEqual typeof<int64 option>
+
+// ── WrapNullableStrings option ───────────────────────────────────────────────
+
+[<Fact>]
+let ``optional string without WrapNullableStrings maps to plain string``() =
+    let ty = compilePropertyType "          type: string\n" false
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``optional string with WrapNullableStrings maps to string option``() =
+    let ty = compilePropertyTypeWith "          type: string\n" false false true
+    ty |> shouldEqual typeof<string option>
+
+[<Fact>]
+let ``required string with WrapNullableStrings still maps to plain string``() =
+    let ty = compilePropertyTypeWith "          type: string\n" true false true
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``optional string date-time with WrapNullableStrings maps to DateTimeOffset option``() =
+    // Non-string reference types (DateTimeOffset is a value type) unaffected by WrapNullableStrings
+    let ty =
+        compilePropertyTypeWith "          type: string\n          format: date-time\n" false false true
+
+    ty |> shouldEqual typeof<DateTimeOffset option>
+
+[<Fact>]
+let ``optional integer with WrapNullableStrings still maps to int32 option``() =
+    let ty = compilePropertyTypeWith "          type: integer\n" false false true
+    ty |> shouldEqual typeof<int32 option>
