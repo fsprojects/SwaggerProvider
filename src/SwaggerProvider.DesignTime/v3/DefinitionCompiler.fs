@@ -401,7 +401,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                                 <@@
                                     let t = (%%thisObj: obj).GetType()
-                                    let props = t.GetProperties(BindingFlags.Public ||| BindingFlags.Instance)
+
+                                    let props =
+                                        t.GetProperties(
+                                            BindingFlags.Public
+                                            ||| BindingFlags.Instance
+                                            ||| BindingFlags.DeclaredOnly
+                                        )
+                                        |> Array.sortBy(fun p -> p.Name)
 
                                     let strs =
                                         props
@@ -575,7 +582,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             tyType
 
     // Precompile types defined in the `definitions` part of the schema
-    do pathToSchema |> Seq.iter(fun kv -> compileByPath kv.Key |> ignore)
+    do
+        pathToSchema.Keys
+        |> Seq.sort
+        |> Seq.iter(fun key -> compileByPath key |> ignore)
 
     /// Namespace that represent provided type space
     member _.Namespace = nsRoot

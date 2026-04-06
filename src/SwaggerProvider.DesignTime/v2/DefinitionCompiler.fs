@@ -305,7 +305,14 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable, useDateOnly: boo
 
                                 <@@
                                     let t = (%%thisObj: obj).GetType()
-                                    let props = t.GetProperties(BindingFlags.Public ||| BindingFlags.Instance)
+
+                                    let props =
+                                        t.GetProperties(
+                                            BindingFlags.Public
+                                            ||| BindingFlags.Instance
+                                            ||| BindingFlags.DeclaredOnly
+                                        )
+                                        |> Array.sortBy(fun p -> p.Name)
 
                                     let strs =
                                         props
