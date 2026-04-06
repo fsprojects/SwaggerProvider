@@ -167,12 +167,13 @@ and NamespaceAbstraction(name: string) =
 /// Object for compiling definitions.
 type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: bool) as this =
     let pathToSchema =
-        if isNull schema.Components then
-            Map.empty
-        else
-            schema.Components.Schemas
-            |> Seq.map(fun kv -> DefinitionPath.DefinitionPrefix + kv.Key, kv.Value)
-            |> Map.ofSeq
+        let dict = Collections.Generic.Dictionary<string, IOpenApiSchema>()
+
+        if not(isNull schema.Components) then
+            for kv in schema.Components.Schemas do
+                dict.Add(DefinitionPath.DefinitionPrefix + kv.Key, kv.Value)
+
+        dict
 
     let pathToType = Collections.Generic.Dictionary<_, Type>()
     let nsRoot = NamespaceAbstraction "Root"
@@ -220,14 +221,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
         match pathToType.TryGetValue tyPath with
         | true, ty -> ty
         | false, _ ->
-            match pathToSchema.TryFind tyPath with
-            | Some def ->
+            match pathToSchema.TryGetValue tyPath with
+            | true, def ->
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
                 ty :> Type
-            | None when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->
+            | false, _ when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
-            | None -> failwithf $"Cannot find definition '%s{tyPath}' (references to relative documents are not supported yet)"
+            | _ -> failwithf $"Cannot find definition '%s{tyPath}' (references to relative documents are not supported yet)"
 
     and compileBySchema (ns: NamespaceAbstraction) tyName (schemaObj: IOpenApiSchema) isRequired registerNew fromByPathCompiler =
         let compileNewObject() =
@@ -385,6 +386,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 )
 
                 // Override `.ToString()`
+                // Delegates to the shared RuntimeHelpers.formatObject helper so that
+                // each generated type's method body is a single static call (O(1) IL).
                 let toStr =
                     ProvidedMethod(
                         "ToString",
@@ -394,39 +397,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         invokeCode =
                             fun args ->
                                 let this = args[0]
-
-                                let pNames, pValues =
-                                    Array.ofList members
-                                    |> Array.map(fun (pField, pProp) ->
-                                        let pValObj = Expr.FieldGet(this, pField)
-                                        pProp.Name, Expr.Coerce(pValObj, typeof<obj>))
-                                    |> Array.unzip
-
-                                let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
-
-                                <@@
-                                    let values = %%pValuesArr: array<obj>
-
-                                    let rec formatValue(v: obj) =
-                                        if isNull v then
-                                            "null"
-                                        else
-                                            let vTy = v.GetType()
-
-                                            if vTy = typeof<string> then
-                                                String.Format("\"{0}\"", v)
-                                            elif vTy.IsArray then
-                                                let elements = (v :?> seq<_>) |> Seq.map formatValue
-                                                String.Format("[{0}]", String.Join("; ", elements))
-                                            else
-                                                v.ToString()
-
-                                    let strs =
-                                        values
-                                        |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames[i], formatValue v))
-
-                                    String.Format("{{{0}}}", String.Join("; ", strs))
-                                @@>
+                                let thisObj = Expr.Coerce(this, typeof<obj>)
+                                <@@ RuntimeHelpers.formatObject(%%thisObj: obj) @@>
                     )
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
@@ -570,7 +542,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             tyType
 
     // Precompile types defined in the `definitions` part of the schema
-    do pathToSchema |> Seq.iter(fun kv -> compileByPath kv.Key |> ignore)
+    do
+        pathToSchema.Keys
+        |> Seq.sort
+        |> Seq.iter(fun key -> compileByPath key |> ignore)
 
     /// Namespace that represent provided type space
     member _.Namespace = nsRoot

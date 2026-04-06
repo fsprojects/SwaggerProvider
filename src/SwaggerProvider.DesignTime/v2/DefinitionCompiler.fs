@@ -151,7 +151,14 @@ and NamespaceAbstraction(name: string) =
 
 /// Object for compiling definitions.
 type DefinitionCompiler(schema: SwaggerObject, provideNullable, useDateOnly: bool) as this =
-    let definitionToSchemaObject = Map.ofSeq schema.Definitions
+    let definitionToSchemaObject =
+        let dict = Collections.Generic.Dictionary<string, SchemaObject>()
+
+        for name, schemaObj in schema.Definitions do
+            dict.Add(name, schemaObj)
+
+        dict
+
     let definitionToType = Collections.Generic.Dictionary<_, _>()
     let nsRoot = NamespaceAbstraction("Root")
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"
@@ -196,14 +203,14 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable, useDateOnly: boo
         match definitionToType.TryGetValue tyDefName with
         | true, ty -> ty :> Type
         | false, _ ->
-            match definitionToSchemaObject.TryFind tyDefName with
-            | Some(def) ->
+            match definitionToSchemaObject.TryGetValue tyDefName with
+            | true, def ->
                 let ns, tyName = tyDefName |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileSchemaObject ns tyName def true (registerInNsAndInDef tyDefName ns)
                 ty :> Type
-            | None when tyDefName.StartsWith("#/definitions/") ->
+            | false, _ when tyDefName.StartsWith("#/definitions/") ->
                 failwithf $"Cannot find definition '%s{tyDefName}' in schema definitions %A{definitionToType.Keys |> Seq.toArray}"
-            | None -> failwithf $"Cannot find definition '%s{tyDefName}' (references to relative documents are not supported yet)"
+            | _ -> failwithf $"Cannot find definition '%s{tyDefName}' (references to relative documents are not supported yet)"
 
     and compileSchemaObject (ns: NamespaceAbstraction) tyName (schemaObj: SchemaObject) isRequired registerNew =
         let compileNewObject(properties: DefinitionProperty[]) =
@@ -283,6 +290,8 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable, useDateOnly: boo
                 )
 
                 // Override `.ToString()`
+                // Delegates to the shared RuntimeHelpers.formatObject helper so that
+                // each generated type's method body is a single static call (O(1) IL).
                 let toStr =
                     ProvidedMethod(
                         "ToString",
@@ -292,39 +301,8 @@ type DefinitionCompiler(schema: SwaggerObject, provideNullable, useDateOnly: boo
                         invokeCode =
                             fun args ->
                                 let this = args[0]
-
-                                let pNames, pValues =
-                                    Array.ofList members
-                                    |> Array.map(fun (pField, pProp) ->
-                                        let pValObj = Expr.FieldGet(this, pField)
-                                        pProp.Name, Expr.Coerce(pValObj, typeof<obj>))
-                                    |> Array.unzip
-
-                                let pValuesArr = Expr.NewArray(typeof<obj>, List.ofArray pValues)
-
-                                <@@
-                                    let values = (%%pValuesArr: array<obj>)
-
-                                    let rec formatValue(v: obj) =
-                                        if isNull v then
-                                            "null"
-                                        else
-                                            let vTy = v.GetType()
-
-                                            if vTy = typeof<string> then
-                                                String.Format("\"{0}\"", v)
-                                            elif vTy.IsArray then
-                                                let elements = (v :?> seq<_>) |> Seq.map formatValue
-                                                String.Format("[{0}]", String.Join("; ", elements))
-                                            else
-                                                v.ToString()
-
-                                    let strs =
-                                        values
-                                        |> Array.mapi(fun i v -> String.Format("{0}={1}", pNames[i], formatValue v))
-
-                                    String.Format("{{{0}}}", String.Join("; ", strs))
-                                @@>
+                                let thisObj = Expr.Coerce(this, typeof<obj>)
+                                <@@ RuntimeHelpers.formatObject(%%thisObj: obj) @@>
                     )
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
