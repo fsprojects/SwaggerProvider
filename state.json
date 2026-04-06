@@ -1,17 +1,18 @@
 {
-  "run": "2026-04-05",
-  "rid": "24011225185",
+  "run": "2026-04-06",
+  "rid": "24053033021",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
     "351": "merged - test: add v3 array/map type-mapping tests and v2 schema compilation tests",
-    "353": "merged - improve: add allowed enum values to generated property XmlDoc comments",
+    "353": "merged - improve: add enum values to XmlDoc comments",
     "354": "merged - fix: throw OpenApiException for undocumented HTTP error codes (closes #132)",
     "355": "merged - eng: update FSharp.TypeProviders.SDK (perf fix O(n2) -> O(n) ILMethodDefs)",
-    "perf_tostring": "open - perf: reduce DLL-emit time for large schemas via reflection-based ToString() + Map->Dictionary - branch: repo-assist/perf-reflection-based-tostring"
+    "356": "closed - perf: reduce DLL-emit time for large schemas (abandoned)",
+    "wrap_nullable_strings": "open - feat: add WrapNullableStrings static parameter (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings"
   },
   "comments_made": {
-    "122": "2026-03-12",
+    "122": "2026-04-06",
     "132": "2026-03-15",
     "163": "2026-03-23",
     "116": "2026-03-25",
@@ -25,5 +26,5 @@
     "33": "2026-04-03",
     "179": "2026-04-04"
   },
-  "notes": "KEY: Maintainer closed PR #350 - plan is to DROP SwaggerClientProvider and make OpenApiClientProvider the only provider. PRs #351, #353, #354, #355 all merged by sergey-tihon. Issue #132 closed. New PR perf_tostring open: replaces O(N) ToString() with O(1) reflection-based body + changes Map->Dictionary for schema lookups. Issues with no RA comment: #150, #190, #215, #175."
+  "notes": "KEY: Plan is to DROP SwaggerClientProvider, OpenApiClientProvider is primary. PRs #351,#353,#354,#355 all merged. PR #356 (perf_tostring) closed. New PR open: feat: WrapNullableStrings parameter (closes #122). Created tracking issue for Microsoft.OpenApi 3.x migration (Task 4). Issues with no RA comment: #150, #190, #215, #175."
 }
