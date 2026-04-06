@@ -8,6 +8,8 @@ module SwaggerProvider.Tests.v3_Schema_V2SchemaCompilationTests
 /// OpenApiClientProvider to become the single supported provider for v2 and v3.
 
 open System
+open System.Reflection
+open Microsoft.FSharp.Quotations
 open Microsoft.OpenApi.Reader
 open SwaggerProvider.Internal.v3.Compilers
 open Xunit
@@ -182,3 +184,59 @@ let ``v2 schema with integer enum property compiles``() =
     let codeProp = getProp statusType "Code"
     // integer enum — Microsoft.OpenApi maps this to the integer base type
     codeProp.PropertyType |> shouldEqual typeof<int32>
+
+// ── ToString tests ───────────────────────────────────────────────────────────
+
+[<Fact>]
+let ``v2 compiled object type declares ToString override``() =
+    let types = compileV2Schema minimalPetstoreV2
+    let petType = types |> List.find(fun t -> t.Name = "Pet")
+
+    let toStr =
+        petType.GetMethods(
+            BindingFlags.Public
+            ||| BindingFlags.Instance
+            ||| BindingFlags.DeclaredOnly
+        )
+        |> Array.tryFind(fun m -> m.Name = "ToString" && m.GetParameters().Length = 0)
+
+    toStr.IsSome |> shouldEqual true
+    toStr.Value.ReturnType |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``v2 compiled object type ToString invokeCode does not throw for concrete provided type``() =
+    // This test guards against the FS3033 regression where splicing a concrete provided-type
+    // expression into a quotation expecting obj caused "Type mismatch when splicing expression".
+    let types = compileV2Schema minimalPetstoreV2
+    let petType = types |> List.find(fun t -> t.Name = "Pet")
+
+    let toStr =
+        petType.GetMethods(
+            BindingFlags.Public
+            ||| BindingFlags.Instance
+            ||| BindingFlags.DeclaredOnly
+        )
+        |> Array.find(fun m -> m.Name = "ToString" && m.GetParameters().Length = 0)
+
+    let providedMethod = toStr :?> ProviderImplementation.ProvidedTypes.ProvidedMethod
+
+    // Access GetInvokeCode via reflection to work around internal accessibility
+    let invokeCodeProp =
+        providedMethod.GetType().GetProperty("GetInvokeCode", BindingFlags.Instance ||| BindingFlags.NonPublic)
+
+    if isNull invokeCodeProp then
+        failwith "GetInvokeCode property not found on ProvidedMethod"
+
+    let invokeCodeOpt =
+        invokeCodeProp.GetValue(providedMethod) :?> (Expr list -> Expr) option
+
+    match invokeCodeOpt with
+    | None -> failwith "ToString has no invoke code"
+    | Some invokeCode ->
+        let thisVar = Var("this", petType)
+        let thisExpr = Expr.Var thisVar
+        // Must not throw; original bug threw FS3033 here because %%this was
+        // typed as FileDescription/Pet rather than obj inside the quotation body
+        let body = invokeCode [ thisExpr ]
+        // Expr is a value type; just verifying invokeCode did not throw is sufficient
+        body.Type |> shouldEqual typeof<string>

@@ -397,15 +397,16 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         invokeCode =
                             fun args ->
                                 let this = args[0]
+                                let thisObj = Expr.Coerce(this, typeof<obj>)
 
                                 <@@
-                                    let t = (%%this: obj).GetType()
+                                    let t = (%%thisObj: obj).GetType()
                                     let props = t.GetProperties(BindingFlags.Public ||| BindingFlags.Instance)
 
                                     let strs =
                                         props
                                         |> Array.map(fun p ->
-                                            let v = p.GetValue(%%this: obj)
+                                            let v = p.GetValue(%%thisObj: obj)
 
                                             let s =
                                                 if isNull v then
