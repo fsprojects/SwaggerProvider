@@ -1,3 +1,16 @@
+#### 3.2.0 - April 6, 2026
+
+- feat: add CancellationToken support to OpenApiClientProvider generated methods (closes #212) (#336)
+- fix: map `format:date` to `DateOnly` on .NET 6+ targets (closes #240) (#321)
+- fix: throw OpenApiException for undocumented HTTP error codes (#354)
+- improve: enrich XML documentation for generated API methods (#349)
+- improve: add allowed enum values to generated property XmlDoc comments (#353)
+- perf: reduce DLL-emit time for large schemas (shared ToString helper + Dictionary lookup) (#356)
+- perf: update FSharp.TypeProviders.SDK (O(n^2) to O(n) ILMethodDefs) (#355)
+- test: add v3 array/map type-mapping tests and v2 schema compilation tests (#351)
+- test: add $ref primitive-type alias tests for v3 DefinitionCompiler (closes #335) (#342)
+- hk: update TP SDK and OpenApi reader
+
 #### 3.1.0 - Mar 22, 2026
 
 - feat: Add `IgnoreParseErrors` parameter to OpenApiClientProvider (#300)
