@@ -137,6 +137,57 @@ module RuntimeHelpers =
             | :? Option<Guid> as x -> x |> toStrOpt name
             | _ -> [ name, obj.ToString() ]
 
+    /// Cache of sorted declared public instance properties per type, to avoid repeated
+    /// reflection and sorting overhead when formatObject is called frequently.
+    let private propCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.PropertyInfo[]>()
+
+    let private getProperties(t: Type) =
+        propCache.GetOrAdd(
+            t,
+            fun ty ->
+                ty.GetProperties(
+                    Reflection.BindingFlags.Public
+                    ||| Reflection.BindingFlags.Instance
+                    ||| Reflection.BindingFlags.DeclaredOnly
+                )
+                |> Array.sortBy(fun p -> p.Name)
+        )
+
+    /// Formats a generated API object as a string in the form `{Prop1=value1; Prop2=value2}`.
+    /// Only declared public instance properties are included, sorted alphabetically by name.
+    /// Used by the emitted ToString() override to keep the generated method body O(1) in size.
+    let formatObject(obj: obj) : string =
+        let props = getProperties(obj.GetType())
+
+        let strs =
+            props
+            |> Array.map(fun p ->
+                let v = p.GetValue(obj)
+
+                let s =
+                    if isNull v then
+                        "null"
+                    else
+                        let vTy = v.GetType()
+
+                        if vTy = typeof<string> then
+                            String.Format("\"{0}\"", v)
+                        elif vTy.IsArray then
+                            let elements =
+                                (v :?> Array)
+                                |> Seq.cast<obj>
+                                |> Seq.map(fun x -> if isNull x then "null" else x.ToString())
+                                |> Array.ofSeq
+
+                            String.Format("[{0}]", String.Join("; ", elements))
+                        else
+                            v.ToString()
+
+                String.Format("{0}={1}", p.Name, s))
+
+        String.Format("{{{0}}}", String.Join("; ", strs))
+
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
             member _.Constructor =

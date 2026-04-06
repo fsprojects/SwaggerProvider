@@ -386,8 +386,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 )
 
                 // Override `.ToString()`
-                // Uses reflection to keep the generated method body O(1) in size regardless of
-                // property count. This significantly reduces DLL-emit time for schemas with many types.
+                // Delegates to the shared RuntimeHelpers.formatObject helper so that
+                // each generated type's method body is a single static call (O(1) IL).
                 let toStr =
                     ProvidedMethod(
                         "ToString",
@@ -398,47 +398,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                             fun args ->
                                 let this = args[0]
                                 let thisObj = Expr.Coerce(this, typeof<obj>)
-
-                                <@@
-                                    let t = (%%thisObj: obj).GetType()
-
-                                    let props =
-                                        t.GetProperties(
-                                            BindingFlags.Public
-                                            ||| BindingFlags.Instance
-                                            ||| BindingFlags.DeclaredOnly
-                                        )
-                                        |> Array.sortBy(fun p -> p.Name)
-
-                                    let strs =
-                                        props
-                                        |> Array.map(fun p ->
-                                            let v = p.GetValue(%%thisObj: obj)
-
-                                            let s =
-                                                if isNull v then
-                                                    "null"
-                                                else
-                                                    let vTy = v.GetType()
-
-                                                    if vTy = typeof<string> then
-                                                        String.Format("\"{0}\"", v)
-                                                    elif vTy.IsArray then
-                                                        let arr = v :?> System.Array
-
-                                                        let elements =
-                                                            [| for i in 0 .. arr.Length - 1 ->
-                                                                   let x = arr.GetValue i
-                                                                   if isNull x then "null" else x.ToString() |]
-
-                                                        String.Format("[{0}]", String.Join("; ", elements))
-                                                    else
-                                                        v.ToString()
-
-                                            String.Format("{0}={1}", p.Name, s))
-
-                                    String.Format("{{{0}}}", String.Join("; ", strs))
-                                @@>
+                                <@@ RuntimeHelpers.formatObject(%%thisObj: obj) @@>
                     )
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
