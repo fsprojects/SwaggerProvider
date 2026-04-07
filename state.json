@@ -1,6 +1,6 @@
 {
-  "run": "2026-04-06",
-  "rid": "24053033021",
+  "run": "2026-04-07",
+  "rid": "24066452868",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
@@ -9,7 +9,8 @@
     "354": "merged - fix: throw OpenApiException for undocumented HTTP error codes (closes #132)",
     "355": "merged - eng: update FSharp.TypeProviders.SDK (perf fix O(n2) -> O(n) ILMethodDefs)",
     "356": "closed - perf: reduce DLL-emit time for large schemas (abandoned)",
-    "wrap_nullable_strings": "open - feat: add WrapNullableStrings static parameter (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings"
+    "wrap_nullable_strings": "open - feat: add WrapNullableStrings static parameter (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings",
+    "readme_update": "open - docs: improve README (closes #359) - branch: repo-assist/fix-issue-359-update-readme"
   },
   "comments_made": {
     "122": "2026-04-06",
@@ -24,7 +25,8 @@
     "231": "2026-03-31",
     "146": "2026-04-02",
     "33": "2026-04-03",
-    "179": "2026-04-04"
+    "179": "2026-04-04",
+    "359": "2026-04-07"
   },
-  "notes": "KEY: Plan is to DROP SwaggerClientProvider, OpenApiClientProvider is primary. PRs #351,#353,#354,#355 all merged. PR #356 (perf_tostring) closed. New PR open: feat: WrapNullableStrings parameter (closes #122). Created tracking issue for Microsoft.OpenApi 3.x migration (Task 4). Issues with no RA comment: #150, #190, #215, #175."
+  "notes": "KEY: Plan is to DROP SwaggerClientProvider, OpenApiClientProvider is primary. PRs #351,#353,#354,#355 all merged. PR #356 (perf_tostring) closed. Open PRs: WrapNullableStrings (closes #122), README update (closes #359). Issues with no RA comment: #150, #190, #215, #175."
 }
