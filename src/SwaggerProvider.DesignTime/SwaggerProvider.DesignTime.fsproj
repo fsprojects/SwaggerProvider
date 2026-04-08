@@ -10,7 +10,6 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <OutputPath>..\SwaggerProvider.Runtime\bin\$(Configuration)\typeproviders\fsharp41\</OutputPath>
     <!-- This allows the component to execute from 'bin' directory during build -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
