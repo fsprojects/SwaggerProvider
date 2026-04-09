@@ -49,7 +49,8 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
               ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
               ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
               ProvidedStaticParameter("SsrfProtection", typeof<bool>, true)
-              ProvidedStaticParameter("IgnoreParseErrors", typeof<bool>, false) ]
+              ProvidedStaticParameter("IgnoreParseErrors", typeof<bool>, false)
+              ProvidedStaticParameter("WrapNullableStrings", typeof<bool>, false) ]
 
         t.AddXmlDoc
             """<summary>Statically typed OpenAPI provider.</summary>
@@ -59,7 +60,8 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                <param name='PreferNullable'>Provide `Nullable<_>` for not required properties, instead of `Option<_>`. Defaults value `false`.</param>
                <param name='PreferAsync'>Generate async actions of type `Async<'T>` instead of `Task<'T>`. Defaults value `false`.</param>
                <param name='SsrfProtection'>Enable SSRF protection (blocks HTTP and localhost). Set to false for development/testing. Default value `true`.</param>
-               <param name='IgnoreParseErrors'>Continue generating the provider even when the OpenAPI parser reports validation errors (e.g. vendor extensions or non-strictly-compliant schemas). Warnings are printed to stderr. Default value `false`.</param>"""
+               <param name='IgnoreParseErrors'>Continue generating the provider even when the OpenAPI parser reports validation errors (e.g. vendor extensions or non-strictly-compliant schemas). Warnings are printed to stderr. Default value `false`.</param>
+               <param name='WrapNullableStrings'>Wrap optional/nullable string fields as `Option&lt;string&gt;` instead of plain `string`. Matches the treatment of other optional types. Default value `false`.</param>"""
 
         t.DefineStaticParameters(
             staticParams,
@@ -71,6 +73,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                 let preferAsync = unbox<bool> args.[4]
                 let ssrfProtection = unbox<bool> args.[5]
                 let ignoreParseErrors = unbox<bool> args.[6]
+                let wrapNullableStrings = unbox<bool> args.[7]
 
                 // Cache key includes cfg.RuntimeAssembly, cfg.ResolutionFolder, and cfg.SystemRuntimeAssemblyVersion
                 // to differentiate between different TFM builds (same approach as FSharp.Data)
@@ -83,6 +86,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                      preferAsync,
                      ssrfProtection,
                      ignoreParseErrors,
+                     wrapNullableStrings,
                      cfg.RuntimeAssembly,
                      cfg.ResolutionFolder,
                      cfg.SystemRuntimeAssemblyVersion)
@@ -119,7 +123,9 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                             |> Seq.toList
 
                         let useDateOnly = cfg.SystemRuntimeAssemblyVersion.Major >= 6
-                        let defCompiler = DefinitionCompiler(schema, preferNullable, useDateOnly)
+
+                        let defCompiler =
+                            DefinitionCompiler(schema, preferNullable, useDateOnly, wrapNullableStrings)
 
                         let opCompiler =
                             OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, preferAsync)
