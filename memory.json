@@ -1,6 +1,6 @@
 {
-  "run": "2026-04-08",
-  "rid": "24160767111",
+  "run": "2026-04-09",
+  "rid": "24215283322",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
@@ -12,7 +12,8 @@
     "360": "merged - docs: improve README (closes #359)",
     "361": "merged - fix: publish portable PDB debug symbols to NuGet package (closes #175)",
     "357": "open - feat: add WrapNullableStrings static parameter (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings-362a357b9d702fbf",
-    "362": "open - eng: add dependabot for GitHub Actions + v3 OperationCompiler unit tests - branch: repo-assist/eng-dependabot-and-operation-tests-20260408"
+    "362": "open - eng: add dependabot for GitHub Actions + v3 OperationCompiler unit tests - branch: repo-assist/eng-dependabot-and-operation-tests-20260408-c388aaf3306fdb81",
+    "new_test_pr": "open - test: extend RuntimeHelpers unit-test coverage (+34 tests) - branch: repo-assist/test-runtime-helpers-coverage-20260409 - PR number TBD"
   },
   "comments_made": {
     "122": "2026-04-06",
@@ -32,5 +33,5 @@
     "150": "2026-04-07",
     "175": "2026-04-07"
   },
-  "notes": "KEY: Plan is to DROP SwaggerClientProvider, OpenApiClientProvider is primary. PR #361 (PDB symbols) was merged. Open PRs: #357 WrapNullableStrings (closes #122), #362 eng/testing (dependabot+operation tests). PR #362 number is estimated - verify next run. Issues without RA comment: #190, #215. Issue #359 closed. Issue #175 closed (completed by maintainer). Issues #190, #215 still need engagement."
+  "notes": "KEY: Plan is to DROP SwaggerClientProvider, OpenApiClientProvider is primary. Open PRs: #357 WrapNullableStrings (closes #122), #362 eng/testing. New test PR for RuntimeHelpers created (branch repo-assist/test-runtime-helpers-coverage-20260409). Issues #190, #215 not worth commenting on (already answered by maintainer). Issues #190 (server from schema) and #215 (co-maintainer) have no new activity."
 }
