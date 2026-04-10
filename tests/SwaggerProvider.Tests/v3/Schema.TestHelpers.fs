@@ -71,3 +71,51 @@ components:
             propYaml
 
     compileSchemaAndGetValueType schemaStr
+
+/// Compile a minimal v3 schema with configurable DefinitionCompiler options.
+/// Returns the .NET type of the `Value` property on `TestType`.
+let compilePropertyTypeWith (provideNullable: bool) (propYaml: string) (required: bool) : Type =
+    let settings = Microsoft.OpenApi.Reader.OpenApiReaderSettings()
+    settings.AddYamlReader()
+
+    let requiredBlock =
+        if required then
+            "      required:\n        - Value\n"
+        else
+            ""
+
+    let schemaStr =
+        sprintf
+            """openapi: "3.0.0"
+info:
+  title: TypeMappingTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    TestType:
+      type: object
+%s      properties:
+        Value:
+%s"""
+            requiredBlock
+            propYaml
+
+    let readResult =
+        Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
+
+    let schema =
+        match readResult.Document with
+        | null -> failwith "Failed to parse schema."
+        | doc -> doc
+
+    let defCompiler = DefinitionCompiler(schema, provideNullable, false)
+    let opCompiler = OperationCompiler(schema, defCompiler, true, false, false)
+    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+
+    let types = defCompiler.Namespace.GetProvidedTypes()
+    let testType = types |> List.find(fun t -> t.Name = "TestType")
+
+    match testType.GetDeclaredProperty("Value") with
+    | null -> failwith "Property 'Value' not found on TestType"
+    | prop -> prop.PropertyType
