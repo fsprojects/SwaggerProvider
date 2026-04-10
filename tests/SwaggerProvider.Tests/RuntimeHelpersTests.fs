@@ -717,7 +717,7 @@ module ToMultipartFormDataContentTests =
         disposition.Name.Trim('"') |> shouldEqual "file"
 
         let hasFileName =
-            not (String.IsNullOrWhiteSpace disposition.FileName)
-            || not (String.IsNullOrWhiteSpace disposition.FileNameStar)
+            not(String.IsNullOrWhiteSpace disposition.FileName)
+            || not(String.IsNullOrWhiteSpace disposition.FileNameStar)
 
         hasFileName |> shouldEqual true
