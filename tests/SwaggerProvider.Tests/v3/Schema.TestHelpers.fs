@@ -5,9 +5,9 @@ open System
 open Microsoft.OpenApi.Reader
 open SwaggerProvider.Internal.v3.Compilers
 
-/// Parse and compile a full OpenAPI v3 schema string, then return the .NET type of
-/// the `Value` property on the `TestType` component schema.
-let compileSchemaAndGetValueType(schemaStr: string) : Type =
+/// Parse and compile a full OpenAPI v3 schema string, then return all provided types.
+/// Pass asAsync=true to generate Async<'T> operation return types, or false for Task<'T>.
+let compileV3Schema (schemaStr: string) (asAsync: bool) =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
 
@@ -31,10 +31,14 @@ let compileSchemaAndGetValueType(schemaStr: string) : Type =
         | doc -> doc
 
     let defCompiler = DefinitionCompiler(schema, false, false)
-    let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+    let opCompiler = OperationCompiler(schema, defCompiler, true, false, asAsync)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
+    defCompiler.Namespace.GetProvidedTypes()
 
-    let types = defCompiler.Namespace.GetProvidedTypes()
+/// Parse and compile a full OpenAPI v3 schema string, then return the .NET type of
+/// the `Value` property on the `TestType` component schema.
+let compileSchemaAndGetValueType(schemaStr: string) : Type =
+    let types = compileV3Schema schemaStr false
     let testType = types |> List.find(fun t -> t.Name = "TestType")
 
     match testType.GetDeclaredProperty("Value") with
