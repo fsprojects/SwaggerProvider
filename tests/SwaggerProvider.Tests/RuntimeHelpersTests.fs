@@ -236,6 +236,64 @@ module ToQueryParamsTests =
         let result = toQueryParams "v" (box values) stubClient
         result |> shouldEqual [ ("v", "1.5"); ("v", "3.5") ]
 
+    [<Fact>]
+    let ``toQueryParams handles Option<bool> Some``() =
+        let result = toQueryParams "flag" (box(Some true)) stubClient
+        result |> shouldEqual [ ("flag", "True") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<bool> None``() =
+        let result = toQueryParams "flag" (box(None: bool option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<int64> Some``() =
+        let result = toQueryParams "id" (box(Some 9876543210L)) stubClient
+        result |> shouldEqual [ ("id", "9876543210") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<int64> None``() =
+        let result = toQueryParams "id" (box(None: int64 option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<float32> Some``() =
+        let result = toQueryParams "rate" (box(Some 3.14f)) stubClient
+        result |> shouldEqual [ ("rate", "3.14") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<float32> None``() =
+        let result = toQueryParams "rate" (box(None: float32 option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<double> Some``() =
+        let result = toQueryParams "rate" (box(Some 2.718)) stubClient
+        result |> shouldEqual [ ("rate", "2.718") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<double> None``() =
+        let result = toQueryParams "rate" (box(None: double option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<DateTimeOffset> Some``() =
+        let dto = DateTimeOffset(2025, 3, 15, 9, 0, 0, TimeSpan.Zero)
+        let result = toQueryParams "since" (box(Some dto)) stubClient
+        result |> shouldEqual [ ("since", dto.ToString("O")) ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<DateTimeOffset> None``() =
+        let result = toQueryParams "since" (box(None: DateTimeOffset option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<DateTimeOffset> array``() =
+        let dto = DateTimeOffset(2025, 6, 1, 0, 0, 0, TimeSpan.Zero)
+        let values: Option<DateTimeOffset>[] = [| Some dto; None |]
+        let result = toQueryParams "ts" (box values) stubClient
+        result |> shouldEqual [ ("ts", dto.ToString("O")) ]
+
 
 module CombineUrlTests =
 
@@ -528,3 +586,138 @@ module OpenApiExceptionTests =
 
             ()
         }
+
+
+/// Test types for formatObject tests — must be plain .NET classes with declared public properties.
+type FmtSingle(name: string) =
+    member _.Name = name
+
+type FmtInt(count: int) =
+    member _.Count = count
+
+type FmtNullable(label: string) =
+    member _.Label: string = label
+
+type FmtMulti(age: int, name: string) =
+    member _.Age = age
+    member _.Name = name
+
+type FmtArray(tags: string[]) =
+    member _.Tags = tags
+
+
+module FormatObjectTests =
+
+    [<Fact>]
+    let ``formatObject formats string property with quotes``() =
+        let obj = FmtSingle("Alice")
+        formatObject obj |> shouldEqual "{Name=\"Alice\"}"
+
+    [<Fact>]
+    let ``formatObject formats integer property without quotes``() =
+        let obj = FmtInt(42)
+        formatObject obj |> shouldEqual "{Count=42}"
+
+    [<Fact>]
+    let ``formatObject formats null string property as null``() =
+        let obj = FmtNullable(null)
+        formatObject obj |> shouldEqual "{Label=null}"
+
+    [<Fact>]
+    let ``formatObject formats array property as bracketed list``() =
+        let obj = FmtArray([| "alpha"; "beta" |])
+        formatObject obj |> shouldEqual "{Tags=[alpha; beta]}"
+
+    [<Fact>]
+    let ``formatObject formats empty array property as empty brackets``() =
+        let obj = FmtArray([||])
+        formatObject obj |> shouldEqual "{Tags=[]}"
+
+    [<Fact>]
+    let ``formatObject sorts properties alphabetically``() =
+        // Age < Name alphabetically
+        let obj = FmtMulti(30, "Bob")
+        formatObject obj |> shouldEqual "{Age=30; Name=\"Bob\"}"
+
+
+module ToFormUrlEncodedContentTests =
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent encodes key-value pairs``() =
+        task {
+            use content =
+                toFormUrlEncodedContent(
+                    seq {
+                        ("name", box "Alice")
+                        ("age", box "30")
+                    }
+                )
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "name=Alice"
+            body |> shouldContainText "age=30"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent excludes null values``() =
+        task {
+            use content =
+                toFormUrlEncodedContent(
+                    seq {
+                        ("present", box "yes")
+                        ("missing", null)
+                    }
+                )
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "present=yes"
+            body |> shouldNotContainText "missing"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent handles empty sequence``() =
+        task {
+            use content = toFormUrlEncodedContent Seq.empty
+            let! body = content.ReadAsStringAsync()
+            body |> shouldEqual ""
+        }
+
+
+module ToMultipartFormDataContentTests =
+
+    [<Fact>]
+    let ``toMultipartFormDataContent skips null values``() =
+        use content =
+            toMultipartFormDataContent(
+                seq {
+                    ("field", box "value")
+                    ("empty", null)
+                }
+            )
+
+        // Non-null value is present; null value is skipped (content has exactly 1 child part)
+        content |> Seq.length |> shouldEqual 1
+
+    [<Fact>]
+    let ``toMultipartFormDataContent adds string values as StringContent``() =
+        use content = toMultipartFormDataContent(seq { ("greeting", box "hello") })
+        let part = content |> Seq.exactlyOne
+        Assert.IsType<StringContent>(part) |> ignore
+
+    [<Fact>]
+    let ``toMultipartFormDataContent adds stream values with filename``() =
+        use stream = new MemoryStream([| 1uy; 2uy; 3uy |])
+        use content = toMultipartFormDataContent(seq { ("file", box stream) })
+        content |> Seq.length |> shouldEqual 1
+
+        let part = content |> Seq.exactlyOne
+        let disposition = part.Headers.ContentDisposition
+
+        isNull disposition |> shouldEqual false
+        disposition.Name.Trim('"') |> shouldEqual "file"
+
+        let hasFileName =
+            not(String.IsNullOrWhiteSpace disposition.FileName)
+            || not(String.IsNullOrWhiteSpace disposition.FileNameStar)
+
+        hasFileName |> shouldEqual true
