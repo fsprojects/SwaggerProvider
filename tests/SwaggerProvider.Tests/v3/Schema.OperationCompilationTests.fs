@@ -7,40 +7,13 @@ open System
 open System.Reflection
 open System.Threading
 open System.Threading.Tasks
-open Microsoft.OpenApi.Reader
-open SwaggerProvider.Internal.v3.Compilers
 open Xunit
 open FsUnitTyped
 
-// ── Shared helpers ────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-let private compileV3Schema(yamlSchema: string) =
-    let settings = OpenApiReaderSettings()
-    settings.AddYamlReader()
-
-    let readResult =
-        Microsoft.OpenApi.OpenApiDocument.Parse(yamlSchema, settings = settings)
-
-    match readResult.Diagnostic with
-    | null -> ()
-    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
-        let errorText =
-            diagnostic.Errors
-            |> Seq.map string
-            |> String.concat Environment.NewLine
-
-        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
-    | _ -> ()
-
-    let schema =
-        match readResult.Document with
-        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
-        | doc -> doc
-
-    let defCompiler = DefinitionCompiler(schema, false, false)
-    let opCompiler = OperationCompiler(schema, defCompiler, true, false, false)
-    opCompiler.CompileProvidedClients(defCompiler.Namespace)
-    defCompiler.Namespace.GetProvidedTypes()
+let private compileTaskSchema schemaStr =
+    compileV3Schema schemaStr false
 
 let private findMethod (types: ProviderImplementation.ProvidedTypes.ProvidedTypeDefinition list) (methodName: string) =
     types
@@ -72,13 +45,13 @@ components:
 
 [<Fact>]
 let ``GET endpoint generates a method with the operation name``() =
-    let types = compileV3Schema simpleGetSchema
+    let types = compileTaskSchema simpleGetSchema
     let method = findMethod types "GetStatus"
     method.IsSome |> shouldEqual true
 
 [<Fact>]
 let ``GET endpoint with no parameters has CancellationToken as its only parameter``() =
-    let types = compileV3Schema simpleGetSchema
+    let types = compileTaskSchema simpleGetSchema
     let method = (findMethod types "GetStatus").Value
     let parameters = method.GetParameters()
     parameters.Length |> shouldEqual 1
@@ -86,7 +59,7 @@ let ``GET endpoint with no parameters has CancellationToken as its only paramete
 
 [<Fact>]
 let ``GET endpoint returning JSON string has Task<string> return type``() =
-    let types = compileV3Schema simpleGetSchema
+    let types = compileTaskSchema simpleGetSchema
     let method = (findMethod types "GetStatus").Value
 
     method.ReturnType.IsGenericType |> shouldEqual true
@@ -130,7 +103,7 @@ components:
 
 [<Fact>]
 let ``GET with required + optional params orders required before optional``() =
-    let types = compileV3Schema parametrisedGetSchema
+    let types = compileTaskSchema parametrisedGetSchema
     let method = (findMethod types "GetItem").Value
     let parameters = method.GetParameters()
     // Expected: id (required int64), tag (optional string), cancellationToken (CT)
@@ -149,7 +122,7 @@ let ``GET with required + optional params orders required before optional``() =
 
 [<Fact>]
 let ``CancellationToken is always the last parameter``() =
-    let types = compileV3Schema parametrisedGetSchema
+    let types = compileTaskSchema parametrisedGetSchema
     let method = (findMethod types "GetItem").Value
     let parameters = method.GetParameters()
     let last = parameters |> Array.last
@@ -189,7 +162,7 @@ components:
 
 [<Fact>]
 let ``POST with body generates method with body parameter before CancellationToken``() =
-    let types = compileV3Schema postWithBodySchema
+    let types = compileTaskSchema postWithBodySchema
     let method = (findMethod types "CreateItem").Value
     let parameters = method.GetParameters()
     // Expected: body (required NewItem), cancellationToken (CT)
@@ -202,7 +175,7 @@ let ``POST with body generates method with body parameter before CancellationTok
 
 [<Fact>]
 let ``POST with no response body has Task<unit> return type``() =
-    let types = compileV3Schema postWithBodySchema
+    let types = compileTaskSchema postWithBodySchema
     let method = (findMethod types "CreateItem").Value
 
     method.ReturnType.IsGenericType |> shouldEqual true
@@ -238,7 +211,7 @@ components:
 
 [<Fact>]
 let ``when a query param is named cancellationToken the injected CT param gets a unique name``() =
-    let types = compileV3Schema ctCollisionSchema
+    let types = compileTaskSchema ctCollisionSchema
     let method = (findMethod types "Search").Value
     let parameters = method.GetParameters()
     // There should be two parameters: the query param + the CT param
@@ -282,7 +255,7 @@ components:
 
 [<Fact>]
 let ``multiple operations each generate a method with CancellationToken``() =
-    let types = compileV3Schema multiOpSchema
+    let types = compileTaskSchema multiOpSchema
 
     let listPets = findMethod types "ListPets"
     let createPet = findMethod types "CreatePet"
