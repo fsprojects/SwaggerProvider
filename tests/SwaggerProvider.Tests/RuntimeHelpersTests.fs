@@ -259,7 +259,7 @@ module ToQueryParamsTests =
     [<Fact>]
     let ``toQueryParams handles Option<float32> Some``() =
         let result = toQueryParams "rate" (box(Some 3.14f)) stubClient
-        result |> shouldEqual [ ("rate", (3.14f).ToString()) ]
+        result |> shouldEqual [ ("rate", "3.14") ]
 
     [<Fact>]
     let ``toQueryParams handles Option<float32> None``() =
@@ -269,7 +269,7 @@ module ToQueryParamsTests =
     [<Fact>]
     let ``toQueryParams handles Option<double> Some``() =
         let result = toQueryParams "rate" (box(Some 2.718)) stubClient
-        result |> shouldEqual [ ("rate", (2.718).ToString()) ]
+        result |> shouldEqual [ ("rate", "2.718") ]
 
     [<Fact>]
     let ``toQueryParams handles Option<double> None``() =
@@ -701,10 +701,23 @@ module ToMultipartFormDataContentTests =
     [<Fact>]
     let ``toMultipartFormDataContent adds string values as StringContent``() =
         use content = toMultipartFormDataContent(seq { ("greeting", box "hello") })
-        content |> Seq.length |> shouldEqual 1
+        let part = content |> Seq.exactlyOne
+        Assert.IsType<StringContent>(part) |> ignore
 
     [<Fact>]
     let ``toMultipartFormDataContent adds stream values with filename``() =
         use stream = new MemoryStream([| 1uy; 2uy; 3uy |])
         use content = toMultipartFormDataContent(seq { ("file", box stream) })
         content |> Seq.length |> shouldEqual 1
+
+        let part = content |> Seq.exactlyOne
+        let disposition = part.Headers.ContentDisposition
+
+        isNull disposition |> shouldEqual false
+        disposition.Name.Trim('"') |> shouldEqual "file"
+
+        let hasFileName =
+            not (String.IsNullOrWhiteSpace disposition.FileName)
+            || not (String.IsNullOrWhiteSpace disposition.FileNameStar)
+
+        hasFileName |> shouldEqual true
