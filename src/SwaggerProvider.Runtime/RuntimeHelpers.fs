@@ -319,10 +319,25 @@ module RuntimeHelpers =
                 if (name <> "Content-Type") then
                     raise <| Exception(errMsg))
 
-    let asyncCast runtimeTy (asyncOp: Async<obj>) =
-        let castFn = typeof<AsyncExtensions>.GetMethod "cast"
+    /// Pre-resolved MethodInfo for AsyncExtensions.cast and TaskExtensions.cast.
+    /// Both are constant across the lifetime of the process; resolve once at module init.
+    let private asyncCastMethod = typeof<AsyncExtensions>.GetMethod "cast"
 
-        castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| asyncOp |])
+    let private taskCastMethod = typeof<TaskExtensions>.GetMethod "cast"
+
+    /// Per-type cache of the concrete generic MethodInfo produced by MakeGenericMethod.
+    /// Avoids repeated generic-method instantiation for the same return type.
+    let private asyncCastCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.MethodInfo>()
+
+    let private taskCastCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.MethodInfo>()
+
+    let asyncCast runtimeTy (asyncOp: Async<obj>) =
+        let m =
+            asyncCastCache.GetOrAdd(runtimeTy, fun t -> asyncCastMethod.MakeGenericMethod([| t |]))
+
+        m.Invoke(null, [| asyncOp |])
 
     let readContentAsString (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<string> =
 #if NET5_0_OR_GREATER
@@ -339,6 +354,7 @@ module RuntimeHelpers =
 #endif
 
     let taskCast runtimeTy (task: Task<obj>) =
-        let castFn = typeof<TaskExtensions>.GetMethod "cast"
+        let m =
+            taskCastCache.GetOrAdd(runtimeTy, fun t -> taskCastMethod.MakeGenericMethod([| t |]))
 
-        castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| task |])
+        m.Invoke(null, [| task |])
