@@ -319,11 +319,24 @@ module RuntimeHelpers =
                 if (name <> "Content-Type") then
                     raise <| Exception(errMsg))
 
+    /// Resolves a public static generic method definition with one type parameter and one
+    /// value parameter by name from the given type. Raises a descriptive exception if the
+    /// method cannot be uniquely identified, avoiding AmbiguousMatchException from a
+    /// name-only GetMethod lookup.
+    let private resolveCastMethod(ownerType: Type) =
+        ownerType.GetMethods(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Static)
+        |> Array.tryFind(fun m ->
+            m.Name = "cast"
+            && m.IsGenericMethodDefinition
+            && m.GetGenericArguments().Length = 1
+            && m.GetParameters().Length = 1)
+        |> Option.defaultWith(fun () -> failwithf "Could not resolve %s.cast<'t> generic method definition" ownerType.FullName)
+
     /// Pre-resolved MethodInfo for AsyncExtensions.cast and TaskExtensions.cast.
     /// Both are constant across the lifetime of the process; resolve once at module init.
-    let private asyncCastMethod = typeof<AsyncExtensions>.GetMethod "cast"
+    let private asyncCastMethod = resolveCastMethod typeof<AsyncExtensions>
 
-    let private taskCastMethod = typeof<TaskExtensions>.GetMethod "cast"
+    let private taskCastMethod = resolveCastMethod typeof<TaskExtensions>
 
     /// Per-type cache of the concrete generic MethodInfo produced by MakeGenericMethod.
     /// Avoids repeated generic-method instantiation for the same return type.
