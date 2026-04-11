@@ -5,6 +5,7 @@ open System.IO
 open System.Net
 open System.Net.Http
 open System.Text.Json
+open System.Text.Json.Serialization
 open System.Threading
 open System.Threading.Tasks
 open Xunit
@@ -721,3 +722,69 @@ module ToMultipartFormDataContentTests =
             || not(String.IsNullOrWhiteSpace disposition.FileNameStar)
 
         hasFileName |> shouldEqual true
+
+
+/// Test types for getPropertyValues tests.
+type PropValWithAttr(value: string) =
+    [<JsonPropertyName("custom_name")>]
+    member _.Value = value
+
+type PropValWithOption(optVal: string option, required: string) =
+    member _.OptVal = optVal
+    member _.Required = required
+
+
+module GetPropertyValuesTests =
+
+    [<Fact>]
+    let ``getPropertyValues uses JsonPropertyName attribute as serialized key``() =
+        let obj = PropValWithAttr("hello")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        result |> Array.length |> shouldEqual 1
+        let name, value = result.[0]
+        name |> shouldEqual "custom_name"
+        value |> shouldEqual(box "hello")
+
+    [<Fact>]
+    let ``getPropertyValues uses property name when no attribute``() =
+        let obj = FmtSingle("Alice")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        result |> Array.length |> shouldEqual 1
+        let name, _ = result.[0]
+        name |> shouldEqual "Name"
+
+    [<Fact>]
+    let ``getPropertyValues unwraps Some option to inner value``() =
+        let obj = PropValWithOption(Some "present", "required")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        let names = result |> Array.map fst
+        names |> shouldContain "OptVal"
+        let _, optValue = result |> Array.find(fun (n, _) -> n = "OptVal")
+        optValue |> shouldEqual(box "present")
+
+    [<Fact>]
+    let ``getPropertyValues excludes None option values``() =
+        let obj = PropValWithOption(None, "required")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        let names = result |> Array.map fst
+        names |> shouldNotContain "OptVal"
+        names |> shouldContain "Required"
+
+    [<Fact>]
+    let ``getPropertyValues returns empty sequence for null object``() =
+        let result = getPropertyValues null |> Seq.toArray
+        result |> shouldBeEmpty
+
+    [<Fact>]
+    let ``getPropertyValues cache path: second call on different instance uses cached metadata``() =
+        // First call populates propNameCache for PropValWithAttr; second call reads from it.
+        // Using two instances with distinct values ensures the keys still come from cached reflection.
+        let first = getPropertyValues(box(PropValWithAttr("value1"))) |> Seq.toArray
+        let second = getPropertyValues(box(PropValWithAttr("value2"))) |> Seq.toArray
+        first |> Array.length |> shouldEqual(second |> Array.length)
+        let firstName, firstValue = first.[0]
+        let secondName, secondValue = second.[0]
+        firstName |> shouldEqual "custom_name"
+        secondName |> shouldEqual "custom_name"
+        firstValue |> shouldEqual(box "value1")
+        secondValue |> shouldEqual(box "value2")
