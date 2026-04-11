@@ -154,6 +154,25 @@ module RuntimeHelpers =
                 |> Array.sortBy(fun p -> p.Name)
         )
 
+    /// Cache of (serialized-name, PropertyInfo) pairs per type for getPropertyValues.
+    /// Avoids repeated GetProperties + GetCustomAttributes calls on hot form-encoding paths.
+    let private propNameCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, (string * Reflection.PropertyInfo)[]>()
+
+    let private getPropertyNamesAndInfos(t: Type) =
+        propNameCache.GetOrAdd(
+            t,
+            fun ty ->
+                ty.GetProperties(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Instance)
+                |> Array.map(fun prop ->
+                    let name =
+                        match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
+                        | [| x |] -> (x :?> JsonPropertyNameAttribute).Name
+                        | _ -> prop.Name
+
+                    (name, prop))
+        )
+
     /// Formats a generated API object as a string in the form `{Prop1=value1; Prop2=value2}`.
     /// Only declared public instance properties are included, sorted alphabetically by name.
     /// Used by the emitted ToString() override to keep the generated method body O(1) in size.
@@ -235,18 +254,10 @@ module RuntimeHelpers =
         if isNull object then
             Seq.empty
         else
-            object
-                .GetType()
-                .GetProperties(
-                    System.Reflection.BindingFlags.Public
-                    ||| System.Reflection.BindingFlags.Instance
-                )
-            |> Seq.choose(fun prop ->
-                let name =
-                    match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
-                    | [| x |] -> (x :?> JsonPropertyNameAttribute).Name
-                    | _ -> prop.Name
+            let namesAndProps = getPropertyNamesAndInfos(object.GetType())
 
+            namesAndProps
+            |> Seq.choose(fun (name, prop) ->
                 prop.GetValue(object)
                 |> unwrapFSharpOption
                 |> Option.ofObj
