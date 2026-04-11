@@ -104,9 +104,20 @@ components:
     let readResult =
         Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
 
+    match readResult.Diagnostic with
+    | null -> ()
+    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
+        let errorText =
+            diagnostic.Errors
+            |> Seq.map string
+            |> String.concat Environment.NewLine
+
+        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
+    | _ -> ()
+
     let schema =
         match readResult.Document with
-        | null -> failwith "Failed to parse schema."
+        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
         | doc -> doc
 
     let defCompiler = DefinitionCompiler(schema, provideNullable, false)

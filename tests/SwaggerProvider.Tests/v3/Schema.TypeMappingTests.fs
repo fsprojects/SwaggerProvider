@@ -288,23 +288,20 @@ let ``optional allOf $ref to int64 alias resolves to Option<int64>``() =
 let ``PreferNullable: optional boolean maps to Nullable<bool>``() =
     let ty = compilePropertyTypeWith true "          type: boolean\n" false
 
-    ty
-    |> shouldEqual(typedefof<System.Nullable<bool>>.MakeGenericType(typeof<bool>))
+    ty |> shouldEqual typeof<System.Nullable<bool>>
 
 [<Fact>]
 let ``PreferNullable: optional integer maps to Nullable<int32>``() =
     let ty = compilePropertyTypeWith true "          type: integer\n" false
 
-    ty
-    |> shouldEqual(typedefof<System.Nullable<int>>.MakeGenericType(typeof<int32>))
+    ty |> shouldEqual typeof<System.Nullable<int32>>
 
 [<Fact>]
 let ``PreferNullable: optional int64 maps to Nullable<int64>``() =
     let ty =
         compilePropertyTypeWith true "          type: integer\n          format: int64\n" false
 
-    ty
-    |> shouldEqual(typedefof<System.Nullable<int>>.MakeGenericType(typeof<int64>))
+    ty |> shouldEqual typeof<System.Nullable<int64>>
 
 [<Fact>]
 let ``PreferNullable: required integer is not wrapped (Nullable only for optional)``() =

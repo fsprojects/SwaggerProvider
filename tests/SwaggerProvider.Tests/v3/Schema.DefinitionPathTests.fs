@@ -92,8 +92,8 @@ let ``name containing only a hyphen has no namespace``() =
 [<Fact>]
 let ``name with hyphen does not extract a spurious namespace``() =
     let result = DefinitionPath.Parse "#/components/schemas/Api.my-type"
-    // The dot before "my-type" is within the valid prefix; hyphen stops the scan,
-    // so LastIndexOf('.') finds the dot before "my-type".
+    // The dot before "my-type" is in the scanned definition-name segment after
+    // the prefix; the hyphen stops the scan, so LastIndexOf('.') finds that dot.
     result.Namespace |> shouldEqual [ "Api" ]
 
 // ── Error handling ────────────────────────────────────────────────────────────
