@@ -1,9 +1,11 @@
 {
-  "run": "2026-04-10",
-  "rid": "24265892809",
+  "run": "2026-04-11",
+  "rid": "24282665988",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
+    "357": "open - feat: WrapNullableStrings (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings-362a357b9d702fbf",
+    "perf_prop_cache": "submitted - perf: cache property name/metadata in getPropertyValues - branch: repo-assist/perf-cache-property-metadata-20260411",
     "351": "merged",
     "353": "merged",
     "354": "merged",
@@ -11,12 +13,10 @@
     "356": "merged",
     "360": "merged",
     "361": "merged",
-    "362": "merged - eng: add dependabot + operation tests",
-    "363": "merged - test: RuntimeHelpers coverage",
-    "364": "merged - eng: dependabot + operation tests",
-    "357": "open - feat: WrapNullableStrings (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings-362a357b9d702fbf",
-    "test_def_path_pr": "staged - test: DefinitionPath.Parse unit tests + PreferNullable (+21 tests, 295->316) - branch: repo-assist/test-definition-path-20260410",
-    "improve_def_path_pr": "staged - improve: simplify DefinitionPath.Parse + fix typo - branch: repo-assist/improve-definition-path-parse-20260410"
+    "362": "merged",
+    "363": "merged",
+    "364": "merged",
+    "370": "merged"
   },
   "comments_made": {
     "122": "2026-04-06",
@@ -36,5 +36,5 @@
     "150": "2026-04-07",
     "175": "2026-04-07"
   },
-  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider deprecated). Open PR #357 WrapNullableStrings (closes #122). Two new PRs staged as patches: repo-assist/test-definition-path-20260410 (+21 tests) and repo-assist/improve-definition-path-parse-20260410 (simplify + typo). Monthly issue #352 NOT updated this run (safeoutputs update_issue unavailable). Next run: update monthly summary #352 with this run's activity."
+  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider deprecated). Open PR #357 WrapNullableStrings (closes #122). New perf PR submitted (branch: repo-assist/perf-cache-property-metadata-20260411) - caches getPropertyValues reflection. Monthly issue #352 updated this run. All issues have RA comments except #190 (low value), #215 (co-maintainer request), #358 (own issue). No new human activity on issues since last run."
 }
