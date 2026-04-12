@@ -410,7 +410,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 ty :> Type
 
         let resolvedType =
-            // If schemaObj.Type is missing, but allOf is present andallOf subschema has one element, use that
+            // If schemaObj.Type is missing, but allOf/oneOf/anyOf is present with one subschema, use that
             if
                 not schemaObj.Type.HasValue
                 && not(isNull schemaObj.AllOf)
@@ -420,6 +420,28 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                 if not(isNull firstAllOf) && firstAllOf.Type.HasValue then
                     Some firstAllOf.Type.Value
+                else
+                    None
+            else if
+                not schemaObj.Type.HasValue
+                && not(isNull schemaObj.OneOf)
+                && schemaObj.OneOf.Count = 1
+            then
+                let firstOneOf = schemaObj.OneOf.[0]
+
+                if not(isNull firstOneOf) && firstOneOf.Type.HasValue then
+                    Some firstOneOf.Type.Value
+                else
+                    None
+            else if
+                not schemaObj.Type.HasValue
+                && not(isNull schemaObj.AnyOf)
+                && schemaObj.AnyOf.Count = 1
+            then
+                let firstAnyOf = schemaObj.AnyOf.[0]
+
+                if not(isNull firstAnyOf) && firstAnyOf.Type.HasValue then
+                    Some firstAnyOf.Type.Value
                 else
                     None
             else if schemaObj.Type.HasValue then
@@ -471,6 +493,28 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 && (schemaObj.Properties |> isNull || schemaObj.Properties.Count = 0)
                 ->
                 match schemaObj.AllOf.[0] with
+                | :? OpenApiSchemaReference as schemaRef when not(isNull schemaRef.Reference) ->
+                    ns.ReleaseNameReservation tyName
+                    compileByPath <| getFullPath schemaRef.Reference.Id
+                | _ -> compileNewObject()
+            // Handle oneOf with single reference (resolves to the referenced type)
+            | _ when
+                not(isNull schemaObj.OneOf)
+                && schemaObj.OneOf.Count = 1
+                && (schemaObj.Properties |> isNull || schemaObj.Properties.Count = 0)
+                ->
+                match schemaObj.OneOf.[0] with
+                | :? OpenApiSchemaReference as schemaRef when not(isNull schemaRef.Reference) ->
+                    ns.ReleaseNameReservation tyName
+                    compileByPath <| getFullPath schemaRef.Reference.Id
+                | _ -> compileNewObject()
+            // Handle anyOf with single reference (resolves to the referenced type)
+            | _ when
+                not(isNull schemaObj.AnyOf)
+                && schemaObj.AnyOf.Count = 1
+                && (schemaObj.Properties |> isNull || schemaObj.Properties.Count = 0)
+                ->
+                match schemaObj.AnyOf.[0] with
                 | :? OpenApiSchemaReference as schemaRef when not(isNull schemaRef.Reference) ->
                     ns.ReleaseNameReservation tyName
                     compileByPath <| getFullPath schemaRef.Reference.Id
