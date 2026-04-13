@@ -1,7 +1,7 @@
-﻿module Swashbuckle.v3.SpecialCasesControllersTests
+﻿module Swashbuckle.SpecialCasesControllersTests
 
 open Xunit
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.ReturnControllersTests
 
 [<Fact>]
 let ``Request response in JSON format from MultiFormatController``() =

@@ -3,7 +3,7 @@ module Swashbuckle.FileControllersTests
 open Xunit
 open FsUnitTyped
 open System.IO
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.ReturnControllersTests
 
 let text = "This is test file content"
 

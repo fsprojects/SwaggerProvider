@@ -1,8 +1,8 @@
-﻿module Swashbuckle.v3.ResourceControllersTests
+﻿module Swashbuckle.ResourceControllersTests
 
 open Xunit
 open FsUnitTyped
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.ReturnControllersTests
 
 [<Fact>]
 let ``ResourceStringString Add and get from resource dictionary``() =

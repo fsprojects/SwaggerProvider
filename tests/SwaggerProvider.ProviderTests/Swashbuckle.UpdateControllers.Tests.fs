@@ -3,7 +3,7 @@ module Swashbuckle.UpdateControllersTests
 open Xunit
 open FsUnitTyped
 open System
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.ReturnControllersTests
 
 let guid = Guid.NewGuid()
 let guid2 = Guid.NewGuid()

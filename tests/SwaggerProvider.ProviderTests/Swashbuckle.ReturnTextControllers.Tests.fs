@@ -6,7 +6,7 @@ open SwaggerProvider
 open System
 open System.Net.Http
 
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.ReturnControllersTests
 
 [<Fact>]
 let ``Return text/plain GET Test``() =
