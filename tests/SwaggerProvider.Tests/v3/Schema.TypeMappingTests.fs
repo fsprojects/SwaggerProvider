@@ -412,8 +412,22 @@ let ``PreferNullable: required integer is not wrapped (Nullable only for optiona
     ty |> shouldEqual typeof<int32>
 
 [<Fact>]
-let ``PreferNullable: optional string maps to Option<string>``() =
-    // Reference types are always wrapped in Option<T> when non-required, even with PreferNullable
-    // (Nullable<T> only applies to value types).
+let ``PreferNullable: optional string stays as plain string``() =
+    // With provideNullable=true, reference types are left as plain CLR-nullable types
+    // (Nullable<T> is not valid for reference types).
     let ty = compilePropertyTypeWith true "          type: string\n" false
-    ty |> shouldEqual typeof<string option>
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``PreferNullable: optional binary stays as plain byte array``() =
+    let ty =
+        compilePropertyTypeWith true "          type: string\n          format: byte\n" false
+
+    ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+
+[<Fact>]
+let ``PreferNullable: optional binary (base64) stays as plain Stream``() =
+    let ty =
+        compilePropertyTypeWith true "          type: string\n          format: binary\n" false
+
+    ty |> shouldEqual typeof<IO.Stream>
