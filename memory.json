@@ -1,11 +1,11 @@
 {
-  "run": "2026-04-12",
-  "rid": "24317221133",
+  "run": "2026-04-13",
+  "rid": "24354538155",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
     "357": "open - feat: WrapNullableStrings (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings-362a357b9d702fbf",
-    "fix_243": "open - fix: oneOf/anyOf single $ref resolution (closes #243) - branch: repo-assist/fix-issue-243-oneof-anyof-single-ref",
+    "376pr": "open - feat: remove SwaggerClientProvider and v2 compiler (closes #376) - branch: repo-assist/fix-issue-376-remove-swagger-client-provider",
     "374": "merged - perf: cache asyncCast/taskCast MethodInfo",
     "373": "merged - perf: cache property name/metadata",
     "370": "merged",
@@ -36,7 +36,8 @@
     "150": "2026-04-07",
     "175": "2026-04-07",
     "190": "2026-04-11",
-    "358": "2026-04-12"
+    "358": "2026-04-12",
+    "376": "2026-04-13"
   },
-  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider deprecated). Open PR #357 WrapNullableStrings (closes #122). New PR for oneOf/anyOf fix (closes #243). Issue #358 (OpenApi 3.x migration): sergey-tihon says wait until .NET 11. All issues have RA comments. Next run: check for new human activity or new issues."
+  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider removed by PR). Open PR #357 WrapNullableStrings (closes #122). New PR for remove SwaggerClientProvider (closes #376). Issue #358 (OpenApi 3.x migration): sergey-tihon says wait until .NET 11. gettyimages.com.json moved to unsupported due to pre-existing type-name collision issue in DefinitionCompiler."
 }
