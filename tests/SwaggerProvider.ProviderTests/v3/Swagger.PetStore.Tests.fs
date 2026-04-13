@@ -92,9 +92,9 @@ let ``call provided methods``() =
 
 [<Fact>]
 let ``create types with Nullable properties``() =
-    let tag = PetStoreNullable.Tag(Nullable<_>(), Some "foobar")
-    tag.Name |> shouldEqual(Some "foobar")
-    let tag2 = PetStoreNullable.Tag(Name = Some "foobar")
+    let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
+    tag.Name |> shouldEqual "foobar"
+    let tag2 = PetStoreNullable.Tag(Name = "foobar")
     tag2.ToString() |> shouldContainText "foobar"
 
     let pet = PetStoreNullable.Pet("foo", [||], Nullable(1337L))
