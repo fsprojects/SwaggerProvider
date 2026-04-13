@@ -788,3 +788,20 @@ module GetPropertyValuesTests =
         secondName |> shouldEqual "custom_name"
         firstValue |> shouldEqual(box "value1")
         secondValue |> shouldEqual(box "value2")
+
+module SanitizeStringOptionTests =
+    [<Fact>]
+    let ``sanitizeStringOption None stays None``() =
+        sanitizeStringOption None |> shouldEqual None
+
+    [<Fact>]
+    let ``sanitizeStringOption Some value stays Some value``() =
+        sanitizeStringOption(Some "hello") |> shouldEqual(Some "hello")
+
+    [<Fact>]
+    let ``sanitizeStringOption Some null becomes None``() =
+        sanitizeStringOption(Some(null: string)) |> shouldEqual None
+
+    [<Fact>]
+    let ``sanitizeStringOption Some empty string stays Some empty string``() =
+        sanitizeStringOption(Some "") |> shouldEqual(Some "")

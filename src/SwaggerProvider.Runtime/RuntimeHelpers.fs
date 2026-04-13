@@ -217,6 +217,11 @@ module RuntimeHelpers =
 
             member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
 
+    /// Converts <c>Some(null)</c> to <c>None</c> for string option values.
+    /// Ensures a null string returned by a JSON deserializer is not wrapped as <c>Some(null)</c>.
+    let sanitizeStringOption(v: string option) : string option =
+        v |> Option.bind Option.ofObj
+
     let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")
 
