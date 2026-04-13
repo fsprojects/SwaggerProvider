@@ -270,9 +270,11 @@ module RelativeFilePathTests =
         task {
             // Test: Relative file paths using __SOURCE_DIRECTORY__ should work correctly
             // This ensures that development-time file references like:
-            // let Schema = __SOURCE_DIRECTORY__ + "/../Schemas/v2/petstore.json"
+            // let Schema = __SOURCE_DIRECTORY__ + "/../SwaggerProvider.ProviderTests/Schemas/petstore-v2.json"
             // are properly handled (not rejected by SSRF validation)
-            let schemaPath = __SOURCE_DIRECTORY__ + "/../Schemas/v2/petstore.json"
+            let schemaPath =
+                __SOURCE_DIRECTORY__
+                + "/../SwaggerProvider.ProviderTests/Schemas/petstore-v2.json"
 
             try
                 let! _ = readSchemaPath false "" "" schemaPath

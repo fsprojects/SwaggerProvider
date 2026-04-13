@@ -40,17 +40,10 @@
       <Link>AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Utils.fs" />
-    <Compile Include="v2\Parser\Schema.fs" />
-    <Compile Include="v2\Parser\SchemaParserExceptions.fs" />
-    <Compile Include="v2\Parser\Parsers.fs" />
-    <Compile Include="v2\Parser\SwaggerParser.fs" />
-    <Compile Include="v2\DefinitionCompiler.fs" />
-    <Compile Include="v2\OperationCompiler.fs" />
-    <Compile Include="v3\DefinitionCompiler.fs" />
-    <Compile Include="v3\OperationCompiler.fs" />
+    <Compile Include="DefinitionCompiler.fs" />
+    <Compile Include="OperationCompiler.fs" />
     <Compile Include="Caching.fs" />
     <Compile Include="Provider.OpenApiClient.fs" />
-    <Compile Include="Provider.SwaggerClient.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
