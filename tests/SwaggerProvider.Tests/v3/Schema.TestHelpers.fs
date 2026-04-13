@@ -81,27 +81,10 @@ let compilePropertyType (propYaml: string) (required: bool) : Type =
 
 /// Compile a minimal v3 schema with configurable DefinitionCompiler options.
 /// Returns the .NET type of the `Value` property on `TestType`.
-let compilePropertyTypeWith (provideNullable: bool) (wrapNullableStrings: bool) (propYaml: string) (required: bool) : Type =
-    let settings = OpenApiReaderSettings()
-    settings.AddYamlReader()
+let compilePropertyTypeWith (provideNullable: bool) (propYaml: string) (required: bool) : Type =
+    let types =
+        compileV3SchemaCore (buildPropertySchema propYaml required) provideNullable false
 
-    let schemaStr = buildPropertySchema propYaml required
-
-    let readResult =
-        Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
-
-    let schema =
-        match readResult.Document with
-        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
-        | doc -> doc
-
-    let defCompiler =
-        DefinitionCompiler(schema, provideNullable, false, wrapNullableStrings)
-
-    let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
-    opCompiler.CompileProvidedClients(defCompiler.Namespace)
-
-    let types = defCompiler.Namespace.GetProvidedTypes()
     let testType = types |> List.find(fun t -> t.Name = "TestType")
 
     match testType.GetDeclaredProperty("Value") with

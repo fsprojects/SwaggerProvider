@@ -130,14 +130,15 @@ let ``optional Guid maps to Option<Guid>``() =
 
     ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<Guid>))
 
-// ── Optional reference types are NOT wrapped (they are already nullable) ─────
+// ── Optional string is wrapped in Option<string> ─────────────────────────────
 
 [<Fact>]
-let ``optional string is not wrapped in Option``() =
+let ``optional string maps to Option<string>``() =
     let ty = compilePropertyType "          type: string\n" false
 
-    // string is a reference type — not wrapped in Option<T> even when non-required
-    ty |> shouldEqual typeof<string>
+    // plain string fields are wrapped in Option<string> when non-required
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<string>))
 
 [<Fact>]
 let ``optional byte array is not wrapped in Option``() =
@@ -374,67 +375,36 @@ let ``optional allOf $ref to int64 alias resolves to Option<int64>``() =
     let ty = compileAllOfRefType "      type: integer\n      format: int64\n" false
     ty |> shouldEqual typeof<int64 option>
 
-// ── WrapNullableStrings option ───────────────────────────────────────────────
-
-[<Fact>]
-let ``optional string without WrapNullableStrings maps to plain string``() =
-    let ty = compilePropertyType "          type: string\n" false
-    ty |> shouldEqual typeof<string>
-
-[<Fact>]
-let ``optional string with WrapNullableStrings maps to string option``() =
-    let ty = compilePropertyTypeWith false true "          type: string\n" false
-    ty |> shouldEqual typeof<string option>
-
-[<Fact>]
-let ``required string with WrapNullableStrings still maps to plain string``() =
-    let ty = compilePropertyTypeWith false true "          type: string\n" true
-    ty |> shouldEqual typeof<string>
-
-[<Fact>]
-let ``optional string date-time with WrapNullableStrings maps to DateTimeOffset option``() =
-    // Non-string reference types (DateTimeOffset is a value type) unaffected by WrapNullableStrings
-    let ty =
-        compilePropertyTypeWith false true "          type: string\n          format: date-time\n" false
-
-    ty |> shouldEqual typeof<DateTimeOffset option>
-
-[<Fact>]
-let ``optional integer with WrapNullableStrings still maps to int32 option``() =
-    let ty = compilePropertyTypeWith false true "          type: integer\n" false
-    ty |> shouldEqual typeof<int32 option>
-
 // ── PreferNullable=true: optional value types use Nullable<T> ─────────────────
 // When provideNullable=true, the DefinitionCompiler wraps optional value types
 // in Nullable<T> instead of Option<T>.
 
 [<Fact>]
 let ``PreferNullable: optional boolean maps to Nullable<bool>``() =
-    let ty = compilePropertyTypeWith true false "          type: boolean\n" false
+    let ty = compilePropertyTypeWith true "          type: boolean\n" false
 
     ty |> shouldEqual typeof<System.Nullable<bool>>
 
 [<Fact>]
 let ``PreferNullable: optional integer maps to Nullable<int32>``() =
-    let ty = compilePropertyTypeWith true false "          type: integer\n" false
+    let ty = compilePropertyTypeWith true "          type: integer\n" false
 
     ty |> shouldEqual typeof<System.Nullable<int32>>
 
 [<Fact>]
 let ``PreferNullable: optional int64 maps to Nullable<int64>``() =
     let ty =
-        compilePropertyTypeWith true false "          type: integer\n          format: int64\n" false
+        compilePropertyTypeWith true "          type: integer\n          format: int64\n" false
 
     ty |> shouldEqual typeof<System.Nullable<int64>>
 
 [<Fact>]
 let ``PreferNullable: required integer is not wrapped (Nullable only for optional)``() =
-    let ty = compilePropertyTypeWith true false "          type: integer\n" true
+    let ty = compilePropertyTypeWith true "          type: integer\n" true
     ty |> shouldEqual typeof<int32>
 
 [<Fact>]
-let ``PreferNullable: optional string is not wrapped (reference type)``() =
-    // Reference types like string are not wrapped in Nullable<T> since they are
-    // already nullable by nature — same behaviour as Option mode.
-    let ty = compilePropertyTypeWith true false "          type: string\n" false
-    ty |> shouldEqual typeof<string>
+let ``PreferNullable: optional string maps to Option<string>``() =
+    // Strings are always wrapped in Option<string> when non-required, even with PreferNullable.
+    let ty = compilePropertyTypeWith true "          type: string\n" false
+    ty |> shouldEqual typeof<string option>
