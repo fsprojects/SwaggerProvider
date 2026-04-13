@@ -69,12 +69,12 @@ let ``call provided methods``() =
         let id = 3247L
 
         try
-            do! store.DeletePet(id, apiKey)
+            do! store.DeletePet(id, Some apiKey)
         with _ ->
             ()
 
-        let tag = PetStore.Tag(None, "foobar")
-        tag.Name |> shouldEqual "foobar"
+        let tag = PetStore.Tag(None, Some "foobar")
+        tag.Name |> shouldEqual(Some "foobar")
         let pet = PetStore.Pet("foo", [||], Some id)
         pet.ToString() |> shouldContainText(id.ToString())
 
@@ -92,9 +92,9 @@ let ``call provided methods``() =
 
 [<Fact>]
 let ``create types with Nullable properties``() =
-    let tag = PetStoreNullable.Tag(Nullable<_>(), "foobar")
-    tag.Name |> shouldEqual "foobar"
-    let tag2 = PetStoreNullable.Tag(Name = "foobar")
+    let tag = PetStoreNullable.Tag(Nullable<_>(), Some "foobar")
+    tag.Name |> shouldEqual(Some "foobar")
+    let tag2 = PetStoreNullable.Tag(Name = Some "foobar")
     tag2.ToString() |> shouldContainText "foobar"
 
     let pet = PetStoreNullable.Pet("foo", [||], Nullable(1337L))
