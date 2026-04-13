@@ -7,7 +7,7 @@ open System.Text.Json
 open System.Text.Json.Serialization
 
 [<Literal>]
-let Schema = __SOURCE_DIRECTORY__ + "/../Schemas/nullable-date.yaml"
+let Schema = __SOURCE_DIRECTORY__ + "/Schemas/nullable-date.yaml"
 
 type TestApi = OpenApiClientProvider<Schema>
 

@@ -3,7 +3,7 @@ module Swagger.I0219.Tests
 open SwaggerProvider
 
 [<Literal>]
-let Schema = __SOURCE_DIRECTORY__ + "/../Schemas/issue219.yaml"
+let Schema = __SOURCE_DIRECTORY__ + "/Schemas/issue219.yaml"
 
 type AcmeApi = OpenApiClientProvider<Schema>
 

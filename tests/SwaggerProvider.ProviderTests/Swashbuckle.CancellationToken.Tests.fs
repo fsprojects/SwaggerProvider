@@ -6,7 +6,7 @@ open System
 open System.Net.Http
 open System.Threading
 open SwaggerProvider
-open Swashbuckle.v3.ReturnControllersTests
+open Swashbuckle.ReturnControllersTests
 
 type WebAPIAsync =
     OpenApiClientProvider<"http://localhost:5000/swagger/v1/openapi.json", IgnoreOperationId=true, SsrfProtection=false, PreferAsync=true>

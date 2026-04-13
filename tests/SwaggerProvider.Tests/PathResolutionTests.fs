@@ -115,7 +115,7 @@ module PathResolutionTests =
         // Test: Simulates the common pattern: __SOURCE_DIRECTORY__ + "/../Schemas/..."
         // This should work correctly on both Windows and Unix
         let sourceDir = __SOURCE_DIRECTORY__
-        let relativePart = "/../Schemas/petstore-v2.json"
+        let relativePart = "/../SwaggerProvider.ProviderTests/Schemas/petstore-v2.json"
         let combined = sourceDir + relativePart
 
         // This simulates what happens in test files

@@ -5,12 +5,11 @@ open Xunit
 open FsUnitTyped
 
 [<Literal>]
-let ValidSchema = __SOURCE_DIRECTORY__ + "/../Schemas/petstore.yaml"
+let ValidSchema = __SOURCE_DIRECTORY__ + "/Schemas/petstore.yaml"
 
 [<Literal>]
 let SchemaWithErrors =
-    __SOURCE_DIRECTORY__
-    + "/../Schemas/nullable-parameter-issue261.json"
+    __SOURCE_DIRECTORY__ + "/Schemas/nullable-parameter-issue261.json"
 
 type ValidApi = OpenApiClientProvider<ValidSchema>
 
