@@ -119,6 +119,7 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
                             |> Seq.toList
 
                         let useDateOnly = cfg.SystemRuntimeAssemblyVersion.Major >= 6
+
                         let defCompiler = DefinitionCompiler(schema, preferNullable, useDateOnly)
 
                         let opCompiler =

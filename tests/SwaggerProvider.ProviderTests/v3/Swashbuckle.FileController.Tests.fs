@@ -38,7 +38,9 @@ let ``Send file as IO.Stream``() =
 [<Fact>]
 let ``Send file and get it back``() =
     task {
-        let data = WebAPI.OperationTypes.PostApiReturnFileSingle_formData(toStream text)
+        let data =
+            WebAPI.OperationTypes.PostApiReturnFileSingle_formData(Some(toStream text))
+
         let! stream = api.PostApiReturnFileSingle(data)
         let! actual = fromStream stream
         actual |> shouldEqual text
@@ -48,7 +50,7 @@ let ``Send file and get it back``() =
 let ``Send form-with-file and get it back as IO.Stream``() =
     task {
         let data =
-            WebAPI.OperationTypes.PostApiReturnFileFormWithFile_formData("newName.txt", toStream text)
+            WebAPI.OperationTypes.PostApiReturnFileFormWithFile_formData(Some "newName.txt", Some(toStream text))
 
         let! stream = api.PostApiReturnFileFormWithFile(data)
         let! actual = fromStream stream

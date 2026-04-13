@@ -788,3 +788,82 @@ module GetPropertyValuesTests =
         secondName |> shouldEqual "custom_name"
         firstValue |> shouldEqual(box "value1")
         secondValue |> shouldEqual(box "value2")
+
+/// Test type for JSON deserialization tests — a plain .NET class mirroring the generated provider types.
+/// The DefinitionCompiler now wraps all non-required reference types in Option<T>.
+/// This class validates that System.Text.Json correctly round-trips Option<string>.
+type StringOptionClass() =
+    let mutable _value: string option = None
+
+    member _.Value
+        with get () = _value
+        and set (v) = _value <- v
+
+/// Test type mirroring a generated provider type with an optional byte-array property.
+type ByteArrayOptionClass() =
+    let mutable _data: byte array option = None
+
+    member _.Data
+        with get () = _data
+        and set (v) = _data <- v
+
+/// Verify that the JSON serializers used by SwaggerProvider correctly map a JSON null to None
+/// (and not Some(null)) for optional reference-type properties — confirming that no extra
+/// sanitization is needed in the generated property setter.
+module OptionDeserializationTests =
+    let private optionsWithFSharpConverter =
+        let opts = JsonSerializerOptions()
+        opts.Converters.Add(JsonFSharpConverter())
+        opts
+
+    [<Fact>]
+    let ``FSharpConverter: JSON null on string option property becomes None``() =
+        let r =
+            JsonSerializer.Deserialize<StringOptionClass>("""{"Value":null}""", optionsWithFSharpConverter)
+
+        r.Value |> shouldEqual None
+
+    [<Fact>]
+    let ``FSharpConverter: JSON string on string option property becomes Some value``() =
+        let r =
+            JsonSerializer.Deserialize<StringOptionClass>("""{"Value":"hello"}""", optionsWithFSharpConverter)
+
+        r.Value |> shouldEqual(Some "hello")
+
+    [<Fact>]
+    let ``FSharpConverter: missing field on string option property becomes None``() =
+        let r =
+            JsonSerializer.Deserialize<StringOptionClass>("""{}""", optionsWithFSharpConverter)
+
+        r.Value |> shouldEqual None
+
+    [<Fact>]
+    let ``plain STJ: JSON null on string option property becomes None``() =
+        let r = JsonSerializer.Deserialize<StringOptionClass>("""{"Value":null}""")
+        r.Value |> shouldEqual None
+
+    [<Fact>]
+    let ``plain STJ: JSON string on string option property becomes Some value``() =
+        let r = JsonSerializer.Deserialize<StringOptionClass>("""{"Value":"hello"}""")
+        r.Value |> shouldEqual(Some "hello")
+
+    [<Fact>]
+    let ``FSharpConverter: JSON null on byte array option property becomes None``() =
+        let r =
+            JsonSerializer.Deserialize<ByteArrayOptionClass>("""{"Data":null}""", optionsWithFSharpConverter)
+
+        r.Data |> shouldEqual None
+
+    [<Fact>]
+    let ``FSharpConverter: JSON base64 on byte array option property becomes Some value``() =
+        let r =
+            JsonSerializer.Deserialize<ByteArrayOptionClass>("""{"Data":"AQID"}""", optionsWithFSharpConverter)
+
+        r.Data |> shouldEqual(Some [| 1uy; 2uy; 3uy |])
+
+    [<Fact>]
+    let ``FSharpConverter: missing field on byte array option property becomes None``() =
+        let r =
+            JsonSerializer.Deserialize<ByteArrayOptionClass>("""{}""", optionsWithFSharpConverter)
+
+        r.Data |> shouldEqual None
