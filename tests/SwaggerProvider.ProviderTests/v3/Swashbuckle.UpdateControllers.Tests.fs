@@ -56,11 +56,11 @@ let ``Update Double POST Test``() =
 
 [<Fact>]
 let ``Update String GET Test``() =
-    api.GetApiUpdateString("Serge") |> asyncEqual "Hello, Serge"
+    api.GetApiUpdateString(Some "Serge") |> asyncEqual "Hello, Serge"
 
 [<Fact>]
 let ``Update String POST Test``() =
-    api.PostApiUpdateString("Serge") |> asyncEqual "Hello, Serge"
+    api.PostApiUpdateString(Some "Serge") |> asyncEqual "Hello, Serge"
 
 
 [<Fact>]
@@ -83,11 +83,11 @@ let ``Update Guid POST Test``() =
 
 [<Fact>]
 let ``Update Enum GET Test``() =
-    api.GetApiUpdateEnum("Absolute") |> asyncEqual "Absolute"
+    api.GetApiUpdateEnum(Some "Absolute") |> asyncEqual "Absolute"
 
 [<Fact>]
 let ``Update Enum POST Test``() =
-    api.PostApiUpdateEnum("Absolute") |> asyncEqual "Absolute"
+    api.PostApiUpdateEnum(Some "Absolute") |> asyncEqual "Absolute"
 
 
 [<Fact>]
@@ -159,7 +159,7 @@ let ``Update Object Point POST Test``() =
 [<Fact>]
 let ``Send and Receive object with byte[]``() =
     task {
-        let x = WebAPI.FileDescription(Name = "2.txt", Bytes = [| 42uy |])
+        let x = WebAPI.FileDescription(Name = Some "2.txt", Bytes = Some [| 42uy |])
         let! y = api.PostApiUpdateObjectFileDescriptionClass(x)
         x.Name |> shouldEqual y.Name
         x.Bytes |> shouldEqual y.Bytes
@@ -170,8 +170,8 @@ let ``Send and Receive object with byte[]``() =
 let ``Send byte[] in query``() =
     task {
         let bytes = api.Deserialize("\"NDI0Mg==\"", typeof<byte[]>) :?> byte[] // base64 encoded "4242"
-        let! y = api.GetApiUpdateObjectFileDescriptionClass(bytes)
-        y.Bytes |> shouldEqual(bytes)
+        let! y = api.GetApiUpdateObjectFileDescriptionClass(Some bytes)
+        y.Bytes |> shouldEqual(Some bytes)
     }
 
 [<Fact>]

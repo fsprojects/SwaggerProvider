@@ -166,16 +166,16 @@ let ``Return Object Point POST Test``() =
 let ``Return FileDescription GET Test``() =
     task {
         let! file = api.GetApiReturnFileDescription()
-        file.Name |> shouldEqual("1.txt")
-        file.Bytes |> shouldEqual([| 1uy; 2uy; 3uy |])
+        file.Name |> shouldEqual(Some "1.txt")
+        file.Bytes |> shouldEqual(Some [| 1uy; 2uy; 3uy |])
     }
 
 [<Fact>]
 let ``Return FileDescription POST Test``() =
     task {
         let! file = api.PostApiReturnFileDescription()
-        file.Name |> shouldEqual("1.txt")
-        file.Bytes |> shouldEqual([| 1uy; 2uy; 3uy |])
+        file.Name |> shouldEqual(Some "1.txt")
+        file.Bytes |> shouldEqual(Some [| 1uy; 2uy; 3uy |])
     }
 
 [<Fact>]
