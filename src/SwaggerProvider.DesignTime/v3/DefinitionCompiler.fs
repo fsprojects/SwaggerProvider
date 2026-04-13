@@ -197,18 +197,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     | _ -> failwith "invalid property getter params"),
                 setterCode =
                     (function
-                    | [ this; v ] ->
-                        if ty = typeof<string option> then
-                            // Guard against Some(null) produced by non-F#-aware deserializers.
-                            // Option.bind Option.ofObj converts Some(null) -> None, leaving None/Some("value") unchanged.
-                            let coercedV = Expr.Coerce(v, typeof<string option>)
-
-                            let sanitized =
-                                <@@ RuntimeHelpers.sanitizeStringOption(%%coercedV: string option) @@>
-
-                            Expr.FieldSetUnchecked(this, providedField, sanitized)
-                        else
-                            Expr.FieldSetUnchecked(this, providedField, v)
+                    | [ this; v ] -> Expr.FieldSetUnchecked(this, providedField, v)
                     | _ -> failwith "invalid property setter params")
             )
 
