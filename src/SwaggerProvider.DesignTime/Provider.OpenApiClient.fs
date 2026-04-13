@@ -9,7 +9,7 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Reflection
 open Swagger
 open SwaggerProvider.Internal
-open SwaggerProvider.Internal.v3.Compilers
+open SwaggerProvider.Internal.Compilers
 
 module OpenApiCache =
     let providedTypes = Caching.createInMemoryCache(TimeSpan.FromMinutes 5.0)

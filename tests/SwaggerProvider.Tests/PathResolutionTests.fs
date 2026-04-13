@@ -25,16 +25,16 @@ module PathResolutionTests =
         let concatenated =
             resolutionFolder
             + (if isWindows then
-                   "\\..\\Schemas\\v2\\petstore.json"
+                   "\\..\\Schemas\\petstore-v2.json"
                else
-                   "/../Schemas/v2/petstore.json")
+                   "/../Schemas/petstore-v2.json")
 
         let result = getAbsolutePath resolutionFolder concatenated
 
         // Should keep the path as-is (it's already a full path after concatenation)
         // Path.GetFullPath will normalize it later
         Assert.Contains("Schemas", result)
-        Assert.Contains("petstore.json", result)
+        Assert.Contains("petstore-v2.json", result)
 
     [<Fact>]
     let ``getAbsolutePath handles simple relative paths``() =
@@ -45,7 +45,7 @@ module PathResolutionTests =
             else
                 "/home/user/project"
 
-        let schemaPath = "../Schemas/v2/petstore.json"
+        let schemaPath = "../Schemas/petstore-v2.json"
 
         let result = getAbsolutePath resolutionFolder schemaPath
 
@@ -62,7 +62,7 @@ module PathResolutionTests =
             else
                 "/home/user/project"
 
-        let schemaPath = "./Schemas/v2/petstore.json"
+        let schemaPath = "./Schemas/petstore-v2.json"
 
         let result = getAbsolutePath resolutionFolder schemaPath
 
@@ -115,7 +115,7 @@ module PathResolutionTests =
         // Test: Simulates the common pattern: __SOURCE_DIRECTORY__ + "/../Schemas/..."
         // This should work correctly on both Windows and Unix
         let sourceDir = __SOURCE_DIRECTORY__
-        let relativePart = "/../Schemas/v2/petstore.json"
+        let relativePart = "/../Schemas/petstore-v2.json"
         let combined = sourceDir + relativePart
 
         // This simulates what happens in test files

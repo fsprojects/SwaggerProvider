@@ -11,32 +11,21 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="v2\Swashbuckle.ReturnControllers.Tests.fs" />
-    <Compile Include="v2\Swashbuckle.UpdateControllers.Tests.fs" />
-    <Compile Include="v2\Swashbuckle.ResourceControllers.Tests.fs" />
-    <Compile Include="v2\Swashbuckle.NoContentControllers.Tests.fs" />
-    <Compile Include="v2\Swashbuckle.SpecialCasesControllers.Tests.fs" />
-    <Compile Include="v2\Swagger.PetStore.Tests.fs" />
-    <Compile Include="v2\Swagger.GitHub.Tests.fs" />
-    <Compile Include="v2\Swagger.Instagram.Tests.fs" />
-    <Compile Include="v2\Swagger.i0027.Tests.fs" />
-    <Compile Include="v2\Swagger.Namespaces.Tests.fs" />
-    <Compile Include="v2\Swagger.Slack.Tests.fs" />
-    <Compile Include="v3\Swagger.PetStore.Tests.fs" />
-    <Compile Include="v3\Swagger.I0173.Tests.fs" />
-    <Compile Include="v3\Swagger.I0181.Tests.fs" />
-    <Compile Include="v3\Swagger.I0219.Tests.fs" />
-    <Compile Include="v3\Swagger.I0279.Tests.fs" />
-    <Compile Include="v3\Swagger.NullableDate.Tests.fs" />
-    <Compile Include="v3\Swagger.SchemaReaderErrors.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.ReturnControllers.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.CancellationToken.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.ReturnTextControllers.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.UpdateControllers.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.ResourceControllers.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.FileController.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.NoContentControllers.Tests.fs" />
-    <Compile Include="v3\Swashbuckle.SpecialCasesControllers.Tests.fs" />
+    <Compile Include="Swagger.PetStore.Tests.fs" />
+    <Compile Include="Swagger.I0173.Tests.fs" />
+    <Compile Include="Swagger.I0181.Tests.fs" />
+    <Compile Include="Swagger.I0219.Tests.fs" />
+    <Compile Include="Swagger.I0279.Tests.fs" />
+    <Compile Include="Swagger.NullableDate.Tests.fs" />
+    <Compile Include="Swagger.SchemaReaderErrors.Tests.fs" />
+    <Compile Include="Swashbuckle.ReturnControllers.Tests.fs" />
+    <Compile Include="Swashbuckle.CancellationToken.Tests.fs" />
+    <Compile Include="Swashbuckle.ReturnTextControllers.Tests.fs" />
+    <Compile Include="Swashbuckle.UpdateControllers.Tests.fs" />
+    <Compile Include="Swashbuckle.ResourceControllers.Tests.fs" />
+    <Compile Include="Swashbuckle.FileController.Tests.fs" />
+    <Compile Include="Swashbuckle.NoContentControllers.Tests.fs" />
+    <Compile Include="Swashbuckle.SpecialCasesControllers.Tests.fs" />
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
     </Compile>

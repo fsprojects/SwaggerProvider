@@ -1,4 +1,4 @@
-module SwaggerProvider.Tests.v3
+module SwaggerProvider.Tests.Schema_ParserTests
 
 open Microsoft.OpenApi.Reader
 open Xunit
@@ -6,20 +6,8 @@ open FsUnitTyped
 open System
 open System.IO
 
-module V2 =
-    open SwaggerProvider.Internal.v2.Compilers
-    open SwaggerProvider.Internal.v2.Parser
-
-    let testSchema schemaStr =
-        let schema = SwaggerParser.parseSchema schemaStr
-
-        let defCompiler = DefinitionCompiler(schema, false, Environment.Version.Major >= 6)
-        let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
-        opCompiler.CompileProvidedClients(defCompiler.Namespace)
-        ignore <| defCompiler.Namespace.GetProvidedTypes()
-
 module V3 =
-    open SwaggerProvider.Internal.v3.Compilers
+    open SwaggerProvider.Internal.Compilers
 
     let testSchema schemaStr =
         let settings = OpenApiReaderSettings()
@@ -29,11 +17,7 @@ module V3 =
             Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
 
         let schema = readResult.Document
-        (*        if diagnostic.Errors.Count > 0 then
-               failwithf "Schema parse errors:\n- %s"
-                   (diagnostic.Errors
-                    |> Seq.map (fun e -> e.Message)
-                    |> String.concat ";\n- ")*)
+
         try
             let defCompiler = DefinitionCompiler(schema, false, Environment.Version.Major >= 6)
             let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
@@ -51,10 +35,7 @@ let parserTestBody(path: string) =
             | _ -> failwithf $"Cannot find schema '%s{path}'"
 
         if not <| String.IsNullOrEmpty(schemaStr) then
-            if path.IndexOf("v2") >= 0 then
-                V2.testSchema schemaStr
-            else
-                V3.testSchema schemaStr |> ignore
+            V3.testSchema schemaStr |> ignore
     }
 
 let rootFolder =
@@ -91,14 +72,14 @@ let ``Fail to parse`` file =
 let ``Parse PetStore``() =
     parserTestBody(
         __SOURCE_DIRECTORY__
-        + "/../SwaggerProvider.ProviderTests/Schemas/v2/petstore.json"
+        + "/../SwaggerProvider.ProviderTests/Schemas/petstore-v2.json"
     )
 
 [<Fact>]
 let ``Add definition for schema with only allOf properties``() =
     let definitions =
         __SOURCE_DIRECTORY__
-        + "/../SwaggerProvider.ProviderTests/Schemas/v3/issue255.yaml"
+        + "/../SwaggerProvider.ProviderTests/Schemas/issue255.yaml"
         |> File.ReadAllText
         |> V3.testSchema
 
@@ -109,7 +90,7 @@ let ``Add definition for schema with only allOf properties``() =
 let ``Schema with nullable parameter-level property triggers parse errors``() =
     let schemaPath =
         __SOURCE_DIRECTORY__
-        + "/../SwaggerProvider.ProviderTests/Schemas/v3/nullable-parameter-issue261.json"
+        + "/../SwaggerProvider.ProviderTests/Schemas/nullable-parameter-issue261.json"
 
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
@@ -127,7 +108,7 @@ let ``Schema with nullable parameter-level property triggers parse errors``() =
 let ``Schema with nullable parameter is still parseable despite errors``() =
     let schemaPath =
         __SOURCE_DIRECTORY__
-        + "/../SwaggerProvider.ProviderTests/Schemas/v3/nullable-parameter-issue261.json"
+        + "/../SwaggerProvider.ProviderTests/Schemas/nullable-parameter-issue261.json"
 
     // Even with diagnostic errors, the schema should still compile without throwing an exception
     File.ReadAllText schemaPath |> V3.testSchema |> ignore
