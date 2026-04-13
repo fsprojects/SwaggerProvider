@@ -5,6 +5,7 @@ open System.IO
 open System.Net
 open System.Net.Http
 open System.Text.Json
+open System.Text.Json.Serialization
 open System.Threading
 open System.Threading.Tasks
 open Xunit
@@ -235,6 +236,64 @@ module ToQueryParamsTests =
         let values: Option<double>[] = [| Some 1.5; None; Some 3.5 |]
         let result = toQueryParams "v" (box values) stubClient
         result |> shouldEqual [ ("v", "1.5"); ("v", "3.5") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<bool> Some``() =
+        let result = toQueryParams "flag" (box(Some true)) stubClient
+        result |> shouldEqual [ ("flag", "True") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<bool> None``() =
+        let result = toQueryParams "flag" (box(None: bool option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<int64> Some``() =
+        let result = toQueryParams "id" (box(Some 9876543210L)) stubClient
+        result |> shouldEqual [ ("id", "9876543210") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<int64> None``() =
+        let result = toQueryParams "id" (box(None: int64 option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<float32> Some``() =
+        let result = toQueryParams "rate" (box(Some 3.14f)) stubClient
+        result |> shouldEqual [ ("rate", "3.14") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<float32> None``() =
+        let result = toQueryParams "rate" (box(None: float32 option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<double> Some``() =
+        let result = toQueryParams "rate" (box(Some 2.718)) stubClient
+        result |> shouldEqual [ ("rate", "2.718") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<double> None``() =
+        let result = toQueryParams "rate" (box(None: double option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles Option<DateTimeOffset> Some``() =
+        let dto = DateTimeOffset(2025, 3, 15, 9, 0, 0, TimeSpan.Zero)
+        let result = toQueryParams "since" (box(Some dto)) stubClient
+        result |> shouldEqual [ ("since", dto.ToString("O")) ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<DateTimeOffset> None``() =
+        let result = toQueryParams "since" (box(None: DateTimeOffset option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<DateTimeOffset> array``() =
+        let dto = DateTimeOffset(2025, 6, 1, 0, 0, 0, TimeSpan.Zero)
+        let values: Option<DateTimeOffset>[] = [| Some dto; None |]
+        let result = toQueryParams "ts" (box values) stubClient
+        result |> shouldEqual [ ("ts", dto.ToString("O")) ]
 
 
 module CombineUrlTests =
@@ -528,3 +587,204 @@ module OpenApiExceptionTests =
 
             ()
         }
+
+
+/// Test types for formatObject tests — must be plain .NET classes with declared public properties.
+type FmtSingle(name: string) =
+    member _.Name = name
+
+type FmtInt(count: int) =
+    member _.Count = count
+
+type FmtNullable(label: string) =
+    member _.Label: string = label
+
+type FmtMulti(age: int, name: string) =
+    member _.Age = age
+    member _.Name = name
+
+type FmtArray(tags: string[]) =
+    member _.Tags = tags
+
+
+module FormatObjectTests =
+
+    [<Fact>]
+    let ``formatObject formats string property with quotes``() =
+        let obj = FmtSingle("Alice")
+        formatObject obj |> shouldEqual "{Name=\"Alice\"}"
+
+    [<Fact>]
+    let ``formatObject formats integer property without quotes``() =
+        let obj = FmtInt(42)
+        formatObject obj |> shouldEqual "{Count=42}"
+
+    [<Fact>]
+    let ``formatObject formats null string property as null``() =
+        let obj = FmtNullable(null)
+        formatObject obj |> shouldEqual "{Label=null}"
+
+    [<Fact>]
+    let ``formatObject formats array property as bracketed list``() =
+        let obj = FmtArray([| "alpha"; "beta" |])
+        formatObject obj |> shouldEqual "{Tags=[alpha; beta]}"
+
+    [<Fact>]
+    let ``formatObject formats empty array property as empty brackets``() =
+        let obj = FmtArray([||])
+        formatObject obj |> shouldEqual "{Tags=[]}"
+
+    [<Fact>]
+    let ``formatObject sorts properties alphabetically``() =
+        // Age < Name alphabetically
+        let obj = FmtMulti(30, "Bob")
+        formatObject obj |> shouldEqual "{Age=30; Name=\"Bob\"}"
+
+
+module ToFormUrlEncodedContentTests =
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent encodes key-value pairs``() =
+        task {
+            use content =
+                toFormUrlEncodedContent(
+                    seq {
+                        ("name", box "Alice")
+                        ("age", box "30")
+                    }
+                )
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "name=Alice"
+            body |> shouldContainText "age=30"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent excludes null values``() =
+        task {
+            use content =
+                toFormUrlEncodedContent(
+                    seq {
+                        ("present", box "yes")
+                        ("missing", null)
+                    }
+                )
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "present=yes"
+            body |> shouldNotContainText "missing"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent handles empty sequence``() =
+        task {
+            use content = toFormUrlEncodedContent Seq.empty
+            let! body = content.ReadAsStringAsync()
+            body |> shouldEqual ""
+        }
+
+
+module ToMultipartFormDataContentTests =
+
+    [<Fact>]
+    let ``toMultipartFormDataContent skips null values``() =
+        use content =
+            toMultipartFormDataContent(
+                seq {
+                    ("field", box "value")
+                    ("empty", null)
+                }
+            )
+
+        // Non-null value is present; null value is skipped (content has exactly 1 child part)
+        content |> Seq.length |> shouldEqual 1
+
+    [<Fact>]
+    let ``toMultipartFormDataContent adds string values as StringContent``() =
+        use content = toMultipartFormDataContent(seq { ("greeting", box "hello") })
+        let part = content |> Seq.exactlyOne
+        Assert.IsType<StringContent>(part) |> ignore
+
+    [<Fact>]
+    let ``toMultipartFormDataContent adds stream values with filename``() =
+        use stream = new MemoryStream([| 1uy; 2uy; 3uy |])
+        use content = toMultipartFormDataContent(seq { ("file", box stream) })
+        content |> Seq.length |> shouldEqual 1
+
+        let part = content |> Seq.exactlyOne
+        let disposition = part.Headers.ContentDisposition
+
+        isNull disposition |> shouldEqual false
+        disposition.Name.Trim('"') |> shouldEqual "file"
+
+        let hasFileName =
+            not(String.IsNullOrWhiteSpace disposition.FileName)
+            || not(String.IsNullOrWhiteSpace disposition.FileNameStar)
+
+        hasFileName |> shouldEqual true
+
+
+/// Test types for getPropertyValues tests.
+type PropValWithAttr(value: string) =
+    [<JsonPropertyName("custom_name")>]
+    member _.Value = value
+
+type PropValWithOption(optVal: string option, required: string) =
+    member _.OptVal = optVal
+    member _.Required = required
+
+
+module GetPropertyValuesTests =
+
+    [<Fact>]
+    let ``getPropertyValues uses JsonPropertyName attribute as serialized key``() =
+        let obj = PropValWithAttr("hello")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        result |> Array.length |> shouldEqual 1
+        let name, value = result.[0]
+        name |> shouldEqual "custom_name"
+        value |> shouldEqual(box "hello")
+
+    [<Fact>]
+    let ``getPropertyValues uses property name when no attribute``() =
+        let obj = FmtSingle("Alice")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        result |> Array.length |> shouldEqual 1
+        let name, _ = result.[0]
+        name |> shouldEqual "Name"
+
+    [<Fact>]
+    let ``getPropertyValues unwraps Some option to inner value``() =
+        let obj = PropValWithOption(Some "present", "required")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        let names = result |> Array.map fst
+        names |> shouldContain "OptVal"
+        let _, optValue = result |> Array.find(fun (n, _) -> n = "OptVal")
+        optValue |> shouldEqual(box "present")
+
+    [<Fact>]
+    let ``getPropertyValues excludes None option values``() =
+        let obj = PropValWithOption(None, "required")
+        let result = getPropertyValues(box obj) |> Seq.toArray
+        let names = result |> Array.map fst
+        names |> shouldNotContain "OptVal"
+        names |> shouldContain "Required"
+
+    [<Fact>]
+    let ``getPropertyValues returns empty sequence for null object``() =
+        let result = getPropertyValues null |> Seq.toArray
+        result |> shouldBeEmpty
+
+    [<Fact>]
+    let ``getPropertyValues cache path: second call on different instance uses cached metadata``() =
+        // First call populates propNameCache for PropValWithAttr; second call reads from it.
+        // Using two instances with distinct values ensures the keys still come from cached reflection.
+        let first = getPropertyValues(box(PropValWithAttr("value1"))) |> Seq.toArray
+        let second = getPropertyValues(box(PropValWithAttr("value2"))) |> Seq.toArray
+        first |> Array.length |> shouldEqual(second |> Array.length)
+        let firstName, firstValue = first.[0]
+        let secondName, secondValue = second.[0]
+        firstName |> shouldEqual "custom_name"
+        secondName |> shouldEqual "custom_name"
+        firstValue |> shouldEqual(box "value1")
+        secondValue |> shouldEqual(box "value2")

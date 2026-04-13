@@ -256,6 +256,100 @@ let ``allOf $ref to integer alias resolves to int32``() =
     let ty = compileAllOfRefType "      type: integer\n" true
     ty |> shouldEqual typeof<int32>
 
+// ── $ref to primitive-type alias (via oneOf wrapper) ─────────────────────────
+// oneOf: [$ref] with a single entry is semantically equivalent to a direct $ref.
+// Some code generators (e.g., NSwag, Kiota) emit this form.
+
+/// Compile a schema where `TestType.Value` uses `oneOf: [$ref]` to reference a component alias.
+let private compileOneOfRefType (aliasYaml: string) (required: bool) : Type =
+    let requiredBlock =
+        if required then
+            "      required:\n        - Value\n"
+        else
+            ""
+
+    let schemaStr =
+        sprintf
+            """openapi: "3.0.0"
+info:
+  title: OneOfRefAliasTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    AliasType:
+%s    TestType:
+      type: object
+%s      properties:
+        Value:
+          oneOf:
+            - $ref: '#/components/schemas/AliasType'
+"""
+            (aliasYaml.TrimEnd() + "\n")
+            requiredBlock
+
+    compileSchemaAndGetValueType schemaStr
+
+/// Compile a schema where `TestType.Value` uses `anyOf: [$ref]` to reference a component alias.
+let private compileAnyOfRefType (aliasYaml: string) (required: bool) : Type =
+    let requiredBlock =
+        if required then
+            "      required:\n        - Value\n"
+        else
+            ""
+
+    let schemaStr =
+        sprintf
+            """openapi: "3.0.0"
+info:
+  title: AnyOfRefAliasTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    AliasType:
+%s    TestType:
+      type: object
+%s      properties:
+        Value:
+          anyOf:
+            - $ref: '#/components/schemas/AliasType'
+"""
+            (aliasYaml.TrimEnd() + "\n")
+            requiredBlock
+
+    compileSchemaAndGetValueType schemaStr
+
+[<Fact>]
+let ``oneOf $ref to string alias resolves to string``() =
+    let ty = compileOneOfRefType "      type: string\n" true
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``oneOf $ref to integer alias resolves to int32``() =
+    let ty = compileOneOfRefType "      type: integer\n" true
+    ty |> shouldEqual typeof<int32>
+
+[<Fact>]
+let ``anyOf $ref to string alias resolves to string``() =
+    let ty = compileAnyOfRefType "      type: string\n" true
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``anyOf $ref to integer alias resolves to int32``() =
+    let ty = compileAnyOfRefType "      type: integer\n" true
+    ty |> shouldEqual typeof<int32>
+
+[<Fact>]
+let ``optional oneOf $ref to integer alias resolves to Option<int32>``() =
+    let ty = compileOneOfRefType "      type: integer\n" false
+    ty |> shouldEqual typeof<int32 option>
+
+[<Fact>]
+let ``optional anyOf $ref to integer alias resolves to Option<int32>``() =
+    let ty = compileAnyOfRefType "      type: integer\n" false
+    ty |> shouldEqual typeof<int32 option>
+
 // ── Optional $ref to primitive-type alias ─────────────────────────────────────
 // When a $ref/allOf alias property is non-required, value types must be wrapped
 // in Option<T> consistent with the behaviour of ordinary optional primitive properties.
@@ -289,23 +383,58 @@ let ``optional string without WrapNullableStrings maps to plain string``() =
 
 [<Fact>]
 let ``optional string with WrapNullableStrings maps to string option``() =
-    let ty = compilePropertyTypeWith "          type: string\n" false false true
+    let ty = compilePropertyTypeWith false true "          type: string\n" false
     ty |> shouldEqual typeof<string option>
 
 [<Fact>]
 let ``required string with WrapNullableStrings still maps to plain string``() =
-    let ty = compilePropertyTypeWith "          type: string\n" true false true
+    let ty = compilePropertyTypeWith false true "          type: string\n" true
     ty |> shouldEqual typeof<string>
 
 [<Fact>]
 let ``optional string date-time with WrapNullableStrings maps to DateTimeOffset option``() =
     // Non-string reference types (DateTimeOffset is a value type) unaffected by WrapNullableStrings
     let ty =
-        compilePropertyTypeWith "          type: string\n          format: date-time\n" false false true
+        compilePropertyTypeWith false true "          type: string\n          format: date-time\n" false
 
     ty |> shouldEqual typeof<DateTimeOffset option>
 
 [<Fact>]
 let ``optional integer with WrapNullableStrings still maps to int32 option``() =
-    let ty = compilePropertyTypeWith "          type: integer\n" false false true
+    let ty = compilePropertyTypeWith false true "          type: integer\n" false
     ty |> shouldEqual typeof<int32 option>
+
+// ── PreferNullable=true: optional value types use Nullable<T> ─────────────────
+// When provideNullable=true, the DefinitionCompiler wraps optional value types
+// in Nullable<T> instead of Option<T>.
+
+[<Fact>]
+let ``PreferNullable: optional boolean maps to Nullable<bool>``() =
+    let ty = compilePropertyTypeWith true false "          type: boolean\n" false
+
+    ty |> shouldEqual typeof<System.Nullable<bool>>
+
+[<Fact>]
+let ``PreferNullable: optional integer maps to Nullable<int32>``() =
+    let ty = compilePropertyTypeWith true false "          type: integer\n" false
+
+    ty |> shouldEqual typeof<System.Nullable<int32>>
+
+[<Fact>]
+let ``PreferNullable: optional int64 maps to Nullable<int64>``() =
+    let ty =
+        compilePropertyTypeWith true false "          type: integer\n          format: int64\n" false
+
+    ty |> shouldEqual typeof<System.Nullable<int64>>
+
+[<Fact>]
+let ``PreferNullable: required integer is not wrapped (Nullable only for optional)``() =
+    let ty = compilePropertyTypeWith true false "          type: integer\n" true
+    ty |> shouldEqual typeof<int32>
+
+[<Fact>]
+let ``PreferNullable: optional string is not wrapped (reference type)``() =
+    // Reference types like string are not wrapped in Nullable<T> since they are
+    // already nullable by nature — same behaviour as Option mode.
+    let ty = compilePropertyTypeWith true false "          type: string\n" false
+    ty |> shouldEqual typeof<string>

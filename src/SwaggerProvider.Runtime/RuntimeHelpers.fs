@@ -154,6 +154,25 @@ module RuntimeHelpers =
                 |> Array.sortBy(fun p -> p.Name)
         )
 
+    /// Cache of (serialized-name, PropertyInfo) pairs per type for getPropertyValues.
+    /// Avoids repeated GetProperties + GetCustomAttributes calls on hot form-encoding paths.
+    let private propNameCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, (string * Reflection.PropertyInfo)[]>()
+
+    let private getPropertyNamesAndInfos(t: Type) =
+        propNameCache.GetOrAdd(
+            t,
+            fun ty ->
+                ty.GetProperties(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Instance)
+                |> Array.map(fun prop ->
+                    let name =
+                        match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
+                        | [| x |] -> (x :?> JsonPropertyNameAttribute).Name
+                        | _ -> prop.Name
+
+                    (name, prop))
+        )
+
     /// Formats a generated API object as a string in the form `{Prop1=value1; Prop2=value2}`.
     /// Only declared public instance properties are included, sorted alphabetically by name.
     /// Used by the emitted ToString() override to keep the generated method body O(1) in size.
@@ -235,18 +254,10 @@ module RuntimeHelpers =
         if isNull object then
             Seq.empty
         else
-            object
-                .GetType()
-                .GetProperties(
-                    System.Reflection.BindingFlags.Public
-                    ||| System.Reflection.BindingFlags.Instance
-                )
-            |> Seq.choose(fun prop ->
-                let name =
-                    match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
-                    | [| x |] -> (x :?> JsonPropertyNameAttribute).Name
-                    | _ -> prop.Name
+            let namesAndProps = getPropertyNamesAndInfos(object.GetType())
 
+            namesAndProps
+            |> Seq.choose(fun (name, prop) ->
                 prop.GetValue(object)
                 |> unwrapFSharpOption
                 |> Option.ofObj
@@ -319,10 +330,38 @@ module RuntimeHelpers =
                 if (name <> "Content-Type") then
                     raise <| Exception(errMsg))
 
-    let asyncCast runtimeTy (asyncOp: Async<obj>) =
-        let castFn = typeof<AsyncExtensions>.GetMethod "cast"
+    /// Resolves a public static generic method definition with one type parameter and one
+    /// value parameter by name from the given type. Raises a descriptive exception if the
+    /// method cannot be uniquely identified, avoiding AmbiguousMatchException from a
+    /// name-only GetMethod lookup.
+    let private resolveCastMethod(ownerType: Type) =
+        ownerType.GetMethods(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Static)
+        |> Array.tryFind(fun m ->
+            m.Name = "cast"
+            && m.IsGenericMethodDefinition
+            && m.GetGenericArguments().Length = 1
+            && m.GetParameters().Length = 1)
+        |> Option.defaultWith(fun () -> failwithf "Could not resolve %s.cast<'t> generic method definition" ownerType.FullName)
 
-        castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| asyncOp |])
+    /// Pre-resolved MethodInfo for AsyncExtensions.cast and TaskExtensions.cast.
+    /// Both are constant across the lifetime of the process; resolve once at module init.
+    let private asyncCastMethod = resolveCastMethod typeof<AsyncExtensions>
+
+    let private taskCastMethod = resolveCastMethod typeof<TaskExtensions>
+
+    /// Per-type cache of the concrete generic MethodInfo produced by MakeGenericMethod.
+    /// Avoids repeated generic-method instantiation for the same return type.
+    let private asyncCastCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.MethodInfo>()
+
+    let private taskCastCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.MethodInfo>()
+
+    let asyncCast runtimeTy (asyncOp: Async<obj>) =
+        let m =
+            asyncCastCache.GetOrAdd(runtimeTy, fun t -> asyncCastMethod.MakeGenericMethod([| t |]))
+
+        m.Invoke(null, [| asyncOp |])
 
     let readContentAsString (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<string> =
 #if NET5_0_OR_GREATER
@@ -339,6 +378,7 @@ module RuntimeHelpers =
 #endif
 
     let taskCast runtimeTy (task: Task<obj>) =
-        let castFn = typeof<TaskExtensions>.GetMethod "cast"
+        let m =
+            taskCastCache.GetOrAdd(runtimeTy, fun t -> taskCastMethod.MakeGenericMethod([| t |]))
 
-        castFn.MakeGenericMethod([| runtimeTy |]).Invoke(null, [| task |])
+        m.Invoke(null, [| task |])
