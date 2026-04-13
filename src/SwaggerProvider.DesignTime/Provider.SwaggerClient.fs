@@ -13,7 +13,8 @@ module SwaggerCache =
     let providedTypes = Caching.createInMemoryCache(TimeSpan.FromMinutes 5.0)
 
 /// The Swagger Type Provider.
-[<TypeProvider; Obsolete("Use OpenApiClientTypeProvider when possible, it supports v2 & v3 schema formats.")>]
+[<TypeProvider;
+  Obsolete("SwaggerClientProvider is deprecated and will be removed in a future release. Use OpenApiClientProvider instead, which supports both v2 and v3 schema formats.")>]
 type public SwaggerTypeProvider(cfg: TypeProviderConfig) as this =
     inherit
         TypeProviderForNamespaces(

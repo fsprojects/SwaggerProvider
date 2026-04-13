@@ -582,7 +582,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     typedefof<Option<obj>>
 
             ProvidedTypeBuilder.MakeGenericType(baseGenTy, [ tyType ])
-        else if tyType = typeof<string> then
+        else if
+            tyType = typeof<string>
+            || tyType = typeof<IO.Stream>
+            || tyType = typeof<byte>.MakeArrayType(1)
+        then
+            // Scalar reference types (string, Stream, byte[*]) are wrapped in Option<T> when non-required.
+            // Collection types (arrays, maps) and provided object types are left unwrapped — they
+            // naturally express absence via null/empty.
             ProvidedTypeBuilder.MakeGenericType(typedefof<Option<obj>>, [ tyType ])
         else
             tyType

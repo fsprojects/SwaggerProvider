@@ -130,23 +130,31 @@ let ``optional Guid maps to Option<Guid>``() =
 
     ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<Guid>))
 
-// ── Optional string is wrapped in Option<string> ─────────────────────────────
+// ── Optional reference types are wrapped in Option<T> ────────────────────────
 
 [<Fact>]
 let ``optional string maps to Option<string>``() =
     let ty = compilePropertyType "          type: string\n" false
 
-    // plain string fields are wrapped in Option<string> when non-required
     ty
     |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<string>))
 
 [<Fact>]
-let ``optional byte array is not wrapped in Option``() =
+let ``optional byte array maps to Option<byte[]>``() =
     let ty =
         compilePropertyType "          type: string\n          format: byte\n" false
 
-    // byte[*] is a reference type — not wrapped in Option<T>
-    ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+    // byte[*] is a reference type — wrapped in Option<T> when non-required
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<byte>.MakeArrayType(1)))
+
+[<Fact>]
+let ``optional binary maps to Option<Stream>``() =
+    let ty =
+        compilePropertyType "          type: string\n          format: binary\n" false
+
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<IO.Stream>))
 
 // ── $ref primitive-type alias helpers ────────────────────────────────────────
 
@@ -405,6 +413,7 @@ let ``PreferNullable: required integer is not wrapped (Nullable only for optiona
 
 [<Fact>]
 let ``PreferNullable: optional string maps to Option<string>``() =
-    // Strings are always wrapped in Option<string> when non-required, even with PreferNullable.
+    // Reference types are always wrapped in Option<T> when non-required, even with PreferNullable
+    // (Nullable<T> only applies to value types).
     let ty = compilePropertyTypeWith true "          type: string\n" false
     ty |> shouldEqual typeof<string option>
