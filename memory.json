@@ -1,23 +1,15 @@
 {
   "run": "2026-04-13",
-  "rid": "24354538155",
+  "rid": "24368927517",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "357": "open - feat: WrapNullableStrings (closes #122) - branch: repo-assist/fix-issue-122-wrap-nullable-strings-362a357b9d702fbf",
-    "376pr": "open - feat: remove SwaggerClientProvider and v2 compiler (closes #376) - branch: repo-assist/fix-issue-376-remove-swagger-client-provider",
+    "378": "open - perf: cache reflection lookups and avoid double seq materialisation - branch: repo-assist/perf-cache-reflection-20260413",
+    "377": "merged - feat: remove SwaggerClientProvider and v2 compiler (closes #376)",
+    "375": "merged - fix: resolve oneOf/anyOf single $ref (closes #243)",
     "374": "merged - perf: cache asyncCast/taskCast MethodInfo",
     "373": "merged - perf: cache property name/metadata",
-    "370": "merged",
-    "362": "merged",
-    "363": "merged",
-    "361": "merged",
-    "360": "merged",
-    "356": "merged",
-    "355": "merged",
-    "354": "merged",
-    "353": "merged",
-    "351": "merged"
+    "357": "merged - fix: wrap optional scalar reference types in Option (closes #122)"
   },
   "comments_made": {
     "122": "2026-04-06",
@@ -39,5 +31,5 @@
     "358": "2026-04-12",
     "376": "2026-04-13"
   },
-  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider removed by PR). Open PR #357 WrapNullableStrings (closes #122). New PR for remove SwaggerClientProvider (closes #376). Issue #358 (OpenApi 3.x migration): sergey-tihon says wait until .NET 11. gettyimages.com.json moved to unsupported due to pre-existing type-name collision issue in DefinitionCompiler."
+  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider removed by PR #377). PR #378 (new perf) open. Issues #122 and #376 and #243 are now closed. gettyimages.com.json moved to unsupported due to pre-existing type-name collision. Issue #358 (OpenApi 3.x migration): sergey-tihon says wait until .NET 11."
 }
