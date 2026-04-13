@@ -130,22 +130,31 @@ let ``optional Guid maps to Option<Guid>``() =
 
     ty |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<Guid>))
 
-// ── Optional reference types are NOT wrapped (they are already nullable) ─────
+// ── Optional reference types are wrapped in Option<T> ────────────────────────
 
 [<Fact>]
-let ``optional string is not wrapped in Option``() =
+let ``optional string maps to Option<string>``() =
     let ty = compilePropertyType "          type: string\n" false
 
-    // string is a reference type — not wrapped in Option<T> even when non-required
-    ty |> shouldEqual typeof<string>
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<string>))
 
 [<Fact>]
-let ``optional byte array is not wrapped in Option``() =
+let ``optional byte array maps to Option<byte[]>``() =
     let ty =
         compilePropertyType "          type: string\n          format: byte\n" false
 
-    // byte[*] is a reference type — not wrapped in Option<T>
-    ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+    // byte[*] is a reference type — wrapped in Option<T> when non-required
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<byte>.MakeArrayType(1)))
+
+[<Fact>]
+let ``optional binary maps to Option<Stream>``() =
+    let ty =
+        compilePropertyType "          type: string\n          format: binary\n" false
+
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<IO.Stream>))
 
 // ── $ref primitive-type alias helpers ────────────────────────────────────────
 
@@ -403,8 +412,22 @@ let ``PreferNullable: required integer is not wrapped (Nullable only for optiona
     ty |> shouldEqual typeof<int32>
 
 [<Fact>]
-let ``PreferNullable: optional string is not wrapped (reference type)``() =
-    // Reference types like string are not wrapped in Nullable<T> since they are
-    // already nullable by nature — same behaviour as Option mode.
+let ``PreferNullable: optional string stays as plain string``() =
+    // With provideNullable=true, reference types are left as plain CLR-nullable types
+    // (Nullable<T> is not valid for reference types).
     let ty = compilePropertyTypeWith true "          type: string\n" false
     ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``PreferNullable: optional binary stays as plain byte array``() =
+    let ty =
+        compilePropertyTypeWith true "          type: string\n          format: byte\n" false
+
+    ty |> shouldEqual(typeof<byte>.MakeArrayType(1))
+
+[<Fact>]
+let ``PreferNullable: optional binary (base64) stays as plain Stream``() =
+    let ty =
+        compilePropertyTypeWith true "          type: string\n          format: binary\n" false
+
+    ty |> shouldEqual typeof<IO.Stream>

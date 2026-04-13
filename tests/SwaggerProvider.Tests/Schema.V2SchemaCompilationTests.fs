@@ -143,8 +143,8 @@ let ``v2 petstore Pet type has correct property types``() =
     idProp.PropertyType |> shouldEqual typeof<int64>
     // required string
     nameProp.PropertyType |> shouldEqual typeof<string>
-    // optional string — string is a reference type, not wrapped in Option
-    tagProp.PropertyType |> shouldEqual typeof<string>
+    // optional string — now wrapped in Option<string>
+    tagProp.PropertyType |> shouldEqual typeof<string option>
 
 [<Fact>]
 let ``v2 petstore schema generates API client types with operations``() =

@@ -106,6 +106,10 @@ module RuntimeHelpers =
 
             match obj with
             | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
+            | :? Option<array<byte>> as x ->
+                match x with
+                | Some xs -> [ name, (client.Serialize xs).Trim('\"') ]
+                | None -> []
             | :? array<bool> as xs -> xs |> toStrArray name
             | :? array<int32> as xs -> xs |> toStrArray name
             | :? array<int64> as xs -> xs |> toStrArray name

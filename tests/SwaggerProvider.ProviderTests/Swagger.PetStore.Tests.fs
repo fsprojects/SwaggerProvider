@@ -69,12 +69,12 @@ let ``call provided methods``() =
         let id = 3247L
 
         try
-            do! store.DeletePet(id, apiKey)
+            do! store.DeletePet(id, Some apiKey)
         with _ ->
             ()
 
-        let tag = PetStore.Tag(None, "foobar")
-        tag.Name |> shouldEqual "foobar"
+        let tag = PetStore.Tag(None, Some "foobar")
+        tag.Name |> shouldEqual(Some "foobar")
         let pet = PetStore.Pet("foo", [||], Some id)
         pet.ToString() |> shouldContainText(id.ToString())
 
