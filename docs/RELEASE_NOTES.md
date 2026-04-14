@@ -1,3 +1,18 @@
+#### 4.0.0-beta01 - April 14, 2026
+
+- BREAKING: remove SwaggerClientProvider and v2 compiler, simplify folder structure (#377)
+- BREAKING: wrap optional scalar reference types in Option<T> (#122) (#357)
+- feat: resolve oneOf/anyOf with single $ref to referenced type (#375)
+- fix: publish portable PDB debug symbols to NuGet package (#361)
+- perf: cache MethodInfo for asyncCast/taskCast to avoid repeated reflection (#374)
+- perf: cache property name/metadata lookups in getPropertyValues (#373)
+- perf: cache reflection lookups and avoid double seq materialisation (#378)
+- docs: improve README with license badge, overview, quick start, and features table (#360)
+- test: add DefinitionPath.Parse unit tests and PreferNullable coverage (#370)
+- test: extend RuntimeHelpers unit-test coverage (#363)
+- eng: add Dependabot for GitHub Actions + v3 OperationCompiler unit tests (#364)
+- ci: bump actions/checkout, actions/cache, actions/setup-dotnet, actions/upload-artifact, actions/github-script, github/gh-aw-actions
+
 #### 3.2.0 - April 6, 2026
 
 - feat: add CancellationToken support to OpenApiClientProvider generated methods (closes #212) (#336)
