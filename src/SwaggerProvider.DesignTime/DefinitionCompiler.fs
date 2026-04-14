@@ -179,6 +179,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
     let nsRoot = NamespaceAbstraction "Root"
     let nsOps = nsRoot.GetOrCreateNamespace "OperationTypes"
 
+    // Cached once per DefinitionCompiler instance to avoid repeated reflection lookups
+    // when compiling large schemas with many object types.
+    let objToStringMethod = typeof<obj>.GetMethod("ToString", [||])
+
     let generateProperty (scope: UniqueNameGenerator) propName ty =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
@@ -276,10 +280,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     && schema.Type.Value.HasFlag(JsonSchemaType.Null)
 
                 // Generate fields and properties
+                let schemaObjPropertiesList = List.ofSeq schemaObjProperties
+
                 let members =
                     let generateProperty = generateProperty(UniqueNameGenerator())
 
-                    List.ofSeq schemaObjProperties
+                    schemaObjPropertiesList
                     |> List.map(fun p ->
                         let propName, propSchema = p.Key, p.Value
 
@@ -349,7 +355,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 // Add full-init constructor
                 let ctorParams, fields =
                     let required, optional =
-                        List.zip (List.ofSeq schemaObjProperties) members
+                        List.zip schemaObjPropertiesList members
                         |> List.partition(fun (x, _) ->
                             let isNullable = isSchemaNullable x.Value
                             schemaObjRequired.Contains x.Key && not isNullable)
@@ -403,8 +409,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                 toStr.SetMethodAttrs(MethodAttributes.Public ||| MethodAttributes.Virtual)
 
-                let objToStr = typeof<obj>.GetMethod("ToString", [||])
-                ty.DefineMethodOverride(toStr, objToStr)
+                ty.DefineMethodOverride(toStr, objToStringMethod)
                 ty.AddMember <| toStr
 
                 ty :> Type

@@ -211,10 +211,14 @@ module RuntimeHelpers =
 
         String.Format("{{{0}}}", String.Join("; ", strs))
 
+    // Cached constructor for JsonPropertyNameAttribute to avoid repeated reflection lookups
+    // when compiling large schemas with many properties.
+    let private jsonPropertyNameCtor =
+        typeof<JsonPropertyNameAttribute>.GetConstructor [| typeof<string> |]
+
     let getPropertyNameAttribute name =
         { new Reflection.CustomAttributeData() with
-            member _.Constructor =
-                typeof<JsonPropertyNameAttribute>.GetConstructor [| typeof<string> |]
+            member _.Constructor = jsonPropertyNameCtor
 
             member _.ConstructorArguments =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
@@ -240,6 +244,10 @@ module RuntimeHelpers =
 
     // Unwraps F# option values: returns the inner value for Some, null for None.
     // This prevents `Some(value)` from being sent as-is in form data.
+    // The `Value` PropertyInfo is cached per concrete option type to avoid repeated reflection lookups.
+    let private optionValuePropCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.PropertyInfo>()
+
     let private unwrapFSharpOption(value: obj) : obj =
         if isNull value then
             null
@@ -250,7 +258,8 @@ module RuntimeHelpers =
                 ty.IsGenericType
                 && ty.GetGenericTypeDefinition() = typedefof<option<_>>
             then
-                ty.GetProperty("Value").GetValue(value)
+                let prop = optionValuePropCache.GetOrAdd(ty, fun t -> t.GetProperty("Value"))
+                prop.GetValue(value)
             else
                 value
 
