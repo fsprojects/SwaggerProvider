@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-04-13T21:57:15Z",
-  "last_run_id": "24368927517",
+  "last_run": "2026-04-14T21:57:19Z",
+  "last_run_id": "24424886963",
   "monthly_activity_issue": 352,
-  "open_repo_assist_prs": ["378"],
+  "open_repo_assist_prs": ["379"],
   "comments_made": {
     "33": "2026-04-03",
     "116": "2026-03-25",
@@ -14,6 +14,7 @@
     "179": "2026-04-04",
     "182": "2026-03-19",
     "190": "2026-04-11",
+    "215": "2026-04-14",
     "226": "2026-03-25",
     "231": "2026-03-31",
     "243": "2026-04-12",
@@ -21,6 +22,6 @@
     "358": "2026-04-12",
     "376": "2026-04-13"
   },
-  "issues_cursor": 376,
-  "notes": "PR #378 (perf: cache reflection) open. All other PRs merged. All issues have RA comments. Issues #122, #243, #376 closed."
+  "issues_cursor": 215,
+  "notes": "v4.0-beta01 released. PR #379 (docs update) open. docs/README.md updated to remove SwaggerClientProvider and old targets. All other PRs merged."
 }

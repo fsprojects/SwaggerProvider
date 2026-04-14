@@ -1,10 +1,11 @@
 {
-  "run": "2026-04-13",
-  "rid": "24368927517",
+  "run": "2026-04-14",
+  "rid": "24424886963",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "378": "open - perf: cache reflection lookups and avoid double seq materialisation - branch: repo-assist/perf-cache-reflection-20260413",
+    "379": "open - docs: update homepage README for v4.0 (remove SwaggerClientProvider, update targets)",
+    "378": "merged - perf: cache reflection lookups and avoid double seq materialisation",
     "377": "merged - feat: remove SwaggerClientProvider and v2 compiler (closes #376)",
     "375": "merged - fix: resolve oneOf/anyOf single $ref (closes #243)",
     "374": "merged - perf: cache asyncCast/taskCast MethodInfo",
@@ -12,24 +13,23 @@
     "357": "merged - fix: wrap optional scalar reference types in Option (closes #122)"
   },
   "comments_made": {
-    "122": "2026-04-06",
-    "132": "2026-03-15",
-    "163": "2026-03-23",
+    "33": "2026-04-03",
     "116": "2026-03-25",
+    "122": "2026-04-06",
+    "146": "2026-04-02",
+    "150": "2026-04-07",
+    "163": "2026-03-23",
     "178": "2026-03-18",
+    "179": "2026-04-04",
     "182": "2026-03-19",
-    "243": "2026-04-12",
-    "263": "2026-03-17",
+    "190": "2026-04-11",
+    "215": "2026-04-14",
     "226": "2026-03-25",
     "231": "2026-03-31",
-    "146": "2026-04-02",
-    "33": "2026-04-03",
-    "179": "2026-04-04",
-    "150": "2026-04-07",
-    "175": "2026-04-07",
-    "190": "2026-04-11",
+    "243": "2026-04-12",
+    "263": "2026-03-17",
     "358": "2026-04-12",
     "376": "2026-04-13"
   },
-  "notes": "KEY: OpenApiClientProvider is primary (SwaggerClientProvider removed by PR #377). PR #378 (new perf) open. Issues #122 and #376 and #243 are now closed. gettyimages.com.json moved to unsupported due to pre-existing type-name collision. Issue #358 (OpenApi 3.x migration): sergey-tihon says wait until .NET 11."
+  "notes": "KEY: v4.0-beta01 released 2026-04-14 (SwaggerClientProvider removed). PR #379 open (docs update). Issue #358 (OpenApi 3.x): wait until .NET 11. Issues #122, #243, #376 closed. docs/README.md updated to remove SwaggerClientProvider reference and update targets."
 }
