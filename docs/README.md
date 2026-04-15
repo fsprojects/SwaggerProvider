@@ -1,11 +1,11 @@
 
 [![NuGet Badge](https://buildstats.info/nuget/SwaggerProvider?includePreReleases=true)](https://www.nuget.org/packages/SwaggerProvider)
 
-`SwaggerProvider` is an umbrella project for two F# generative Type Providers that generate object models and HTTP clients for APIs described by [OpenApi 3.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md) and [Swagger 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) schemas
-- [OpenApiClientProvider](/OpenApiClientProvider) <Badge type="success">New</Badge> - uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse schema. Support both OpenApi and Swagger schemas, but Swagger support is limited.
-- [SwaggerClientProvider](/SwaggerClientProvider) - uses custom old good Swagger 2.0 schema parser and tested on several hundred schemas available in [APIs.guru](https://apis.guru/openapi-directory/) (Wikipedia for WEB APIs)
+`SwaggerProvider` is an F# generative Type Provider that generates object models and HTTP clients for APIs described by [OpenAPI 3.x](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md) and [Swagger 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) schemas — no code generation step required.
 
-Type Providers support schemas in `JSON` & `YAML` formats and run on `netcoreapp3.1` and `net46`.
+The single provider, [OpenApiClientProvider](/OpenApiClientProvider), uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse both OpenAPI and Swagger schemas.
+
+Type Providers support schemas in `JSON` & `YAML` formats and target `net8.0` and `net10.0`.
 
 ### Getting started
 
@@ -30,12 +30,12 @@ client.GetInventory()
 
 #### New project
 
-Create new F# `netcoreapp3.1` project and add reference to latest [SwaggerProvider](https://www.nuget.org/packages/SwaggerProvider) NuGet package
+Create a new F# `net8.0` or `net10.0` project and add a reference to the latest [SwaggerProvider](https://www.nuget.org/packages/SwaggerProvider) NuGet package
 
 ```bash
 dotnet new console --name apiclient --language F#
 cd apiclient
-dotnet add package SwaggerProvider --version 0.10.0
+dotnet add package SwaggerProvider
 ```
 
 replace content of `Program.fs` file by
