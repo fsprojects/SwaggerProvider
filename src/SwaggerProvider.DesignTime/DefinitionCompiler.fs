@@ -483,7 +483,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             | _ when
                 resolvedType = Some JsonSchemaType.Object
                 && not(isNull schemaObj.AdditionalProperties)
-                -> // Dictionary ->
+                && (schemaObj.Properties |> isNull || schemaObj.Properties.Count = 0)
+                -> // Dictionary (only when no explicit properties are also defined)
                 ns.ReleaseNameReservation tyName
                 let elSchema = schemaObj.AdditionalProperties
 
