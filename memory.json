@@ -1,9 +1,10 @@
 {
-  "run": "2026-04-14",
-  "rid": "24424886963",
+  "run": "2026-04-15",
+  "rid": "24474071134",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
+    "aw_test_ops": "open - test: extend OperationCompiler unit tests (+12 tests, asAsync/DELETE/PUT/header)",
     "379": "open - docs: update homepage README for v4.0 (remove SwaggerClientProvider, update targets)",
     "378": "merged - perf: cache reflection lookups and avoid double seq materialisation",
     "377": "merged - feat: remove SwaggerClientProvider and v2 compiler (closes #376)",
@@ -31,5 +32,5 @@
     "358": "2026-04-12",
     "376": "2026-04-13"
   },
-  "notes": "KEY: v4.0-beta01 released 2026-04-14 (SwaggerClientProvider removed). PR #379 open (docs update). Issue #358 (OpenApi 3.x): wait until .NET 11. Issues #122, #243, #376 closed. docs/README.md updated to remove SwaggerClientProvider reference and update targets."
+  "notes": "KEY: v4.0-beta01 released 2026-04-14 (SwaggerClientProvider removed). PR #379 open (docs update). PR aw_test_ops open (test: OperationCompiler +12 tests). Issue #358 (OpenApi 3.x): wait until .NET 11."
 }
