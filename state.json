@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-04-15T20:20:08Z",
-  "last_run_id": "24476276123",
+  "last_run": "2026-04-15T21:57:44Z",
+  "last_run_id": "24480451444",
   "monthly_activity_issue": 352,
-  "open_repo_assist_prs": ["aw_test_ops", "docs-381"],
+  "open_repo_assist_prs": ["382", "fix-additionalprops-with-properties-20260415"],
   "comments_made": {
     "33": "2026-04-03",
     "116": "2026-03-25",
@@ -24,5 +24,5 @@
     "381": "2026-04-15"
   },
   "issues_cursor": 381,
-  "notes": "v4.0-beta01 released. PR #379 merged. Docs PR created for #381 (fix badges, flat nav, remove intellisense, add CT docs). OperationCompiler test PR open."
+  "notes": "v4.0-beta01 released. PR #382 (docs #381) open. PR #380 (OperationCompiler tests) merged. New PR: fix: preserve declared properties when schema has both properties and additionalProperties (branch: repo-assist/fix-additionalprops-with-properties-20260415). Bug: object with both properties+additionalProperties was becoming a Map."
 }

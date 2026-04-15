@@ -1,11 +1,13 @@
 {
   "run": "2026-04-15",
-  "rid": "24474071134",
+  "rid": "24480451444",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "aw_test_ops": "open - test: extend OperationCompiler unit tests (+12 tests, asAsync/DELETE/PUT/header)",
-    "379": "open - docs: update homepage README for v4.0 (remove SwaggerClientProvider, update targets)",
+    "382": "open - docs: improve site for v4.0 (fix badges, flatten nav, add features)",
+    "fix-additionalprops": "open - fix: preserve declared properties when schema has both properties and additionalProperties",
+    "380": "merged - test: extend OperationCompiler unit tests (+12 tests)",
+    "379": "merged - docs: update homepage README for v4.0",
     "378": "merged - perf: cache reflection lookups and avoid double seq materialisation",
     "377": "merged - feat: remove SwaggerClientProvider and v2 compiler (closes #376)",
     "375": "merged - fix: resolve oneOf/anyOf single $ref (closes #243)",
@@ -30,7 +32,8 @@
     "243": "2026-04-12",
     "263": "2026-03-17",
     "358": "2026-04-12",
-    "376": "2026-04-13"
+    "376": "2026-04-13",
+    "381": "2026-04-15"
   },
-  "notes": "KEY: v4.0-beta01 released 2026-04-14 (SwaggerClientProvider removed). PR #379 open (docs update). PR aw_test_ops open (test: OperationCompiler +12 tests). Issue #358 (OpenApi 3.x): wait until .NET 11."
+  "notes": "v4.0-beta01 released. All open issues have Repo Assist comments. PR #382 (docs) open. New fix PR pending for additionalProperties+properties bug. Issue #358 (OpenApi 3.x): wait until .NET 11."
 }
