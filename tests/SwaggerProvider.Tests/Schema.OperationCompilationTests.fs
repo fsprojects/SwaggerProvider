@@ -318,7 +318,7 @@ let ``asAsync=true: CancellationToken is still the last parameter``() =
     (parameters |> Array.last).ParameterType
     |> shouldEqual typeof<CancellationToken>
 
-// ── DELETE / PUT / PATCH operations ──────────────────────────────────────────
+// ── DELETE / PUT operations ──────────────────────────────────────────────────
 
 let private deleteEndpointSchema =
     """openapi: "3.0.0"
