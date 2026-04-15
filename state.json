@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-04-14T21:57:19Z",
-  "last_run_id": "24424886963",
+  "last_run": "2026-04-15T20:20:08Z",
+  "last_run_id": "24476276123",
   "monthly_activity_issue": 352,
-  "open_repo_assist_prs": ["379"],
+  "open_repo_assist_prs": ["aw_test_ops", "docs-381"],
   "comments_made": {
     "33": "2026-04-03",
     "116": "2026-03-25",
@@ -20,8 +20,9 @@
     "243": "2026-04-12",
     "263": "2026-03-17",
     "358": "2026-04-12",
-    "376": "2026-04-13"
+    "376": "2026-04-13",
+    "381": "2026-04-15"
   },
-  "issues_cursor": 215,
-  "notes": "v4.0-beta01 released. PR #379 (docs update) open. docs/README.md updated to remove SwaggerClientProvider and old targets. All other PRs merged."
+  "issues_cursor": 381,
+  "notes": "v4.0-beta01 released. PR #379 merged. Docs PR created for #381 (fix badges, flat nav, remove intellisense, add CT docs). OperationCompiler test PR open."
 }
