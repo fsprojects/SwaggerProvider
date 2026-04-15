@@ -4,15 +4,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>SwaggerProvider</title>
+  <title>SwaggerProvider — F# OpenAPI Type Provider</title>
   <link rel="stylesheet" href="https://unpkg.com/docute@4/dist/docute.css">
   <style>
-    @import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css);
+    @import url(https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap);
 
     .page-content code { font-family: 'Fira Code', monospace; }
     @supports (font-variation-settings: normal) {
       .page-content code { font-family: 'Fira Code VF', monospace; }
     }
+
+    /* Tighten sidebar spacing */
+    .sidebar-links a { padding: 4px 0; }
   </style>
 </head>
 
@@ -21,57 +24,27 @@
   <script src="https://unpkg.com/docute@4/dist/docute.js"></script>
   <script>
     new Docute({
-      title: "OpenAPI and Swagger Type Providers",
+      title: "SwaggerProvider",
       logo: `
-        <div>
-          <img src="files/img/logo.png" alt="logo" height="30" width="30">
-          <span style="vertical-align: super;">{{ $store.getters.config.title }}</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="files/img/logo.png" alt="logo" height="28" width="28">
+          <span style="font-weight:600;">SwaggerProvider</span>
         </div>`,
       nav: [
-        {
-          title: 'Home',
-          link: '/'
-        },
-        {
-          title: 'GitHub',
-          link: 'https://github.com/fsprojects/SwaggerProvider'
-        }
+        { title: 'Home', link: '/' },
+        { title: 'NuGet', link: 'https://www.nuget.org/packages/SwaggerProvider' },
+        { title: 'GitHub', link: 'https://github.com/fsprojects/SwaggerProvider' }
       ],
       sidebar: [
-        {
-          title: 'Guide',
-          children: [
-            {
-              title: 'Getting Started',
-              link: '/',
-            },
-            {
-              title: 'OpenApiClientProvider',
-              link: '/OpenApiClientProvider'
-            }
-          ]
-        },
-        {
-          title: 'Advanced',
-          children: [
-            {
-              title: 'Customization',
-              link: '/Customization'
-            },
-            {
-              title: 'References',
-              link: '/References'
-            }
-          ]
-        },
-        {
-          title: 'Release Notes',
-          link: '/RELEASE_NOTES'
-        }
+        { title: 'Getting Started', link: '/' },
+        { title: 'OpenApiClientProvider', link: '/OpenApiClientProvider' },
+        { title: 'Customization', link: '/Customization' },
+        { title: 'Release Notes', link: '/RELEASE_NOTES' },
+        { title: 'References', link: '/References' }
       ],
       theme: 'dark',
-      //detectSystemDarkTheme: true,
-      //darkThemeToggler: true,
+      detectSystemDarkTheme: true,
+      darkThemeToggler: true,
       layout: 'narrow',
       highlight: ['fsharp', 'bash'],
       target: '#docute'

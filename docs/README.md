@@ -1,17 +1,27 @@
 
-[![NuGet Badge](https://buildstats.info/nuget/SwaggerProvider?includePreReleases=true)](https://www.nuget.org/packages/SwaggerProvider)
+[![NuGet Version](https://badgen.net/nuget/v/SwaggerProvider)](https://www.nuget.org/packages/SwaggerProvider)
+[![NuGet Downloads](https://badgen.net/nuget/dt/SwaggerProvider)](https://www.nuget.org/packages/SwaggerProvider)
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
-`SwaggerProvider` is an F# generative Type Provider that generates object models and HTTP clients for APIs described by [OpenAPI 3.x](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md) and [Swagger 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) schemas — no code generation step required.
+**SwaggerProvider** is an F# generative [Type Provider](https://learn.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/) that auto-generates strongly-typed HTTP clients from [OpenAPI 3.0](https://swagger.io/specification/) and [Swagger 2.0](https://swagger.io/specification/v2/) schemas — no code generation step required.
 
-The single provider, [OpenApiClientProvider](/OpenApiClientProvider), uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse both OpenAPI and Swagger schemas.
+The single provider, [OpenApiClientProvider](/OpenApiClientProvider), uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse both OpenAPI and Swagger schemas in `JSON` and `YAML` formats, and targets `net8.0` and `net10.0`.
 
-Type Providers support schemas in `JSON` & `YAML` formats and target `net8.0` and `net10.0`.
+## Features
 
-### Getting started
+- **Zero code generation** — types are created at compile time from live or local schema files
+- Supports **OpenAPI 3.0** and **Swagger 2.0** schemas in JSON and YAML formats
+- Works in **F# scripts**, **.NET projects**, and **F# Interactive**
+- Generates typed models, request/response types, and a typed HTTP client
+- IDE auto-complete and type-checking for all API endpoints
+- **SSRF protection** enabled by default (disable with `SsrfProtection=false` for local dev)
+- **CancellationToken support** — every generated method accepts an optional `cancellationToken`
 
-#### F# Interactive
+## Getting Started
 
-Create new F# script file (for example `openapi.fsx`) and copy following code
+### F# Interactive
+
+Create a new F# script file (e.g. `openapi.fsx`) and paste:
 
 ```fsharp
 #r "nuget: SwaggerProvider"
@@ -28,9 +38,7 @@ client.GetInventory()
 |> Async.RunSynchronously
 ```
 
-#### New project
-
-Create a new F# `net8.0` or `net10.0` project and add a reference to the latest [SwaggerProvider](https://www.nuget.org/packages/SwaggerProvider) NuGet package
+### New Project
 
 ```bash
 dotnet new console --name apiclient --language F#
@@ -38,7 +46,7 @@ cd apiclient
 dotnet add package SwaggerProvider
 ```
 
-replace content of `Program.fs` file by
+Replace the content of `Program.fs` with:
 
 ```fsharp
 open SwaggerProvider
@@ -56,22 +64,22 @@ let main argv =
     0
 ```
 
-build and run the project
+Then build and run:
 
 ```bash
 dotnet run
 ```
 
-in the console, you should see printed inventory from the server.
+## Key Parameters
 
-### Intellisense
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `Schema` | *(required)* | URL or file path to the OpenAPI/Swagger schema |
+| `SsrfProtection` | `true` | Block HTTP and private IPs to prevent SSRF attacks |
+| `PreferNullable` | `false` | Use `Nullable<_>` instead of `Option<_>` for optional fields |
+| `PreferAsync` | `false` | Generate `Async<'T>` instead of `Task<'T>` |
+| `IgnoreControllerPrefix` | `true` | Generate a single client class for all operations |
+| `IgnoreOperationId` | `false` | Generate method names from paths instead of operation IDs |
+| `IgnoreParseErrors` | `false` | Continue generation even when the parser reports schema warnings |
 
-Intellisense works in your favorite IDE.
-
-| [Visual Studio Code](https://code.visualstudio.com) + [Ionide](http://ionide.io) | [Rider](https://www.jetbrains.com/help/rider/F_Sharp.html) |
-|-----------|-------------|
-| <ImageZoom src="files/OpenApiClientProvider_Ionide.png" /> | <ImageZoom src="files/OpenApiClientProvider_Rider.png" /> |
-
-| [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) | [Visual Studio](https://visualstudio.microsoft.com/vs/) |
-|-----------|-------------|
-| <ImageZoom src="files/OpenApiClientProvider_VS4Mac.png" /> | <ImageZoom src="files/OpenApiClientProvider_VS.png" /> |
+See [OpenApiClientProvider](/OpenApiClientProvider) for full parameter documentation and [Customization](/Customization) for advanced scenarios.
