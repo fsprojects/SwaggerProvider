@@ -5,7 +5,7 @@ export default defineConfig({
   title: "SwaggerProvider",
   description: "F# OpenAPI Type Provider",
   head: [
-    ["link", { rel: "icon", href: "/SwaggerProvider/files/img/logo.png" }],
+    ["link", { rel: "icon", href: "/files/img/logo.png" }],
     [
       "link",
       {
@@ -15,7 +15,7 @@ export default defineConfig({
     ],
   ],
   themeConfig: {
-    logo: "/SwaggerProvider/files/img/logo.png",
+    logo: "/files/img/logo.png",
     nav: [
       { text: "Home", link: "/" },
       { text: "NuGet", link: "https://www.nuget.org/packages/SwaggerProvider" },
