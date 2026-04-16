@@ -1,10 +1,11 @@
 import { defineConfig } from "vitepress";
 
 export default defineConfig({
+  base: "/SwaggerProvider/",
   title: "SwaggerProvider",
   description: "F# OpenAPI Type Provider",
   head: [
-    ["link", { rel: "icon", href: "/files/img/logo.png" }],
+    ["link", { rel: "icon", href: "/SwaggerProvider/files/img/logo.png" }],
     [
       "link",
       {

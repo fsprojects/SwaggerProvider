@@ -60,6 +60,7 @@ type MyApi = OpenApiClientProvider<"https://example.com/swagger.json", IgnorePar
 Every generated method automatically includes an optional `cancellationToken: CancellationToken` parameter (defaults to `CancellationToken.None`). This allows you to cancel long-running HTTP requests:
 
 ```fsharp
+open System
 open System.Threading
 open SwaggerProvider
 
@@ -68,9 +69,13 @@ type PetStore = OpenApiClientProvider<Schema>
 
 let client = PetStore.Client()
 
-// Cancel after 5 seconds
-use cts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0))
-let! pet = client.GetPetById(42L, cancellationToken = cts.Token)
+task {
+    // Cancel after 5 seconds
+    use cts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0))
+    let! pet = client.GetPetById(42L, cancellationToken = cts.Token)
+    printfn $"Pet: {pet}"
+}
+|> _.Result
 ```
 
 ## Sample

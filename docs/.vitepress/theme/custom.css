@@ -11,6 +11,6 @@
 
 @supports (font-variation-settings: normal) {
   :root {
-    --vp-font-family-mono: "Fira Code VF", monospace;
+    --vp-font-family-mono: "Fira Code", monospace;
   }
 }

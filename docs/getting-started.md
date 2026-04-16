@@ -2,7 +2,7 @@
 
 **SwaggerProvider** is an F# generative [Type Provider](https://learn.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/) that auto-generates strongly-typed HTTP clients from [OpenAPI 3.0](https://swagger.io/specification/) and [Swagger 2.0](https://swagger.io/specification/v2/) schemas — no code generation step required.
 
-The single provider, [OpenApiClientProvider](/OpenApiClientProvider), uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse both OpenAPI and Swagger schemas in `JSON` and `YAML` formats, and targets `net8.0` and `net10.0`.
+The single provider, [OpenApiClientProvider](/OpenApiClientProvider), uses [Microsoft.OpenApi.Readers](https://www.nuget.org/packages/Microsoft.OpenApi.Readers/) to parse both OpenAPI and Swagger schemas in `JSON` and `YAML` formats, and works on `net8.0+`.
 
 ## Getting Started
 
