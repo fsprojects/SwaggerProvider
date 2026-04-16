@@ -96,6 +96,41 @@ let ``additionalProperties boolean maps to Map<string, bool>``() =
     ty
     |> shouldEqual(typedefof<Map<string, obj>>.MakeGenericType(typeof<string>, typeof<bool>))
 
+// ── Object with both properties and additionalProperties is not a Map ─────────
+// When a schema has explicit `properties` alongside `additionalProperties`, the
+// type should be compiled as an object (preserving the declared properties), not
+// silently reduced to a Map that discards them.
+
+[<Fact>]
+let ``object with properties and additionalProperties compiles to object type not Map``() =
+    let schemaStr =
+        """openapi: "3.0.0"
+info:
+  title: MixedAdditionalPropsTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    TestType:
+      type: object
+      properties:
+        Value:
+          type: object
+          properties:
+            Name:
+              type: string
+          additionalProperties:
+            type: integer
+"""
+
+    let ty = compileSchemaAndGetValueType schemaStr
+    // Should be an object type (not a generic Map)
+    ty.IsGenericType |> shouldEqual false
+
+    ty.GetProperties()
+    |> Array.exists(fun p -> p.Name = "Name")
+    |> shouldEqual true
+
 // ── Array of $ref objects ─────────────────────────────────────────────────────
 
 [<Fact>]
