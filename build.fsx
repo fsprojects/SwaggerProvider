@@ -145,7 +145,7 @@ Target.create "PublishNuget" (fun _ ->
 // Generate the documentation
 
 Target.create "BrowseDocs" (fun _ ->
-    CreateProcess.fromRawCommandLine "dotnet" "serve -o -d ./docs"
+    CreateProcess.fromRawCommandLine "npm" "run docs:dev --prefix docs"
     |> (Proc.run >> ignore))
 
 // --------------------------------------------------------------------------------------

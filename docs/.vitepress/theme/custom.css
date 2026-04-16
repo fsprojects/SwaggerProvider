@@ -1,0 +1,16 @@
+:root {
+  --vp-font-family-mono: "Fira Code", monospace;
+}
+
+.VPHero .image-container .image-bg {
+  background-image: linear-gradient(135deg, #00c9a7 0%, #1cb5e0 50%, #00d4aa 100%);
+  border-radius: 50%;
+  filter: blur(68px);
+  opacity: 0.6;
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    --vp-font-family-mono: "Fira Code", monospace;
+  }
+}

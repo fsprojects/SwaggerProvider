@@ -55,6 +55,29 @@ type MyApi = OpenApiClientProvider<"https://example.com/swagger.json", IgnorePar
 
 **Note:** Only use `IgnoreParseErrors=true` when you trust the schema source. Suppressing errors may hide genuine schema problems that could affect the generated client.
 
+## CancellationToken Support
+
+Every generated method automatically includes an optional `cancellationToken: CancellationToken` parameter (defaults to `CancellationToken.None`). This allows you to cancel long-running HTTP requests:
+
+```fsharp
+open System
+open System.Threading
+open SwaggerProvider
+
+let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
+type PetStore = OpenApiClientProvider<Schema>
+
+let client = PetStore.Client()
+
+task {
+    // Cancel after 5 seconds
+    use cts = new CancellationTokenSource(TimeSpan.FromSeconds(5.0))
+    let! pet = client.GetPetById(42L, cancellationToken = cts.Token)
+    printfn $"Pet: {pet}"
+}
+|> _.Result
+```
+
 ## Sample
 
 ```fsharp
@@ -63,19 +86,19 @@ open System.Net.Http
 open SwaggerProvider
 
 let [<Literal>] Schema = "https://petstore.swagger.io/v2/swagger.json"
-// By default provided methods return Task<'a> 
-// and uses Option<'a> for optional params
+// By default provided methods return Task<'a>
+// and use Option<'a> for optional params
 type PetStore = OpenApiClientProvider<Schema>
 
 [<EntryPoint>]
 let main argv =
     // `UseCookies = false` is required if you use Cookie Parameters
-    let handler = new HttpClientHandler (UseCookies = false)
-    // `BaseAddress` uri should end with '/' because TP generate relative uri
+    let handler = new HttpClientHandler(UseCookies = false)
+    // `BaseAddress` uri should end with '/' because TP generates relative URIs
     let baseUri = Uri("https://petstore.swagger.io/v2/")
-    use httpClient = new HttpClient(handler, true, BaseAddress=baseUri)
-    // You can provide your instance of `HttpClient` to the provided api client
-    // or change it any time in runtime using `client.HttpClient` property
+    use httpClient = new HttpClient(handler, true, BaseAddress = baseUri)
+    // You can provide your instance of `HttpClient` to the provided API client
+    // or change it any time at runtime using `client.HttpClient` property
     let client = PetStore.Client(httpClient)
 
     task {
@@ -83,7 +106,7 @@ let main argv =
         let pet = PetStore.Pet(Id = Some(24L), Name = "Shani")
         do! client.AddPet(pet)
 
-        // Request data back and deserialize to provided type
+        // Request data back and deserialize to the provided type
         let! myPet = client.GetPetById(24L)
         printfn "Waw, my name is %A" myPet.Name
     }

@@ -1,7 +1,7 @@
 #### 4.0.0-beta01 - April 14, 2026
 
 - BREAKING: remove SwaggerClientProvider and v2 compiler, simplify folder structure (#377)
-- BREAKING: wrap optional scalar reference types in Option<T> (#122) (#357)
+- BREAKING: wrap optional scalar reference types in Option\<T\> (#122) (#357)
 - feat: resolve oneOf/anyOf with single $ref to referenced type (#375)
 - fix: publish portable PDB debug symbols to NuGet package (#361)
 - perf: cache MethodInfo for asyncCast/taskCast to avoid repeated reflection (#374)
@@ -31,7 +31,7 @@
 - feat: Add `IgnoreParseErrors` parameter to OpenApiClientProvider (#300)
 - feat: Add `SchemaReaderErrors` property to OpenApiClientProvider (fixes #160) (#327)
 - fix: include response body in OpenApiException message (closes #250) (#324)
-- fix: unwrap F# `Option<T>` in `toParam` for header/path/cookie parameters (closes #140) (#322)
+- fix: unwrap F# `Option<T>` in \`toParam\` for header/path/cookie parameters (closes #140) (#322)
 - fix: 2xx response handling in v2 and v3 OperationCompilers (#313)
 - fix: `$0` in path parameter values treated as regex back-reference (#310)
 - fix: Option types in form data not being unwrapped (issue #214) (#298)
