@@ -23,12 +23,12 @@ client.GetInventory() |> Async.AwaitTask |> Async.RunSynchronously
 
 ## Features
 
-- **Zero code generation** — types are created at compile time from live or local schema files
+- **Compile-Time Types** — generated at compile time directly from live or local schema files, no separate codegen step needed
 - Supports **OpenAPI 3.0** and **Swagger 2.0** schemas in JSON and YAML formats
-- Works in **F# scripts**, **.NET projects**, and **F# Interactive**
-- Generates typed models, request/response types, and a typed HTTP client
-- IDE auto-complete and type-checking for all API endpoints
-- **SSRF protection** enabled by default (disable with `SsrfProtection=false` for local dev)
+- **Works Everywhere** — F# scripts, .NET projects, and F# Interactive with full IntelliSense and type-checking
+- **SSRF Protection** — blocks HTTP and private IP addresses by default to prevent server-side request forgery attacks
+- **CancellationToken Support** — every generated method accepts an optional CancellationToken for cancelling long-running requests
+- **Fully Customizable** — bring your own HttpClient, DelegatingHandler, or override JSON serialization
 
 ## Installation
 
