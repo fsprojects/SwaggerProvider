@@ -85,11 +85,9 @@ let client = PetStore.Client(httpClient)
 Serialization is also flexible.
 Define your own API client type as a subclass of the generated API client and override `Serialize` and `Deserialize`.
 
-<Note type="note">
-
+::: info
 The serializer is configurable but not replaceable! The Type provider emits types with [JsonPropertyNameAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.serialization.jsonpropertynameattribute?view=net-10.0) on properties for seamless serialization.
-
-</Note>
+:::
 
 ```fsharp {highlight:['20-28', '33-34']}
 open System
