@@ -432,7 +432,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                                 task {
                                     let! response = x
-                                    let! content = RuntimeHelpers.readContentAsString response ct
+                                    let! content = RuntimeHelpers.readContentAsString response.Content ct
                                     return (%this).Deserialize(content, innerReturnType)
                                 }
                             @>
@@ -444,7 +444,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                                 task {
                                     let! response = x
-                                    let! data = RuntimeHelpers.readContentAsStream response ct
+                                    let! data = RuntimeHelpers.readContentAsStream response.Content ct
                                     return data
                                 }
                             @>
@@ -456,7 +456,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                                 task {
                                     let! response = x
-                                    let! data = RuntimeHelpers.readContentAsString response ct
+                                    let! data = RuntimeHelpers.readContentAsString response.Content ct
                                     return data
                                 }
                             @>
