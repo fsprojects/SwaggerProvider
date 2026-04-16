@@ -4,7 +4,7 @@ hero:
   name: OpenAPI & Swagger F# Type Provider
   tagline: Strongly-typed HTTP clients from OpenAPI 3.0 and Swagger 2.0 schemas in JSON and YAML formats.
   image:
-    src: /files/img/landing.png
+    src: /SwaggerProvider/files/img/landing.png
     alt: SwaggerProvider
   actions:
     - theme: brand

@@ -15,7 +15,7 @@ export default defineConfig({
     ],
   ],
   themeConfig: {
-    logo: "/files/img/logo.png",
+    logo: "/SwaggerProvider/files/img/logo.png",
     nav: [
       { text: "Home", link: "/" },
       { text: "NuGet", link: "https://www.nuget.org/packages/SwaggerProvider" },
