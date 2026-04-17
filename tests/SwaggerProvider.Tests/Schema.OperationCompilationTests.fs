@@ -499,3 +499,144 @@ let ``required header parameter is not optional``() =
     let headerParam = parameters |> Array.find(fun p -> p.Name = "xApiVersion")
     headerParam.IsOptional |> shouldEqual false
     headerParam.ParameterType |> shouldEqual typeof<string>
+
+// ── Cookie parameters ──────────────────────────────────────────────────────────
+
+let private cookieParamSchema =
+    """openapi: "3.0.0"
+info:
+  title: CookieParamTest
+  version: "1.0.0"
+paths:
+  /session:
+    get:
+      operationId: getSession
+      parameters:
+        - name: sessionId
+          in: cookie
+          required: true
+          schema:
+            type: string
+        - name: theme
+          in: cookie
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``cookie parameter is included as a method parameter``() =
+    let types = compileTaskSchema cookieParamSchema
+    let method = (findMethod types "GetSession").Value
+    let parameters = method.GetParameters()
+    // sessionId (required string) + theme (optional string) + cancellationToken
+    parameters.Length |> shouldEqual 3
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "sessionId"
+    paramNames |> shouldContain "theme"
+
+[<Fact>]
+let ``required cookie parameter is not optional``() =
+    let types = compileTaskSchema cookieParamSchema
+    let method = (findMethod types "GetSession").Value
+    let parameters = method.GetParameters()
+    let cookieParam = parameters |> Array.find(fun p -> p.Name = "sessionId")
+    cookieParam.IsOptional |> shouldEqual false
+    cookieParam.ParameterType |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``optional cookie parameter is optional``() =
+    let types = compileTaskSchema cookieParamSchema
+    let method = (findMethod types "GetSession").Value
+    let parameters = method.GetParameters()
+    let themeParam = parameters |> Array.find(fun p -> p.Name = "theme")
+    themeParam.IsOptional |> shouldEqual true
+
+// ── text/plain response ────────────────────────────────────────────────────────
+
+let private textPlainResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: TextPlainTest
+  version: "1.0.0"
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``text/plain response produces Task<string> return type``() =
+    let types = compileTaskSchema textPlainResponseSchema
+    let method = (findMethod types "GetHealth").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``text/plain response in async mode produces Async<string> return type``() =
+    let types = compileAsyncSchema textPlainResponseSchema
+    let method = (findMethod types "GetHealth").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Async<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
+
+// ── default response ───────────────────────────────────────────────────────────
+
+let private defaultResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: DefaultResponseTest
+  version: "1.0.0"
+paths:
+  /data:
+    get:
+      operationId: getData
+      responses:
+        default:
+          description: Default response
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``default response is used as return type when no 2xx response is defined``() =
+    let types = compileTaskSchema defaultResponseSchema
+    let method = (findMethod types "GetData").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+    // The string schema from the default response should produce Task<string>
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
