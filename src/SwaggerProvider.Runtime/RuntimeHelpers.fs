@@ -376,23 +376,6 @@ module RuntimeHelpers =
 
         m.Invoke(null, [| asyncOp |])
 
-    /// Collects all response headers (both response headers and content headers) into a
-    /// read-only dictionary. Values with multiple entries keep only the first value.
-    let collectResponseHeaders(response: HttpResponseMessage) : System.Collections.Generic.IReadOnlyDictionary<string, string> =
-        let dict =
-            System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-
-        for kvp in response.Headers do
-            if not(dict.ContainsKey(kvp.Key)) then
-                dict[kvp.Key] <- Seq.head kvp.Value
-
-        if not(isNull response.Content) then
-            for kvp in response.Content.Headers do
-                if not(dict.ContainsKey(kvp.Key)) then
-                    dict[kvp.Key] <- Seq.head kvp.Value
-
-        System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(dict) :> System.Collections.Generic.IReadOnlyDictionary<string, string>
-
     let readContentAsString (content: HttpContent) (ct: System.Threading.CancellationToken) : Task<string> =
 #if NET5_0_OR_GREATER
         content.ReadAsStringAsync(ct)

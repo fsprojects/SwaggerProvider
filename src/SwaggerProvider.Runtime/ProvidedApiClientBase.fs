@@ -33,19 +33,7 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
             options
 #endif
 
-    // Mutable field populated by CallAsync after each successful response.
-    // Not thread-safe — concurrent calls may interleave; single-threaded sequential usage is typical.
-    let mutable lastResponseHeadersValue: System.Collections.Generic.IReadOnlyDictionary<string, string> =
-        System.Collections.Generic.Dictionary<string, string>() :> System.Collections.Generic.IReadOnlyDictionary<string, string>
-
     member val HttpClient = httpClient with get, set
-
-    /// The HTTP response headers from the most recent successful API call made on this client.
-    /// Includes both response headers and content headers.  Not safe for concurrent use — if
-    /// multiple calls are made simultaneously the result is the headers from whichever completed
-    /// last.
-    member _.LastResponseHeaders: System.Collections.Generic.IReadOnlyDictionary<string, string> =
-        lastResponseHeadersValue
 
     abstract member Serialize: obj -> string
     abstract member Deserialize: string * Type -> obj
@@ -63,24 +51,6 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
             let! response = this.HttpClient.SendAsync(request, cancellationToken)
 
             if response.IsSuccessStatusCode then
-                // Collect response headers (both message headers and content headers) so that
-                // LastResponseHeaders is populated for callers that need e.g. Location headers.
-                let dict =
-                    System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-
-                for kvp in response.Headers do
-                    if not(dict.ContainsKey(kvp.Key)) then
-                        dict[kvp.Key] <- Seq.head kvp.Value
-
-                if not(isNull response.Content) then
-                    for kvp in response.Content.Headers do
-                        if not(dict.ContainsKey(kvp.Key)) then
-                            dict[kvp.Key] <- Seq.head kvp.Value
-
-                lastResponseHeadersValue <-
-                    System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(dict)
-                    :> System.Collections.Generic.IReadOnlyDictionary<string, string>
-
                 return response
             else
                 let code = response.StatusCode |> int

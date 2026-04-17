@@ -588,48 +588,6 @@ module OpenApiExceptionTests =
             ()
         }
 
-    [<Fact>]
-    let ``LastResponseHeaders is empty before any call``() =
-        use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "result")
-        let client = makeClient handler
-        client.LastResponseHeaders.Count |> shouldEqual 0
-
-    [<Fact>]
-    let ``LastResponseHeaders is populated after successful call``() =
-        task {
-            // Build a stub handler that adds a custom response header
-            let responseWithHeader =
-                { new HttpMessageHandler() with
-                    override _.SendAsync(_req, _ct) =
-                        let resp = new HttpResponseMessage(HttpStatusCode.OK)
-                        resp.Content <- new StringContent("ok")
-                        resp.Headers.Add("X-Correlation-Id", "abc-123")
-                        Task.FromResult(resp) }
-
-            let client = makeClient responseWithHeader
-            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/items")
-            let! _ = client.CallAsync(request, [||], [||], CancellationToken.None)
-
-            client.LastResponseHeaders.ContainsKey("X-Correlation-Id")
-            |> shouldEqual true
-
-            client.LastResponseHeaders["X-Correlation-Id"]
-            |> shouldEqual "abc-123"
-        }
-
-    [<Fact>]
-    let ``LastResponseHeaders includes Content-Type from content headers``() =
-        task {
-            use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "\"hello\"")
-            let client = makeClient handler
-            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/items")
-            let! _ = client.CallAsync(request, [||], [||], CancellationToken.None)
-            // StringContent sets Content-Type to text/plain; charset=utf-8 by default
-            client.LastResponseHeaders.ContainsKey("Content-Type")
-            |> shouldEqual true
-        }
-
-
 /// Test types for formatObject tests — must be plain .NET classes with declared public properties.
 type FmtSingle(name: string) =
     member _.Name = name
