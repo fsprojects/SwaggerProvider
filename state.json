@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-04-16T00:00:00Z",
-  "last_run_id": "24535999164",
+  "last_run": "2026-04-17T21:56:32Z",
+  "last_run_id": "24588373874",
   "monthly_activity_issue": 352,
-  "open_repo_assist_prs": ["fix-issue-179-expose-response-headers-20260416"],
+  "open_repo_assist_prs": ["repo-assist/eng-remove-yamldotnet-20260417"],
   "comments_made": {
     "33": "2026-04-03",
     "116": "2026-03-25",
@@ -24,5 +24,5 @@
     "381": "2026-04-15"
   },
   "issues_cursor": 381,
-  "notes": "v4.0-beta01 released. PRs #382 and #383 merged by sergey-tihon 2026-04-16. New open PR: fix-issue-179-expose-response-headers-20260416 — exposes LastResponseHeaders on ProvidedApiClientBase (closes #179). All 5 open issues have Repo Assist comments. Next: consider enum types (#146) or #33 (optional message formatters) for future runs."
+  "notes": "v4.0-beta01 released. Issue #179 closed (PR #385 merged). New open PR: repo-assist/eng-remove-yamldotnet-20260417 — removes stale YamlDotNet dep + adds 6 tests for cookie params, text/plain response, default response. All 4 remaining open issues have Repo Assist comments. #358 blocked until .NET 11. #146 enum types and #33 message formatters are complex enhancements."
 }
