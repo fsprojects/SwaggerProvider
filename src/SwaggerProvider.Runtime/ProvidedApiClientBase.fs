@@ -46,12 +46,12 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
 
     member this.CallAsync
         (request: HttpRequestMessage, errorCodes: string[], errorDescriptions: string[], cancellationToken: System.Threading.CancellationToken)
-        : Task<HttpContent> =
+        : Task<HttpResponseMessage> =
         task {
             let! response = this.HttpClient.SendAsync(request, cancellationToken)
 
             if response.IsSuccessStatusCode then
-                return response.Content
+                return response
             else
                 let code = response.StatusCode |> int
                 let codeStr = code |> string
