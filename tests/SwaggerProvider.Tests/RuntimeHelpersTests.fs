@@ -563,7 +563,7 @@ module OpenApiExceptionTests =
             use handler = new StubHttpMessageHandler(HttpStatusCode.OK, "result")
             let client = makeClient handler
             use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
-            let! response = client.CallAsync(request, [||], [||], CancellationToken.None)
+            use! response = client.CallAsync(request, [||], [||], CancellationToken.None)
             let! body = response.Content.ReadAsStringAsync()
             body |> shouldEqual "result"
         }
