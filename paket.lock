@@ -42,14 +42,13 @@ NUGET
     System.Threading.Tasks.Extensions (4.6.3) - restriction: || (>= net462) (&& (< net6.0) (>= netstandard2.0)) (&& (>= netstandard2.0) (< netstandard2.1))
       System.Runtime.CompilerServices.Unsafe (>= 6.1.2) - restriction: || (>= net462) (&& (< netcoreapp2.1) (>= netstandard2.0) (< netstandard2.1))
     System.ValueTuple (4.6.2) - restriction: >= net462
-    YamlDotNet (16.3)
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (75ac6119896431f6573bfcfb663bac2fe3d3df63)
-    src/ProvidedTypes.fsi (75ac6119896431f6573bfcfb663bac2fe3d3df63)
+    src/ProvidedTypes.fs (bbea8e0f0858e8cc78159c248baf6bec0636ecfc)
+    src/ProvidedTypes.fsi (bbea8e0f0858e8cc78159c248baf6bec0636ecfc)
   remote: fsprojects/FSharp.Data
-    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (a1ee1414cacb3d2e6fa26b2726a164f563502728)
-    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (a1ee1414cacb3d2e6fa26b2726a164f563502728)
+    src/FSharp.Data.Runtime.Utilities/NameUtils.fs (e4031d0ce7301da50ba15a5f5084ec9171d8200f)
+    src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (e4031d0ce7301da50ba15a5f5084ec9171d8200f)
 GROUP Server
 RESTRICTION: == net10.0
 NUGET

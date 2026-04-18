@@ -5,5 +5,3 @@ File: NameUtils.fs
 System.Text.Json
 Microsoft.OpenApi
 Microsoft.OpenApi.YamlReader
-
-YamlDotNet
