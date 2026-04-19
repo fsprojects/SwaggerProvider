@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-04-18T13:12:19Z",
-  "last_run_id": "24605409688",
+  "last_run": "2026-04-19T13:12:00Z",
+  "last_run_id": "24629891554",
   "monthly_activity_issue": 352,
-  "open_repo_assist_prs": ["repo-assist/release-notes-4.0.0-beta02"],
+  "open_repo_assist_prs": ["repo-assist/fix-dateonly-param-serialization"],
   "comments_made": {
     "33": "2026-04-03",
     "116": "2026-03-25",
@@ -24,5 +24,5 @@
     "381": "2026-04-15"
   },
   "issues_cursor": 381,
-  "notes": "v4.0-beta01 in RELEASE_NOTES.md but no GitHub release yet. PR (new) created: docs: add 4.0.0-beta02 release notes entry (branch: repo-assist/release-notes-4.0.0-beta02). All 4 open issues have Repo Assist comments. #358 blocked until .NET 11. #146 enum types and #33 message formatters are complex enhancements."
+  "notes": "v4.0-beta02 release notes merged (#392). PR open: fix DateOnly serialization in toParam/toQueryParams (branch repo-assist/fix-dateonly-param-serialization). All 4 open issues have Repo Assist comments. #358 blocked until .NET 11. #146 enum types and #33 message formatters are complex enhancements."
 }
