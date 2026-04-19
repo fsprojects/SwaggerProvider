@@ -81,9 +81,16 @@ module RuntimeHelpers =
             let ty = value.GetType()
 
             if isDateOnlyType ty then
-                match ty.GetMethod("ToString", [| typeof<string> |]) |> Option.ofObj with
-                | Some methodInfo -> Some(methodInfo.Invoke(value, [| box "O" |]) :?> string)
-                | None -> Some(value.ToString())
+                match value with
+                | :? IFormattable as formattable -> Some(formattable.ToString("yyyy-MM-dd", Globalization.CultureInfo.InvariantCulture))
+                | _ ->
+                    match
+                        ty.GetMethod("ToString", [| typeof<string>; typeof<IFormatProvider> |])
+                        |> Option.ofObj
+                    with
+                    | Some methodInfo ->
+                        Some(methodInfo.Invoke(value, [| box "yyyy-MM-dd"; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
+                    | None -> None
             else
                 None
 
