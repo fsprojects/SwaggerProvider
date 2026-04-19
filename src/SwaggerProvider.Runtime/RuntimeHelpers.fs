@@ -61,6 +61,13 @@ module RuntimeHelpers =
     let inline private toStrArrayDateTimeOffsetOpt name values =
         values |> Array.choose(id) |> toStrArrayDateTimeOffset name
 
+    let inline private toStrArrayDateOnly name (values: DateOnly array) =
+        values
+        |> Array.map(fun value -> name, value.ToString("O"))
+        |> Array.toList
+
+    let inline private toStrArrayDateOnlyOpt name values =
+        values |> Array.choose(id) |> toStrArrayDateOnly name
 
     let inline private toStrOpt name value =
         match value with
@@ -77,10 +84,16 @@ module RuntimeHelpers =
         | Some(x) -> [ name, x.ToString("O") ]
         | None -> []
 
+    let inline private toStrDateOnlyOpt name (value: DateOnly option) =
+        match value with
+        | Some(x) -> [ name, x.ToString("O") ]
+        | None -> []
+
     let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
         | :? DateTimeOffset as dto -> dto.ToString("O")
+        | :? DateOnly as d -> d.ToString("O")
         | null -> null
         | _ ->
             let ty = obj.GetType()
@@ -118,6 +131,7 @@ module RuntimeHelpers =
             | :? array<string> as xs -> xs |> toStrArray name
             | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
             | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
+            | :? array<DateOnly> as xs -> xs |> toStrArrayDateOnly name
             | :? array<Guid> as xs -> xs |> toStrArray name
             | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
             | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
@@ -127,6 +141,7 @@ module RuntimeHelpers =
             | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
             | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
             | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
+            | :? array<Option<DateOnly>> as xs -> xs |> toStrArrayDateOnlyOpt name
             | :? array<Option<Guid>> as xs -> xs |> toStrArray name
             | :? Option<bool> as x -> x |> toStrOpt name
             | :? Option<int32> as x -> x |> toStrOpt name
@@ -138,7 +153,9 @@ module RuntimeHelpers =
             | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
             | :? DateTime as x -> [ name, x.ToString("O") ]
             | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
+            | :? DateOnly as x -> [ name, x.ToString("O") ]
             | :? Option<Guid> as x -> x |> toStrOpt name
+            | :? Option<DateOnly> as x -> x |> toStrDateOnlyOpt name
             | _ -> [ name, obj.ToString() ]
 
     /// Cache of sorted declared public instance properties per type, to avoid repeated
