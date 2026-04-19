@@ -61,13 +61,38 @@ module RuntimeHelpers =
     let inline private toStrArrayDateTimeOffsetOpt name values =
         values |> Array.choose(id) |> toStrArrayDateTimeOffset name
 
-    let inline private toStrArrayDateOnly name (values: DateOnly array) =
-        values
-        |> Array.map(fun value -> name, value.ToString("O"))
-        |> Array.toList
+    let private dateOnlyTypeName = "System.DateOnly"
 
-    let inline private toStrArrayDateOnlyOpt name values =
-        values |> Array.choose(id) |> toStrArrayDateOnly name
+    let private isDateOnlyType(t: Type) =
+        not(isNull t) && t.FullName = dateOnlyTypeName
+
+    let private isOptionOfDateOnlyType(t: Type) =
+        t.IsGenericType
+        && t.GetGenericTypeDefinition() = typedefof<option<_>>
+        && isDateOnlyType(t.GetGenericArguments().[0])
+
+    let private tryFormatDateOnly(value: obj) =
+        if isNull value then
+            None
+        else
+            let ty = value.GetType()
+
+            if isDateOnlyType ty then
+                let toStringWithFormat = ty.GetMethod("ToString", [| typeof<string> |])
+
+                if isNull toStringWithFormat then
+                    Some(value.ToString())
+                else
+                    Some(toStringWithFormat.Invoke(value, [| box "O" |]) :?> string)
+            else
+                None
+
+    let inline private toStrArrayDateOnly name (values: Array) =
+        values
+        |> Seq.cast<obj>
+        |> Seq.choose(tryFormatDateOnly)
+        |> Seq.map(fun value -> name, value)
+        |> Seq.toList
 
     let inline private toStrOpt name value =
         match value with
@@ -84,79 +109,87 @@ module RuntimeHelpers =
         | Some(x) -> [ name, x.ToString("O") ]
         | None -> []
 
-    let inline private toStrDateOnlyOpt name (value: DateOnly option) =
-        match value with
-        | Some(x) -> [ name, x.ToString("O") ]
-        | None -> []
-
     let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
         | :? DateTimeOffset as dto -> dto.ToString("O")
-        | :? DateOnly as d -> d.ToString("O")
         | null -> null
         | _ ->
-            let ty = obj.GetType()
+            match tryFormatDateOnly obj with
+            | Some formatted -> formatted
+            | None ->
+                let ty = obj.GetType()
 
-            // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
-            if
-                ty.IsGenericType
-                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
-            then
-                let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
+                // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
+                if
+                    ty.IsGenericType
+                    && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+                then
+                    let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
 
-                if case.Name = "Some" && values.Length > 0 then
-                    toParam values.[0]
+                    if case.Name = "Some" && values.Length > 0 then
+                        toParam values.[0]
+                    else
+                        null
                 else
-                    null
-            else
-                obj.ToString()
+                    obj.ToString()
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         if isNull obj then
             []
         else
 
-            match obj with
-            | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
-            | :? Option<array<byte>> as x ->
-                match x with
-                | Some xs -> [ name, (client.Serialize xs).Trim('\"') ]
-                | None -> []
-            | :? array<bool> as xs -> xs |> toStrArray name
-            | :? array<int32> as xs -> xs |> toStrArray name
-            | :? array<int64> as xs -> xs |> toStrArray name
-            | :? array<float32> as xs -> xs |> toStrArray name
-            | :? array<double> as xs -> xs |> toStrArray name
-            | :? array<string> as xs -> xs |> toStrArray name
-            | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
-            | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
-            | :? array<DateOnly> as xs -> xs |> toStrArrayDateOnly name
-            | :? array<Guid> as xs -> xs |> toStrArray name
-            | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
-            | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
-            | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name
-            | :? array<Option<float32>> as xs -> xs |> toStrArrayOpt name
-            | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
-            | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
-            | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
-            | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
-            | :? array<Option<DateOnly>> as xs -> xs |> toStrArrayDateOnlyOpt name
-            | :? array<Option<Guid>> as xs -> xs |> toStrArray name
-            | :? Option<bool> as x -> x |> toStrOpt name
-            | :? Option<int32> as x -> x |> toStrOpt name
-            | :? Option<int64> as x -> x |> toStrOpt name
-            | :? Option<float32> as x -> x |> toStrOpt name
-            | :? Option<double> as x -> x |> toStrOpt name
-            | :? Option<string> as x -> x |> toStrOpt name
-            | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
-            | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
-            | :? DateTime as x -> [ name, x.ToString("O") ]
-            | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
-            | :? DateOnly as x -> [ name, x.ToString("O") ]
-            | :? Option<Guid> as x -> x |> toStrOpt name
-            | :? Option<DateOnly> as x -> x |> toStrDateOnlyOpt name
-            | _ -> [ name, obj.ToString() ]
+            match tryFormatDateOnly obj with
+            | Some formatted -> [ name, formatted ]
+            | None ->
+                match obj with
+                | :? array<byte> as xs -> [ name, (client.Serialize xs).Trim('\"') ] // TODO: Need to verify how servers parse byte[] from query string
+                | :? Option<array<byte>> as x ->
+                    match x with
+                    | Some xs -> [ name, (client.Serialize xs).Trim('\"') ]
+                    | None -> []
+                | :? array<bool> as xs -> xs |> toStrArray name
+                | :? array<int32> as xs -> xs |> toStrArray name
+                | :? array<int64> as xs -> xs |> toStrArray name
+                | :? array<float32> as xs -> xs |> toStrArray name
+                | :? array<double> as xs -> xs |> toStrArray name
+                | :? array<string> as xs -> xs |> toStrArray name
+                | :? array<DateTime> as xs -> xs |> toStrArrayDateTime name
+                | :? array<DateTimeOffset> as xs -> xs |> toStrArrayDateTimeOffset name
+                | :? array<Guid> as xs -> xs |> toStrArray name
+                | :? array<Option<bool>> as xs -> xs |> toStrArrayOpt name
+                | :? array<Option<int32>> as xs -> xs |> toStrArrayOpt name
+                | :? array<Option<int64>> as xs -> xs |> toStrArrayOpt name
+                | :? array<Option<float32>> as xs -> xs |> toStrArrayOpt name
+                | :? array<Option<double>> as xs -> xs |> toStrArrayOpt name
+                | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
+                | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
+                | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
+                | :? array<Option<Guid>> as xs -> xs |> toStrArray name
+                | :? Option<bool> as x -> x |> toStrOpt name
+                | :? Option<int32> as x -> x |> toStrOpt name
+                | :? Option<int64> as x -> x |> toStrOpt name
+                | :? Option<float32> as x -> x |> toStrOpt name
+                | :? Option<double> as x -> x |> toStrOpt name
+                | :? Option<string> as x -> x |> toStrOpt name
+                | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
+                | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
+                | :? DateTime as x -> [ name, x.ToString("O") ]
+                | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
+                | :? Option<Guid> as x -> x |> toStrOpt name
+                | :? Array as xs when isDateOnlyType(xs.GetType().GetElementType()) -> xs |> toStrArrayDateOnly name
+                | :? Array as xs when isOptionOfDateOnlyType(xs.GetType().GetElementType()) ->
+                    xs
+                    |> Seq.cast<obj>
+                    |> Seq.choose(fun value ->
+                        let param = toParam value
+
+                        if isNull param then None else Some(name, param))
+                    |> Seq.toList
+                | _ when isOptionOfDateOnlyType(obj.GetType()) ->
+                    let param = toParam obj
+                    if isNull param then [] else [ name, param ]
+                | _ -> [ name, obj.ToString() ]
 
     /// Cache of sorted declared public instance properties per type, to avoid repeated
     /// reflection and sorting overhead when formatObject is called frequently.
