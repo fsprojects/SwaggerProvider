@@ -87,7 +87,7 @@ module RuntimeHelpers =
             else
                 None
 
-    let inline private toStrArrayDateOnly name (values: Array) =
+    let private toStrArrayDateOnly name (values: Array) =
         values
         |> Seq.cast<obj>
         |> Seq.choose(tryFormatDateOnly)
