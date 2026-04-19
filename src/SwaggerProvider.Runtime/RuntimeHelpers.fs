@@ -140,7 +140,7 @@ module RuntimeHelpers =
             | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
             | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
             | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
-            | :? array<Option<Guid>> as xs -> xs |> toStrArray name
+            | :? array<Option<Guid>> as xs -> xs |> toStrArrayOpt name
             | :? Array as xs when xs.GetType().GetElementType() |> Option.ofObj |> Option.exists isDateOnlyLikeType ->
                 xs
                 |> Seq.cast<obj>

@@ -219,6 +219,13 @@ module ToQueryParamsTests =
         result |> shouldEqual [ ("id", g1.ToString()); ("id", g2.ToString()) ]
 
     [<Fact>]
+    let ``toQueryParams skips None items in Option<Guid> array``() =
+        let g = Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+        let values: Option<Guid>[] = [| Some g; None |]
+        let result = toQueryParams "id" (box values) stubClient
+        result |> shouldEqual [ ("id", g.ToString()) ]
+
+    [<Fact>]
     let ``toQueryParams handles float32 array``() =
         let result = toQueryParams "v" (box [| 1.5f; 2.5f |]) stubClient
         result |> shouldEqual [ ("v", "1.5"); ("v", "2.5") ]
