@@ -1,3 +1,14 @@
+#### 4.0.0-beta02 - April 18, 2026
+
+- fix: preserve declared properties when schema has both `properties` and `additionalProperties` (#383)
+- refactor: `CallAsync` returns `HttpResponseMessage` internally for cleaner response handling (#385)
+- eng: remove stale YamlDotNet dependency (removed with v2 parser in #377) (#386)
+- test: extend OperationCompiler unit tests (+12 tests for asAsync mode, DELETE/PUT, header params) (#380)
+- test: add coverage for cookie params, text/plain response, and default response (+6 tests) (#386)
+- docs: update homepage README for v4.0 (remove SwaggerClientProvider references, update targets) (#379)
+- docs: improve VitePress site — fix badges, flatten nav, dark theme, add features table (#382)
+- ci: bump actions/configure-pages 5→6, deploy-pages 4→5, setup-node 4→6, upload-artifact 7.0.0→7.0.1
+
 #### 4.0.0-beta01 - April 14, 2026
 
 - BREAKING: remove SwaggerClientProvider and v2 compiler, simplify folder structure (#377)
