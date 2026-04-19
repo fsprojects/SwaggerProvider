@@ -71,10 +71,12 @@ module RuntimeHelpers =
         && t.GetGenericTypeDefinition() = typedefof<option<_>>
         && isDateOnlyType(t.GetGenericArguments().[0])
 
-    let private dateOnlyToStringWithFormatCache =
-        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.MethodInfo option>()
+    let private dateOnlyToStringWithFormat =
+        Type.GetType(dateOnlyTypeName, false)
+        |> Option.ofObj
+        |> Option.bind(fun ty -> ty.GetMethod("ToString", [| typeof<string> |]) |> Option.ofObj)
 
-    let private tryGetArrayElementType(arr: Array) =
+    let private getArrayElementType(arr: Array) =
         arr.GetType().GetElementType() |> Option.ofObj
 
     let private tryFormatDateOnly(value: obj) =
@@ -85,7 +87,9 @@ module RuntimeHelpers =
 
             if isDateOnlyType ty then
                 let toStringWithFormat =
-                    dateOnlyToStringWithFormatCache.GetOrAdd(ty, fun t -> t.GetMethod("ToString", [| typeof<string> |]) |> Option.ofObj)
+                    match dateOnlyToStringWithFormat with
+                    | Some methodInfo when methodInfo.DeclaringType = ty -> Some methodInfo
+                    | _ -> ty.GetMethod("ToString", [| typeof<string> |]) |> Option.ofObj
 
                 match toStringWithFormat with
                 | Some methodInfo -> Some(methodInfo.Invoke(value, [| box "O" |]) :?> string)
@@ -184,8 +188,8 @@ module RuntimeHelpers =
                 | :? DateTime as x -> [ name, x.ToString("O") ]
                 | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
                 | :? Option<Guid> as x -> x |> toStrOpt name
-                | :? Array as xs when xs |> tryGetArrayElementType |> Option.exists isDateOnlyType -> xs |> toStrArrayDateOnly name
-                | :? Array as xs when xs |> tryGetArrayElementType |> Option.exists isOptionOfDateOnlyType ->
+                | :? Array as xs when xs |> getArrayElementType |> Option.exists isDateOnlyType -> xs |> toStrArrayDateOnly name
+                | :? Array as xs when xs |> getArrayElementType |> Option.exists isOptionOfDateOnlyType ->
                     xs
                     |> Seq.cast<obj>
                     |> Seq.choose(fun value ->
