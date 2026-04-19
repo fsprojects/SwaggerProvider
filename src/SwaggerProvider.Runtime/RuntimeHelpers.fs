@@ -61,21 +61,38 @@ module RuntimeHelpers =
     let inline private toStrArrayDateTimeOffsetOpt name values =
         values |> Array.choose(id) |> toStrArrayDateTimeOffset name
 
+    let private dateOnlyTypeName = "System.DateOnly"
 
-    let inline private toStrOpt name value =
-        match value with
-        | Some(x) -> [ name, x.ToString() ]
-        | None -> []
+    let private isDateOnlyType(t: Type) =
+        not(isNull t) && t.FullName = dateOnlyTypeName
 
-    let inline private toStrDateTimeOpt name (value: DateTime option) =
-        match value with
-        | Some(x) -> [ name, x.ToString("O") ]
-        | None -> []
+    let private isOptionOfDateOnlyType(t: Type) =
+        t.IsGenericType
+        && t.GetGenericTypeDefinition() = typedefof<option<_>>
+        && isDateOnlyType(t.GetGenericArguments().[0])
 
-    let inline private toStrDateTimeOffsetOpt name (value: DateTimeOffset option) =
-        match value with
-        | Some(x) -> [ name, x.ToString("O") ]
-        | None -> []
+    let private isDateOnlyLikeType(t: Type) =
+        isDateOnlyType t || isOptionOfDateOnlyType t
+
+    let private tryFormatDateOnly(value: obj) =
+        if isNull value then
+            None
+        else
+            let ty = value.GetType()
+
+            if isDateOnlyType ty then
+                match value with
+                | :? IFormattable as formattable -> Some(formattable.ToString("yyyy-MM-dd", Globalization.CultureInfo.InvariantCulture))
+                | _ ->
+                    match
+                        ty.GetMethod("ToString", [| typeof<string>; typeof<IFormatProvider> |])
+                        |> Option.ofObj
+                    with
+                    | Some methodInfo ->
+                        Some(methodInfo.Invoke(value, [| box "yyyy-MM-dd"; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
+                    | None -> None
+            else
+                None
 
     let rec toParam(obj: obj) =
         match obj with
@@ -83,21 +100,24 @@ module RuntimeHelpers =
         | :? DateTimeOffset as dto -> dto.ToString("O")
         | null -> null
         | _ ->
-            let ty = obj.GetType()
+            match tryFormatDateOnly obj with
+            | Some formatted -> formatted
+            | None ->
+                let ty = obj.GetType()
 
-            // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
-            if
-                ty.IsGenericType
-                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
-            then
-                let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
+                // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
+                if
+                    ty.IsGenericType
+                    && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+                then
+                    let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
 
-                if case.Name = "Some" && values.Length > 0 then
-                    toParam values.[0]
+                    if case.Name = "Some" && values.Length > 0 then
+                        toParam values.[0]
+                    else
+                        null
                 else
-                    null
-            else
-                obj.ToString()
+                    obj.ToString()
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         if isNull obj then
@@ -127,19 +147,22 @@ module RuntimeHelpers =
             | :? array<Option<string>> as xs -> xs |> toStrArrayOpt name
             | :? array<Option<DateTime>> as xs -> xs |> toStrArrayDateTimeOpt name
             | :? array<Option<DateTimeOffset>> as xs -> xs |> toStrArrayDateTimeOffsetOpt name
-            | :? array<Option<Guid>> as xs -> xs |> toStrArray name
-            | :? Option<bool> as x -> x |> toStrOpt name
-            | :? Option<int32> as x -> x |> toStrOpt name
-            | :? Option<int64> as x -> x |> toStrOpt name
-            | :? Option<float32> as x -> x |> toStrOpt name
-            | :? Option<double> as x -> x |> toStrOpt name
-            | :? Option<string> as x -> x |> toStrOpt name
-            | :? Option<DateTime> as x -> x |> toStrDateTimeOpt name
-            | :? Option<DateTimeOffset> as x -> x |> toStrDateTimeOffsetOpt name
-            | :? DateTime as x -> [ name, x.ToString("O") ]
-            | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
-            | :? Option<Guid> as x -> x |> toStrOpt name
-            | _ -> [ name, obj.ToString() ]
+            | :? array<Option<Guid>> as xs -> xs |> toStrArrayOpt name
+            | :? Array as xs when
+                xs.GetType().GetElementType()
+                |> Option.ofObj
+                |> Option.exists isDateOnlyLikeType
+                ->
+                xs
+                |> Seq.cast<obj>
+                |> Seq.choose(fun value ->
+                    let param = toParam value
+
+                    if isNull param then None else Some(name, param))
+                |> Seq.toList
+            | _ ->
+                let param = toParam obj
+                if isNull param then [] else [ name, param ]
 
     /// Cache of sorted declared public instance properties per type, to avoid repeated
     /// reflection and sorting overhead when formatObject is called frequently.

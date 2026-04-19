@@ -76,6 +76,23 @@ module ToParamTests =
         let result = toParam(box(Some dto))
         result |> shouldEqual(dto.ToString("O"))
 
+    [<Fact>]
+    let ``toParam formats DateOnly as ISO 8601``() =
+        let d = DateOnly(2025, 7, 4)
+        let result = toParam(box d)
+        result |> shouldEqual "2025-07-04"
+
+    [<Fact>]
+    let ``toParam unwraps Some(DateOnly) and formats as ISO 8601``() =
+        let d = DateOnly(2025, 1, 31)
+        let result = toParam(box(Some d))
+        result |> shouldEqual "2025-01-31"
+
+    [<Fact>]
+    let ``toParam returns null for None(DateOnly)``() =
+        let result = toParam(box(None: DateOnly option))
+        result |> shouldEqual null
+
 
 module ToQueryParamsTests =
 
@@ -202,6 +219,13 @@ module ToQueryParamsTests =
         result |> shouldEqual [ ("id", g1.ToString()); ("id", g2.ToString()) ]
 
     [<Fact>]
+    let ``toQueryParams skips None items in Option<Guid> array``() =
+        let g = Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+        let values: Option<Guid>[] = [| Some g; None |]
+        let result = toQueryParams "id" (box values) stubClient
+        result |> shouldEqual [ ("id", g.ToString()) ]
+
+    [<Fact>]
     let ``toQueryParams handles float32 array``() =
         let result = toQueryParams "v" (box [| 1.5f; 2.5f |]) stubClient
         result |> shouldEqual [ ("v", "1.5"); ("v", "2.5") ]
@@ -294,6 +318,38 @@ module ToQueryParamsTests =
         let values: Option<DateTimeOffset>[] = [| Some dto; None |]
         let result = toQueryParams "ts" (box values) stubClient
         result |> shouldEqual [ ("ts", dto.ToString("O")) ]
+
+    [<Fact>]
+    let ``toQueryParams handles DateOnly as ISO 8601``() =
+        let d = DateOnly(2025, 7, 4)
+        let result = toQueryParams "date" (box d) stubClient
+        result |> shouldEqual [ ("date", "2025-07-04") ]
+
+    [<Fact>]
+    let ``toQueryParams handles DateOnly array``() =
+        let values: DateOnly[] = [| DateOnly(2025, 1, 1); DateOnly(2025, 12, 31) |]
+        let result = toQueryParams "dates" (box values) stubClient
+
+        result
+        |> shouldEqual [ ("dates", "2025-01-01"); ("dates", "2025-12-31") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<DateOnly> Some``() =
+        let d = DateOnly(2025, 6, 15)
+        let result = toQueryParams "date" (box(Some d)) stubClient
+        result |> shouldEqual [ ("date", "2025-06-15") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<DateOnly> None``() =
+        let result = toQueryParams "date" (box(None: DateOnly option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<DateOnly> array``() =
+        let d = DateOnly(2025, 3, 1)
+        let values: Option<DateOnly>[] = [| Some d; None |]
+        let result = toQueryParams "dates" (box values) stubClient
+        result |> shouldEqual [ ("dates", "2025-03-01") ]
 
 
 module CombineUrlTests =
