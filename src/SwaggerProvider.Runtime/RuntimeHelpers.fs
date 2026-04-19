@@ -71,6 +71,12 @@ module RuntimeHelpers =
         && t.GetGenericTypeDefinition() = typedefof<option<_>>
         && isDateOnlyType(t.GetGenericArguments().[0])
 
+    let private dateOnlyToStringWithFormatCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.MethodInfo option>()
+
+    let private tryGetArrayElementType(arr: Array) =
+        arr.GetType().GetElementType() |> Option.ofObj
+
     let private tryFormatDateOnly(value: obj) =
         if isNull value then
             None
@@ -78,20 +84,21 @@ module RuntimeHelpers =
             let ty = value.GetType()
 
             if isDateOnlyType ty then
-                let toStringWithFormat = ty.GetMethod("ToString", [| typeof<string> |])
+                let toStringWithFormat =
+                    dateOnlyToStringWithFormatCache.GetOrAdd(ty, fun t -> t.GetMethod("ToString", [| typeof<string> |]) |> Option.ofObj)
 
-                if isNull toStringWithFormat then
-                    Some(value.ToString())
-                else
-                    Some(toStringWithFormat.Invoke(value, [| box "O" |]) :?> string)
+                match toStringWithFormat with
+                | Some methodInfo -> Some(methodInfo.Invoke(value, [| box "O" |]) :?> string)
+                | None -> Some(value.ToString())
             else
                 None
 
     let private toStrArrayDateOnly name (values: Array) =
         values
         |> Seq.cast<obj>
-        |> Seq.choose(tryFormatDateOnly)
-        |> Seq.map(fun value -> name, value)
+        |> Seq.choose(fun value ->
+            tryFormatDateOnly value
+            |> Option.map(fun formatted -> name, formatted))
         |> Seq.toList
 
     let inline private toStrOpt name value =
@@ -177,8 +184,8 @@ module RuntimeHelpers =
                 | :? DateTime as x -> [ name, x.ToString("O") ]
                 | :? DateTimeOffset as x -> [ name, x.ToString("O") ]
                 | :? Option<Guid> as x -> x |> toStrOpt name
-                | :? Array as xs when isDateOnlyType(xs.GetType().GetElementType()) -> xs |> toStrArrayDateOnly name
-                | :? Array as xs when isOptionOfDateOnlyType(xs.GetType().GetElementType()) ->
+                | :? Array as xs when xs |> tryGetArrayElementType |> Option.exists isDateOnlyType -> xs |> toStrArrayDateOnly name
+                | :? Array as xs when xs |> tryGetArrayElementType |> Option.exists isOptionOfDateOnlyType ->
                     xs
                     |> Seq.cast<obj>
                     |> Seq.choose(fun value ->
