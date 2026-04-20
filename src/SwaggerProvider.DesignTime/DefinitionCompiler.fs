@@ -563,6 +563,15 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         else
                             typeof<DateTimeOffset>
                     | HasFlag JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
+                    | HasFlag JsonSchemaType.String, "time" ->
+                        // Use TimeOnly only when the target runtime supports it (.NET 6+).
+                        // useDateOnly is true for net6+ targets — TimeOnly was added in the same release.
+                        if useDateOnly then
+                            System.Type.GetType("System.TimeOnly")
+                            |> Option.ofObj
+                            |> Option.defaultValue typeof<string>
+                        else
+                            typeof<string>
                     | HasFlag JsonSchemaType.String, "uuid" -> typeof<Guid>
                     | HasFlag JsonSchemaType.String, _ -> typeof<string>
                     | HasFlag JsonSchemaType.Array, _ ->

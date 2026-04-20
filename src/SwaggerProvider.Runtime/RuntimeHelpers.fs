@@ -62,37 +62,54 @@ module RuntimeHelpers =
         values |> Array.choose(id) |> toStrArrayDateTimeOffset name
 
     let private dateOnlyTypeName = "System.DateOnly"
+    let private timeOnlyTypeName = "System.TimeOnly"
 
     let private isDateOnlyType(t: Type) =
         not(isNull t) && t.FullName = dateOnlyTypeName
+
+    let private isTimeOnlyType(t: Type) =
+        not(isNull t) && t.FullName = timeOnlyTypeName
 
     let private isOptionOfDateOnlyType(t: Type) =
         t.IsGenericType
         && t.GetGenericTypeDefinition() = typedefof<option<_>>
         && isDateOnlyType(t.GetGenericArguments().[0])
 
+    let private isOptionOfTimeOnlyType(t: Type) =
+        t.IsGenericType
+        && t.GetGenericTypeDefinition() = typedefof<option<_>>
+        && isTimeOnlyType(t.GetGenericArguments().[0])
+
     let private isDateOnlyLikeType(t: Type) =
         isDateOnlyType t || isOptionOfDateOnlyType t
 
-    let private tryFormatDateOnly(value: obj) =
+    let private isTimeOnlyLikeType(t: Type) =
+        isTimeOnlyType t || isOptionOfTimeOnlyType t
+
+    let private tryFormatViaMethods (typeName: string) (format: string) (value: obj) =
         if isNull value then
             None
         else
             let ty = value.GetType()
 
-            if isDateOnlyType ty then
+            if ty.FullName = typeName then
                 match value with
-                | :? IFormattable as formattable -> Some(formattable.ToString("yyyy-MM-dd", Globalization.CultureInfo.InvariantCulture))
+                | :? IFormattable as formattable -> Some(formattable.ToString(format, Globalization.CultureInfo.InvariantCulture))
                 | _ ->
                     match
                         ty.GetMethod("ToString", [| typeof<string>; typeof<IFormatProvider> |])
                         |> Option.ofObj
                     with
-                    | Some methodInfo ->
-                        Some(methodInfo.Invoke(value, [| box "yyyy-MM-dd"; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
+                    | Some methodInfo -> Some(methodInfo.Invoke(value, [| box format; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
                     | None -> None
             else
                 None
+
+    let private tryFormatDateOnly(value: obj) =
+        tryFormatViaMethods dateOnlyTypeName "yyyy-MM-dd" value
+
+    let private tryFormatTimeOnly(value: obj) =
+        tryFormatViaMethods timeOnlyTypeName "HH:mm:ss.FFFFFFF" value
 
     let rec toParam(obj: obj) =
         match obj with
@@ -103,21 +120,24 @@ module RuntimeHelpers =
             match tryFormatDateOnly obj with
             | Some formatted -> formatted
             | None ->
-                let ty = obj.GetType()
+                match tryFormatTimeOnly obj with
+                | Some formatted -> formatted
+                | None ->
+                    let ty = obj.GetType()
 
-                // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
-                if
-                    ty.IsGenericType
-                    && ty.GetGenericTypeDefinition() = typedefof<option<_>>
-                then
-                    let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
+                    // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
+                    if
+                        ty.IsGenericType
+                        && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+                    then
+                        let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
 
-                    if case.Name = "Some" && values.Length > 0 then
-                        toParam values.[0]
+                        if case.Name = "Some" && values.Length > 0 then
+                            toParam values.[0]
+                        else
+                            null
                     else
-                        null
-                else
-                    obj.ToString()
+                        obj.ToString()
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         if isNull obj then
@@ -151,7 +171,7 @@ module RuntimeHelpers =
             | :? Array as xs when
                 xs.GetType().GetElementType()
                 |> Option.ofObj
-                |> Option.exists isDateOnlyLikeType
+                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t)
                 ->
                 xs
                 |> Seq.cast<obj>
