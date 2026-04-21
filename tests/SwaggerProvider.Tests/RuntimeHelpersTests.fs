@@ -738,6 +738,31 @@ module ToFormUrlEncodedContentTests =
             body |> shouldEqual ""
         }
 
+    [<Fact>]
+    let ``toFormUrlEncodedContent formats DateTime as ISO 8601``() =
+        task {
+            let dt = DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Utc)
+
+            use content = toFormUrlEncodedContent(seq { ("ts", box dt) })
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "ts="
+            body |> shouldContainText "2024-06-15"
+            body |> shouldContainText "10%3A30%3A00" // URL-encoded "10:30:00"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent formats DateTimeOffset as ISO 8601``() =
+        task {
+            let dto = DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero)
+
+            use content = toFormUrlEncodedContent(seq { ("ts", box dto) })
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "ts="
+            body |> shouldContainText "2024-06-15"
+        }
+
 
 module ToMultipartFormDataContentTests =
 
@@ -777,6 +802,26 @@ module ToMultipartFormDataContentTests =
             || not(String.IsNullOrWhiteSpace disposition.FileNameStar)
 
         hasFileName |> shouldEqual true
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats DateTime as ISO 8601``() =
+        task {
+            let dt = DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Utc)
+            use content = toMultipartFormDataContent(seq { ("ts", box dt) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldContainText "2024-06-15"
+        }
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats DateTimeOffset as ISO 8601``() =
+        task {
+            let dto = DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero)
+            use content = toMultipartFormDataContent(seq { ("ts", box dto) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldContainText "2024-06-15"
+        }
 
 
 /// Test types for getPropertyValues tests.
