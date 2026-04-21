@@ -79,25 +79,7 @@ components:
         requiredBlock
         propYaml
 
-/// Compile a minimal v3 schema where TestType.Value is defined by `propYaml`.
-let compilePropertyType (propYaml: string) (required: bool) : Type =
-    compileSchemaAndGetValueType(buildPropertySchema propYaml required)
-
-/// Compile a minimal v3 schema with configurable DefinitionCompiler options.
-/// Returns the .NET type of the `Value` property on `TestType`.
-let compilePropertyTypeWith (provideNullable: bool) (propYaml: string) (required: bool) : Type =
-    let types =
-        compileV3SchemaCore (buildPropertySchema propYaml required) provideNullable false
-
-    let testType = types |> List.find(fun t -> t.Name = "TestType")
-
-    match testType.GetDeclaredProperty("Value") with
-    | null -> failwith "Property 'Value' not found on TestType"
-    | prop -> prop.PropertyType
-
-/// Compile a minimal v3 schema with configurable DefinitionCompiler options.
-/// Returns the .NET type of the `Value` property on `TestType`.
-let compilePropertyTypeWithUseDateOnly (provideNullable: bool) (useDateOnly: bool) (propYaml: string) (required: bool) : Type =
+let private compilePropertyTypeWithOptions (provideNullable: bool) (useDateOnly: bool) (propYaml: string) (required: bool) : Type =
     let types =
         compileV3SchemaCoreWithOptions (buildPropertySchema propYaml required) provideNullable useDateOnly false
 
@@ -106,3 +88,16 @@ let compilePropertyTypeWithUseDateOnly (provideNullable: bool) (useDateOnly: boo
     match testType.GetDeclaredProperty("Value") with
     | null -> failwith "Property 'Value' not found on TestType"
     | prop -> prop.PropertyType
+
+/// Compile a minimal v3 schema where TestType.Value is defined by `propYaml`.
+let compilePropertyType (propYaml: string) (required: bool) : Type =
+    compilePropertyTypeWithOptions false false propYaml required
+
+/// Compile a minimal v3 schema with configurable DefinitionCompiler options.
+/// Returns the .NET type of the `Value` property on `TestType`.
+let compilePropertyTypeWith (provideNullable: bool) (propYaml: string) (required: bool) : Type =
+    compilePropertyTypeWithOptions provideNullable false propYaml required
+
+/// Compile a minimal v3 schema where date/time formats map to DateOnly/TimeOnly types.
+let compilePropertyTypeWithDateOnly (propYaml: string) (required: bool) : Type =
+    compilePropertyTypeWithOptions false true propYaml required
