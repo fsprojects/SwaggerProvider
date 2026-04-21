@@ -7,7 +7,7 @@ open SwaggerProvider.Internal.Compilers
 
 /// Core: parse, validate, and compile an OpenAPI v3 schema string.
 /// `provideNullable` controls whether optional value-type properties use Nullable<T>.
-/// `useDateOnly` controls whether date/date-time/time formats can map to DateOnly/TimeOnly types.
+/// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
 /// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
 let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable: bool) (useDateOnly: bool) (asAsync: bool) =
     let settings = OpenApiReaderSettings()
