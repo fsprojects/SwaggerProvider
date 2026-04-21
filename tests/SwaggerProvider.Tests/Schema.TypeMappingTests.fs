@@ -66,6 +66,13 @@ let ``required string time format falls back to string when useDateOnly is false
     ty |> shouldEqual typeof<string>
 
 [<Fact>]
+let ``required string time format maps to TimeOnly when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithUseDateOnly false true "          type: string\n          format: time\n" true
+
+    ty |> shouldEqual typeof<TimeOnly>
+
+[<Fact>]
 let ``required string uuid format maps to Guid``() =
     let ty = compilePropertyType "          type: string\n          format: uuid\n" true
 
