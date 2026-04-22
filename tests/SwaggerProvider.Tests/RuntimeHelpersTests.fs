@@ -738,6 +738,65 @@ module ToFormUrlEncodedContentTests =
             body |> shouldEqual ""
         }
 
+    [<Fact>]
+    let ``toFormUrlEncodedContent formats DateTime as ISO 8601``() =
+        task {
+            let dt = DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Utc)
+
+            use content = toFormUrlEncodedContent(seq { ("ts", box dt) })
+
+            let! body = content.ReadAsStringAsync()
+            let encodedValue = body.Substring("ts=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual(dt.ToString("O"))
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent formats DateTimeOffset as ISO 8601``() =
+        task {
+            let dto = DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero)
+
+            use content = toFormUrlEncodedContent(seq { ("ts", box dto) })
+
+            let! body = content.ReadAsStringAsync()
+            let encodedValue = body.Substring("ts=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual(dto.ToString("O"))
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent formats DateOnly as ISO 8601``() =
+        task {
+            let d = DateOnly(2025, 7, 4)
+            use content = toFormUrlEncodedContent(seq { ("date", box d) })
+
+            let! body = content.ReadAsStringAsync()
+            let encodedValue = body.Substring("date=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual "2025-07-04"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent skips values when toParam returns null``() =
+        task {
+            let nestedNone = box(Some(None: string option))
+
+            use content =
+                toFormUrlEncodedContent(
+                    seq {
+                        ("present", box "yes")
+                        ("nestedNone", nestedNone)
+                    }
+                )
+
+            let! body = content.ReadAsStringAsync()
+            body |> shouldContainText "present=yes"
+            body |> shouldNotContainText "nestedNone"
+        }
+
 
 module ToMultipartFormDataContentTests =
 
@@ -777,6 +836,59 @@ module ToMultipartFormDataContentTests =
             || not(String.IsNullOrWhiteSpace disposition.FileNameStar)
 
         hasFileName |> shouldEqual true
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats DateTime as ISO 8601``() =
+        task {
+            let dt = DateTime(2024, 6, 15, 10, 30, 0, DateTimeKind.Utc)
+            use content = toMultipartFormDataContent(seq { ("ts", box dt) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldEqual(dt.ToString("O"))
+        }
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats DateTimeOffset as ISO 8601``() =
+        task {
+            let dto = DateTimeOffset(2024, 6, 15, 10, 30, 0, TimeSpan.Zero)
+            use content = toMultipartFormDataContent(seq { ("ts", box dto) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldEqual(dto.ToString("O"))
+        }
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats DateOnly as ISO 8601``() =
+        task {
+            let d = DateOnly(2025, 7, 4)
+            use content = toMultipartFormDataContent(seq { ("date", box d) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldEqual "2025-07-04"
+        }
+
+    [<Fact>]
+    let ``toMultipartFormDataContent skips values when toParam returns null``() =
+        task {
+            let nestedNone = box(Some(None: string option))
+
+            use content =
+                toMultipartFormDataContent(
+                    seq {
+                        ("present", box "yes")
+                        ("nestedNone", nestedNone)
+                    }
+                )
+
+            content |> Seq.length |> shouldEqual 1
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+
+            part.Headers.ContentDisposition.Name.Trim('"')
+            |> shouldEqual "present"
+
+            body |> shouldEqual "yes"
+        }
 
 
 /// Test types for getPropertyValues tests.
