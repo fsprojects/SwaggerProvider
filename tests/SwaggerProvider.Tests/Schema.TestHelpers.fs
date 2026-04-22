@@ -101,3 +101,7 @@ let compilePropertyTypeWith (provideNullable: bool) (propYaml: string) (required
 /// Compile a minimal v3 schema where date/time formats map to DateOnly/TimeOnly types.
 let compilePropertyTypeWithDateOnly (propYaml: string) (required: bool) : Type =
     compilePropertyTypeWithOptions false true propYaml required
+
+/// Compile a minimal v3 schema with both PreferNullable and useDateOnly options enabled.
+let compilePropertyTypeWithNullableAndDateOnly (propYaml: string) (required: bool) : Type =
+    compilePropertyTypeWithOptions true true propYaml required
