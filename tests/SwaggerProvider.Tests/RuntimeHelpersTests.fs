@@ -746,9 +746,10 @@ module ToFormUrlEncodedContentTests =
             use content = toFormUrlEncodedContent(seq { ("ts", box dt) })
 
             let! body = content.ReadAsStringAsync()
-            body |> shouldContainText "ts="
-            body |> shouldContainText "2024-06-15"
-            body |> shouldContainText "10%3A30%3A00" // URL-encoded "10:30:00"
+            let encodedValue = body.Substring("ts=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual(dt.ToString("O"))
         }
 
     [<Fact>]
@@ -759,8 +760,10 @@ module ToFormUrlEncodedContentTests =
             use content = toFormUrlEncodedContent(seq { ("ts", box dto) })
 
             let! body = content.ReadAsStringAsync()
-            body |> shouldContainText "ts="
-            body |> shouldContainText "2024-06-15"
+            let encodedValue = body.Substring("ts=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual(dto.ToString("O"))
         }
 
 
@@ -810,7 +813,7 @@ module ToMultipartFormDataContentTests =
             use content = toMultipartFormDataContent(seq { ("ts", box dt) })
             let part = content |> Seq.exactlyOne
             let! body = part.ReadAsStringAsync()
-            body |> shouldContainText "2024-06-15"
+            body |> shouldEqual(dt.ToString("O"))
         }
 
     [<Fact>]
@@ -820,7 +823,7 @@ module ToMultipartFormDataContentTests =
             use content = toMultipartFormDataContent(seq { ("ts", box dto) })
             let part = content |> Seq.exactlyOne
             let! body = part.ReadAsStringAsync()
-            body |> shouldContainText "2024-06-15"
+            body |> shouldEqual(dto.ToString("O"))
         }
 
 
