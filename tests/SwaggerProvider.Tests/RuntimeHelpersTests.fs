@@ -867,19 +867,24 @@ module ToMultipartFormDataContentTests =
 
     [<Fact>]
     let ``toMultipartFormDataContent skips values when toParam returns null``() =
-        use content =
-            toMultipartFormDataContent(
-                seq {
-                    ("present", box "yes")
-                    ("missing", box(Some(None: string option)))
-                }
-            )
+        task {
+            use content =
+                toMultipartFormDataContent(
+                    seq {
+                        ("present", box "yes")
+                        ("missing", box(Some(None: string option)))
+                    }
+                )
 
-        content |> Seq.length |> shouldEqual 1
-        let part = content |> Seq.exactlyOne
+            content |> Seq.length |> shouldEqual 1
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
 
-        part.Headers.ContentDisposition.Name.Trim('"')
-        |> shouldEqual "present"
+            part.Headers.ContentDisposition.Name.Trim('"')
+            |> shouldEqual "present"
+
+            body |> shouldEqual "yes"
+        }
 
 
 /// Test types for getPropertyValues tests.
