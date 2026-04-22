@@ -834,6 +834,19 @@ module ToFormUrlEncodedContentTests =
         }
 
     [<Fact>]
+    let ``toFormUrlEncodedContent formats TimeOnly as HH:mm:ss.FFFFFFF``() =
+        task {
+            let t = TimeOnly(9, 5, 3, 123)
+            use content = toFormUrlEncodedContent(seq { ("time", box t) })
+
+            let! body = content.ReadAsStringAsync()
+            let encodedValue = body.Substring("time=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual "09:05:03.123"
+        }
+
+    [<Fact>]
     let ``toFormUrlEncodedContent skips values when toParam returns null``() =
         task {
             let nestedNone = box(Some(None: string option))
@@ -919,6 +932,16 @@ module ToMultipartFormDataContentTests =
             let part = content |> Seq.exactlyOne
             let! body = part.ReadAsStringAsync()
             body |> shouldEqual "2025-07-04"
+        }
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats TimeOnly as HH:mm:ss.FFFFFFF``() =
+        task {
+            let t = TimeOnly(9, 5, 3, 123)
+            use content = toMultipartFormDataContent(seq { ("time", box t) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldEqual "09:05:03.123"
         }
 
     [<Fact>]
