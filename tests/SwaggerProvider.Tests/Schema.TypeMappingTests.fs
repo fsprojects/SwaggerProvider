@@ -60,6 +60,19 @@ let ``required string date format maps to DateTimeOffset``() =
     ty |> shouldEqual typeof<DateTimeOffset>
 
 [<Fact>]
+let ``required string time format falls back to string when useDateOnly is false``() =
+    // The test helper compiles with useDateOnly=false, so TimeOnly is not used
+    let ty = compilePropertyType "          type: string\n          format: time\n" true
+    ty |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``required string time format maps to TimeOnly when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithDateOnly "          type: string\n          format: time\n" true
+
+    ty |> shouldEqual typeof<TimeOnly>
+
+[<Fact>]
 let ``required string uuid format maps to Guid``() =
     let ty = compilePropertyType "          type: string\n          format: uuid\n" true
 

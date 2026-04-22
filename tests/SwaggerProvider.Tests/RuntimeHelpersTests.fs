@@ -93,6 +93,30 @@ module ToParamTests =
         let result = toParam(box(None: DateOnly option))
         result |> shouldEqual null
 
+    [<Fact>]
+    let ``toParam formats TimeOnly as HH:mm:ss.FFFFFFF``() =
+        let t = TimeOnly(14, 30, 0)
+        let result = toParam(box t)
+        result |> shouldEqual "14:30:00"
+
+    [<Fact>]
+    let ``toParam formats TimeOnly with sub-second precision``() =
+        let t = TimeOnly(9, 5, 3, 123)
+        let result = toParam(box t)
+        // "HH:mm:ss.FFFFFFF" — trailing zeros stripped by F specifier
+        result |> shouldEqual "09:05:03.123"
+
+    [<Fact>]
+    let ``toParam unwraps Some(TimeOnly) and formats correctly``() =
+        let t = TimeOnly(8, 0, 0)
+        let result = toParam(box(Some t))
+        result |> shouldEqual "08:00:00"
+
+    [<Fact>]
+    let ``toParam returns null for None(TimeOnly)``() =
+        let result = toParam(box(None: TimeOnly option))
+        result |> shouldEqual null
+
 
 module ToQueryParamsTests =
 
@@ -350,6 +374,36 @@ module ToQueryParamsTests =
         let values: Option<DateOnly>[] = [| Some d; None |]
         let result = toQueryParams "dates" (box values) stubClient
         result |> shouldEqual [ ("dates", "2025-03-01") ]
+
+    [<Fact>]
+    let ``toQueryParams handles TimeOnly``() =
+        let t = TimeOnly(14, 30, 0)
+        let result = toQueryParams "time" (box t) stubClient
+        result |> shouldEqual [ ("time", "14:30:00") ]
+
+    [<Fact>]
+    let ``toQueryParams handles TimeOnly array``() =
+        let values: TimeOnly[] = [| TimeOnly(9, 0, 0); TimeOnly(17, 30, 0) |]
+        let result = toQueryParams "times" (box values) stubClient
+        result |> shouldEqual [ ("times", "09:00:00"); ("times", "17:30:00") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<TimeOnly> Some``() =
+        let t = TimeOnly(12, 0, 0)
+        let result = toQueryParams "time" (box(Some t)) stubClient
+        result |> shouldEqual [ ("time", "12:00:00") ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<TimeOnly> None``() =
+        let result = toQueryParams "time" (box(None: TimeOnly option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams skips None items in Option<TimeOnly> array``() =
+        let t = TimeOnly(8, 0, 0)
+        let values: Option<TimeOnly>[] = [| Some t; None |]
+        let result = toQueryParams "times" (box values) stubClient
+        result |> shouldEqual [ ("times", "08:00:00") ]
 
 
 module CombineUrlTests =
@@ -780,6 +834,19 @@ module ToFormUrlEncodedContentTests =
         }
 
     [<Fact>]
+    let ``toFormUrlEncodedContent formats TimeOnly as HH:mm:ss.FFFFFFF``() =
+        task {
+            let t = TimeOnly(9, 5, 3, 123)
+            use content = toFormUrlEncodedContent(seq { ("time", box t) })
+
+            let! body = content.ReadAsStringAsync()
+            let encodedValue = body.Substring("time=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual "09:05:03.123"
+        }
+
+    [<Fact>]
     let ``toFormUrlEncodedContent skips values when toParam returns null``() =
         task {
             let nestedNone = box(Some(None: string option))
@@ -865,6 +932,16 @@ module ToMultipartFormDataContentTests =
             let part = content |> Seq.exactlyOne
             let! body = part.ReadAsStringAsync()
             body |> shouldEqual "2025-07-04"
+        }
+
+    [<Fact>]
+    let ``toMultipartFormDataContent formats TimeOnly as HH:mm:ss.FFFFFFF``() =
+        task {
+            let t = TimeOnly(9, 5, 3, 123)
+            use content = toMultipartFormDataContent(seq { ("time", box t) })
+            let part = content |> Seq.exactlyOne
+            let! body = part.ReadAsStringAsync()
+            body |> shouldEqual "09:05:03.123"
         }
 
     [<Fact>]
