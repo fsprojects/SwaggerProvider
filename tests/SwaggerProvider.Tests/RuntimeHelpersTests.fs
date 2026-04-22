@@ -782,17 +782,19 @@ module ToFormUrlEncodedContentTests =
     [<Fact>]
     let ``toFormUrlEncodedContent skips values when toParam returns null``() =
         task {
+            let nestedNone = box(Some(None: string option))
+
             use content =
                 toFormUrlEncodedContent(
                     seq {
                         ("present", box "yes")
-                        ("missing", box(Some(None: string option)))
+                        ("nestedNone", nestedNone)
                     }
                 )
 
             let! body = content.ReadAsStringAsync()
             body |> shouldContainText "present=yes"
-            body |> shouldNotContainText "missing"
+            body |> shouldNotContainText "nestedNone"
         }
 
 
@@ -868,11 +870,13 @@ module ToMultipartFormDataContentTests =
     [<Fact>]
     let ``toMultipartFormDataContent skips values when toParam returns null``() =
         task {
+            let nestedNone = box(Some(None: string option))
+
             use content =
                 toMultipartFormDataContent(
                     seq {
                         ("present", box "yes")
-                        ("missing", box(Some(None: string option)))
+                        ("nestedNone", nestedNone)
                     }
                 )
 
