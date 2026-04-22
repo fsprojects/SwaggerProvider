@@ -1,10 +1,10 @@
 {
-  "last_run": "2026-04-21T21:55:54Z",
-  "last_run_id": "24748414180",
+  "last_run": "2026-04-22T21:57:25Z",
+  "last_run_id": "24804736775",
   "monthly_activity_issue": 352,
   "open_repo_assist_prs": [
-    "repo-assist/eng-timeonly-format-time-20260420-4666c2310c7d4df2",
-    "repo-assist/improve-form-content-date-formatting-20260421"
+    "repo-assist/eng-update-openapi-2.7.3-20260422",
+    "repo-assist/test-dateonly-type-mapping-20260422"
   ],
   "comments_made": {
     "33": "2026-04-03",
@@ -27,5 +27,5 @@
     "381": "2026-04-15"
   },
   "issues_cursor": 381,
-  "notes": "v4.0-beta02 + DateOnly fix (#393, merged). PR #394 open: TimeOnly support. New PR open: fix toFormUrlEncoded/toMultipartFormData to use toParam for ISO 8601 dates. All 4 open issues have Repo Assist comments. #358 blocked until .NET 11. #146 enum types and #33 message formatters are complex enhancements."
+  "notes": "v4.0-beta02 + DateOnly/TimeOnly fixes merged (PRs #393, #394, #395). 2 new PRs this run: eng: OpenApi 2.7.3 update; test: DateOnly/TimeOnly type-mapping coverage (+7 tests, 317→324). All 4 open issues have Repo Assist comments. #358 blocked until .NET 11. #146 enum types and #33 message formatters are complex enhancements."
 }
