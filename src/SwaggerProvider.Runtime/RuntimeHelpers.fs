@@ -332,8 +332,10 @@ module RuntimeHelpers =
             | :? IO.Stream as stream -> addFileStream name stream
             | :? (IO.Stream[]) as streams -> streams |> Seq.iter(addFileStream name)
             | x ->
-                let strValue = x.ToString() // TODO: serialize? does not work with arrays probably
-                cnt.Add(toStringContent strValue, name)
+                let strValue = toParam x
+
+                if not(isNull strValue) then
+                    cnt.Add(toStringContent strValue, name)
 
         cnt
 
@@ -341,7 +343,13 @@ module RuntimeHelpers =
         let keyValues =
             keyValues
             |> Seq.filter(snd >> isNull >> not)
-            |> Seq.map(fun (k, v) -> Collections.Generic.KeyValuePair(k, v.ToString()))
+            |> Seq.choose(fun (k, v) ->
+                let param = toParam v
+
+                if isNull param then
+                    None
+                else
+                    Some(Collections.Generic.KeyValuePair(k, param)))
 
         new FormUrlEncodedContent(keyValues)
 
