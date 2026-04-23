@@ -54,7 +54,7 @@ let ``required string date-time format maps to DateTimeOffset``() =
     ty |> shouldEqual typeof<DateTimeOffset>
 
 [<Fact>]
-let ``required string date format maps to DateTimeOffset``() =
+let ``required string date format maps to DateTimeOffset when useDateOnly is false``() =
     let ty = compilePropertyType "          type: string\n          format: date\n" true
 
     ty |> shouldEqual typeof<DateTimeOffset>
