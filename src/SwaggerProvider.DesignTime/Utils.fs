@@ -334,9 +334,32 @@ module SchemaReader =
 
 module XmlDoc =
     open System
+    open System.Collections.Generic
+    open System.Text.Json
+    open System.Text.Json.Nodes
 
     let private escapeXml(s: string) =
         s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+
+    let private formatEnumValue(v: JsonNode) =
+        if isNull v then
+            "null"
+        else
+            match v with
+            | :? JsonValue as jv ->
+                match jv.GetValueKind() with
+                | JsonValueKind.String -> jv.GetValue<string>()
+                | JsonValueKind.Null -> "null"
+                | _ -> jv.ToString()
+            | _ -> v.ToString()
+
+    /// Returns "Allowed values: x, y, z" if the schema has enum values, otherwise None.
+    let buildEnumDoc(enumValues: IList<JsonNode>) =
+        if isNull enumValues || enumValues.Count = 0 then
+            None
+        else
+            let values = enumValues |> Seq.map formatEnumValue |> String.concat ", "
+            Some $"Allowed values: {values}"
 
     /// Builds a structured XML doc string from summary, description, and parameter descriptions.
     /// paramDescriptions is a sequence of (camelCaseName, description) pairs.
