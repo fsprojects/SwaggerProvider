@@ -54,10 +54,17 @@ let ``required string date-time format maps to DateTimeOffset``() =
     ty |> shouldEqual typeof<DateTimeOffset>
 
 [<Fact>]
-let ``required string date format maps to DateTimeOffset``() =
+let ``required string date format maps to DateTimeOffset when useDateOnly is false``() =
     let ty = compilePropertyType "          type: string\n          format: date\n" true
 
     ty |> shouldEqual typeof<DateTimeOffset>
+
+[<Fact>]
+let ``required string date format maps to DateOnly when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithDateOnly "          type: string\n          format: date\n" true
+
+    ty |> shouldEqual typeof<DateOnly>
 
 [<Fact>]
 let ``required string time format falls back to string when useDateOnly is false``() =
@@ -135,6 +142,22 @@ let ``optional DateTimeOffset maps to Option<DateTimeOffset>``() =
 
     ty
     |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<DateTimeOffset>))
+
+[<Fact>]
+let ``optional DateOnly maps to Option<DateOnly> when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithDateOnly "          type: string\n          format: date\n" false
+
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<DateOnly>))
+
+[<Fact>]
+let ``optional TimeOnly maps to Option<TimeOnly> when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithDateOnly "          type: string\n          format: time\n" false
+
+    ty
+    |> shouldEqual(typedefof<Option<_>>.MakeGenericType(typeof<TimeOnly>))
 
 [<Fact>]
 let ``optional Guid maps to Option<Guid>``() =
@@ -444,3 +467,35 @@ let ``PreferNullable: optional binary (base64) stays as plain Stream``() =
         compilePropertyTypeWith true "          type: string\n          format: binary\n" false
 
     ty |> shouldEqual typeof<IO.Stream>
+
+// ── PreferNullable + useDateOnly: value-type date/time formats use Nullable<T> ──────────────
+// When both provideNullable=true and useDateOnly=true, optional DateOnly/TimeOnly properties
+// should be wrapped in Nullable<T> (not Option<T>), consistent with other value types.
+
+[<Fact>]
+let ``PreferNullable: optional DateOnly maps to Nullable<DateOnly> when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithNullableAndDateOnly "          type: string\n          format: date\n" false
+
+    ty |> shouldEqual typeof<System.Nullable<DateOnly>>
+
+[<Fact>]
+let ``PreferNullable: required DateOnly is not wrapped when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithNullableAndDateOnly "          type: string\n          format: date\n" true
+
+    ty |> shouldEqual typeof<DateOnly>
+
+[<Fact>]
+let ``PreferNullable: optional TimeOnly maps to Nullable<TimeOnly> when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithNullableAndDateOnly "          type: string\n          format: time\n" false
+
+    ty |> shouldEqual typeof<System.Nullable<TimeOnly>>
+
+[<Fact>]
+let ``PreferNullable: required TimeOnly is not wrapped when useDateOnly is true``() =
+    let ty =
+        compilePropertyTypeWithNullableAndDateOnly "          type: string\n          format: time\n" true
+
+    ty |> shouldEqual typeof<TimeOnly>
