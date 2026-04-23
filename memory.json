@@ -1,14 +1,19 @@
 {
-  "run": "2026-04-15",
-  "rid": "24480451444",
+  "run": "2026-04-23",
+  "rid": "24860838246",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "382": "open - docs: improve site for v4.0 (fix badges, flatten nav, add features)",
-    "fix-additionalprops": "open - fix: preserve declared properties when schema has both properties and additionalProperties",
+    "improve-enum-param-xmldoc": "open - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
+    "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
+    "397": "merged - test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests, 317->324)",
+    "395": "merged - fix: use toParam in form content helpers for correct date/time serialization (+4 tests, 296->300)",
+    "394": "merged - eng: add TimeOnly support for format:time schemas (+11 tests, 295->306)",
+    "393": "merged - fix: handle DateOnly in toParam and toQueryParams (+8 tests, 287->295)",
+    "385": "merged - refactor: CallAsync returns HttpResponseMessage (closes #179)",
+    "383": "merged - fix: preserve declared properties when schema has both properties and additionalProperties",
+    "382": "merged - docs: improve site for v4.0 (fix badges, flatten nav, add features)",
     "380": "merged - test: extend OperationCompiler unit tests (+12 tests)",
-    "379": "merged - docs: update homepage README for v4.0",
-    "378": "merged - perf: cache reflection lookups and avoid double seq materialisation",
     "377": "merged - feat: remove SwaggerClientProvider and v2 compiler (closes #376)",
     "375": "merged - fix: resolve oneOf/anyOf single $ref (closes #243)",
     "374": "merged - perf: cache asyncCast/taskCast MethodInfo",
@@ -35,5 +40,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "v4.0-beta01 released. All open issues have Repo Assist comments. PR #382 (docs) open. New fix PR pending for additionalProperties+properties bug. Issue #358 (OpenApi 3.x): wait until .NET 11."
+  "notes": "v4.0-beta01 released. All open issues have Repo Assist comments. New PR pending: improve enum allowed-values in operation parameter XmlDocs (branch: repo-assist/improve-enum-param-xmldoc-2026-04-23). Issue #358 (OpenApi 3.x): wait until .NET 11."
 }
