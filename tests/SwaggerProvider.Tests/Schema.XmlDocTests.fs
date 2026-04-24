@@ -205,7 +205,6 @@ let private noEnumParamSchema =
 [<Fact>]
 let ``non-enum query parameter does not add Allowed values to XmlDoc``() =
     let doc = getMethodXmlDoc noEnumParamSchema "GetHealth"
-    // There is a summary, so XmlDoc should be set, but must NOT contain "Allowed values"
-    match doc with
-    | None -> () // no XmlDoc at all — also fine
-    | Some d -> d |> shouldNotContainText "Allowed values:"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "Health check"
+    doc.Value |> shouldNotContainText "Allowed values:"
