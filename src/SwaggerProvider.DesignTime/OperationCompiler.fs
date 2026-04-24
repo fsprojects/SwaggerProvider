@@ -495,8 +495,26 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             )
 
         let xmlDoc =
+            let buildParamDesc(p: IOpenApiParameter) =
+                let enumDoc =
+                    if not(isNull p.Schema) then
+                        XmlDoc.buildEnumDoc p.Schema.Enum
+                    else
+                        None
+
+                match
+                    p.Description
+                    |> Option.ofObj
+                    |> Option.filter(String.IsNullOrWhiteSpace >> not),
+                    enumDoc
+                with
+                | None, None -> null
+                | Some d, None -> d
+                | None, Some ev -> ev
+                | Some d, Some ev -> $"{d}\n{ev}"
+
             let paramDescriptions =
-                [ for p in openApiParameters -> niceCamelName p.Name, p.Description
+                [ for p in openApiParameters -> niceCamelName p.Name, buildParamDesc p
                   if not(isNull operation.RequestBody) then
                       yield niceCamelName(payloadTy.ToString()), operation.RequestBody.Description ]
 

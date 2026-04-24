@@ -305,27 +305,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let pField, pProp = generateProperty propName pTy
 
-                        let formatEnumValue(v: System.Text.Json.Nodes.JsonNode) =
-                            if isNull v then
-                                "null"
-                            else
-                                // Format known JsonNode scalar types directly so documentation does not depend
-                                // on JSON serialization/escaping or specific ToString() implementations.
-                                match v with
-                                | :? System.Text.Json.Nodes.JsonValue as jv ->
-                                    match jv.GetValueKind() with
-                                    | System.Text.Json.JsonValueKind.String -> jv.GetValue<string>()
-                                    | System.Text.Json.JsonValueKind.Null -> "null"
-                                    | _ -> jv.ToString()
-                                | _ -> v.ToString()
-
-                        let enumValuesDoc =
-                            if not(isNull propSchema.Enum) && propSchema.Enum.Count > 0 then
-                                let values = propSchema.Enum |> Seq.map formatEnumValue |> String.concat ", "
-
-                                Some $"Allowed values: {values}"
-                            else
-                                None
+                        let enumValuesDoc = XmlDoc.buildEnumDoc propSchema.Enum
 
                         let propDoc =
                             match
