@@ -174,10 +174,14 @@ module SchemaReader =
             let headers =
                 headersStr.Split '|'
                 |> Seq.choose(fun x ->
-                    let pair = x.Split '='
-                    if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
+                    let pair = x.Split([| '=' |], 2)
 
-            let request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
+                    if (pair.Length = 2) then
+                        Some(pair[0].Trim(), pair[1].Trim())
+                    else
+                        None)
+
+            use request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
 
             for name, value in headers do
                 request.Headers.TryAddWithoutValidation(name, value) |> ignore
@@ -188,7 +192,7 @@ module SchemaReader =
 
             let! res =
                 async {
-                    let! response = client.SendAsync request |> Async.AwaitTask
+                    use! response = client.SendAsync request |> Async.AwaitTask
 
                     // Validate Content-Type to ensure we're parsing the correct format
                     validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
@@ -197,29 +201,30 @@ module SchemaReader =
                 }
                 |> Async.Catch
 
-            return
-                match res with
-                | Choice1Of2 x -> x
-                | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
-                    let content =
-                        ex.Content.ReadAsStringAsync()
-                        |> Async.AwaitTask
-                        |> Async.RunSynchronously
+            return!
+                async {
+                    match res with
+                    | Choice1Of2 x -> return x
+                    | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
+                        let! content = ex.Content.ReadAsStringAsync() |> Async.AwaitTask
 
-                    if String.IsNullOrEmpty content then
-                        ex.Reraise()
-                    else
-                        content
-                | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                    use stream = wex.Response.GetResponseStream()
-                    use reader = new StreamReader(stream)
-                    let err = reader.ReadToEnd()
+                        return
+                            if String.IsNullOrEmpty content then
+                                ex.Reraise()
+                            else
+                                content
+                    | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
+                        use stream = wex.Response.GetResponseStream()
+                        use reader = new StreamReader(stream)
+                        let err = reader.ReadToEnd()
 
-                    if String.IsNullOrEmpty err then
-                        wex.Reraise()
-                    else
-                        err.ToString()
-                | Choice2Of2 e -> failwith(e.ToString())
+                        return
+                            if String.IsNullOrEmpty err then
+                                wex.Reraise()
+                            else
+                                err.ToString()
+                    | Choice2Of2 e -> return e.Reraise()
+                }
         }
 
     let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (resolutionFolder: string) (schemaPathRaw: string) =
