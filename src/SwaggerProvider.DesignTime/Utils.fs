@@ -167,6 +167,66 @@ module SchemaReader =
                     "Invalid Content-Type for schema: %s. Expected JSON or YAML content types only. This protects against SSRF attacks. Set SsrfProtection=false to disable this validation."
                     mediaType
 
+    /// Sends a GET request to the given URL with optional custom headers and returns the response body.
+    /// Validates the Content-Type to prevent processing non-schema responses (unless SSRF protection is off).
+    let private fetchUrlContent (ignoreSsrfProtection: bool) (headersStr: string) (resolvedPath: string) =
+        async {
+            let headers =
+                headersStr.Split '|'
+                |> Seq.choose(fun x ->
+                    let pair = x.Split([| '=' |], 2)
+
+                    if (pair.Length = 2) then
+                        Some(pair[0].Trim(), pair[1].Trim())
+                    else
+                        None)
+
+            use request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
+
+            for name, value in headers do
+                request.Headers.TryAddWithoutValidation(name, value) |> ignore
+
+            // SECURITY: Disable default credentials to prevent credential leakage (always enforced)
+            // SECURITY: Prevent redirect-based SSRF bypasses when SSRF protection is enabled.
+            use handler =
+                new HttpClientHandler(UseDefaultCredentials = false, AllowAutoRedirect = ignoreSsrfProtection)
+
+            use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
+
+            let! res =
+                async {
+                    use! response = client.SendAsync request |> Async.AwaitTask
+
+                    // Validate Content-Type to ensure we're parsing the correct format
+                    validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
+
+                    return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
+                }
+                |> Async.Catch
+
+            match res with
+            | Choice1Of2 x -> return x
+            | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
+                let! content = ex.Content.ReadAsStringAsync() |> Async.AwaitTask
+
+                return
+                    if String.IsNullOrEmpty content then
+                        ex.Reraise()
+                    else
+                        content
+            | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
+                use stream = wex.Response.GetResponseStream()
+                use reader = new StreamReader(stream)
+                let err = reader.ReadToEnd()
+
+                return
+                    if String.IsNullOrEmpty err then
+                        wex.Reraise()
+                    else
+                        err.ToString()
+            | Choice2Of2 e -> return e.Reraise()
+        }
+
     let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (resolutionFolder: string) (schemaPathRaw: string) =
         async {
             // Resolve the schema path to absolute path first
@@ -223,56 +283,7 @@ module SchemaReader =
                     | "https" ->
                         // Validate URL to prevent SSRF (unless explicitly disabled)
                         validateSchemaUrl ignoreSsrfProtection uri
-
-                        let headers =
-                            headersStr.Split '|'
-                            |> Seq.choose(fun x ->
-                                let pair = x.Split '='
-                                if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
-
-                        let request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
-
-                        for name, value in headers do
-                            request.Headers.TryAddWithoutValidation(name, value) |> ignore
-
-                        // SECURITY: Remove UseDefaultCredentials to prevent credential leakage (always enforced)
-                        use handler = new HttpClientHandler(UseDefaultCredentials = false)
-                        use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
-
-                        let! res =
-                            async {
-                                let! response = client.SendAsync request |> Async.AwaitTask
-
-                                // Validate Content-Type to ensure we're parsing the correct format
-                                validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
-
-                                return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                            }
-                            |> Async.Catch
-
-                        match res with
-                        | Choice1Of2 x -> return x
-                        | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
-                            let content =
-                                ex.Content.ReadAsStringAsync()
-                                |> Async.AwaitTask
-                                |> Async.RunSynchronously
-
-                            if String.IsNullOrEmpty content then
-                                return ex.Reraise()
-                            else
-                                return content
-                        | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                            use stream = wex.Response.GetResponseStream()
-                            use reader = new StreamReader(stream)
-                            let err = reader.ReadToEnd()
-
-                            return
-                                if String.IsNullOrEmpty err then
-                                    wex.Reraise()
-                                else
-                                    err.ToString()
-                        | Choice2Of2 e -> return failwith(e.ToString())
+                        return! fetchUrlContent ignoreSsrfProtection headersStr resolvedPath
 
                     | "http" ->
                         // HTTP is allowed only when SSRF protection is explicitly disabled (development/testing mode)
@@ -284,45 +295,7 @@ module SchemaReader =
                         else
                             // Development mode: allow HTTP
                             validateSchemaUrl ignoreSsrfProtection uri
-
-                            let headers =
-                                headersStr.Split '|'
-                                |> Seq.choose(fun x ->
-                                    let pair = x.Split '='
-                                    if (pair.Length = 2) then Some(pair[0], pair[1]) else None)
-
-                            let request = new HttpRequestMessage(HttpMethod.Get, resolvedPath)
-
-                            for name, value in headers do
-                                request.Headers.TryAddWithoutValidation(name, value) |> ignore
-
-                            use handler = new HttpClientHandler(UseDefaultCredentials = false)
-                            use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
-
-                            let! res =
-                                async {
-                                    let! response = client.SendAsync(request) |> Async.AwaitTask
-
-                                    // Validate Content-Type to ensure we're parsing the correct format
-                                    validateContentType ignoreSsrfProtection response.Content.Headers.ContentType
-
-                                    return! response.Content.ReadAsStringAsync() |> Async.AwaitTask
-                                }
-                                |> Async.Catch
-
-                            match res with
-                            | Choice1Of2 x -> return x
-                            | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                                use stream = wex.Response.GetResponseStream()
-                                use reader = new StreamReader(stream)
-                                let err = reader.ReadToEnd()
-
-                                return
-                                    if String.IsNullOrEmpty err then
-                                        wex.Reraise()
-                                    else
-                                        err.ToString()
-                            | Choice2Of2 e -> return failwith(e.ToString())
+                            return! fetchUrlContent ignoreSsrfProtection headersStr resolvedPath
 
                     | _ ->
                         // SECURITY: Reject unknown URL schemes to prevent SSRF attacks via file://, ftp://, etc.
