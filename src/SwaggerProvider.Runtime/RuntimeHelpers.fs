@@ -121,9 +121,17 @@ module RuntimeHelpers =
         let reader = Microsoft.FSharp.Reflection.FSharpValue.PreComputeUnionTagReader t
         fun (o: obj) -> reader o
 
+    // Hoisted factory delegate to avoid allocating a new Func on every GetOrAdd call.
+    let private optionTagReaderFactory =
+        System.Func<Type, obj -> int>(makeOptionTagReader)
+
     // Cache of the 'Value' PropertyInfo per F# option type, shared with unwrapFSharpOption below.
     let private optionValueCache =
         Collections.Concurrent.ConcurrentDictionary<Type, Reflection.PropertyInfo>()
+
+    // Hoisted factory delegate to avoid allocating a new lambda on every GetOrAdd call.
+    let private optionValueFactory =
+        System.Func<Type, Reflection.PropertyInfo>(fun t -> t.GetProperty("Value"))
 
     let rec toParam(obj: obj) =
         match obj with
@@ -146,11 +154,10 @@ module RuntimeHelpers =
                         ty.IsGenericType
                         && ty.GetGenericTypeDefinition() = typedefof<option<_>>
                     then
-                        let tagReader =
-                            optionTagReaderCache.GetOrAdd(ty, System.Func<Type, obj -> int>(makeOptionTagReader))
+                        let tagReader = optionTagReaderCache.GetOrAdd(ty, optionTagReaderFactory)
 
                         if tagReader obj = 1 then // 1 = Some
-                            let valueProp = optionValueCache.GetOrAdd(ty, fun t -> t.GetProperty("Value"))
+                            let valueProp = optionValueCache.GetOrAdd(ty, optionValueFactory)
 
                             toParam(valueProp.GetValue(obj))
                         else
