@@ -324,7 +324,7 @@ module RuntimeHelpers =
                 ty.IsGenericType
                 && ty.GetGenericTypeDefinition() = typedefof<option<_>>
             then
-                let prop = optionValueCache.GetOrAdd(ty, fun t -> t.GetProperty("Value"))
+                let prop = optionValueCache.GetOrAdd(ty, optionValueFactory)
                 prop.GetValue(value)
             else
                 value
