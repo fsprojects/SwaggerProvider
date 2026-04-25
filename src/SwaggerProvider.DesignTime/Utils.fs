@@ -201,30 +201,27 @@ module SchemaReader =
                 }
                 |> Async.Catch
 
-            return!
-                async {
-                    match res with
-                    | Choice1Of2 x -> return x
-                    | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
-                        let! content = ex.Content.ReadAsStringAsync() |> Async.AwaitTask
+            match res with
+            | Choice1Of2 x -> return x
+            | Choice2Of2(:? Swagger.OpenApiException as ex) when not <| isNull ex.Content ->
+                let! content = ex.Content.ReadAsStringAsync() |> Async.AwaitTask
 
-                        return
-                            if String.IsNullOrEmpty content then
-                                ex.Reraise()
-                            else
-                                content
-                    | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
-                        use stream = wex.Response.GetResponseStream()
-                        use reader = new StreamReader(stream)
-                        let err = reader.ReadToEnd()
+                return
+                    if String.IsNullOrEmpty content then
+                        ex.Reraise()
+                    else
+                        content
+            | Choice2Of2(:? WebException as wex) when not <| isNull wex.Response ->
+                use stream = wex.Response.GetResponseStream()
+                use reader = new StreamReader(stream)
+                let err = reader.ReadToEnd()
 
-                        return
-                            if String.IsNullOrEmpty err then
-                                wex.Reraise()
-                            else
-                                err.ToString()
-                    | Choice2Of2 e -> return e.Reraise()
-                }
+                return
+                    if String.IsNullOrEmpty err then
+                        wex.Reraise()
+                    else
+                        err.ToString()
+            | Choice2Of2 e -> return e.Reraise()
         }
 
     let readSchemaPath (ignoreSsrfProtection: bool) (headersStr: string) (resolutionFolder: string) (schemaPathRaw: string) =
