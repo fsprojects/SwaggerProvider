@@ -187,7 +187,8 @@ module SchemaReader =
                 request.Headers.TryAddWithoutValidation(name, value) |> ignore
 
             // SECURITY: Disable default credentials to prevent credential leakage (always enforced)
-            use handler = new HttpClientHandler(UseDefaultCredentials = false)
+            // SECURITY: Prevent redirect-based SSRF bypasses when SSRF protection is enabled.
+            use handler = new HttpClientHandler(UseDefaultCredentials = false, AllowAutoRedirect = ignoreSsrfProtection)
             use client = new HttpClient(handler, Timeout = TimeSpan.FromSeconds 60.0)
 
             let! res =
