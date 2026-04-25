@@ -1,12 +1,17 @@
 {
-  "run": "2026-04-23",
-  "rid": "24860838246",
+  "run": "2026-04-25",
+  "rid": "24931662962",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "improve-enum-param-xmldoc": "open - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
-    "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
+    "improve-utils-http-refactor-20260425": "open - refactor: extract fetchUrlContent helper from readSchemaPath to eliminate HTTP fetch duplication in Utils.fs",
+    "eng-dependabot-nuget-tools-20260425": "open - eng: add NuGet ecosystem to Dependabot to track dotnet global tools",
+    "399": "merged - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
+    "402": "merged by Dependabot - build(deps): bump actions/checkout from 4 to 6",
+    "403": "merged by Dependabot - build(deps): bump actions/upload-pages-artifact from 3 to 5",
+    "398": "merged - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
     "397": "merged - test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests, 317->324)",
+    "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
     "395": "merged - fix: use toParam in form content helpers for correct date/time serialization (+4 tests, 296->300)",
     "394": "merged - eng: add TimeOnly support for format:time schemas (+11 tests, 295->306)",
     "393": "merged - fix: handle DateOnly in toParam and toQueryParams (+8 tests, 287->295)",
@@ -40,5 +45,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "v4.0-beta01 released. All open issues have Repo Assist comments. New PR pending: improve enum allowed-values in operation parameter XmlDocs (branch: repo-assist/improve-enum-param-xmldoc-2026-04-23). Issue #358 (OpenApi 3.x): wait until .NET 11."
+  "notes": "v4.0-beta01 released. Issue #358 (Microsoft.OpenApi 3.x): wait until .NET 11. Issue #146 enum types complex enhancement. Issue #400 closed (superseded by Dependabot PR #402). 2 new open PRs this run."
 }
