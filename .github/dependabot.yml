@@ -7,7 +7,7 @@ updates:
     labels:
       - "enhancement"
   - package-ecosystem: "nuget"
-    directory: "/"
+    directory: "/.config"
     schedule:
       interval: "weekly"
     labels:
