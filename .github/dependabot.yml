@@ -6,3 +6,9 @@ updates:
       interval: "weekly"
     labels:
       - "enhancement"
+  - package-ecosystem: "nuget"
+    directory: "/.config"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "enhancement"
