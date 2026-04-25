@@ -111,6 +111,28 @@ module RuntimeHelpers =
     let private tryFormatTimeOnly(value: obj) =
         tryFormatViaMethods timeOnlyTypeName "HH:mm:ss.FFFFFFF" value
 
+    // Cache of precomputed union tag readers for F# option types. Avoids the overhead of
+    // FSharpValue.GetUnionFields (which allocates UnionCaseInfo + obj[]) on each call.
+    // Stores as (obj -> int) with an explicit wrapper to satisfy nullable annotations.
+    let private optionTagReaderCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, obj -> int>()
+
+    let private makeOptionTagReader(t: Type) : obj -> int =
+        let reader = Microsoft.FSharp.Reflection.FSharpValue.PreComputeUnionTagReader t
+        fun (o: obj) -> reader o
+
+    // Hoisted factory delegate to avoid allocating a new Func on every GetOrAdd call.
+    let private optionTagReaderFactory =
+        System.Func<Type, obj -> int>(makeOptionTagReader)
+
+    // Cache of the 'Value' PropertyInfo per F# option type, shared with unwrapFSharpOption below.
+    let private optionValueCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.PropertyInfo>()
+
+    // Hoisted factory delegate to avoid allocating a new lambda on every GetOrAdd call.
+    let private optionValueFactory =
+        System.Func<Type, Reflection.PropertyInfo>(fun t -> t.GetProperty("Value"))
+
     let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
@@ -125,15 +147,19 @@ module RuntimeHelpers =
                 | None ->
                     let ty = obj.GetType()
 
-                    // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null
+                    // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null.
+                    // Uses a precomputed tag reader (cached) to check Some/None without
+                    // allocating a UnionCaseInfo or obj[] on every call.
                     if
                         ty.IsGenericType
                         && ty.GetGenericTypeDefinition() = typedefof<option<_>>
                     then
-                        let (case, values) = Microsoft.FSharp.Reflection.FSharpValue.GetUnionFields(obj, ty)
+                        let tagReader = optionTagReaderCache.GetOrAdd(ty, optionTagReaderFactory)
 
-                        if case.Name = "Some" && values.Length > 0 then
-                            toParam values.[0]
+                        if tagReader obj = 1 then // 1 = Some
+                            let valueProp = optionValueCache.GetOrAdd(ty, optionValueFactory)
+
+                            toParam(valueProp.GetValue(obj))
                         else
                             null
                     else
@@ -287,10 +313,7 @@ module RuntimeHelpers =
 
     // Unwraps F# option values: returns the inner value for Some, null for None.
     // This prevents `Some(value)` from being sent as-is in form data.
-    // The `Value` PropertyInfo is cached per concrete option type to avoid repeated reflection lookups.
-    let private optionValuePropCache =
-        Collections.Concurrent.ConcurrentDictionary<Type, Reflection.PropertyInfo>()
-
+    // Reuses optionValueCache defined alongside toParam above.
     let private unwrapFSharpOption(value: obj) : obj =
         if isNull value then
             null
@@ -301,7 +324,7 @@ module RuntimeHelpers =
                 ty.IsGenericType
                 && ty.GetGenericTypeDefinition() = typedefof<option<_>>
             then
-                let prop = optionValuePropCache.GetOrAdd(ty, fun t -> t.GetProperty("Value"))
+                let prop = optionValueCache.GetOrAdd(ty, optionValueFactory)
                 prop.GetValue(value)
             else
                 value
