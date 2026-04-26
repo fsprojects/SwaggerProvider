@@ -1,12 +1,14 @@
 {
-  "run": "2026-04-25",
-  "rid": "24931662962",
+  "run": "2026-04-26",
+  "rid": "24957452960",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "improve-utils-http-refactor-20260425": "open - refactor: extract fetchUrlContent helper from readSchemaPath to eliminate HTTP fetch duplication in Utils.fs",
-    "eng-dependabot-nuget-tools-20260425": "open - eng: add NuGet ecosystem to Dependabot to track dotnet global tools",
-    "399": "merged - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
+    "perf-cache-option-tag-reader-20260424": "open - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader (branch: repo-assist/perf-cache-option-tag-reader-20260424-d7ce09bd9fdc5bbc). NOTE: previous PR#399 was closed without merging.",
+    "improve-utils-http-refactor-20260425": "open - refactor: extract fetchUrlContent helper from readSchemaPath to eliminate HTTP fetch duplication in Utils.fs (branch: repo-assist/improve-utils-http-refactor-20260425-29d415d0bbe57ad6). NOTE: previous PR#406 was closed without merging.",
+    "399": "closed without merge - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
+    "407": "closed without merge - eng: add NuGet ecosystem to Dependabot",
+    "406": "closed without merge - refactor: extract fetchUrlContent helper",
     "402": "merged by Dependabot - build(deps): bump actions/checkout from 4 to 6",
     "403": "merged by Dependabot - build(deps): bump actions/upload-pages-artifact from 3 to 5",
     "398": "merged - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
@@ -45,5 +47,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "v4.0-beta01 released. Issue #358 (Microsoft.OpenApi 3.x): wait until .NET 11. Issue #146 enum types complex enhancement. Issue #400 closed (superseded by Dependabot PR #402). 2 new open PRs this run."
+  "notes": "v4.0-beta01 released. Previous PRs #399 (perf) and #406 (refactor) and #407 (dependabot nuget) were closed without merging. Recreated perf and refactor PRs this run. Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #146 enum types complex enhancement. eng-docs-checkout-v6 branch has 0 commits ahead of master (change already in CI)."
 }
