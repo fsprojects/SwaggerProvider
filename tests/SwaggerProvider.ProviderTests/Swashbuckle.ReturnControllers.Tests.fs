@@ -101,11 +101,11 @@ let ``Return Guid POST Test``() =
 
 [<Fact>]
 let ``Return Enum GET Test``() =
-    api.GetApiReturnEnum() |> asyncEqual "Absolute"
+    api.GetApiReturnEnum() |> asyncEqual WebAPI.UriKind.Absolute
 
 [<Fact>]
 let ``Return Enum POST Test``() =
-    api.PostApiReturnEnum() |> asyncEqual "Absolute"
+    api.PostApiReturnEnum() |> asyncEqual WebAPI.UriKind.Absolute
 
 
 [<Fact>]
@@ -119,12 +119,13 @@ let ``Return Array Int POST Test``() =
 
 [<Fact>]
 let ``Return Array Enum GET Test``() =
-    api.GetApiReturnArrayEnum() |> asyncEqual [| "Absolute"; "Relative" |]
+    api.GetApiReturnArrayEnum()
+    |> asyncEqual [| WebAPI.UriKind.Absolute; WebAPI.UriKind.Relative |]
 
 [<Fact>]
 let ``Return Array Enum POST Test``() =
     api.PostApiReturnArrayEnum()
-    |> asyncEqual [| "Absolute"; "Relative" |]
+    |> asyncEqual [| WebAPI.UriKind.Absolute; WebAPI.UriKind.Relative |]
 
 
 [<Fact>]

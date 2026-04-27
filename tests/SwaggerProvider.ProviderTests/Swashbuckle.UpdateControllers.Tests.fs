@@ -83,11 +83,13 @@ let ``Update Guid POST Test``() =
 
 [<Fact>]
 let ``Update Enum GET Test``() =
-    api.GetApiUpdateEnum(Some "Absolute") |> asyncEqual "Absolute"
+    api.GetApiUpdateEnum(Some WebAPI.UriKind.Absolute)
+    |> asyncEqual WebAPI.UriKind.Absolute
 
 [<Fact>]
 let ``Update Enum POST Test``() =
-    api.PostApiUpdateEnum(Some "Absolute") |> asyncEqual "Absolute"
+    api.PostApiUpdateEnum(Some WebAPI.UriKind.Absolute)
+    |> asyncEqual WebAPI.UriKind.Absolute
 
 
 [<Fact>]
@@ -101,13 +103,13 @@ let ``Update Array Int POST Test``() =
 
 [<Fact>]
 let ``Update Array Enum GET Test``() =
-    api.GetApiUpdateArrayEnum([| "Relative"; "Absolute" |])
-    |> asyncEqual [| "Absolute"; "Relative" |]
+    api.GetApiUpdateArrayEnum([| WebAPI.UriKind.Relative; WebAPI.UriKind.Absolute |])
+    |> asyncEqual [| WebAPI.UriKind.Absolute; WebAPI.UriKind.Relative |]
 
 [<Fact>]
 let ``Update Array Enum POST Test``() =
-    api.PostApiUpdateArrayEnum([| "Relative"; "Absolute" |])
-    |> asyncEqual [| "Absolute"; "Relative" |]
+    api.PostApiUpdateArrayEnum([| WebAPI.UriKind.Relative; WebAPI.UriKind.Absolute |])
+    |> asyncEqual [| WebAPI.UriKind.Absolute; WebAPI.UriKind.Relative |]
 
 [<Fact>]
 let ``Update Array Guid GET Test``() =
