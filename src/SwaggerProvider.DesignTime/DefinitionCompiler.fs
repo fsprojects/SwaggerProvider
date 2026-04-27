@@ -2,6 +2,8 @@ namespace SwaggerProvider.Internal.Compilers
 
 open System
 open System.Reflection
+open System.Text.Json
+open System.Text.Json.Nodes
 open ProviderImplementation.ProvidedTypes
 open UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
@@ -512,6 +514,80 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 || resolvedType = Some(JsonSchemaType.Null ||| JsonSchemaType.Object)
                 ->
                 compileNewObject()
+            | _ when
+                fromByPathCompiler
+                && not(isNull tyName)
+                && (resolvedType = Some JsonSchemaType.String
+                    || resolvedType = Some JsonSchemaType.Integer)
+                && not(isNull schemaObj.Enum)
+                && schemaObj.Enum.Count > 0
+                ->
+                // Top-level named enum schema: generate a CLI enum type so callers have
+                // compile-time type safety instead of raw string/int values.
+                let isStringEnum = resolvedType = Some JsonSchemaType.String
+
+                let enumTy =
+                    ProvidedTypeDefinition(tyName, Some typeof<System.Enum>, isErased = false)
+
+                enumTy.SetEnumUnderlyingType typeof<int32>
+
+                // String enums are serialized via JsonStringEnumConverter, which reads the
+                // [JsonPropertyName] attribute on each member to get the wire value.
+                if isStringEnum then
+                    enumTy.AddCustomAttribute
+                    <| RuntimeHelpers.getJsonStringEnumConverterAttribute()
+
+                let nameGen = UniqueNameGenerator()
+                let mutable intValue = 0
+
+                for node in schemaObj.Enum do
+                    let rawValueOpt =
+                        match node with
+                        | :? JsonValue as jv ->
+                            match jv.GetValueKind() with
+                            | JsonValueKind.String -> if isStringEnum then Some(jv.GetValue<string>()) else None
+                            | JsonValueKind.Number -> if isStringEnum then None else Some(jv.ToString())
+                            | JsonValueKind.Null -> None
+                            | _ -> None
+                        | _ when not(isNull node) -> Some(node.ToString())
+                        | _ -> None
+
+                    match rawValueOpt with
+                    | None -> ()
+                    | Some originalStr ->
+                        // Sanitize to a valid .NET identifier.
+                        let rawName = nicePascalName originalStr
+
+                        let sanitized =
+                            if String.IsNullOrEmpty rawName || Char.IsDigit rawName.[0] then
+                                "V" + rawName
+                            else
+                                rawName
+
+                        let memberName = nameGen.MakeUnique sanitized
+
+                        let literalValue: obj =
+                            if isStringEnum then
+                                intValue :> obj
+                            else
+                                match Int32.TryParse originalStr with
+                                | true, v -> v :> obj
+                                | false, _ -> intValue :> obj
+
+                        let field = ProvidedField.Literal(memberName, enumTy, literalValue)
+
+                        // Always add [JsonPropertyName] to string enum members so that
+                        // serialization uses the exact original OpenAPI value regardless of
+                        // how the member name was sanitized.
+                        if isStringEnum then
+                            field.AddCustomAttribute
+                            <| RuntimeHelpers.getPropertyNameAttribute originalStr
+
+                        enumTy.AddMember field
+                        intValue <- intValue + 1
+
+                registerNew(tyName, enumTy :> Type)
+                enumTy :> Type
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
 

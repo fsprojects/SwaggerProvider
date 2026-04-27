@@ -133,6 +133,51 @@ module RuntimeHelpers =
     let private optionValueFactory =
         System.Func<Type, Reflection.PropertyInfo>(fun t -> t.GetProperty("Value"))
 
+    /// Builds an (obj -> string) serializer for CLI enum types.
+    /// For string enums (annotated with JsonStringEnumConverter): returns the JsonPropertyName
+    /// value for each member, falling back to the member name.
+    /// For integer enums: returns the underlying integer value as a string.
+    let private buildEnumSerializer(ty: Type) : obj -> string =
+        let jsonConverterAttr =
+            Attribute.GetCustomAttribute(ty, typeof<JsonConverterAttribute>) :?> JsonConverterAttribute
+
+        let isStringEnum =
+            not(isNull jsonConverterAttr)
+            && typeof<JsonStringEnumConverter>.IsAssignableFrom(jsonConverterAttr.ConverterType)
+
+        if isStringEnum then
+            let lookup =
+                ty.GetFields(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Static)
+                |> Array.choose(fun f ->
+                    if f.IsLiteral then
+                        let v = Convert.ToInt32(f.GetRawConstantValue())
+
+                        let jsonPropAttr =
+                            Attribute.GetCustomAttribute(f, typeof<JsonPropertyNameAttribute>) :?> JsonPropertyNameAttribute
+
+                        let name = if isNull jsonPropAttr then f.Name else jsonPropAttr.Name
+                        Some(v, name)
+                    else
+                        None)
+                |> dict
+
+            fun (o: obj) ->
+                let intValue = Convert.ToInt32 o
+
+                match lookup.TryGetValue intValue with
+                | true, s -> s
+                | false, _ -> o.ToString()
+        else
+            let underlyingType = Enum.GetUnderlyingType ty
+            fun (o: obj) -> Convert.ChangeType(o, underlyingType).ToString()
+
+    // Cache of enum type -> (obj -> string) serializer, built lazily per type.
+    let private enumSerializerCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, obj -> string>()
+
+    let private enumSerializerFactory =
+        System.Func<Type, obj -> string>(buildEnumSerializer)
+
     let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
@@ -162,6 +207,11 @@ module RuntimeHelpers =
                             toParam(valueProp.GetValue(obj))
                         else
                             null
+                    elif ty.IsEnum then
+                        // CLI enum type: use the cached serializer so string enums produce their
+                        // original OpenAPI string value and integer enums produce the integer.
+                        let serializer = enumSerializerCache.GetOrAdd(ty, enumSerializerFactory)
+                        serializer obj
                     else
                         obj.ToString()
 
@@ -291,6 +341,21 @@ module RuntimeHelpers =
 
             member _.ConstructorArguments =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
+
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+
+    // Cached constructor for JsonConverterAttribute (used to apply JsonStringEnumConverter to generated enum types).
+    let private jsonConverterCtor =
+        typeof<JsonConverterAttribute>.GetConstructor [| typeof<Type> |]
+
+    /// Builds a CustomAttributeData representing [JsonConverter(typeof<JsonStringEnumConverter>)].
+    /// Apply this to generated CLI enum types so System.Text.Json serialises them as strings.
+    let getJsonStringEnumConverterAttribute() =
+        { new Reflection.CustomAttributeData() with
+            member _.Constructor = jsonConverterCtor
+
+            member _.ConstructorArguments =
+                [| Reflection.CustomAttributeTypedArgument(typeof<Type>, typeof<JsonStringEnumConverter>) |] :> Collections.Generic.IList<_>
 
             member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
 

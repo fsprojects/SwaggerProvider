@@ -118,6 +118,65 @@ module ToParamTests =
         result |> shouldEqual null
 
 
+// ── CLI enum serialization via toParam ──────────────────────────────────────────────────────
+// toParam must serialize string enums to their original OpenAPI wire values and integer
+// enums to their underlying integer representation.
+module EnumToParamTests =
+    // String enum: decorated with [JsonConverter(typeof<JsonStringEnumConverter>)] and
+    // each member has [JsonPropertyName("wire-value")] to handle sanitized names.
+    [<JsonConverter(typeof<JsonStringEnumConverter>)>]
+    type StringStatus =
+        | [<JsonPropertyName("active")>] Active = 0
+        | [<JsonPropertyName("inactive")>] Inactive = 1
+        | [<JsonPropertyName("in-progress")>] InProgress = 2
+
+    // Integer enum: no JSON attributes, serializes as the underlying integer.
+    type IntStatus =
+        | Pending = 1
+        | Running = 2
+        | Done = 3
+
+    [<Fact>]
+    let ``toParam serializes string enum to its wire value (exact case)``() =
+        let result = toParam(box StringStatus.Active)
+        result |> shouldEqual "active"
+
+    [<Fact>]
+    let ``toParam serializes string enum with hyphenated wire value``() =
+        let result = toParam(box StringStatus.InProgress)
+        result |> shouldEqual "in-progress"
+
+    [<Fact>]
+    let ``toParam serializes string enum inactive value``() =
+        let result = toParam(box StringStatus.Inactive)
+        result |> shouldEqual "inactive"
+
+    [<Fact>]
+    let ``toParam serializes integer enum to its underlying integer value``() =
+        let result = toParam(box IntStatus.Pending)
+        result |> shouldEqual "1"
+
+    [<Fact>]
+    let ``toParam serializes integer enum Running to 2``() =
+        let result = toParam(box IntStatus.Running)
+        result |> shouldEqual "2"
+
+    [<Fact>]
+    let ``toParam unwraps Some(string enum) and returns wire value``() =
+        let result = toParam(box(Some StringStatus.Active))
+        result |> shouldEqual "active"
+
+    [<Fact>]
+    let ``toParam returns null for None(string enum)``() =
+        let result = toParam(box(None: StringStatus option))
+        result |> shouldEqual null
+
+    [<Fact>]
+    let ``toParam unwraps Some(integer enum) and returns integer string``() =
+        let result = toParam(box(Some IntStatus.Done))
+        result |> shouldEqual "3"
+
+
 module ToQueryParamsTests =
 
     let private stubClient =

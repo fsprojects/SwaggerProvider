@@ -499,3 +499,203 @@ let ``PreferNullable: required TimeOnly is not wrapped when useDateOnly is true`
         compilePropertyTypeWithNullableAndDateOnly "          type: string\n          format: time\n" true
 
     ty |> shouldEqual typeof<TimeOnly>
+
+// ── Named enum schema generation ──────────────────────────────────────────────────────────────
+// When a top-level component schema has `type: string` (or `integer`) plus an `enum` list,
+// DefinitionCompiler should emit a CLI enum type instead of a plain string/int.
+
+let private enumTestSchema(schemaBody: string) =
+    sprintf
+        """openapi: "3.0.0"
+info:
+  title: EnumTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Status:
+%s"""
+        schemaBody
+
+[<Fact>]
+let ``named string enum schema compiles to a CLI enum type``() =
+    let schema =
+        enumTestSchema
+            """      type: string
+      enum:
+        - active
+        - inactive
+        - pending"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+    statusTy.IsEnum |> shouldEqual true
+
+[<Fact>]
+let ``named string enum has correct member names``() =
+    let schema =
+        enumTestSchema
+            """      type: string
+      enum:
+        - active
+        - inactive
+        - pending"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+    let memberNames = statusTy.GetFields() |> Array.map(fun f -> f.Name) |> Array.sort
+
+    memberNames |> shouldEqual [| "Active"; "Inactive"; "Pending" |]
+
+[<Fact>]
+let ``named string enum member values are sequential integers``() =
+    let schema =
+        enumTestSchema
+            """      type: string
+      enum:
+        - active
+        - inactive
+        - pending"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+
+    let values =
+        statusTy.GetFields()
+        |> Array.filter(fun f -> f.IsLiteral)
+        |> Array.sortBy(fun f -> f.Name)
+        |> Array.map(fun f -> f.GetRawConstantValue() :?> int32)
+
+    values |> shouldEqual [| 0; 1; 2 |]
+
+[<Fact>]
+let ``named string enum has JsonStringEnumConverter attribute``() =
+    let schema =
+        enumTestSchema
+            """      type: string
+      enum:
+        - active
+        - inactive"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+
+    statusTy.GetCustomAttributesData()
+    |> Seq.exists(fun a -> a.Constructor.DeclaringType = typeof<System.Text.Json.Serialization.JsonConverterAttribute>)
+    |> shouldEqual true
+
+[<Fact>]
+let ``named string enum members have JsonPropertyName attributes for wire values``() =
+    let schema =
+        enumTestSchema
+            """      type: string
+      enum:
+        - active
+        - in-active"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+
+    let jsonNames =
+        statusTy.GetFields()
+        |> Array.filter(fun f -> f.IsLiteral)
+        |> Array.collect(fun f ->
+            f.GetCustomAttributesData()
+            |> Seq.filter(fun a -> a.Constructor.DeclaringType = typeof<System.Text.Json.Serialization.JsonPropertyNameAttribute>)
+            |> Seq.map(fun a -> a.ConstructorArguments.[0].Value :?> string)
+            |> Seq.toArray)
+        |> Array.sort
+
+    jsonNames |> shouldEqual [| "active"; "in-active" |]
+
+[<Fact>]
+let ``named integer enum schema compiles to a CLI enum type``() =
+    let schema =
+        enumTestSchema
+            """      type: integer
+      enum:
+        - 1
+        - 2
+        - 3"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+    statusTy.IsEnum |> shouldEqual true
+
+[<Fact>]
+let ``named integer enum has correct integer values``() =
+    let schema =
+        enumTestSchema
+            """      type: integer
+      enum:
+        - 10
+        - 20
+        - 30"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+
+    let values =
+        statusTy.GetFields()
+        |> Array.filter(fun f -> f.IsLiteral)
+        |> Array.map(fun f -> f.GetRawConstantValue() :?> int32)
+        |> Array.sort
+
+    values |> shouldEqual [| 10; 20; 30 |]
+
+[<Fact>]
+let ``optional named string enum property maps to Option<EnumType>``() =
+    let schema =
+        """openapi: "3.0.0"
+info:
+  title: EnumTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Status:
+      type: string
+      enum:
+        - active
+        - inactive
+    TestType:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'"""
+
+    let types = compileV3Schema schema false
+    let testType = types |> List.find(fun t -> t.Name = "TestType")
+    let prop = testType.GetDeclaredProperty("Status")
+    prop.PropertyType.IsGenericType |> shouldEqual true
+
+    prop.PropertyType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<option<_>>
+
+[<Fact>]
+let ``required named string enum property maps to enum type directly``() =
+    let schema =
+        """openapi: "3.0.0"
+info:
+  title: EnumTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Status:
+      type: string
+      enum:
+        - active
+        - inactive
+    TestType:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'"""
+
+    let types = compileV3Schema schema false
+    let testType = types |> List.find(fun t -> t.Name = "TestType")
+    let prop = testType.GetDeclaredProperty("Status")
+    prop.PropertyType.IsEnum |> shouldEqual true
