@@ -526,10 +526,18 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 // compile-time type safety instead of raw string/int values.
                 let isStringEnum = resolvedType = Some JsonSchemaType.String
 
+                // Choose int64 when the schema explicitly declares format: int64;
+                // otherwise default to int32 (covers string enums and unformatted integer enums).
+                let underlyingIntType =
+                    if not isStringEnum && schemaObj.Format = "int64" then
+                        typeof<int64>
+                    else
+                        typeof<int32>
+
                 let enumTy =
                     ProvidedTypeDefinition(tyName, Some typeof<System.Enum>, isErased = false)
 
-                enumTy.SetEnumUnderlyingType typeof<int32>
+                enumTy.SetEnumUnderlyingType underlyingIntType
 
                 // String enums are serialized via JsonStringEnumConverter, which reads the
                 // [JsonPropertyName] attribute on each member to get the wire value.
@@ -538,7 +546,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     <| RuntimeHelpers.getJsonStringEnumConverterAttribute()
 
                 let nameGen = UniqueNameGenerator()
-                let mutable intValue = 0
+                let mutable intValue = 0L
 
                 for node in schemaObj.Enum do
                     let rawValueOpt =
@@ -568,11 +576,19 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let literalValue: obj =
                             if isStringEnum then
-                                intValue :> obj
+                                // String enums always use int32 ordinals as literal values regardless of format.
+                                // The actual wire value is stored in [JsonPropertyName], not in the literal.
+                                (int32 intValue) :> obj
+                            elif underlyingIntType = typeof<int64> then
+                                match Int64.TryParse originalStr with
+                                | true, v -> v :> obj
+                                | false, _ ->
+                                    failwithf "Invalid int64 enum value '%s' for enum '%s'. Expected a 64-bit integer literal." originalStr tyName
                             else
                                 match Int32.TryParse originalStr with
                                 | true, v -> v :> obj
-                                | false, _ -> intValue :> obj
+                                | false, _ ->
+                                    failwithf "Invalid integer enum value '%s' for enum '%s'. Expected a 32-bit integer literal." originalStr tyName
 
                         let field = ProvidedField.Literal(memberName, enumTy, literalValue)
 
@@ -584,7 +600,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                             <| RuntimeHelpers.getPropertyNameAttribute originalStr
 
                         enumTy.AddMember field
-                        intValue <- intValue + 1
+                        intValue <- intValue + 1L
 
                 registerNew(tyName, enumTy :> Type)
                 enumTy :> Type

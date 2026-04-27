@@ -644,6 +644,29 @@ let ``named integer enum has correct integer values``() =
     values |> shouldEqual [| 10; 20; 30 |]
 
 [<Fact>]
+let ``named integer enum with int64 format has int64 underlying type``() =
+    let schema =
+        enumTestSchema
+            """      type: integer
+      format: int64
+      enum:
+        - 1000000000000
+        - 2000000000000"""
+
+    let types = compileV3Schema schema false
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+    statusTy.IsEnum |> shouldEqual true
+    Enum.GetUnderlyingType statusTy |> shouldEqual typeof<int64>
+
+    let values =
+        statusTy.GetFields()
+        |> Array.filter(fun f -> f.IsLiteral)
+        |> Array.map(fun f -> f.GetRawConstantValue() :?> int64)
+        |> Array.sort
+
+    values |> shouldEqual [| 1000000000000L; 2000000000000L |]
+
+[<Fact>]
 let ``optional named string enum property maps to Option<EnumType>``() =
     let schema =
         """openapi: "3.0.0"
