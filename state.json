@@ -1,11 +1,14 @@
 {
-  "run": "2026-04-24",
-  "rid": "24913636364",
+  "run": "2026-04-27",
+  "rid": "24997133312",
   "monthly": "aw_apr2026",
   "monthly_issue": 352,
   "prs": {
-    "perf-cache-option-tag-reader": "open - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader (branch: repo-assist/perf-cache-option-tag-reader-20260424)",
-    "eng-docs-checkout-v6": "open - eng: update actions/checkout to v6 in docs workflow (branch: repo-assist/eng-docs-checkout-v6-20260424)",
+    "feat-cli-enum-types-20260427": "open - feat: generate CLI enum types for top-level named enum schemas (branch: repo-assist/feat-cli-enum-types-20260427, closes #146)",
+    "407": "merged - eng: add NuGet ecosystem to Dependabot",
+    "406": "merged - refactor: extract fetchUrlContent helper",
+    "399": "merged - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
+    "402": "merged - eng: update actions/checkout to v6 in docs workflow",
     "398": "merged - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
     "397": "merged - test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests, 317->324)",
     "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
@@ -13,13 +16,7 @@
     "394": "merged - eng: add TimeOnly support for format:time schemas (+11 tests, 295->306)",
     "393": "merged - fix: handle DateOnly in toParam and toQueryParams (+8 tests, 287->295)",
     "385": "merged - refactor: CallAsync returns HttpResponseMessage (closes #179)",
-    "383": "merged - fix: preserve declared properties when schema has both properties and additionalProperties",
-    "382": "merged - docs: improve site for v4.0 (fix badges, flatten nav, add features)",
-    "380": "merged - test: extend OperationCompiler unit tests (+12 tests)",
-    "377": "merged - feat: remove SwaggerClientProvider and v2 compiler (closes #376)",
     "375": "merged - fix: resolve oneOf/anyOf single $ref (closes #243)",
-    "374": "merged - perf: cache asyncCast/taskCast MethodInfo",
-    "373": "merged - perf: cache property name/metadata",
     "357": "merged - fix: wrap optional scalar reference types in Option (closes #122)"
   },
   "comments_made": {
@@ -42,5 +39,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "v4.0-beta01 released. PR#398 merged (enum xmldoc). 2 new open PRs: perf (toParam opt) + eng (docs checkout v6). Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #146 enum types complex enhancement."
+  "notes": "v4.0-beta01 released. PR open for CLI enum types (issue #146) - 18 new tests, 344 total passing. Issue #358 (OpenApi 3.x): wait until .NET 11."
 }
