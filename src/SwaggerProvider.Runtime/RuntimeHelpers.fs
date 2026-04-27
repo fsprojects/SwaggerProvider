@@ -247,7 +247,7 @@ module RuntimeHelpers =
             | :? Array as xs when
                 xs.GetType().GetElementType()
                 |> Option.ofObj
-                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t)
+                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t || t.IsEnum)
                 ->
                 xs
                 |> Seq.cast<obj>
