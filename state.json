@@ -1,43 +1,27 @@
 {
-  "run": "2026-04-27",
-  "rid": "24997133312",
-  "monthly": "aw_apr2026",
+  "last_run": "2026-04-28T13:20:00Z",
+  "run_id": "25055192070",
   "monthly_issue": 352,
-  "prs": {
-    "feat-cli-enum-types-20260427": "open - feat: generate CLI enum types for top-level named enum schemas (branch: repo-assist/feat-cli-enum-types-20260427, closes #146)",
-    "407": "merged - eng: add NuGet ecosystem to Dependabot",
-    "406": "merged - refactor: extract fetchUrlContent helper",
-    "399": "merged - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
-    "402": "merged - eng: update actions/checkout to v6 in docs workflow",
-    "398": "merged - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
-    "397": "merged - test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests, 317->324)",
-    "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
-    "395": "merged - fix: use toParam in form content helpers for correct date/time serialization (+4 tests, 296->300)",
-    "394": "merged - eng: add TimeOnly support for format:time schemas (+11 tests, 295->306)",
-    "393": "merged - fix: handle DateOnly in toParam and toQueryParams (+8 tests, 287->295)",
-    "385": "merged - refactor: CallAsync returns HttpResponseMessage (closes #179)",
-    "375": "merged - fix: resolve oneOf/anyOf single $ref (closes #243)",
-    "357": "merged - fix: wrap optional scalar reference types in Option (closes #122)"
-  },
+  "monthly_issue_month": "2026-04",
   "comments_made": {
-    "33": "2026-04-03",
-    "116": "2026-03-25",
-    "122": "2026-04-06",
-    "146": "2026-04-02",
-    "150": "2026-04-07",
-    "163": "2026-03-23",
-    "178": "2026-03-18",
-    "179": "2026-04-04",
-    "182": "2026-03-19",
-    "190": "2026-04-11",
-    "215": "2026-04-14",
-    "226": "2026-03-25",
-    "231": "2026-03-31",
-    "243": "2026-04-12",
-    "263": "2026-03-17",
-    "358": "2026-04-12",
-    "376": "2026-04-13",
-    "381": "2026-04-15"
+    "215": "2026-04",
+    "358": "2026-04",
+    "190": "2026-04",
+    "150": "2026-04",
+    "146": "2026-04"
   },
-  "notes": "v4.0-beta01 released. PR open for CLI enum types (issue #146) - 18 new tests, 344 total passing. Issue #358 (OpenApi 3.x): wait until .NET 11."
+  "fix_attempts": {
+    "146": "PR #409 open (feat: CLI enum types) — branch repo-assist/feat-cli-enum-types-20260427-57faed9678d0f999",
+    "perf-toParam": "PR pending — branch repo-assist/perf-toParam-single-gettype-20260428",
+    "eng-paket-cache": "PR pending — branch repo-assist/eng-remove-dead-paket-cache-20260428"
+  },
+  "open_prs": {
+    "409": "feat: generate CLI enum types for named enum schemas (closes #146)"
+  },
+  "pending_prs": {
+    "perf-toParam-single-gettype-20260428": "perf: eliminate redundant GetType() calls in toParam",
+    "eng-remove-dead-paket-cache-20260428": "eng: remove dead .paket CI cache step"
+  },
+  "issue_cursor": 33,
+  "notes": "Issue #358 blocked per maintainer (wait for .NET 11). PR #409 has passing CI. Two new pending PRs created this run."
 }
