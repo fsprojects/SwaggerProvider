@@ -596,17 +596,12 @@ let ``named string enum members have JsonStringEnumMemberName attributes for wir
     let types = compileV3Schema schema false
     let statusTy = types |> List.find(fun t -> t.Name = "Status")
 
-    let memberNameAttrType =
-        Type.GetType("System.Text.Json.Serialization.JsonStringEnumMemberNameAttribute, System.Text.Json")
-
     let wireNames =
         statusTy.GetFields()
         |> Array.filter(fun f -> f.IsLiteral)
         |> Array.collect(fun f ->
             f.GetCustomAttributesData()
-            |> Seq.filter(fun a ->
-                not(isNull memberNameAttrType)
-                && a.Constructor.DeclaringType = memberNameAttrType)
+            |> Seq.filter(fun a -> a.Constructor.DeclaringType = typeof<System.Text.Json.Serialization.JsonStringEnumMemberNameAttribute>)
             |> Seq.map(fun a -> a.ConstructorArguments.[0].Value :?> string)
             |> Seq.toArray)
         |> Array.sort

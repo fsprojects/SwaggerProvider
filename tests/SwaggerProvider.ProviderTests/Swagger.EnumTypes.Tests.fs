@@ -9,18 +9,6 @@ let Schema = __SOURCE_DIRECTORY__ + "/Schemas/enum-types.yaml"
 
 type EnumApi = OpenApiClientProvider<Schema, SsrfProtection=false>
 
-// Compile-time verification: member names are accessible.
-// The sanitised member names must match what DefinitionCompiler produces.
-let _: EnumApi.StringStatus = EnumApi.StringStatus.Active
-let _: EnumApi.StringStatus = EnumApi.StringStatus.InActive
-let _: EnumApi.StringStatus = EnumApi.StringStatus.Pending
-let _: EnumApi.IntStatus = EnumApi.IntStatus.V200
-let _: EnumApi.IntStatus = EnumApi.IntStatus.V404
-let _: EnumApi.IntStatus = EnumApi.IntStatus.V500
-let _: EnumApi.LargeCode = EnumApi.LargeCode.V1
-let _: EnumApi.LargeCode = EnumApi.LargeCode.V2
-let _: EnumApi.LargeCode = EnumApi.LargeCode.V3
-
 // ── String enum ────────────────────────────────────────────────────────────
 
 [<Fact>]
@@ -37,6 +25,16 @@ let ``string enum member names are sanitised from OpenAPI values``() =
     System.Enum.GetNames typeof<EnumApi.StringStatus>
     |> Array.sort
     |> shouldEqual [| "Active"; "InActive"; "Pending" |]
+
+// Compile-time assertion: sanitised member names are accessible as enum cases.
+[<Fact>]
+let ``string enum members are accessible as typed enum cases``() =
+    let active: EnumApi.StringStatus = EnumApi.StringStatus.Active
+    let inActive: EnumApi.StringStatus = EnumApi.StringStatus.InActive
+    let pending: EnumApi.StringStatus = EnumApi.StringStatus.Pending
+    active |> shouldEqual EnumApi.StringStatus.Active
+    inActive |> shouldEqual EnumApi.StringStatus.InActive
+    pending |> shouldEqual EnumApi.StringStatus.Pending
 
 // ── Integer (int32) enum ───────────────────────────────────────────────────
 
