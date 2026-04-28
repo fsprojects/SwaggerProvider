@@ -97,7 +97,7 @@ module RuntimeHelpers =
             ty.GetMethod("ToString", [| typeof<string>; typeof<IFormatProvider> |])
             |> Option.ofObj
             |> Option.map(fun mi -> mi.Invoke(value, [| box format; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
-            |> Option.defaultValue(value.ToString())
+            |> Option.defaultWith(fun () -> value.ToString())
 
     // Cache of precomputed union tag readers for F# option types. Avoids the overhead of
     // FSharpValue.GetUnionFields (which allocates UnionCaseInfo + obj[]) on each call.
