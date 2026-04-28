@@ -602,7 +602,6 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         enumTy.AddMember field
                         intValue <- intValue + 1L
 
-                registerNew(tyName, enumTy :> Type)
                 enumTy :> Type
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
