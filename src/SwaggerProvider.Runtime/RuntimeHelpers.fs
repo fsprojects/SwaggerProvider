@@ -176,7 +176,7 @@ module RuntimeHelpers =
             && typeof<JsonStringEnumConverter>.IsAssignableFrom(jsonConverterAttr.ConverterType)
 
         if isStringEnum then
-            // Use Dictionary + TryAdd instead of |> dict to safely handle alias values
+            // Use Dictionary with ContainsKey + Add instead of |> dict to safely handle alias values
             // (two enum members with the same underlying integer), which would throw in dict.
             let lookup = Collections.Generic.Dictionary<int, string>()
 
