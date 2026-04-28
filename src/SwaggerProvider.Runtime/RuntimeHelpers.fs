@@ -86,30 +86,18 @@ module RuntimeHelpers =
     let private isTimeOnlyLikeType(t: Type) =
         isTimeOnlyType t || isOptionOfTimeOnlyType t
 
-    let private tryFormatViaMethods (typeName: string) (format: string) (value: obj) =
-        if isNull value then
-            None
-        else
-            let ty = value.GetType()
-
-            if ty.FullName = typeName then
-                match value with
-                | :? IFormattable as formattable -> Some(formattable.ToString(format, Globalization.CultureInfo.InvariantCulture))
-                | _ ->
-                    match
-                        ty.GetMethod("ToString", [| typeof<string>; typeof<IFormatProvider> |])
-                        |> Option.ofObj
-                    with
-                    | Some methodInfo -> Some(methodInfo.Invoke(value, [| box format; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
-                    | None -> None
-            else
-                None
-
-    let private tryFormatDateOnly(value: obj) =
-        tryFormatViaMethods dateOnlyTypeName "yyyy-MM-dd" value
-
-    let private tryFormatTimeOnly(value: obj) =
-        tryFormatViaMethods timeOnlyTypeName "HH:mm:ss.FFFFFFF" value
+    // Formats a DateOnly or TimeOnly value using the given format string.
+    // The caller has already verified ty.FullName matches the expected type name.
+    // DateOnly and TimeOnly implement IFormattable on .NET 6+; the GetMethod
+    // fallback is a defensive path for forward-compatibility only.
+    let private formatDateOrTimeValue (format: string) (ty: Type) (value: obj) : string =
+        match value with
+        | :? IFormattable as f -> f.ToString(format, Globalization.CultureInfo.InvariantCulture)
+        | _ ->
+            ty.GetMethod("ToString", [| typeof<string>; typeof<IFormatProvider> |])
+            |> Option.ofObj
+            |> Option.map(fun mi -> mi.Invoke(value, [| box format; box Globalization.CultureInfo.InvariantCulture |]) :?> string)
+            |> Option.defaultWith(fun () -> value.ToString())
 
     // Cache of precomputed union tag readers for F# option types. Avoids the overhead of
     // FSharpValue.GetUnionFields (which allocates UnionCaseInfo + obj[]) on each call.
@@ -139,31 +127,32 @@ module RuntimeHelpers =
         | :? DateTimeOffset as dto -> dto.ToString("O")
         | null -> null
         | _ ->
-            match tryFormatDateOnly obj with
-            | Some formatted -> formatted
-            | None ->
-                match tryFormatTimeOnly obj with
-                | Some formatted -> formatted
-                | None ->
-                    let ty = obj.GetType()
+            // Hoist GetType() once; previously tryFormatDateOnly and tryFormatTimeOnly
+            // each called GetType() internally, resulting in up to 3 GetType() calls for
+            // common scalar types such as string, int, Guid, or bool.
+            let ty = obj.GetType()
 
-                    // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null.
-                    // Uses a precomputed tag reader (cached) to check Some/None without
-                    // allocating a UnionCaseInfo or obj[] on every call.
-                    if
-                        ty.IsGenericType
-                        && ty.GetGenericTypeDefinition() = typedefof<option<_>>
-                    then
-                        let tagReader = optionTagReaderCache.GetOrAdd(ty, optionTagReaderFactory)
+            if ty.FullName = dateOnlyTypeName then
+                formatDateOrTimeValue "yyyy-MM-dd" ty obj
+            elif ty.FullName = timeOnlyTypeName then
+                formatDateOrTimeValue "HH:mm:ss.FFFFFFF" ty obj
+            // Unwrap F# Option<T>: Some(x) -> toParam(x), None -> null.
+            // Uses a precomputed tag reader (cached) to check Some/None without
+            // allocating a UnionCaseInfo or obj[] on every call.
+            elif
+                ty.IsGenericType
+                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+            then
+                let tagReader = optionTagReaderCache.GetOrAdd(ty, optionTagReaderFactory)
 
-                        if tagReader obj = 1 then // 1 = Some
-                            let valueProp = optionValueCache.GetOrAdd(ty, optionValueFactory)
+                if tagReader obj = 1 then // 1 = Some
+                    let valueProp = optionValueCache.GetOrAdd(ty, optionValueFactory)
 
-                            toParam(valueProp.GetValue(obj))
-                        else
-                            null
-                    else
-                        obj.ToString()
+                    toParam(valueProp.GetValue(obj))
+                else
+                    null
+            else
+                obj.ToString()
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         if isNull obj then
