@@ -2,6 +2,8 @@ namespace SwaggerProvider.Internal.Compilers
 
 open System
 open System.Reflection
+open System.Text.Json
+open System.Text.Json.Nodes
 open ProviderImplementation.ProvidedTypes
 open UncheckedQuotations
 open FSharp.Data.Runtime.NameUtils
@@ -512,6 +514,99 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 || resolvedType = Some(JsonSchemaType.Null ||| JsonSchemaType.Object)
                 ->
                 compileNewObject()
+            | _ when
+                fromByPathCompiler
+                && not(isNull tyName)
+                && (resolvedType = Some JsonSchemaType.String
+                    || resolvedType = Some JsonSchemaType.Integer)
+                && not(isNull schemaObj.Enum)
+                && schemaObj.Enum.Count > 0
+                ->
+                // Top-level named enum schema: generate a CLI enum type so callers have
+                // compile-time type safety instead of raw string/int values.
+                let isStringEnum = resolvedType = Some JsonSchemaType.String
+
+                // Choose int64 when the schema explicitly declares format: int64;
+                // otherwise default to int32 (covers string enums and unformatted integer enums).
+                let underlyingIntType =
+                    if not isStringEnum && schemaObj.Format = "int64" then
+                        typeof<int64>
+                    else
+                        typeof<int32>
+
+                let enumTy =
+                    ProvidedTypeDefinition(tyName, Some typeof<System.Enum>, isErased = false)
+
+                enumTy.SetEnumUnderlyingType underlyingIntType
+
+                // String enums need [JsonConverter(typeof<JsonStringEnumConverter>)] on the type
+                // so System.Text.Json serialises them as strings rather than integers.
+                // Per-member [JsonStringEnumMemberName] attributes (added below) let it honour
+                // the exact OpenAPI wire value for members whose .NET name was sanitised.
+                if isStringEnum then
+                    enumTy.AddCustomAttribute
+                    <| RuntimeHelpers.getJsonStringEnumConverterAttribute()
+
+                let nameGen = UniqueNameGenerator()
+                let mutable intValue = 0L
+
+                for node in schemaObj.Enum do
+                    let rawValueOpt =
+                        match node with
+                        | :? JsonValue as jv ->
+                            match jv.GetValueKind() with
+                            | JsonValueKind.String -> if isStringEnum then Some(jv.GetValue<string>()) else None
+                            | JsonValueKind.Number -> if isStringEnum then None else Some(jv.ToString())
+                            | JsonValueKind.Null -> None
+                            | _ -> None
+                        | _ when not(isNull node) -> Some(node.ToString())
+                        | _ -> None
+
+                    match rawValueOpt with
+                    | None -> ()
+                    | Some originalStr ->
+                        // Sanitize to a valid .NET identifier.
+                        let rawName = nicePascalName originalStr
+
+                        let sanitized =
+                            if String.IsNullOrEmpty rawName || Char.IsDigit rawName.[0] then
+                                "V" + rawName
+                            else
+                                rawName
+
+                        let memberName = nameGen.MakeUnique sanitized
+
+                        let literalValue: obj =
+                            if isStringEnum then
+                                // String enums always use int32 ordinals as literal values.
+                                // The actual wire value is stored in [JsonStringEnumMemberName].
+                                (int32 intValue) :> obj
+                            elif underlyingIntType = typeof<int64> then
+                                match Int64.TryParse originalStr with
+                                | true, v -> v :> obj
+                                | false, _ ->
+                                    failwithf "Invalid int64 enum value '%s' for enum '%s'. Expected a 64-bit integer literal." originalStr tyName
+                            else
+                                match Int32.TryParse originalStr with
+                                | true, v -> v :> obj
+                                | false, _ ->
+                                    failwithf "Invalid integer enum value '%s' for enum '%s'. Expected a 32-bit integer literal." originalStr tyName
+
+                        let field = ProvidedField.Literal(memberName, enumTy, literalValue)
+
+                        // Apply [JsonStringEnumMemberName] so System.Text.Json (9.0+) uses
+                        // the exact original OpenAPI wire value when serialising this member.
+                        // On older runtimes where the attribute is unavailable, the .NET
+                        // member name is used as the wire value (best-effort).
+                        if isStringEnum then
+                            match RuntimeHelpers.getEnumMemberNameAttribute originalStr with
+                            | Some attr -> field.AddCustomAttribute attr
+                            | None -> ()
+
+                        enumTy.AddMember field
+                        intValue <- intValue + 1L
+
+                enumTy :> Type
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
 

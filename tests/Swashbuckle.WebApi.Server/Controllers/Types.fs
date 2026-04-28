@@ -21,3 +21,9 @@ type FileDescription(name: string, bytes: byte[]) =
 
     [<DataMember>]
     member val Bytes = bytes with get, set
+
+type Priority =
+    | Low = 0
+    | Normal = 1
+    | High = 2
+    | Critical = 3

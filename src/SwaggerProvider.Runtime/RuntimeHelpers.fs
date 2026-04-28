@@ -121,6 +121,91 @@ module RuntimeHelpers =
     let private optionValueFactory =
         System.Func<Type, Reflection.PropertyInfo>(fun t -> t.GetProperty("Value"))
 
+    // Reflective lookup for JsonStringEnumMemberNameAttribute (available in System.Text.Json 9.0+).
+    // On older runtimes (e.g. netstandard2.0 with STJ 8.x) this will be null and
+    // enum members are serialised using their .NET identifier name by default.
+    let private jsonStringEnumMemberNameType =
+        Type.GetType("System.Text.Json.Serialization.JsonStringEnumMemberNameAttribute, System.Text.Json")
+
+    let private jsonStringEnumMemberNameCtor =
+        if isNull jsonStringEnumMemberNameType then
+            null
+        else
+            jsonStringEnumMemberNameType.GetConstructor([| typeof<string> |])
+
+    let private jsonStringEnumMemberNameProp =
+        if isNull jsonStringEnumMemberNameType then
+            null
+        else
+            jsonStringEnumMemberNameType.GetProperty("Name")
+
+    /// Returns the OpenAPI wire value for a string enum field.
+    /// Prefers [JsonStringEnumMemberName] (STJ 9+), then [JsonPropertyName] (legacy fallback),
+    /// and finally the .NET field name when neither attribute is present.
+    let private getStringEnumMemberWireName(f: Reflection.FieldInfo) : string =
+        // Prefer JsonStringEnumMemberNameAttribute (the correct STJ mechanism for enum member naming).
+        if not(isNull jsonStringEnumMemberNameType) then
+            let attr = Attribute.GetCustomAttribute(f, jsonStringEnumMemberNameType)
+
+            if not(isNull attr) then
+                jsonStringEnumMemberNameProp.GetValue(attr) :?> string
+            else
+                // Legacy fallback: attributes from type providers built before the switch to
+                // JsonStringEnumMemberName still carry [JsonPropertyName].
+                let propAttr =
+                    Attribute.GetCustomAttribute(f, typeof<JsonPropertyNameAttribute>) :?> JsonPropertyNameAttribute
+
+                if isNull propAttr then f.Name else propAttr.Name
+        else
+            let propAttr =
+                Attribute.GetCustomAttribute(f, typeof<JsonPropertyNameAttribute>) :?> JsonPropertyNameAttribute
+
+            if isNull propAttr then f.Name else propAttr.Name
+
+    /// Builds an (obj -> string) serializer for CLI enum types.
+    /// For string enums (annotated with JsonStringEnumConverter): returns the
+    /// JsonStringEnumMemberName / JsonPropertyName wire value for each member,
+    /// falling back to the field name.
+    /// For integer enums: returns the underlying integer value as a string.
+    let private buildEnumSerializer(ty: Type) : obj -> string =
+        let jsonConverterAttr =
+            Attribute.GetCustomAttribute(ty, typeof<JsonConverterAttribute>) :?> JsonConverterAttribute
+
+        let isStringEnum =
+            not(isNull jsonConverterAttr)
+            && typeof<JsonStringEnumConverter>.IsAssignableFrom(jsonConverterAttr.ConverterType)
+
+        if isStringEnum then
+            // Use Dictionary with ContainsKey + Add instead of |> dict to safely handle alias values
+            // (two enum members with the same underlying integer), which would throw in dict.
+            let lookup = Collections.Generic.Dictionary<int, string>()
+
+            ty.GetFields(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Static)
+            |> Array.iter(fun f ->
+                if f.IsLiteral then
+                    let v = Convert.ToInt32(f.GetRawConstantValue())
+                    let name = getStringEnumMemberWireName f
+                    // Skip alias values (same integer, different name) to prevent key collisions.
+                    if not(lookup.ContainsKey v) then
+                        lookup.Add(v, name))
+
+            fun (o: obj) ->
+                let intValue = Convert.ToInt32 o
+
+                match lookup.TryGetValue intValue with
+                | true, s -> s
+                | false, _ -> o.ToString()
+        else
+            let underlyingType = Enum.GetUnderlyingType ty
+            fun (o: obj) -> Convert.ChangeType(o, underlyingType).ToString()
+
+    // Cache of enum type -> (obj -> string) serializer, built lazily per type.
+    let private enumSerializerCache =
+        Collections.Concurrent.ConcurrentDictionary<Type, obj -> string>()
+
+    let private enumSerializerFactory =
+        System.Func<Type, obj -> string>(buildEnumSerializer)
+
     let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
@@ -151,6 +236,11 @@ module RuntimeHelpers =
                     toParam(valueProp.GetValue(obj))
                 else
                     null
+            elif ty.IsEnum then
+                // CLI enum type: use the cached serializer so string enums produce their
+                // original OpenAPI string value and integer enums produce the integer.
+                let serializer = enumSerializerCache.GetOrAdd(ty, enumSerializerFactory)
+                serializer obj
             else
                 obj.ToString()
 
@@ -186,7 +276,7 @@ module RuntimeHelpers =
             | :? Array as xs when
                 xs.GetType().GetElementType()
                 |> Option.ofObj
-                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t)
+                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t || t.IsEnum)
                 ->
                 xs
                 |> Seq.cast<obj>
@@ -282,6 +372,40 @@ module RuntimeHelpers =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
 
             member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+
+    // Cached constructor for JsonConverterAttribute (used to apply JsonStringEnumConverter to generated enum types).
+    let private jsonConverterCtor =
+        typeof<JsonConverterAttribute>.GetConstructor [| typeof<Type> |]
+
+    /// Builds a CustomAttributeData representing [JsonConverter(typeof<JsonStringEnumConverter>)].
+    /// Apply this to generated CLI enum types so System.Text.Json serialises them as strings.
+    let getJsonStringEnumConverterAttribute() =
+        { new Reflection.CustomAttributeData() with
+            member _.Constructor = jsonConverterCtor
+
+            member _.ConstructorArguments =
+                [| Reflection.CustomAttributeTypedArgument(typeof<Type>, typeof<JsonStringEnumConverter>) |] :> Collections.Generic.IList<_>
+
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+
+    /// Builds a CustomAttributeData representing [JsonStringEnumMemberName(name)].
+    /// Apply this to individual string-enum members so System.Text.Json (9.0+) honours
+    /// the exact OpenAPI wire value regardless of the sanitised .NET member name.
+    /// Returns None on runtimes where JsonStringEnumMemberNameAttribute is not available
+    /// (System.Text.Json < 9.0 / netstandard2.0 with STJ 8.x).
+    let getEnumMemberNameAttribute(name: string) =
+        if isNull jsonStringEnumMemberNameCtor then
+            None
+        else
+            Some(
+                { new Reflection.CustomAttributeData() with
+                    member _.Constructor = jsonStringEnumMemberNameCtor
+
+                    member _.ConstructorArguments =
+                        [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
+
+                    member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+            )
 
     let toStringContent(valueStr: string) =
         new StringContent(valueStr, Text.Encoding.UTF8, "application/json")

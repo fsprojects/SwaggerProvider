@@ -51,6 +51,12 @@ type UpdateArrayIntController() =
 type UpdateArrayEnumController() =
     inherit UpdateController<UriKind[]>(Array.rev)
 
+type UpdatePriorityController() =
+    inherit UpdateController<Types.Priority>(id)
+
+type UpdateArrayPriorityController() =
+    inherit UpdateController<Types.Priority[]>(Array.rev)
+
 type UpdateArrayGuidController() =
     inherit UpdateController<Guid[]>(Array.rev)
 

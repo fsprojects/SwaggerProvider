@@ -51,6 +51,18 @@ type ReturnArrayIntController() =
 type ReturnArrayEnumController() =
     inherit ReturnController<UriKind array>([| System.UriKind.Absolute; System.UriKind.Relative |])
 
+type ReturnPriorityController() =
+    inherit ReturnController<Types.Priority>(Types.Priority.High)
+
+type ReturnArrayPriorityController() =
+    inherit
+        ReturnController<Types.Priority array>(
+            [| Types.Priority.Low
+               Types.Priority.Normal
+               Types.Priority.High
+               Types.Priority.Critical |]
+        )
+
 type ReturnListIntController() =
     inherit ReturnController<int list>([ 1; 2; 3 ])
 

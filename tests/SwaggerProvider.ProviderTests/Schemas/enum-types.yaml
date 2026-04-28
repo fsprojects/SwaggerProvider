@@ -1,0 +1,56 @@
+openapi: "3.0.0"
+info:
+  title: Enum Types Test API
+  version: "1.0.0"
+paths:
+  /string-status:
+    get:
+      operationId: getStringStatus
+      responses:
+        "200":
+          description: Returns a string enum value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StringStatus"
+  /int-status:
+    get:
+      operationId: getIntStatus
+      responses:
+        "200":
+          description: Returns an integer enum value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntStatus"
+  /large-code:
+    get:
+      operationId: getLargeCode
+      responses:
+        "200":
+          description: Returns an int64 enum value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LargeCode"
+components:
+  schemas:
+    StringStatus:
+      type: string
+      enum:
+        - active
+        - in-active
+        - pending
+    IntStatus:
+      type: integer
+      enum:
+        - 200
+        - 404
+        - 500
+    LargeCode:
+      type: integer
+      format: int64
+      enum:
+        - 1
+        - 2
+        - 3
