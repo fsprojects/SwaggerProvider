@@ -539,8 +539,10 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                 enumTy.SetEnumUnderlyingType underlyingIntType
 
-                // String enums are serialized via JsonStringEnumConverter, which reads the
-                // [JsonPropertyName] attribute on each member to get the wire value.
+                // String enums need [JsonConverter(typeof<JsonStringEnumConverter>)] on the type
+                // so System.Text.Json serialises them as strings rather than integers.
+                // Per-member [JsonStringEnumMemberName] attributes (added below) let it honour
+                // the exact OpenAPI wire value for members whose .NET name was sanitised.
                 if isStringEnum then
                     enumTy.AddCustomAttribute
                     <| RuntimeHelpers.getJsonStringEnumConverterAttribute()
@@ -576,8 +578,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let literalValue: obj =
                             if isStringEnum then
-                                // String enums always use int32 ordinals as literal values regardless of format.
-                                // The actual wire value is stored in [JsonPropertyName], not in the literal.
+                                // String enums always use int32 ordinals as literal values.
+                                // The actual wire value is stored in [JsonStringEnumMemberName].
                                 (int32 intValue) :> obj
                             elif underlyingIntType = typeof<int64> then
                                 match Int64.TryParse originalStr with
@@ -592,12 +594,14 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let field = ProvidedField.Literal(memberName, enumTy, literalValue)
 
-                        // Always add [JsonPropertyName] to string enum members so that
-                        // serialization uses the exact original OpenAPI value regardless of
-                        // how the member name was sanitized.
+                        // Apply [JsonStringEnumMemberName] so System.Text.Json (9.0+) uses
+                        // the exact original OpenAPI wire value when serialising this member.
+                        // On older runtimes where the attribute is unavailable, the .NET
+                        // member name is used as the wire value (best-effort).
                         if isStringEnum then
-                            field.AddCustomAttribute
-                            <| RuntimeHelpers.getPropertyNameAttribute originalStr
+                            match RuntimeHelpers.getEnumMemberNameAttribute originalStr with
+                            | Some attr -> field.AddCustomAttribute attr
+                            | None -> ()
 
                         enumTy.AddMember field
                         intValue <- intValue + 1L

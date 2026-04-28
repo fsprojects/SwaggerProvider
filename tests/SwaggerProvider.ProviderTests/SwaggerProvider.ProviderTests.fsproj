@@ -27,6 +27,7 @@
     <Compile Include="Swashbuckle.NoContentControllers.Tests.fs" />
     <Compile Include="Swashbuckle.SpecialCasesControllers.Tests.fs" />
     <Compile Include="Swashbuckle.CustomEnumControllers.Tests.fs" />
+    <Compile Include="Swagger.EnumTypes.Tests.fs" />
     <Compile Include="..\SwaggerProvider.Tests\APIs.guru.fs">
       <Link>APIs.guru.fs</Link>
     </Compile>
