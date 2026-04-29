@@ -185,6 +185,27 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
     // when compiling large schemas with many object types.
     let objToStringMethod = typeof<obj>.GetMethod("ToString", [||])
 
+    // Resolve DateOnly/TimeOnly lazily and cache the result per compiler instance.
+    // This preserves the "only pay when needed" behavior while still avoiding
+    // repeated reflection lookups for schemas that actually use date/time formats.
+    let dateOnlyTy =
+        lazy
+            (if useDateOnly then
+                 System.Type.GetType("System.DateOnly")
+                 |> Option.ofObj
+                 |> Option.defaultValue typeof<DateTimeOffset>
+             else
+                 typeof<DateTimeOffset>)
+
+    let timeOnlyTy =
+        lazy
+            (if useDateOnly then
+                 System.Type.GetType("System.TimeOnly")
+                 |> Option.ofObj
+                 |> Option.defaultValue typeof<string>
+             else
+                 typeof<string>)
+
     let generateProperty (scope: UniqueNameGenerator) propName ty =
         let propertyName = scope.MakeUnique <| nicePascalName propName
 
@@ -627,26 +648,9 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         // for `application/octet-stream` request body
                         // for `multipart/form-data` : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#considerations-for-file-uploads
                         typeof<IO.Stream>
-                    | HasFlag JsonSchemaType.String, "date" ->
-                        // Use DateOnly only when the target runtime supports it (.NET 6+).
-                        // We check useDateOnly (derived from cfg.SystemRuntimeAssemblyVersion) rather than
-                        // probing the design-time host process, which may differ from the consumer's runtime.
-                        if useDateOnly then
-                            System.Type.GetType("System.DateOnly")
-                            |> Option.ofObj
-                            |> Option.defaultValue typeof<DateTimeOffset>
-                        else
-                            typeof<DateTimeOffset>
+                    | HasFlag JsonSchemaType.String, "date" -> dateOnlyTy.Value
                     | HasFlag JsonSchemaType.String, "date-time" -> typeof<DateTimeOffset>
-                    | HasFlag JsonSchemaType.String, "time" ->
-                        // Use TimeOnly only when the target runtime supports it (.NET 6+).
-                        // useDateOnly is true for net6+ targets — TimeOnly was added in the same release.
-                        if useDateOnly then
-                            System.Type.GetType("System.TimeOnly")
-                            |> Option.ofObj
-                            |> Option.defaultValue typeof<string>
-                        else
-                            typeof<string>
+                    | HasFlag JsonSchemaType.String, "time" -> timeOnlyTy.Value
                     | HasFlag JsonSchemaType.String, "uuid" -> typeof<Guid>
                     | HasFlag JsonSchemaType.String, _ -> typeof<string>
                     | HasFlag JsonSchemaType.Array, _ ->
