@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-04-28T13:20:00Z",
-  "run_id": "25055192070",
+  "last_run": "2026-04-29T13:15:00Z",
+  "run_id": "25110987735",
   "monthly_issue": 352,
   "monthly_issue_month": "2026-04",
   "comments_made": {
@@ -10,18 +10,12 @@
     "150": "2026-04",
     "146": "2026-04"
   },
-  "fix_attempts": {
-    "146": "PR #409 open (feat: CLI enum types) — branch repo-assist/feat-cli-enum-types-20260427-57faed9678d0f999",
-    "perf-toParam": "PR pending — branch repo-assist/perf-toParam-single-gettype-20260428",
-    "eng-paket-cache": "PR pending — branch repo-assist/eng-remove-dead-paket-cache-20260428"
-  },
-  "open_prs": {
-    "409": "feat: generate CLI enum types for named enum schemas (closes #146)"
-  },
+  "fix_attempts": {},
+  "open_prs": {},
   "pending_prs": {
-    "perf-toParam-single-gettype-20260428": "perf: eliminate redundant GetType() calls in toParam",
-    "eng-remove-dead-paket-cache-20260428": "eng: remove dead .paket CI cache step"
+    "perf-cache-date-type-lookup-20260429": "perf: cache DateOnly/TimeOnly type lookups in DefinitionCompiler",
+    "eng-update-sdk-global-json-20260429": "eng: update global.json SDK from 10.0.102 to 10.0.201"
   },
   "issue_cursor": 33,
-  "notes": "Issue #358 blocked per maintainer (wait for .NET 11). PR #409 has passing CI. Two new pending PRs created this run."
+  "notes": "Issue #358 blocked per maintainer (wait for .NET 11). Issue #411 open - tracking dead paket cache CI step (workflow file protected, needs manual PR). PR #409 (feat CLI enum types) was merged by sergey-tihon. PR #410 (perf: eliminate GetType() calls in toParam) was merged."
 }
