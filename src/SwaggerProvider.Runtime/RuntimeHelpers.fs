@@ -504,25 +504,30 @@ module RuntimeHelpers =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
 
     // Pre-built map of standard HTTP method names to their corresponding static HttpMethod
-    // instances. Avoids ToUpper() string allocation and HttpMethod construction on every
-    // API call — generated client methods bake in the method string at compile time, so
-    // the same verb string is passed to createHttpRequest on every invocation.
+    // instances. Uses an ordinal case-insensitive comparer so callers passing different
+    // casing (for example, "get") still resolve to the cached standard HttpMethod without
+    // allocating a normalized string for lookup.
     let private standardHttpMethods =
-        [| HttpMethod.Get
-           HttpMethod.Post
-           HttpMethod.Put
-           HttpMethod.Delete
-           HttpMethod("PATCH")
-           HttpMethod.Head
-           HttpMethod.Options
-           HttpMethod.Trace |]
-        |> Array.map(fun m -> m.Method, m)
-        |> readOnlyDict
+        let methods =
+            [| HttpMethod.Get
+               HttpMethod.Post
+               HttpMethod.Put
+               HttpMethod.Delete
+               HttpMethod("PATCH")
+               HttpMethod.Head
+               HttpMethod.Options
+               HttpMethod.Trace |]
+
+        let dictionary =
+            System.Collections.Generic.Dictionary<string, HttpMethod>(StringComparer.OrdinalIgnoreCase)
+
+        methods |> Array.iter(fun m -> dictionary[m.Method] <- m)
+        System.Collections.ObjectModel.ReadOnlyDictionary<string, HttpMethod>(dictionary)
 
     let private resolveHttpMethod(method: string) : HttpMethod =
         match standardHttpMethods.TryGetValue method with
         | true, m -> m
-        | false, _ -> HttpMethod(method.ToUpper())
+        | false, _ -> HttpMethod(method.ToUpperInvariant())
 
     let createHttpRequest (httpMethod: string) address queryParams =
         let requestUrl =
