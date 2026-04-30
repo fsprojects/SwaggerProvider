@@ -512,7 +512,7 @@ module RuntimeHelpers =
            HttpMethod.Post
            HttpMethod.Put
            HttpMethod.Delete
-           HttpMethod.Patch
+           HttpMethod("PATCH")
            HttpMethod.Head
            HttpMethod.Options
            HttpMethod.Trace |]
