@@ -503,6 +503,27 @@ module RuntimeHelpers =
     let combineUrl (urlA: string) (urlB: string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
 
+    // Pre-built map of standard HTTP method names to their corresponding static HttpMethod
+    // instances. Avoids ToUpper() string allocation and HttpMethod construction on every
+    // API call — generated client methods bake in the method string at compile time, so
+    // the same verb string is passed to createHttpRequest on every invocation.
+    let private standardHttpMethods =
+        [| HttpMethod.Get
+           HttpMethod.Post
+           HttpMethod.Put
+           HttpMethod.Delete
+           HttpMethod.Patch
+           HttpMethod.Head
+           HttpMethod.Options
+           HttpMethod.Trace |]
+        |> Array.map(fun m -> m.Method, m)
+        |> readOnlyDict
+
+    let private resolveHttpMethod(method: string) : HttpMethod =
+        match standardHttpMethods.TryGetValue method with
+        | true, m -> m
+        | false, _ -> HttpMethod(method.ToUpper())
+
     let createHttpRequest (httpMethod: string) address queryParams =
         let requestUrl =
             let fakeHost = "http://fake-host/"
@@ -516,7 +537,7 @@ module RuntimeHelpers =
             builder.Query <- query.ToString()
             builder.Uri.PathAndQuery.TrimStart('/')
 
-        let method = HttpMethod(httpMethod.ToUpper())
+        let method = resolveHttpMethod httpMethod
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
     let fillHeaders (msg: HttpRequestMessage) (headers: (string * string) seq) =

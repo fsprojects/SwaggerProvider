@@ -328,19 +328,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         let pField, pProp = generateProperty propName pTy
 
-                        let enumValuesDoc = XmlDoc.buildEnumDoc propSchema.Enum
-
                         let propDoc =
-                            match
-                                propSchema.Description
-                                |> Option.ofObj
-                                |> Option.filter(String.IsNullOrWhiteSpace >> not),
-                                enumValuesDoc
-                            with
-                            | None, None -> null
-                            | Some d, None -> d
-                            | None, Some ev -> ev
-                            | Some d, Some ev -> $"{d}\n{ev}"
+                            XmlDoc.combineDescAndEnum propSchema.Description (XmlDoc.buildEnumDoc propSchema.Enum)
 
                         if not(isNull propDoc) then
                             pProp.AddXmlDoc propDoc

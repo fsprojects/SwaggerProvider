@@ -334,6 +334,22 @@ module XmlDoc =
             let values = enumValues |> Seq.map formatEnumValue |> String.concat ", "
             Some $"Allowed values: {values}"
 
+    /// Combines a schema description with optional enum-value documentation into a single
+    /// XML doc string. Returns null if both inputs are absent.
+    /// Callers use this to avoid duplicating the four-case match expression in every property
+    /// and parameter doc-building site.
+    let combineDescAndEnum (description: string) (enumDoc: string option) =
+        match
+            description
+            |> Option.ofObj
+            |> Option.filter(String.IsNullOrWhiteSpace >> not),
+            enumDoc
+        with
+        | None, None -> null
+        | Some d, None -> d
+        | None, Some ev -> ev
+        | Some d, Some ev -> $"{d}\n{ev}"
+
     /// Builds a structured XML doc string from summary, description, and parameter descriptions.
     /// paramDescriptions is a sequence of (camelCaseName, description) pairs.
     let buildXmlDoc (summary: string) (description: string) (paramDescriptions: (string * string) seq) =

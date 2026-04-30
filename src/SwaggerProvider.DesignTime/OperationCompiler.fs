@@ -502,16 +502,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     else
                         None
 
-                match
-                    p.Description
-                    |> Option.ofObj
-                    |> Option.filter(String.IsNullOrWhiteSpace >> not),
-                    enumDoc
-                with
-                | None, None -> null
-                | Some d, None -> d
-                | None, Some ev -> ev
-                | Some d, Some ev -> $"{d}\n{ev}"
+                XmlDoc.combineDescAndEnum p.Description enumDoc
 
             let paramDescriptions =
                 [ for p in openApiParameters -> niceCamelName p.Name, buildParamDesc p
