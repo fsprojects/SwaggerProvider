@@ -503,6 +503,32 @@ module RuntimeHelpers =
     let combineUrl (urlA: string) (urlB: string) =
         sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
 
+    // Pre-built map of standard HTTP method names to their corresponding static HttpMethod
+    // instances. Uses an ordinal case-insensitive comparer so callers passing different
+    // casing (for example, "get") still resolve to the cached standard HttpMethod without
+    // allocating a normalized string for lookup.
+    let private standardHttpMethods =
+        let methods =
+            [| HttpMethod.Get
+               HttpMethod.Post
+               HttpMethod.Put
+               HttpMethod.Delete
+               HttpMethod("PATCH")
+               HttpMethod.Head
+               HttpMethod.Options
+               HttpMethod.Trace |]
+
+        let dictionary =
+            System.Collections.Generic.Dictionary<string, HttpMethod>(StringComparer.OrdinalIgnoreCase)
+
+        methods |> Array.iter(fun m -> dictionary.Add(m.Method, m))
+        System.Collections.ObjectModel.ReadOnlyDictionary<string, HttpMethod>(dictionary)
+
+    let private resolveHttpMethod(method: string) : HttpMethod =
+        match standardHttpMethods.TryGetValue method with
+        | true, m -> m
+        | false, _ -> HttpMethod(method.ToUpperInvariant())
+
     let createHttpRequest (httpMethod: string) address queryParams =
         let requestUrl =
             let fakeHost = "http://fake-host/"
@@ -516,7 +542,7 @@ module RuntimeHelpers =
             builder.Query <- query.ToString()
             builder.Uri.PathAndQuery.TrimStart('/')
 
-        let method = HttpMethod(httpMethod.ToUpper())
+        let method = resolveHttpMethod httpMethod
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
     let fillHeaders (msg: HttpRequestMessage) (headers: (string * string) seq) =
