@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-04-30T13:16:38Z",
-  "run_id": "25167405830",
-  "monthly_issue": 352,
-  "monthly_issue_month": "2026-04",
+  "last_run": "2026-05-01T13:13:19Z",
+  "run_id": "25215508244",
+  "monthly_issue": "aw_may26",
+  "monthly_issue_month": "2026-05",
   "comments_made": {
     "215": "2026-04",
     "358": "2026-04",
@@ -11,10 +11,10 @@
     "146": "2026-04"
   },
   "fix_attempts": {},
-  "open_prs": {},
-  "pending_prs": {
-    "improve-xmldoc-combine-desc-enum-20260430": "perf+refactor: cache HttpMethod lookups; extract XmlDoc.combineDescAndEnum helper (branch: repo-assist/improve-xmldoc-combine-desc-enum-20260430)"
+  "open_prs": {
+    "eng-bump-openapi-2.7.4-20260501": "pending patch: eng: bump Microsoft.OpenApi and YamlReader 2.7.3 → 2.7.4 (branch: repo-assist/eng-bump-openapi-2.7.4-20260501)",
+    "release-notes-4.0.0-beta03": "pending patch: docs: add 4.0.0-beta03 release notes entry (branch: repo-assist/release-notes-4.0.0-beta03)"
   },
   "issue_cursor": 33,
-  "notes": "Issue #358 blocked per maintainer (wait for .NET 11). Issue #411 open - tracking dead paket cache CI step (workflow file protected, needs manual PR). PR #412 (perf: cache DateOnly/TimeOnly type lookups) merged. PR #414 (eng: update global.json SDK) merged. Previous pending PRs from 2026-04-29 are now merged."
+  "notes": "Issue #358 blocked per maintainer (wait for .NET 11). Issue #411 open - tracking dead paket cache CI step (workflow file protected, needs manual PR). April monthly issue #352 closed. May monthly issue created as aw_may26. Two PRs pending: OpenApi bump 2.7.4 and beta03 release notes."
 }
