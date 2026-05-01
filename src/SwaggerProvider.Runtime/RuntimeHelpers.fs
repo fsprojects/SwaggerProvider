@@ -521,7 +521,7 @@ module RuntimeHelpers =
         let dictionary =
             System.Collections.Generic.Dictionary<string, HttpMethod>(StringComparer.OrdinalIgnoreCase)
 
-        methods |> Array.iter(fun m -> dictionary[m.Method] <- m)
+        methods |> Array.iter(fun m -> dictionary.Add(m.Method, m))
         System.Collections.ObjectModel.ReadOnlyDictionary<string, HttpMethod>(dictionary)
 
     let private resolveHttpMethod(method: string) : HttpMethod =
