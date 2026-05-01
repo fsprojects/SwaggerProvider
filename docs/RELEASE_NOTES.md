@@ -1,3 +1,21 @@
+#### 4.0.0-beta03 - May 1, 2026
+
+- fix: handle `DateOnly` in `toParam` and `toQueryParams` for correct serialization (#393)
+- fix: use `toParam` in `toFormUrlEncodedContent`/`toMultipartFormDataContent` for correct date/time serialization (#395)
+- feat: add `TimeOnly` support — `format: time` maps to `System.TimeOnly` when `UseDateOnly=true` (#394)
+- feat: generate CLI enum types for top-level named enum schemas (#409)
+- improve: surface allowed enum values in generated XmlDoc for operation parameters (#398)
+- perf: avoid `FSharpValue.GetUnionFields` in `toParam` via cached tag reader (#399)
+- perf: eliminate redundant `GetType()` calls in `toParam` (#410)
+- perf: cache `DateOnly`/`TimeOnly` type lookups in `DefinitionCompiler` (#412)
+- perf: cache `HttpMethod` lookups in `createHttpRequest`; extract `XmlDoc.combineDescAndEnum` helper (#415)
+- refactor: extract `fetchUrlContent` helper to eliminate HTTP fetch duplication (#406)
+- eng: bump Microsoft.OpenApi and YamlReader 2.7.2 → 2.7.3 (#396)
+- eng: add NuGet ecosystem to Dependabot to track dotnet global tools (#407)
+- eng: update global.json SDK from 10.0.102 to 10.0.201 (#414)
+- test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests) (#397)
+- ci: bump actions/checkout 4→6, actions/upload-pages-artifact 3→5
+
 #### 4.0.0-beta02 - April 18, 2026
 
 - fix: preserve declared properties when schema has both `properties` and `additionalProperties` (#383)
