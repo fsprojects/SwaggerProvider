@@ -1,16 +1,22 @@
 {
-  "run": "2026-04-26",
-  "rid": "24957452960",
-  "monthly": "aw_apr2026",
-  "monthly_issue": 352,
+  "run": "2026-05-02",
+  "rid": "25252668072",
+  "monthly": "aw_may2026",
+  "monthly_issue": 418,
   "prs": {
-    "perf-cache-option-tag-reader-20260424": "open - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader (branch: repo-assist/perf-cache-option-tag-reader-20260424-d7ce09bd9fdc5bbc). NOTE: previous PR#399 was closed without merging.",
-    "improve-utils-http-refactor-20260425": "open - refactor: extract fetchUrlContent helper from readSchemaPath to eliminate HTTP fetch duplication in Utils.fs (branch: repo-assist/improve-utils-http-refactor-20260425-29d415d0bbe57ad6). NOTE: previous PR#406 was closed without merging.",
-    "399": "closed without merge - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
-    "407": "closed without merge - eng: add NuGet ecosystem to Dependabot",
-    "406": "closed without merge - refactor: extract fetchUrlContent helper",
-    "402": "merged by Dependabot - build(deps): bump actions/checkout from 4 to 6",
-    "403": "merged by Dependabot - build(deps): bump actions/upload-pages-artifact from 3 to 5",
+    "improve-type-xmldoc-20260502": "open - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests, 348->353) (branch: repo-assist/improve-type-xmldoc-20260502)",
+    "416": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.3 -> 2.7.4",
+    "417": "merged - docs: add 4.0.0-beta03 release notes entry",
+    "415": "merged - perf+refactor: cache HttpMethod lookups; extract XmlDoc.combineDescAndEnum helper",
+    "414": "merged - eng: update global.json SDK from 10.0.102 to 10.0.201",
+    "412": "merged - perf: cache DateOnly/TimeOnly type lookups in DefinitionCompiler",
+    "409": "merged - feat: generate CLI enum types for top-level named enum schemas",
+    "410": "merged - perf: eliminate redundant GetType() calls in toParam",
+    "407": "merged - eng: add NuGet ecosystem to Dependabot",
+    "406": "merged - refactor: extract fetchUrlContent helper",
+    "402": "merged - build(deps): bump actions/checkout from 4 to 6",
+    "403": "merged - build(deps): bump actions/upload-pages-artifact from 3 to 5",
+    "399": "merged - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
     "398": "merged - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
     "397": "merged - test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests, 317->324)",
     "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
@@ -47,5 +53,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "v4.0-beta01 released. Previous PRs #399 (perf) and #406 (refactor) and #407 (dependabot nuget) were closed without merging. Recreated perf and refactor PRs this run. Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #146 enum types complex enhancement. eng-docs-checkout-v6 branch has 0 commits ahead of master (change already in CI)."
+  "notes": "v4.0-beta03 released (PRs #393-#415). Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 (remove dead .paket CI cache step) tracked as manual PR - protected files block push. Issue #411 has no human comments. All open issues (#33, #358) already commented on."
 }
