@@ -277,10 +277,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                 registerNew(tyName, ty :> Type)
 
-                if
-                    not(isNull schemaObj.Description)
-                    && not(String.IsNullOrWhiteSpace schemaObj.Description)
-                then
+                if not (String.IsNullOrWhiteSpace schemaObj.Description) then
                     ty.AddXmlDoc schemaObj.Description
 
                 // Combine composite schemas
@@ -555,10 +552,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                 enumTy.SetEnumUnderlyingType underlyingIntType
 
-                if
-                    not(isNull schemaObj.Description)
-                    && not(String.IsNullOrWhiteSpace schemaObj.Description)
-                then
+                if not(String.IsNullOrWhiteSpace schemaObj.Description) then
                     enumTy.AddXmlDoc schemaObj.Description
 
                 // String enums need [JsonConverter(typeof<JsonStringEnumConverter>)] on the type
