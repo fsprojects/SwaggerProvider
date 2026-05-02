@@ -208,3 +208,127 @@ let ``non-enum query parameter does not add Allowed values to XmlDoc``() =
     doc.IsSome |> shouldEqual true
     doc.Value |> shouldContainText "Health check"
     doc.Value |> shouldNotContainText "Allowed values:"
+
+// ── Type-level XmlDoc (schema descriptions on generated types) ───────────────
+
+let private compileSchemaTypes(schemaStr: string) =
+    let schema = parseSchema schemaStr
+    let defCompiler = DefinitionCompiler(schema, false, false)
+    let opCompiler = OperationCompiler(schema, defCompiler, true, false, true)
+    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+    defCompiler.Namespace.GetProvidedTypes()
+
+[<Fact>]
+let ``object type with description gets XmlDoc``() =
+    let schemaStr =
+        """openapi: "3.0.0"
+info:
+  title: XmlDocTypeTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Pet:
+      type: object
+      description: "A pet in the system"
+      properties:
+        name:
+          type: string
+"""
+
+    let types = compileSchemaTypes schemaStr
+    let petTy = types |> List.find(fun t -> t.Name = "Pet")
+    getXmlDocAttr petTy |> shouldEqual(Some "A pet in the system")
+
+[<Fact>]
+let ``object type without description has no XmlDoc``() =
+    let schemaStr =
+        """openapi: "3.0.0"
+info:
+  title: XmlDocTypeTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Widget:
+      type: object
+      properties:
+        id:
+          type: integer
+"""
+
+    let types = compileSchemaTypes schemaStr
+    let widgetTy = types |> List.find(fun t -> t.Name = "Widget")
+    getXmlDocAttr widgetTy |> shouldEqual None
+
+[<Fact>]
+let ``named string enum type with description gets XmlDoc``() =
+    let schemaStr =
+        """openapi: "3.0.0"
+info:
+  title: XmlDocEnumTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Status:
+      type: string
+      description: "The lifecycle status of an item"
+      enum:
+        - active
+        - inactive
+        - pending
+"""
+
+    let types = compileSchemaTypes schemaStr
+    let statusTy = types |> List.find(fun t -> t.Name = "Status")
+
+    getXmlDocAttr statusTy
+    |> shouldEqual(Some "The lifecycle status of an item")
+
+[<Fact>]
+let ``named integer enum type with description gets XmlDoc``() =
+    let schemaStr =
+        """openapi: "3.0.0"
+info:
+  title: XmlDocEnumTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Priority:
+      type: integer
+      description: "Priority level (1=low, 2=medium, 3=high)"
+      enum:
+        - 1
+        - 2
+        - 3
+"""
+
+    let types = compileSchemaTypes schemaStr
+    let priorityTy = types |> List.find(fun t -> t.Name = "Priority")
+
+    getXmlDocAttr priorityTy
+    |> shouldEqual(Some "Priority level (1=low, 2=medium, 3=high)")
+
+[<Fact>]
+let ``named enum type without description has no XmlDoc``() =
+    let schemaStr =
+        """openapi: "3.0.0"
+info:
+  title: XmlDocEnumTest
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    Color:
+      type: string
+      enum:
+        - red
+        - green
+        - blue
+"""
+
+    let types = compileSchemaTypes schemaStr
+    let colorTy = types |> List.find(fun t -> t.Name = "Color")
+    getXmlDocAttr colorTy |> shouldEqual None

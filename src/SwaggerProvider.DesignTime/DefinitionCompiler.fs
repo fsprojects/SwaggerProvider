@@ -277,6 +277,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                 registerNew(tyName, ty :> Type)
 
+                if
+                    not(isNull schemaObj.Description)
+                    && not(String.IsNullOrWhiteSpace schemaObj.Description)
+                then
+                    ty.AddXmlDoc schemaObj.Description
+
                 // Combine composite schemas
                 let schemaObjProperties =
                     let getProps(s: IOpenApiSchema) =
@@ -548,6 +554,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     ProvidedTypeDefinition(tyName, Some typeof<System.Enum>, isErased = false)
 
                 enumTy.SetEnumUnderlyingType underlyingIntType
+
+                if
+                    not(isNull schemaObj.Description)
+                    && not(String.IsNullOrWhiteSpace schemaObj.Description)
+                then
+                    enumTy.AddXmlDoc schemaObj.Description
 
                 // String enums need [JsonConverter(typeof<JsonStringEnumConverter>)] on the type
                 // so System.Text.Json serialises them as strings rather than integers.
