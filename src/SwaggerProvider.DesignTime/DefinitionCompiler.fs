@@ -277,7 +277,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 let ty = ProvidedTypeDefinition(tyName, Some typeof<obj>, isErased = false)
                 registerNew(tyName, ty :> Type)
 
-                if not (String.IsNullOrWhiteSpace schemaObj.Description) then
+                if not(String.IsNullOrWhiteSpace schemaObj.Description) then
                     ty.AddXmlDoc schemaObj.Description
 
                 // Combine composite schemas
