@@ -1,10 +1,12 @@
 {
-  "run": "2026-05-02",
-  "rid": "25252668072",
+  "run": "2026-05-03",
+  "rid": "25280090203",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "improve-type-xmldoc-20260502": "open - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests, 348->353) (branch: repo-assist/improve-type-xmldoc-20260502)",
+    "improve-xmldoc-returns-20260503": "open - improve: add <returns> XmlDoc tag for operation response descriptions (+4 tests, 353->357) (branch: repo-assist/improve-xmldoc-returns-20260503)",
+    "release-notes-4.0.0-beta04-20260503": "open - docs: add 4.0.0-beta04 release notes entry (branch: repo-assist/release-notes-4.0.0-beta04-20260503)",
+    "419": "merged - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests, 348->353)",
     "416": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.3 -> 2.7.4",
     "417": "merged - docs: add 4.0.0-beta03 release notes entry",
     "415": "merged - perf+refactor: cache HttpMethod lookups; extract XmlDoc.combineDescAndEnum helper",
@@ -53,5 +55,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "v4.0-beta03 released (PRs #393-#415). Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 (remove dead .paket CI cache step) tracked as manual PR - protected files block push. Issue #411 has no human comments. All open issues (#33, #358) already commented on."
+  "notes": "2026-05-03 run: Task5=add <returns> XmlDoc for response descriptions (PR pending), Task10=beta04 release notes (PR pending). Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 has no human comments, manual PR required for CI workflow files. All open issues (#33, #358) already commented on."
 }
