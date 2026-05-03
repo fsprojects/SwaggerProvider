@@ -350,9 +350,9 @@ module XmlDoc =
         | None, Some ev -> ev
         | Some d, Some ev -> $"{d}\n{ev}"
 
-    /// Builds a structured XML doc string from summary, description, and parameter descriptions.
-    /// paramDescriptions is a sequence of (camelCaseName, description) pairs.
-    let buildXmlDoc (summary: string) (description: string) (paramDescriptions: (string * string) seq) =
+    /// Builds a structured XML doc string from summary, description, parameter descriptions, and an optional
+    /// return description. paramDescriptions is a sequence of (camelCaseName, description) pairs.
+    let buildXmlDoc (summary: string) (description: string) (paramDescriptions: (string * string) seq) (returnDoc: string option) =
         let summaryPart =
             if String.IsNullOrEmpty summary then
                 ""
@@ -371,7 +371,12 @@ module XmlDoc =
                       yield $"<param name=\"{name}\">{escapeXml desc}</param>" ]
             |> String.concat ""
 
-        summaryPart + remarksPart + paramParts
+        let returnsPart =
+            match returnDoc with
+            | Some rd when not(String.IsNullOrWhiteSpace rd) -> $"<returns>{escapeXml rd}</returns>"
+            | _ -> ""
+
+        summaryPart + remarksPart + paramParts + returnsPart
 
 type UniqueNameGenerator(?occupiedNames: string seq) =
     let hash = System.Collections.Generic.HashSet<_>()

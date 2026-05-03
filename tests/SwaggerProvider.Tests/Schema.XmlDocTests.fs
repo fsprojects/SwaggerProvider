@@ -332,3 +332,72 @@ components:
     let types = compileSchemaTypes schemaStr
     let colorTy = types |> List.find(fun t -> t.Name = "Color")
     getXmlDocAttr colorTy |> shouldEqual None
+
+// ── <returns> tag from success response description ───────────────────────────
+
+let private withReturnDescSchema =
+    """  /items:
+    get:
+      operationId: listItems
+      summary: List all items
+      responses:
+        "200":
+          description: A list of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+"""
+
+[<Fact>]
+let ``response description appears in returns tag``() =
+    let doc = getMethodXmlDoc withReturnDescSchema "ListItems"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "<returns>"
+    doc.Value |> shouldContainText "A list of items"
+    doc.Value |> shouldContainText "</returns>"
+
+[<Fact>]
+let ``summary is still present when response description is also set``() =
+    let doc = getMethodXmlDoc withReturnDescSchema "ListItems"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "<summary>"
+    doc.Value |> shouldContainText "List all items"
+
+let private withoutReturnDescSchema =
+    """  /ping:
+    get:
+      operationId: ping
+      summary: Health check
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: string
+"""
+
+[<Fact>]
+let ``no returns tag when response has no description``() =
+    let doc = getMethodXmlDoc withoutReturnDescSchema "Ping"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldNotContainText "<returns>"
+
+let private noResponseSchema =
+    """  /fire:
+    post:
+      operationId: fire
+      summary: Fire and forget
+      responses:
+        "404":
+          description: Not Found
+"""
+
+[<Fact>]
+let ``no returns tag when there is no success response``() =
+    let doc = getMethodXmlDoc noResponseSchema "Fire"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldNotContainText "<returns>"
