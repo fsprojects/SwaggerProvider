@@ -1,3 +1,9 @@
+#### 4.0.0-beta04 - May 3, 2026
+
+- improve: surface schema `description` as XmlDoc on generated object types and top-level named enum types (#419)
+- improve: add `<returns>` XmlDoc tag for operation response descriptions when the success response has a description
+- eng: bump Microsoft.OpenApi and YamlReader 2.7.3 → 2.7.4 (#416)
+
 #### 4.0.0-beta03 - May 1, 2026
 
 - fix: handle `DateOnly` in `toParam` and `toQueryParams` for correct serialization (#393)
