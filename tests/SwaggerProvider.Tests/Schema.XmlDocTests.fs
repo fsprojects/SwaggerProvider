@@ -392,14 +392,12 @@ let private noResponseSchema =
       operationId: fire
       summary: Fire and forget
       responses:
-        "204":
-          description: No Content
+        "404":
+          description: Not Found
 """
 
 [<Fact>]
 let ``no returns tag when there is no success response``() =
     let doc = getMethodXmlDoc noResponseSchema "Fire"
-    // 204 has no content type so retMimeAndTy is None; description comes from okResponse
-    // For a 204 response the description is mapped as returnDoc.
-    // The key property: no crash and the tag handling is correct.
-    doc |> ignore // Just verify compilation doesn't throw
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldNotContainText "<returns>"
