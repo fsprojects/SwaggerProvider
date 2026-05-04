@@ -401,3 +401,157 @@ let ``no returns tag when there is no success response``() =
     let doc = getMethodXmlDoc noResponseSchema "Fire"
     doc.IsSome |> shouldEqual true
     doc.Value |> shouldNotContainText "<returns>"
+
+// ── <remarks> tag from operation description ──────────────────────────────────
+
+let private withRemarkSchema =
+    """  /pets/{id}:
+    get:
+      operationId: getPet
+      summary: Get a pet
+      description: Returns the full pet record by its unique identifier. Includes all nested sub-resources.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+"""
+
+[<Fact>]
+let ``remarks tag appears when description differs from summary``() =
+    let doc = getMethodXmlDoc withRemarkSchema "GetPet"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "<remarks>"
+    doc.Value |> shouldContainText "Returns the full pet record"
+    doc.Value |> shouldContainText "</remarks>"
+
+[<Fact>]
+let ``summary tag is present when description and summary both set``() =
+    let doc = getMethodXmlDoc withRemarkSchema "GetPet"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "<summary>Get a pet</summary>"
+
+let private summaryEqualsDescSchema =
+    """  /status:
+    get:
+      operationId: getStatus
+      summary: Server status
+      description: Server status
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+"""
+
+[<Fact>]
+let ``no remarks tag when description equals summary``() =
+    let doc = getMethodXmlDoc summaryEqualsDescSchema "GetStatus"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldNotContainText "<remarks>"
+
+// ── XML special character escaping ───────────────────────────────────────────
+
+let private xmlEscapeSchema =
+    """  /items:
+    get:
+      operationId: listItems
+      summary: List items (A & B)
+      description: Returns items where value < threshold or value > minimum
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+"""
+
+[<Fact>]
+let ``ampersand in summary is escaped in XmlDoc``() =
+    let doc = getMethodXmlDoc xmlEscapeSchema "ListItems"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "&amp;"
+
+[<Fact>]
+let ``less-than in description is escaped in XmlDoc``() =
+    let doc = getMethodXmlDoc xmlEscapeSchema "ListItems"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "&lt;"
+
+[<Fact>]
+let ``greater-than in description is escaped in XmlDoc``() =
+    let doc = getMethodXmlDoc xmlEscapeSchema "ListItems"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "&gt;"
+
+// ── Request body description in param XmlDoc ─────────────────────────────────
+
+let private bodyWithDescSchema =
+    """  /items:
+    post:
+      operationId: createItem
+      summary: Create an item
+      requestBody:
+        description: The item payload to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Created
+"""
+
+[<Fact>]
+let ``request body description appears as param tag in method XmlDoc``() =
+    let doc = getMethodXmlDoc bodyWithDescSchema "CreateItem"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "The item payload to create"
+
+// ── 201 Created response as return type ──────────────────────────────────────
+
+let private createdResponseSchema =
+    """  /items:
+    post:
+      operationId: createItem
+      summary: Create an item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "201":
+          description: The created item
+          content:
+            application/json:
+              schema:
+                type: string
+"""
+
+[<Fact>]
+let ``201 response description appears in returns tag``() =
+    let doc = getMethodXmlDoc createdResponseSchema "CreateItem"
+    doc.IsSome |> shouldEqual true
+    doc.Value |> shouldContainText "<returns>"
+    doc.Value |> shouldContainText "The created item"
+    doc.Value |> shouldContainText "</returns>"
