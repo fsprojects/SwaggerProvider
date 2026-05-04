@@ -522,6 +522,10 @@ let ``request body description appears as param tag in method XmlDoc``() =
     let doc = getMethodXmlDoc bodyWithDescSchema "CreateItem"
     doc.IsSome |> shouldEqual true
     doc.Value |> shouldContainText "The item payload to create"
+    System.Text.RegularExpressions.Regex.IsMatch(
+        doc.Value,
+        "<param\\b[^>]*>\\s*The item payload to create\\s*</param>")
+    |> shouldEqual true
 
 // ── 201 Created response as return type ──────────────────────────────────────
 

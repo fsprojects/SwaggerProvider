@@ -129,12 +129,8 @@ module BuildEnumDocTests =
             )
             :> IList<JsonNode>
 
-        let doc = XmlDoc.buildEnumDoc values
-        doc.IsSome |> shouldEqual true
-        doc.Value |> shouldContainText "Allowed values:"
-        doc.Value |> shouldContainText "active"
-        doc.Value |> shouldContainText "inactive"
-        doc.Value |> shouldContainText "pending"
+        XmlDoc.buildEnumDoc values
+        |> shouldEqual(Some "Allowed values: active, inactive, pending")
 
     [<Fact>]
     let ``integer enum values appear as numbers``() =
@@ -183,9 +179,8 @@ module CombineDescAndEnumTests =
 
     [<Fact>]
     let ``both description and enum doc are combined with newline``() =
-        let result = XmlDoc.combineDescAndEnum "The status" (Some "Allowed values: a, b")
-        result |> shouldContainText "The status"
-        result |> shouldContainText "Allowed values: a, b"
+        XmlDoc.combineDescAndEnum "The status" (Some "Allowed values: a, b")
+        |> shouldEqual "The status\nAllowed values: a, b"
 
 // ── XmlDoc.buildXmlDoc ────────────────────────────────────────────────────────
 
