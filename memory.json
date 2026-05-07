@@ -1,10 +1,11 @@
 {
-  "run": "2026-05-04",
-  "rid": "25321084324",
+  "run": "2026-05-07",
+  "rid": "25474223358",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "test-xmldoc-unit-tests-20260504": "open - test: add direct unit tests for XmlDoc module (+32 tests, 357→389) (branch: repo-assist/test-xmldoc-unit-tests-20260504)",
+    "release-notes-4.0.0-beta04-20260507": "open - docs: add 4.0.0-beta04 release notes entry (branch: repo-assist/release-notes-4.0.0-beta04-20260507)",
+    "422": "merged - test: add direct unit tests for XmlDoc module (+32 tests, 357→389)",
     "420": "merged - improve: add <returns> XmlDoc tag for operation response descriptions (+4 tests, 353→357)",
     "419": "merged - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests, 348→353)",
     "416": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.3 -> 2.7.4",
@@ -13,18 +14,7 @@
     "414": "merged - eng: update global.json SDK from 10.0.102 to 10.0.201",
     "412": "merged - perf: cache DateOnly/TimeOnly type lookups in DefinitionCompiler",
     "409": "merged - feat: generate CLI enum types for top-level named enum schemas",
-    "410": "merged - perf: eliminate redundant GetType() calls in toParam",
-    "407": "merged - eng: add NuGet ecosystem to Dependabot",
-    "406": "merged - refactor: extract fetchUrlContent helper",
-    "402": "merged - build(deps): bump actions/checkout from 4 to 6",
-    "403": "merged - build(deps): bump actions/upload-pages-artifact from 3 to 5",
-    "399": "merged - perf: avoid FSharpValue.GetUnionFields in toParam via cached tag reader",
-    "398": "merged - improve: surface enum allowed-values in operation parameter XmlDocs (+3 tests, 324->327)",
-    "397": "merged - test: extend DateOnly/TimeOnly type-mapping coverage (+7 tests, 317->324)",
-    "396": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.2 -> 2.7.3",
-    "395": "merged - fix: use toParam in form content helpers for correct date/time serialization (+4 tests, 296->300)",
-    "394": "merged - eng: add TimeOnly support for format:time schemas (+11 tests, 295->306)",
-    "393": "merged - fix: handle DateOnly in toParam and toQueryParams (+8 tests, 287->295)"
+    "410": "merged - perf: eliminate redundant GetType() calls in toParam"
   },
   "comments_made": {
     "33": "2026-04-03",
@@ -46,5 +36,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "2026-05-04 run: Task9=add direct XmlDoc unit tests (+32, 357->389, PR pending), Task3=no actionable bugs in open issues. Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 has no human comments, manual PR required for CI workflow files. All open issues (#33, #358) already commented on. PR for beta04 release notes was dropped (not tracked as pending anymore since it was listed but maybe got merged - need to check next run)."
+  "notes": "2026-05-07: Task5=beta04 release notes PR (pending), Task2=no new issues to comment on. Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 has no human comments, manual PR required for CI workflow files. All open issues already commented on."
 }
