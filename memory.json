@@ -1,11 +1,10 @@
 {
-  "run": "2026-05-08",
-  "rid": "25534669014",
+  "run": "2026-05-09",
+  "rid": "25590268771",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "eng-bump-fsharpcore-stj-20260508": "open - eng: remove version pins on FSharp.Core and System.Text.Json (FSharp.Core 8.0.403→10.1.203, System.Text.Json 8.0.6→10.0.7)",
-    "release-notes-4.0.0-beta04-20260507": "open - docs: add 4.0.0-beta04 release notes entry (branch: repo-assist/release-notes-4.0.0-beta04-20260507)",
+    "eng-bump-fsharpcore-stj-20260508": "pending PR submitted - eng: remove version pins on FSharp.Core and System.Text.Json (FSharp.Core 8.0.403→10.1.203, System.Text.Json 8.0.6→10.0.7)",
     "422": "merged - test: add direct unit tests for XmlDoc module (+32 tests, 357→389)",
     "420": "merged - improve: add <returns> XmlDoc tag for operation response descriptions (+4 tests, 353→357)",
     "419": "merged - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests, 348→353)",
@@ -37,5 +36,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "2026-05-08: Task4=FSharp.Core/STJ version pin removal PR (pending), Task3 fell back (no fixable bugs, #33 already commented). Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 has no human comments, manual PR required for CI workflow files. All open issues already commented on. PR for beta04 release notes still pending from 2026-05-07 run."
+  "notes": "2026-05-09: Task4=submitted PR for FSharp.Core/STJ version pin removal (branch existed from 2026-05-08, PR submitted this run). Task2 fallback (all issues commented, no new human activity). Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 has no human comments, manual PR required for CI workflow files. All open issues already commented on. beta04 release notes PR never created (branch not found in remotes)."
 }
