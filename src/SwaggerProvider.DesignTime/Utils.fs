@@ -139,28 +139,26 @@ module SchemaReader =
         else
             let mediaType = contentType.MediaType.ToLowerInvariant()
 
+            // Strip any parameters (e.g. "; charset=utf-8") to get the bare media type for comparison.
+            let baseMediaType =
+                let idx = mediaType.IndexOf(';')
+
+                if idx >= 0 then
+                    mediaType.Substring(0, idx).TrimEnd()
+                else
+                    mediaType
+
             // Allow only Content-Types that are valid for OpenAPI/Swagger schema files
             // This prevents SSRF attacks where an attacker tries to make the provider
             // fetch and process non-schema files (HTML, images, binaries, etc.)
             let isValidSchemaContentType =
-                // JSON formats
-                mediaType = "application/json"
-                || mediaType.StartsWith "application/json;"
-                // YAML formats
-                || mediaType = "application/yaml"
-                || mediaType = "application/x-yaml"
-                || mediaType = "text/yaml"
-                || mediaType = "text/x-yaml"
-                || mediaType.StartsWith "application/yaml;"
-                || mediaType.StartsWith "application/x-yaml;"
-                || mediaType.StartsWith "text/yaml;"
-                || mediaType.StartsWith "text/x-yaml;"
-                // Plain text (sometimes used for YAML)
-                || mediaType = "text/plain"
-                || mediaType.StartsWith "text/plain;"
-                // Generic binary (fallback for misconfigured servers)
-                || mediaType = "application/octet-stream"
-                || mediaType.StartsWith "application/octet-stream;"
+                baseMediaType = "application/json"
+                || baseMediaType = "application/yaml"
+                || baseMediaType = "application/x-yaml"
+                || baseMediaType = "text/yaml"
+                || baseMediaType = "text/x-yaml"
+                || baseMediaType = "text/plain"
+                || baseMediaType = "application/octet-stream"
 
             if not isValidSchemaContentType then
                 failwithf
