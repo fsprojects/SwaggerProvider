@@ -407,4 +407,5 @@ type UniqueNameGenerator(?occupiedNames: string seq) =
         | true -> findUniq prefix prefixLower (i + 1)
 
     member _.MakeUnique methodName =
+        let methodName = if isNull methodName then "" else methodName
         findUniq methodName (methodName.ToLowerInvariant()) 0
