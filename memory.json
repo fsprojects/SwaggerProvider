@@ -1,12 +1,12 @@
 {
   "run": "2026-05-10",
-  "rid": "25637989181",
+  "rid": "25639156147",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "perf-escapexml-uniquename-20260510": "pending PR submitted - perf: XmlDoc.escapeXml IndexOfAny fast-path + UniqueNameGenerator ToLowerInvariant dedup (all 389 tests pass)",
-    "release-notes-4.0.0-beta04-20260510": "PR #428 open - docs: add 4.0.0-beta04 release notes entry",
-    "eng-relax-fsharpcore-stj-pins-20260510": "PR #427 open - eng: relax FSharp.Core >= 8, System.Text.Json >= 8, SharpYaml ~> 2 pin",
+    "429": "PR #429 open - perf: XmlDoc.escapeXml IndexOfAny fast-path + UniqueNameGenerator ToLowerInvariant dedup (all 389 tests pass)",
+    "428": "closed by maintainer - docs: add 4.0.0-beta04 release notes entry",
+    "427": "PR #427 open - eng: relax FSharp.Core >= 8, System.Text.Json >= 8, SharpYaml ~> 2 pin",
     "422": "merged - test: add direct unit tests for XmlDoc module (+32 tests, 357->389)",
     "420": "merged - improve: add <returns> XmlDoc tag for operation response descriptions (+4 tests)",
     "419": "merged - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests)",
@@ -38,5 +38,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "2026-05-10: Task8=perf PR submitted (escapeXml IndexOfAny fast-path + UniqueNameGenerator prefixLower precompute). Task4 fell back to Task5 (implemented as part of same PR). Task2/Task1 not applicable - all issues commented, all labelled. PRs #427 (FSharp.Core/STJ pins) and #428 (beta04 release notes) still open. Issue #358 (OpenApi 3.x): wait until .NET 11. Issue #411 dead CI cache step: workflow file protected, needs manual PR."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PRs #427 and #429 open and passing CI. Issue #411 dead CI cache step: workflow file protected, needs manual PR. Issue #358 (OpenApi 3.x): wait until .NET 11."
 }
