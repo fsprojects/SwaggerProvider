@@ -29,6 +29,8 @@ on:
     pull-requests: read
   steps:
     - id: check
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         MAX_OPEN_PRS=8
         if [[ "${{ github.event_name }}" != "schedule" ]]; then exit 0; fi
