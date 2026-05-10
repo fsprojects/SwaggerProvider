@@ -311,8 +311,16 @@ module XmlDoc =
     open System.Text.Json
     open System.Text.Json.Nodes
 
+    // Fast-path: skip all allocations when the string has no XML special characters.
+    // In practice the vast majority of OpenAPI descriptions are plain English text,
+    // so this check pays for itself immediately.
+    let private xmlSpecialChars = [| '&'; '<'; '>' |]
+
     let private escapeXml(s: string) =
-        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+        if s.IndexOfAny(xmlSpecialChars) < 0 then
+            s
+        else
+            s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
 
     let private formatEnumValue(v: JsonNode) =
         if isNull v then
@@ -385,15 +393,19 @@ type UniqueNameGenerator(?occupiedNames: string seq) =
         for name in (defaultArg occupiedNames Seq.empty) do
             hash.Add(name.ToLowerInvariant()) |> ignore
 
-    let rec findUniq prefix i =
-        let newName = sprintf "%s%s" prefix (if i = 0 then "" else i.ToString())
-        let key = newName.ToLowerInvariant()
+    // Compute the lowercase prefix once per MakeUnique call; on each collision
+    // only the numeric suffix needs to be appended, avoiding repeated ToLowerInvariant
+    // calls on the full name string.
+    let rec findUniq prefix prefixLower i =
+        let newName = if i = 0 then prefix else $"{prefix}{i}"
+        let key = if i = 0 then prefixLower else $"{prefixLower}{i}"
 
         match hash.Contains key with
         | false ->
             hash.Add key |> ignore
             newName
-        | true -> findUniq prefix (i + 1)
+        | true -> findUniq prefix prefixLower (i + 1)
 
     member _.MakeUnique methodName =
-        findUniq methodName 0
+        let methodName = if isNull methodName then "" else methodName
+        findUniq methodName (methodName.ToLowerInvariant()) 0
