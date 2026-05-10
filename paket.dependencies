@@ -2,14 +2,15 @@ version 9.0.2
 source https://api.nuget.org/v3/index.json
 storage: none
 
-nuget FSharp.Core ~> 8
-nuget System.Text.Json ~> 8
+nuget FSharp.Core >= 8
+nuget System.Text.Json >= 8 < 11
 nuget FSharp.SystemTextJson
 nuget Microsoft.OpenApi ~> 2 # https://github.com/microsoft/OpenAPI.NET/blob/main/CONTRIBUTING.md#branches-and-support-policy
 nuget Microsoft.OpenApi.YamlReader
+nuget SharpYaml ~> 2
 nuget NETStandard.Library.NETFramework
 
-# THis lines are used by Paket to get the latest version of the Type Provider SDK files
+# These lines are used by Paket to get the latest version of the Type Provider SDK files
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fsi
 github fsprojects/FSharp.TypeProviders.SDK src/ProvidedTypes.fs
 
