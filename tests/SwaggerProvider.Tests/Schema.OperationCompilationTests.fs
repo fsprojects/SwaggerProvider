@@ -702,8 +702,7 @@ let ``multiple path params appear before CancellationToken``() =
     let parameters = method.GetParameters()
     let lastParam = parameters |> Array.last
 
-    lastParam.ParameterType
-    |> shouldEqual typeof<Threading.CancellationToken>
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
 
     parameters.Length |> shouldEqual 3 // userId, postId, CancellationToken
 
@@ -756,8 +755,7 @@ let ``PATCH endpoint has path param, body param, and CancellationToken``() =
     paramNames |> shouldContain "json"
     let lastParam = parameters |> Array.last
 
-    lastParam.ParameterType
-    |> shouldEqual typeof<Threading.CancellationToken>
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
 
 // ── Auto-generated operation name (no operationId) ─────────────────────────────
 
@@ -789,12 +787,8 @@ components:
 [<Fact>]
 let ``operation without operationId generates a method from path and HTTP method``() =
     let types = compileTaskSchema noOperationIdSchema
-    // Without operationId, the name is derived from method + path segments (skipping path params)
-    // Path: /categories/{categoryId}/items → segments: "categories", "items"; {categoryId} is skipped
-    // Method: GET → name candidate: Get_Items_Categories → nicePascalName → GetItemsCategories
-    types |> List.isEmpty |> shouldEqual false
-    let allMethods = types |> List.collect(fun t -> t.GetMethods() |> Array.toList)
-    allMethods |> List.isEmpty |> shouldEqual false
+    let method = findMethod types "GetCategoryItems"
+    method.IsSome |> shouldEqual true
 
 [<Fact>]
 let ``operation without operationId has correct parameter count``() =
@@ -809,6 +803,6 @@ let ``operation without operationId has correct parameter count``() =
 
             ps.Length = 2
             && ps[0].Name = "categoryId"
-            && ps[1].ParameterType = typeof<Threading.CancellationToken>)
+            && ps[1].ParameterType = typeof<CancellationToken>)
 
     allMethods.Length |> shouldEqual 1
