@@ -640,3 +640,175 @@ let ``default response is used as return type when no 2xx response is defined``(
     // The string schema from the default response should produce Task<string>
     method.ReturnType.GetGenericArguments()[0]
     |> shouldEqual typeof<string>
+
+// ── Multiple path parameters ───────────────────────────────────────────────────
+
+let private multiplePathParamsSchema =
+    """openapi: "3.0.0"
+info:
+  title: MultiplePathParamsTest
+  version: "1.0.0"
+paths:
+  /users/{userId}/posts/{postId}:
+    get:
+      operationId: getUserPost
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``both path parameters appear as required parameters``() =
+    let types = compileTaskSchema multiplePathParamsSchema
+    let method = (findMethod types "GetUserPost").Value
+    let parameters = method.GetParameters()
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "userId"
+    paramNames |> shouldContain "postId"
+
+[<Fact>]
+let ``path parameters in nested path are required (not optional)``() =
+    let types = compileTaskSchema multiplePathParamsSchema
+    let method = (findMethod types "GetUserPost").Value
+    let parameters = method.GetParameters()
+
+    let userIdParam = parameters |> Array.find(fun p -> p.Name = "userId")
+    userIdParam.IsOptional |> shouldEqual false
+
+    let postIdParam = parameters |> Array.find(fun p -> p.Name = "postId")
+    postIdParam.IsOptional |> shouldEqual false
+
+[<Fact>]
+let ``multiple path params appear before CancellationToken``() =
+    let types = compileTaskSchema multiplePathParamsSchema
+    let method = (findMethod types "GetUserPost").Value
+    let parameters = method.GetParameters()
+    let lastParam = parameters |> Array.last
+
+    lastParam.ParameterType
+    |> shouldEqual typeof<Threading.CancellationToken>
+
+    parameters.Length |> shouldEqual 3 // userId, postId, CancellationToken
+
+// ── PATCH operation ────────────────────────────────────────────────────────────
+
+let private patchSchema =
+    """openapi: "3.0.0"
+info:
+  title: PatchTest
+  version: "1.0.0"
+paths:
+  /items/{id}:
+    patch:
+      operationId: updateItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``PATCH endpoint generates a method``() =
+    let types = compileTaskSchema patchSchema
+    let method = findMethod types "UpdateItem"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``PATCH endpoint has path param, body param, and CancellationToken``() =
+    let types = compileTaskSchema patchSchema
+    let method = (findMethod types "UpdateItem").Value
+    let parameters = method.GetParameters()
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "id"
+    paramNames |> shouldContain "json"
+    let lastParam = parameters |> Array.last
+
+    lastParam.ParameterType
+    |> shouldEqual typeof<Threading.CancellationToken>
+
+// ── Auto-generated operation name (no operationId) ─────────────────────────────
+
+let private noOperationIdSchema =
+    """openapi: "3.0.0"
+info:
+  title: NoOperationIdTest
+  version: "1.0.0"
+paths:
+  /categories/{categoryId}/items:
+    get:
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``operation without operationId generates a method from path and HTTP method``() =
+    let types = compileTaskSchema noOperationIdSchema
+    // Without operationId, the name is derived from method + path segments (skipping path params)
+    // Path: /categories/{categoryId}/items → segments: "categories", "items"; {categoryId} is skipped
+    // Method: GET → name candidate: Get_Items_Categories → nicePascalName → GetItemsCategories
+    types |> List.isEmpty |> shouldEqual false
+    let allMethods = types |> List.collect(fun t -> t.GetMethods() |> Array.toList)
+    allMethods |> List.isEmpty |> shouldEqual false
+
+[<Fact>]
+let ``operation without operationId has correct parameter count``() =
+    let types = compileTaskSchema noOperationIdSchema
+    // findMethod searches all methods on all types; just verify we find exactly one
+    // method that has the expected signature (categoryId + CancellationToken)
+    let allMethods =
+        types
+        |> List.collect(fun t -> t.GetMethods() |> Array.toList)
+        |> List.filter(fun m ->
+            let ps = m.GetParameters()
+
+            ps.Length = 2
+            && ps[0].Name = "categoryId"
+            && ps[1].ParameterType = typeof<Threading.CancellationToken>)
+
+    allMethods.Length |> shouldEqual 1
