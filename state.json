@@ -1,38 +1,14 @@
 {
-  "run": "2026-05-10",
-  "rid": "25639613643",
-  "monthly": "aw_may2026",
-  "monthly_issue": 418,
-  "prs": {
-    "429": "PR #429 open - perf: XmlDoc.escapeXml IndexOfAny fast-path + UniqueNameGenerator ToLowerInvariant dedup (all 389 tests pass)",
-    "430_pending": "PR pending - refactor: simplify validateContentType by stripping media-type params before comparison (all 389 tests pass)",
-    "427": "merged - eng: relax FSharp.Core >= 8, System.Text.Json >= 8, SharpYaml ~> 2 pin",
-    "428": "closed by maintainer - docs: add 4.0.0-beta04 release notes entry",
-    "422": "merged - test: add direct unit tests for XmlDoc module (+32 tests, 357->389)",
-    "420": "merged - improve: add <returns> XmlDoc tag for operation response descriptions (+4 tests)",
-    "419": "merged - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests)",
-    "416": "merged - eng: bump Microsoft.OpenApi and YamlReader 2.7.3 -> 2.7.4",
-    "417": "merged - docs: add 4.0.0-beta03 release notes entry"
-  },
+  "last_run": "2026-05-12T20:03:11Z",
+  "last_run_id": "25758922074",
+  "monthly_activity_issue": 418,
+  "issue_backlog_cursor": 33,
   "comments_made": {
-    "33": "2026-04-03",
-    "116": "2026-03-25",
-    "122": "2026-04-06",
-    "146": "2026-04-02",
-    "150": "2026-04-07",
-    "163": "2026-03-23",
-    "178": "2026-03-18",
-    "179": "2026-04-04",
-    "182": "2026-03-19",
-    "190": "2026-04-11",
-    "215": "2026-04-14",
-    "226": "2026-03-25",
-    "231": "2026-03-31",
-    "243": "2026-04-12",
-    "263": "2026-03-17",
-    "358": "2026-04-12",
-    "376": "2026-04-13",
-    "381": "2026-04-15"
+    "33": "2026-04-03T22:21:07Z"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PR #427 merged. PR #429 still open (perf). New PR pending: refactor validateContentType. Issue #411 dead CI cache step: workflow file protected, needs manual PR. Issue #358 (OpenApi 3.x): wait until .NET 11."
+  "fix_attempts": [],
+  "open_pr_titles": [
+    "test: cover request body content types and OperationCompiler options (+18 tests, 396→414)"
+  ],
+  "notes": "All open issues (#33, #358, #411, #418) have Repo Assist comments. Issue #358 is blocked. PR from run 25693967521 (Regex→String.Replace) may not have been created - check. Issue #411 needs manual PR creation by maintainer."
 }
