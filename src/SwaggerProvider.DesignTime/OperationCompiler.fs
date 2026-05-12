@@ -130,8 +130,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     | MediaType MediaTypes.ApplicationFormUrlEncoded mediaTyObj -> formatAndParam AppFormUrlEncoded mediaTyObj.Schema
                     | MediaType MediaTypes.TextPlain mediaTyObj -> formatAndParam TextPlain mediaTyObj.Schema
                     | NoMediaType ->
-                        // RequestBody declared but with no content entries: treat as a generic
-                        // body parameter (NoData) so callers can pass any serialisable value.
+                        // RequestBody declared but with no content entries: expose a placeholder
+                        // noData parameter, but do not emit an HTTP request body.
                         let defSchema = OpenApiSchema()
                         formatAndParam NoData defSchema
                     | _ ->

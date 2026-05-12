@@ -9,7 +9,7 @@ open SwaggerProvider.Internal.Compilers
 /// `provideNullable` controls whether optional value-type properties use Nullable<T>.
 /// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
 /// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
-let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable: bool) (useDateOnly: bool) (asAsync: bool) =
+let private parseV3Schema (schemaStr: string) =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
 
@@ -32,6 +32,10 @@ let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable:
         | null -> failwith "Failed to parse OpenAPI schema: Document is null."
         | doc -> doc
 
+    schema
+
+let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable: bool) (useDateOnly: bool) (asAsync: bool) =
+    let schema = parseV3Schema schemaStr
     let defCompiler = DefinitionCompiler(schema, provideNullable, useDateOnly)
     let opCompiler = OperationCompiler(schema, defCompiler, true, false, asAsync)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
@@ -109,28 +113,7 @@ let compilePropertyTypeWithNullableAndDateOnly (propYaml: string) (required: boo
 /// Compile a full OpenAPI v3 schema string with explicit OperationCompiler options.
 /// Allows testing ignoreControllerPrefix and ignoreOperationId behaviours.
 let compileV3SchemaWithOptions (schemaStr: string) (ignoreControllerPrefix: bool) (ignoreOperationId: bool) (asAsync: bool) =
-    let settings = OpenApiReaderSettings()
-    settings.AddYamlReader()
-
-    let readResult =
-        Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
-
-    match readResult.Diagnostic with
-    | null -> ()
-    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
-        let errorText =
-            diagnostic.Errors
-            |> Seq.map string
-            |> String.concat Environment.NewLine
-
-        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
-    | _ -> ()
-
-    let schema =
-        match readResult.Document with
-        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
-        | doc -> doc
-
+    let schema = parseV3Schema schemaStr
     let defCompiler = DefinitionCompiler(schema, false, false)
 
     let opCompiler =
