@@ -9,7 +9,7 @@ open SwaggerProvider.Internal.Compilers
 /// `provideNullable` controls whether optional value-type properties use Nullable<T>.
 /// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
 /// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
-let private parseV3Schema (schemaStr: string) =
+let private parseV3Schema(schemaStr: string) =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
 
