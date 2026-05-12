@@ -105,3 +105,36 @@ let compilePropertyTypeWithDateOnly (propYaml: string) (required: bool) : Type =
 /// Compile a minimal v3 schema with both PreferNullable and useDateOnly options enabled.
 let compilePropertyTypeWithNullableAndDateOnly (propYaml: string) (required: bool) : Type =
     compilePropertyTypeWithOptions true true propYaml required
+
+/// Compile a full OpenAPI v3 schema string with explicit OperationCompiler options.
+/// Allows testing ignoreControllerPrefix and ignoreOperationId behaviours.
+let compileV3SchemaWithOptions (schemaStr: string) (ignoreControllerPrefix: bool) (ignoreOperationId: bool) (asAsync: bool) =
+    let settings = OpenApiReaderSettings()
+    settings.AddYamlReader()
+
+    let readResult =
+        Microsoft.OpenApi.OpenApiDocument.Parse(schemaStr, settings = settings)
+
+    match readResult.Diagnostic with
+    | null -> ()
+    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
+        let errorText =
+            diagnostic.Errors
+            |> Seq.map string
+            |> String.concat Environment.NewLine
+
+        failwithf "Failed to parse OpenAPI schema:%s%s" Environment.NewLine errorText
+    | _ -> ()
+
+    let schema =
+        match readResult.Document with
+        | null -> failwith "Failed to parse OpenAPI schema: Document is null."
+        | doc -> doc
+
+    let defCompiler = DefinitionCompiler(schema, false, false)
+
+    let opCompiler =
+        OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
+
+    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+    defCompiler.Namespace.GetProvidedTypes()
