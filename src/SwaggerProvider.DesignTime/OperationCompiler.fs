@@ -4,7 +4,6 @@ open System
 open System.Collections.Generic
 open System.Net.Http
 open System.Text.Json
-open System.Text.RegularExpressions
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
@@ -339,9 +338,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                         | ParameterLocation.Path ->
                                             let value = coerceString valueExpr
                                             let pattern = $"{{%s{name}}}"
-                                            // Escape $ in the replacement to avoid regex back-reference interpretation ($0, $& etc.)
-                                            let escaped = <@ (%value).Replace("$", "$$") @>
-                                            let path' = <@ Regex.Replace(%path, pattern, %escaped) @>
+                                            let path' = <@ (%path).Replace(pattern, %value) @>
                                             (path', query, headers, cookies)
                                         | ParameterLocation.Query ->
                                             let listValues = coerceQueryString name valueExpr
