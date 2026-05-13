@@ -382,7 +382,7 @@ module XmlDoc =
             | Some rd when not(String.IsNullOrWhiteSpace rd) -> $"<returns>{escapeXml rd}</returns>"
             | _ -> ""
 
-        String.Concat(summaryPart, remarksPart, paramParts, returnsPart)
+        summaryPart + remarksPart + paramParts + returnsPart
 
 type UniqueNameGenerator(?occupiedNames: string seq) =
     let hash = System.Collections.Generic.HashSet<_>()
