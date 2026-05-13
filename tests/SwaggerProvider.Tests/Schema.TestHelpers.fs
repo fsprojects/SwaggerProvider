@@ -5,10 +5,7 @@ open System
 open Microsoft.OpenApi.Reader
 open SwaggerProvider.Internal.Compilers
 
-/// Core: parse, validate, and compile an OpenAPI v3 schema string.
-/// `provideNullable` controls whether optional value-type properties use Nullable<T>.
-/// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
-/// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
+/// Parse and validate an OpenAPI v3 schema string, returning the document.
 let private parseV3Schema(schemaStr: string) =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
@@ -34,6 +31,10 @@ let private parseV3Schema(schemaStr: string) =
 
     schema
 
+/// Core: parse, validate, and compile an OpenAPI v3 schema string.
+/// `provideNullable` controls whether optional value-type properties use Nullable<T>.
+/// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
+/// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
 let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable: bool) (useDateOnly: bool) (asAsync: bool) =
     let schema = parseV3Schema schemaStr
     let defCompiler = DefinitionCompiler(schema, provideNullable, useDateOnly)
