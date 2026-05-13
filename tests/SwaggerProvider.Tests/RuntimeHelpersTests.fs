@@ -553,6 +553,27 @@ module CreateHttpRequestTests =
         use req = createHttpRequest "GET" "v1/pets/42" []
         req.RequestUri.ToString() |> shouldContainText "v1/pets/42"
 
+    [<Fact>]
+    let ``createHttpRequest strips leading slash from path (no query params)``() =
+        // OpenAPI schema path keys start with '/'; the leading slash must be removed so that
+        // the relative URI is resolved relative to the HttpClient.BaseAddress path rather
+        // than from the host root.
+        use req = createHttpRequest "GET" "/pets" []
+        req.RequestUri.ToString() |> shouldEqual "pets"
+
+    [<Fact>]
+    let ``createHttpRequest strips leading slash from path (with query params)``() =
+        use req = createHttpRequest "GET" "/pets" [ ("status", "available") ]
+        let uri = req.RequestUri.ToString()
+        uri |> shouldNotContainText "/pets"
+        uri |> shouldContainText "pets"
+        uri |> shouldContainText "status=available"
+
+    [<Fact>]
+    let ``createHttpRequest strips leading slash from nested path (no query params)``() =
+        use req = createHttpRequest "GET" "/pets/42" []
+        req.RequestUri.ToString() |> shouldEqual "pets/42"
+
 
 module FillHeadersTests =
 
