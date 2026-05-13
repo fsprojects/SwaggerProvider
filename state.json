@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-12T20:03:11Z",
-  "last_run_id": "25758922074",
+  "last_run": "2026-05-13T20:03:39Z",
+  "last_run_id": "25823220394",
   "monthly_activity_issue": 418,
   "issue_backlog_cursor": 33,
   "comments_made": {
@@ -8,7 +8,8 @@
   },
   "fix_attempts": [],
   "open_pr_titles": [
-    "test: cover request body content types and OperationCompiler options (+18 tests, 396→414)"
+    "perf: string concatenation fast-paths + skip UriBuilder when no query params",
+    "eng: bump FSharp.Compiler.Service 43.12.203 to 43.12.204"
   ],
-  "notes": "All open issues (#33, #358, #411, #418) have Repo Assist comments. Issue #358 is blocked. PR from run 25693967521 (Regex→String.Replace) may not have been created - check. Issue #411 needs manual PR creation by maintainer."
+  "notes": "All open issues (#33, #358, #411, #418) have Repo Assist comments. Issue #358 is blocked. Issue #411 needs manual PR by maintainer. PRs #431 and #432 merged. Unit tests now at 414. Task 3 fallback: issue #33 is complex feature request, not fixable."
 }
