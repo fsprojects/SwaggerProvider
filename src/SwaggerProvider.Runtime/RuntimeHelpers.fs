@@ -343,7 +343,7 @@ module RuntimeHelpers =
                         let vTy = v.GetType()
 
                         if vTy = typeof<string> then
-                            String.Format("\"{0}\"", v)
+                            "\"" + v.ToString() + "\""
                         elif vTy.IsArray then
                             let elements =
                                 (v :?> Array)
@@ -351,13 +351,13 @@ module RuntimeHelpers =
                                 |> Seq.map(fun x -> if isNull x then "null" else x.ToString())
                                 |> Array.ofSeq
 
-                            String.Format("[{0}]", String.Join("; ", elements))
+                            "[" + String.Join("; ", elements) + "]"
                         else
                             v.ToString()
 
-                String.Format("{0}={1}", p.Name, s))
+                p.Name + "=" + s)
 
-        String.Format("{{{0}}}", String.Join("; ", strs))
+        "{" + String.Join("; ", strs) + "}"
 
     // Cached constructor for JsonPropertyNameAttribute to avoid repeated reflection lookups
     // when compiling large schemas with many properties.
@@ -501,7 +501,7 @@ module RuntimeHelpers =
             new HttpClient(handler, true, BaseAddress = Uri(host))
 
     let combineUrl (urlA: string) (urlB: string) =
-        sprintf "%s/%s" (urlA.TrimEnd('/')) (urlB.TrimStart('/'))
+        urlA.TrimEnd('/') + "/" + urlB.TrimStart('/')
 
     // Pre-built map of standard HTTP method names to their corresponding static HttpMethod
     // instances. Uses an ordinal case-insensitive comparer so callers passing different
@@ -529,18 +529,22 @@ module RuntimeHelpers =
         | true, m -> m
         | false, _ -> HttpMethod(method.ToUpperInvariant())
 
-    let createHttpRequest (httpMethod: string) address queryParams =
+    let createHttpRequest (httpMethod: string) address (queryParams: (string * string) list) =
         let requestUrl =
-            let fakeHost = "http://fake-host/"
-            let builder = UriBuilder(combineUrl fakeHost address)
-            let query = System.Web.HttpUtility.ParseQueryString(builder.Query)
+            // Fast path: avoid UriBuilder + ParseQueryString allocation when there are no query params.
+            if List.isEmpty queryParams then
+                address
+            else
+                let fakeHost = "http://fake-host/"
+                let builder = UriBuilder(combineUrl fakeHost address)
+                let query = System.Web.HttpUtility.ParseQueryString(builder.Query)
 
-            for name, value in queryParams do
-                if not <| isNull value then
-                    query.Add(name, value)
+                for name, value in queryParams do
+                    if not <| isNull value then
+                        query.Add(name, value)
 
-            builder.Query <- query.ToString()
-            builder.Uri.PathAndQuery.TrimStart('/')
+                builder.Query <- query.ToString()
+                builder.Uri.PathAndQuery.TrimStart('/')
 
         let method = resolveHttpMethod httpMethod
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
