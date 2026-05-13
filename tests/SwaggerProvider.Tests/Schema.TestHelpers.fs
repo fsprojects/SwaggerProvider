@@ -5,11 +5,8 @@ open System
 open Microsoft.OpenApi.Reader
 open SwaggerProvider.Internal.Compilers
 
-/// Core: parse, validate, and compile an OpenAPI v3 schema string.
-/// `provideNullable` controls whether optional value-type properties use Nullable<T>.
-/// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
-/// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
-let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable: bool) (useDateOnly: bool) (asAsync: bool) =
+/// Parse and validate an OpenAPI v3 schema string, returning the document.
+let private parseV3Schema(schemaStr: string) =
     let settings = OpenApiReaderSettings()
     settings.AddYamlReader()
 
@@ -32,6 +29,14 @@ let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable:
         | null -> failwith "Failed to parse OpenAPI schema: Document is null."
         | doc -> doc
 
+    schema
+
+/// Core: parse, validate, and compile an OpenAPI v3 schema string.
+/// `provideNullable` controls whether optional value-type properties use Nullable<T>.
+/// `useDateOnly` controls whether `date` and `time` formats map to DateOnly and TimeOnly types.
+/// `asAsync` controls whether operation return types are Async<'T> or Task<'T>.
+let private compileV3SchemaCoreWithOptions (schemaStr: string) (provideNullable: bool) (useDateOnly: bool) (asAsync: bool) =
+    let schema = parseV3Schema schemaStr
     let defCompiler = DefinitionCompiler(schema, provideNullable, useDateOnly)
     let opCompiler = OperationCompiler(schema, defCompiler, true, false, asAsync)
     opCompiler.CompileProvidedClients(defCompiler.Namespace)
@@ -105,3 +110,15 @@ let compilePropertyTypeWithDateOnly (propYaml: string) (required: bool) : Type =
 /// Compile a minimal v3 schema with both PreferNullable and useDateOnly options enabled.
 let compilePropertyTypeWithNullableAndDateOnly (propYaml: string) (required: bool) : Type =
     compilePropertyTypeWithOptions true true propYaml required
+
+/// Compile a full OpenAPI v3 schema string with explicit OperationCompiler options.
+/// Allows testing ignoreControllerPrefix and ignoreOperationId behaviours.
+let compileV3SchemaWithOptions (schemaStr: string) (ignoreControllerPrefix: bool) (ignoreOperationId: bool) (asAsync: bool) =
+    let schema = parseV3Schema schemaStr
+    let defCompiler = DefinitionCompiler(schema, false, false)
+
+    let opCompiler =
+        OperationCompiler(schema, defCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync)
+
+    opCompiler.CompileProvidedClients(defCompiler.Namespace)
+    defCompiler.Namespace.GetProvidedTypes()

@@ -806,3 +806,309 @@ let ``operation without operationId has correct parameter count``() =
             && ps[1].ParameterType = typeof<CancellationToken>)
 
     allMethods.Length |> shouldEqual 1
+
+// ── application/x-www-form-urlencoded request body ────────────────────────────
+
+let private formUrlEncodedBodySchema =
+    """openapi: "3.0.0"
+info:
+  title: FormUrlEncodedTest
+  version: "1.0.0"
+paths:
+  /login:
+    post:
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``form-urlencoded body generates a method``() =
+    let types = compileTaskSchema formUrlEncodedBodySchema
+    let method = findMethod types "Login"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``form-urlencoded body parameter is named formUrlEncoded``() =
+    let types = compileTaskSchema formUrlEncodedBodySchema
+    let method = (findMethod types "Login").Value
+    let parameters = method.GetParameters()
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "formUrlEncoded"
+
+[<Fact>]
+let ``form-urlencoded body has CancellationToken as last parameter``() =
+    let types = compileTaskSchema formUrlEncodedBodySchema
+    let method = (findMethod types "Login").Value
+    let lastParam = method.GetParameters() |> Array.last
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── multipart/form-data request body ─────────────────────────────────────────
+
+let private multipartFormDataBodySchema =
+    """openapi: "3.0.0"
+info:
+  title: MultipartTest
+  version: "1.0.0"
+paths:
+  /upload:
+    post:
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``multipart/form-data body generates a method``() =
+    let types = compileTaskSchema multipartFormDataBodySchema
+    let method = findMethod types "UploadFile"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``multipart/form-data body parameter is named formData``() =
+    let types = compileTaskSchema multipartFormDataBodySchema
+    let method = (findMethod types "UploadFile").Value
+    let parameters = method.GetParameters()
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "formData"
+
+[<Fact>]
+let ``multipart/form-data body has CancellationToken as last parameter``() =
+    let types = compileTaskSchema multipartFormDataBodySchema
+    let method = (findMethod types "UploadFile").Value
+    let lastParam = method.GetParameters() |> Array.last
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── application/octet-stream request body ────────────────────────────────────
+
+let private octetStreamBodySchema =
+    """openapi: "3.0.0"
+info:
+  title: OctetStreamTest
+  version: "1.0.0"
+paths:
+  /blob:
+    post:
+      operationId: uploadBlob
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: Created
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``octet-stream body generates a method``() =
+    let types = compileTaskSchema octetStreamBodySchema
+    let method = findMethod types "UploadBlob"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``octet-stream body parameter is named octetStream``() =
+    let types = compileTaskSchema octetStreamBodySchema
+    let method = (findMethod types "UploadBlob").Value
+    let parameters = method.GetParameters()
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "octetStream"
+
+[<Fact>]
+let ``octet-stream body has CancellationToken as last parameter``() =
+    let types = compileTaskSchema octetStreamBodySchema
+    let method = (findMethod types "UploadBlob").Value
+    let lastParam = method.GetParameters() |> Array.last
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── requestBody with no content entries (NoMediaType) ─────────────────────────
+
+let private noMediaTypeBodySchema =
+    """openapi: "3.0.0"
+info:
+  title: NoMediaTypeTest
+  version: "1.0.0"
+paths:
+  /notify:
+    post:
+      operationId: sendNotification
+      requestBody:
+        required: true
+        content: {}
+      responses:
+        "204":
+          description: No content
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``requestBody with empty content generates a method``() =
+    let types = compileTaskSchema noMediaTypeBodySchema
+    let method = findMethod types "SendNotification"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``requestBody with empty content adds a body parameter named noData``() =
+    let types = compileTaskSchema noMediaTypeBodySchema
+    let method = (findMethod types "SendNotification").Value
+    let parameters = method.GetParameters()
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "noData"
+
+[<Fact>]
+let ``requestBody with empty content has CancellationToken as last parameter``() =
+    let types = compileTaskSchema noMediaTypeBodySchema
+    let method = (findMethod types "SendNotification").Value
+    let lastParam = method.GetParameters() |> Array.last
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
+
+let private controllerPrefixSchema =
+    """openapi: "3.0.0"
+info:
+  title: ControllerTest
+  version: "1.0.0"
+paths:
+  /pets:
+    get:
+      operationId: Pet_list
+      responses:
+        "200":
+          description: OK
+  /pets/{id}:
+    get:
+      operationId: Pet_get
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /users:
+    get:
+      operationId: User_list
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``ignoreControllerPrefix=false splits operations into per-controller client classes``() =
+    let types = compileV3SchemaWithOptions controllerPrefixSchema false false false
+    let typeNames = types |> List.map(fun t -> t.Name)
+    // Pet_list and Pet_get go into Pet_Client; User_list goes into User_Client
+    // (ReserveUniqueName "Pet" "Client" → "Pet_Client")
+    typeNames |> shouldContain "Pet_Client"
+    typeNames |> shouldContain "User_Client"
+
+[<Fact>]
+let ``ignoreControllerPrefix=false puts Pet operations on PetClient``() =
+    let types = compileV3SchemaWithOptions controllerPrefixSchema false false false
+    let petClient = types |> List.find(fun t -> t.Name = "Pet_Client")
+
+    let methodNames =
+        petClient.GetMethods() |> Array.map(fun m -> m.Name) |> Array.toList
+
+    methodNames |> shouldContain "List"
+    methodNames |> shouldContain "Get"
+
+[<Fact>]
+let ``ignoreControllerPrefix=false puts User operations on UserClient``() =
+    let types = compileV3SchemaWithOptions controllerPrefixSchema false false false
+    let userClient = types |> List.find(fun t -> t.Name = "User_Client")
+
+    let methodNames =
+        userClient.GetMethods() |> Array.map(fun m -> m.Name) |> Array.toList
+
+    methodNames |> shouldContain "List"
+
+[<Fact>]
+let ``ignoreControllerPrefix=true puts all operations into a single Client class``() =
+    let types = compileV3SchemaWithOptions controllerPrefixSchema true false false
+
+    let clientTypes = types |> List.filter(fun t -> t.Name.EndsWith "Client")
+
+    clientTypes.Length |> shouldEqual 1
+
+// ── ignoreOperationId=true: method names generated from path ──────────────────
+
+let private namedOperationSchema =
+    """openapi: "3.0.0"
+info:
+  title: IgnoreOpIdTest
+  version: "1.0.0"
+paths:
+  /pets:
+    get:
+      operationId: listAllPets
+      responses:
+        "200":
+          description: OK
+  /pets/{id}:
+    get:
+      operationId: getPetById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``ignoreOperationId=true generates method name from path not operationId``() =
+    let types = compileV3SchemaWithOptions namedOperationSchema true true false
+    let allMethods = types |> List.collect(fun t -> t.GetMethods() |> Array.toList)
+    let methodNames = allMethods |> List.map(fun m -> m.Name)
+    // With ignoreOperationId=true, names come from HTTP method + path segments
+    // GET /pets → GetPets, GET /pets/{id} → GetPet (singularized before path param)
+    methodNames |> shouldContain "GetPets"
+
+[<Fact>]
+let ``ignoreOperationId=true does not generate the original operationId as method name``() =
+    let types = compileV3SchemaWithOptions namedOperationSchema true true false
+    let allMethods = types |> List.collect(fun t -> t.GetMethods() |> Array.toList)
+    let methodNames = allMethods |> List.map(fun m -> m.Name)
+    methodNames |> shouldNotContain "ListAllPets"
+    methodNames |> shouldNotContain "GetPetById"

@@ -130,8 +130,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     | MediaType MediaTypes.ApplicationFormUrlEncoded mediaTyObj -> formatAndParam AppFormUrlEncoded mediaTyObj.Schema
                     | MediaType MediaTypes.TextPlain mediaTyObj -> formatAndParam TextPlain mediaTyObj.Schema
                     | NoMediaType ->
-                        // Assume that server treat it as `applicationJson`
-                        let defSchema = OpenApiSchema() // todo: we need to test it
+                        // RequestBody declared but with no content entries: expose a placeholder
+                        // noData parameter, but do not emit an HTTP request body.
+                        let defSchema = OpenApiSchema()
                         formatAndParam NoData defSchema
                     | _ ->
                         let keys = operation.RequestBody.Content.Keys |> String.concat ";"
