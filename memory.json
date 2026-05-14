@@ -1,17 +1,20 @@
 {
-  "run": "2026-05-11",
-  "rid": "25693967521",
+  "run": "2026-05-14",
+  "rid": "25882384173",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "431_pending": "PR pending - refactor: replace Regex.Replace with String.Replace for path parameter substitution + test coverage (+7 tests, 389->396)",
-    "430": "merged - refactor: simplify validateContentType by stripping media-type params before comparison",
-    "429": "merged - perf: XmlDoc.escapeXml IndexOfAny fast-path + UniqueNameGenerator ToLowerInvariant dedup",
-    "427": "merged - eng: relax FSharp.Core and System.Text.Json version pins to >= 8",
-    "428": "closed by maintainer - docs: add 4.0.0-beta04 release notes entry",
-    "422": "merged - test: add direct unit tests for XmlDoc module (+32 tests, 357->389)",
-    "420": "merged - improve: add <returns> XmlDoc tag for operation response descriptions (+4 tests)",
-    "419": "merged - improve: surface schema description as XmlDoc on generated object and enum types (+5 tests)"
+    "433": "merged - perf: string concatenation fast-paths + skip UriBuilder when no query params",
+    "434": "merged - eng: bump FSharp.Compiler.Service 43.12.203 to 43.12.204",
+    "432": "merged - test: cover request body content types and OperationCompiler options (+18 tests, 396->414)",
+    "431": "merged - refactor: replace Regex.Replace with String.Replace",
+    "430": "merged - refactor: simplify validateContentType",
+    "429": "merged - perf: XmlDoc.escapeXml fast-path + UniqueNameGenerator dedup",
+    "427": "merged - eng: relax version pins",
+    "422": "merged - test: add XmlDoc unit tests (+32 tests)",
+    "420": "merged - improve: add <returns> XmlDoc tag",
+    "419": "merged - improve: surface schema description as XmlDoc",
+    "435_pending": "PR pending - perf: string/int fast-paths in toParam; StringBuilder+String.Concat in buildXmlDoc (417 tests)"
   },
   "comments_made": {
     "33": "2026-04-03",
@@ -33,5 +36,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PRs #429 and #430 merged. 2026-05-11: new PR pending for Regex.Replace->String.Replace + tests (396 total). Issue #411 dead CI cache step: workflow file protected, needs manual PR. Issue #358 (OpenApi 3.x): wait until .NET 11. Unit tests now at 396."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PRs #433, #434 merged. 2026-05-14: new PR pending for toParam fast-paths + buildXmlDoc StringBuilder (417 tests). Issue #358 (OpenApi 3.x): wait until .NET 11. Unit tests now at 417."
 }
