@@ -529,14 +529,14 @@ module RuntimeHelpers =
         | true, m -> m
         | false, _ -> HttpMethod(method.ToUpperInvariant())
 
-    let createHttpRequest (httpMethod: string) (address: string) (queryParams: (string * string) list) =
+    let createHttpRequest (httpMethod: string) (address: string) (queryParams: seq<string * string>) =
         let requestUrl =
             // Fast path: avoid UriBuilder + ParseQueryString allocation when there are no query params.
             // TrimStart('/') mirrors the UriBuilder path's PathAndQuery.TrimStart('/') normalisation,
             // which strips the leading slash from schema paths such as "/pets" → "pets".  A leading-
             // slash relative URI resolves from the host root and silently drops any base path, so
             // normalisation must be applied on both branches.
-            if List.isEmpty queryParams then
+            if Seq.isEmpty queryParams then
                 address.TrimStart('/')
             else
                 let fakeHost = "http://fake-host/"
