@@ -372,17 +372,23 @@ module XmlDoc =
                 $"<remarks>{escapeXml description}</remarks>"
 
         let paramParts =
-            [ for name, desc in paramDescriptions do
-                  if not(String.IsNullOrWhiteSpace desc) then
-                      yield $"<param name=\"{name}\">{escapeXml desc}</param>" ]
-            |> String.concat ""
+            let sb = System.Text.StringBuilder()
+
+            for name, desc in paramDescriptions do
+                if not(String.IsNullOrWhiteSpace desc) then
+                    sb.Append("<param name=\"").Append(name).Append("\">").Append(escapeXml desc).Append("</param>")
+                    |> ignore
+
+            sb.ToString()
 
         let returnsPart =
             match returnDoc with
             | Some rd when not(String.IsNullOrWhiteSpace rd) -> $"<returns>{escapeXml rd}</returns>"
             | _ -> ""
 
-        summaryPart + remarksPart + paramParts + returnsPart
+        // Use String.Concat with 4 arguments instead of chained + operators to avoid
+        // two intermediate string allocations (one per + in `a + b + c + d`).
+        String.Concat(summaryPart, remarksPart, paramParts, returnsPart)
 
 type UniqueNameGenerator(?occupiedNames: string seq) =
     let hash = System.Collections.Generic.HashSet<_>()

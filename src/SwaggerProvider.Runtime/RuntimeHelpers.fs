@@ -211,6 +211,13 @@ module RuntimeHelpers =
         | :? DateTime as dt -> dt.ToString("O")
         | :? DateTimeOffset as dto -> dto.ToString("O")
         | null -> null
+        // Fast paths for the most common scalar param types:
+        // these avoid calling GetType() and the four subsequent type checks
+        // (FullName twice, IsGenericType, IsEnum) that follow in the generic branch.
+        | :? string as s -> s
+        | :? int32 as i -> i.ToString()
+        | :? int64 as i -> i.ToString()
+        | :? bool as b -> b.ToString()
         | _ ->
             // Hoist GetType() once; previously tryFormatDateOnly and tryFormatTimeOnly
             // each called GetType() internally, resulting in up to 3 GetType() calls for
