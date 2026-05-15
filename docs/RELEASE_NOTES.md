@@ -10,6 +10,7 @@
 - refactor: simplify `validateContentType` — split at `;` and compare base type (#430)
 - refactor: replace `Regex.Replace` with `String.Replace` for path parameter substitution (#431)
 - eng: relax `FSharp.Core` and `System.Text.Json` version pins to `>= 8` (#427)
+- eng: bump `FSharp.Core` 10.1.203 → 10.1.300 and `System.Text.Json` 10.0.7 → 10.0.8 (#436)
 - eng: bump `FSharp.Compiler.Service` 43.12.203 → 43.12.204 (#434)
 - test: add direct unit tests for `XmlDoc` module (+32 tests) (#422)
 - test: cover request body content types and `OperationCompiler` options (+18 tests) (#432)
