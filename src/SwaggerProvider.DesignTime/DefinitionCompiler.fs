@@ -78,7 +78,7 @@ and NamespaceAbstraction(name: string) =
     /// Generate unique name and reserve it for the type
     member _.ReserveUniqueName namePref nameSuffix = // TODO: Strange signature - think more
         let rec findUniq prefix i =
-            let newName = sprintf "%s%s" prefix (if i = 0 then "" else i.ToString())
+            let newName = if i = 0 then prefix else $"{prefix}{i}"
 
             if not <| providedTys.ContainsKey newName then
                 newName
