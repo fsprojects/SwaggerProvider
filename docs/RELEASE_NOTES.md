@@ -1,3 +1,21 @@
+#### 4.0.0-beta04 - May 15, 2026
+
+- improve: surface schema description as XmlDoc on generated object and enum types (#419)
+- improve: add `<returns>` XmlDoc tag for operation response descriptions (#420)
+- perf: `XmlDoc.escapeXml` fast-path (skip allocations when no XML chars present) (#429)
+- perf: `UniqueNameGenerator` precompute lowercase key to avoid repeated allocations (#429)
+- perf: string concatenation fast-paths in `combineUrl`/`createHttpRequest`/`formatObject` (#433)
+- perf: skip `UriBuilder` allocation in `createHttpRequest` when there are no query params (#433)
+- perf: add `string`/`int32`/`int64`/`bool` fast-paths in `toParam`; use `StringBuilder` in `buildXmlDoc` (#435)
+- refactor: simplify `validateContentType` — split at `;` and compare base type (#430)
+- refactor: replace `Regex.Replace` with `String.Replace` for path parameter substitution (#431)
+- eng: relax `FSharp.Core` and `System.Text.Json` version pins to `>= 8` (#427)
+- eng: bump `FSharp.Core` 10.1.203 → 10.1.300 and `System.Text.Json` 10.0.7 → 10.0.8 (#436)
+- eng: bump `FSharp.Compiler.Service` 43.12.203 → 43.12.204 (#434)
+- test: add direct unit tests for `XmlDoc` module (+32 tests) (#422)
+- test: cover request body content types and `OperationCompiler` options (+18 tests) (#432)
+- test: add `OperationCompiler` tests for multiple path params, PATCH, and auto-generated names (+7 tests) (#431)
+
 #### 4.0.0-beta03 - May 1, 2026
 
 - fix: handle `DateOnly` in `toParam` and `toQueryParams` for correct serialization (#393)
