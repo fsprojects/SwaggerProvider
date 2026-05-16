@@ -1,4 +1,4 @@
-#### 4.0.0-beta04 - May 15, 2026
+#### 4.0.0 - May 16, 2026
 
 - improve: surface schema description as XmlDoc on generated object and enum types (#419)
 - improve: add `<returns>` XmlDoc tag for operation response descriptions (#420)
