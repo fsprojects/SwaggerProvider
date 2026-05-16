@@ -1,21 +1,18 @@
 # SwaggerProvider Repo Assist Notes
 
-## Last Run: 2026-05-15 19:56 UTC (run 25938340394)
+## Last Run: 2026-05-16 19:44 UTC (run 25971148911)
 
-## Selected Tasks: 2, 4, 10
+## Selected Tasks: 2, 3, 5
 
 ### Task 2: Issue Investigation and Comment
-- Issue #33: already has RA comment (Apr 2026), no new human activity → skipped
-- Issue #358: repo-assist issue, blocked
-- Issue #411: repo-assist issue (CI cache)
-- All issues have recent RA comments, no new human activity → no action
+- All open issues (#33, #358, #411, #418) have recent RA comments, no new human activity → no action
 
-### Task 4: Engineering Investments
-- Ran `dotnet paket update`: bumped FSharp.Core 10.1.203→10.1.300, System.Text.Json 10.0.7→10.0.8, and many .NET 10.0.7→10.0.8 transitive packages
-- Created PR (pending): eng: bump FSharp.Core 10.1.300 and System.Text.Json 10.0.8
+### Task 3: Issue Investigation and Fix
+- No fixable bug issues → fallback, no action
 
-### Task 10: Take the Repository Forward
-- Created release notes PR for 4.0.0-beta04 documenting 15 improvements since beta03
+### Task 5: Coding Improvements
+- Replaced the last `sprintf` in production code with string interpolation in DefinitionCompiler.fs
+- Created PR (pending): refactor: replace last sprintf with string interpolation
 
 ## Comments Made
 - Issue #33: commented Apr 2026 (run 23963519508)
