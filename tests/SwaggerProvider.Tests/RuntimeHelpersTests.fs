@@ -39,6 +39,31 @@ module ToParamTests =
         result |> shouldEqual "42"
 
     [<Fact>]
+    let ``toParam uses ToString for int64``() =
+        let result = toParam(box 9876543210L)
+        result |> shouldEqual "9876543210"
+
+    [<Fact>]
+    let ``toParam uses ToString for bool true``() =
+        let result = toParam(box true)
+        result |> shouldEqual "True"
+
+    [<Fact>]
+    let ``toParam uses ToString for bool false``() =
+        let result = toParam(box false)
+        result |> shouldEqual "False"
+
+    [<Fact>]
+    let ``toParam uses ToString for float32``() =
+        let result = toParam(box 3.14f)
+        result |> shouldContainText "3.14"
+
+    [<Fact>]
+    let ``toParam uses ToString for double``() =
+        let result = toParam(box 2.718281828)
+        result |> shouldContainText "2.718"
+
+    [<Fact>]
     let ``toParam uses ToString for strings``() =
         let result = toParam(box "hello world")
         result |> shouldEqual "hello world"
@@ -842,6 +867,21 @@ module FormatObjectTests =
     let ``formatObject formats empty array property as empty brackets``() =
         let obj = FmtArray([||])
         formatObject obj |> shouldEqual "{Tags=[]}"
+
+    [<Fact>]
+    let ``formatObject formats array with null element as null``() =
+        let obj = FmtArray([| null |])
+        formatObject obj |> shouldEqual "{Tags=[null]}"
+
+    [<Fact>]
+    let ``formatObject formats array with mixed null and non-null elements``() =
+        let obj = FmtArray([| "a"; null; "b" |])
+        formatObject obj |> shouldEqual "{Tags=[a; null; b]}"
+
+    [<Fact>]
+    let ``formatObject formats object with no properties as empty braces``() =
+        let obj = System.Object()
+        formatObject obj |> shouldEqual "{}"
 
     [<Fact>]
     let ``formatObject sorts properties alphabetically``() =
