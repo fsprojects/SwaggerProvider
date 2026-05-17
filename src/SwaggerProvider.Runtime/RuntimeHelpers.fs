@@ -337,34 +337,44 @@ module RuntimeHelpers =
     /// Used by the emitted ToString() override to keep the generated method body O(1) in size.
     let formatObject(obj: obj) : string =
         let props = getProperties(obj.GetType())
+        let sb = System.Text.StringBuilder()
+        sb.Append('{') |> ignore
 
-        let strs =
-            props
-            |> Array.map(fun p ->
-                let v = p.GetValue(obj)
+        for i in 0 .. props.Length - 1 do
+            if i > 0 then
+                sb.Append("; ") |> ignore
 
-                let s =
-                    if isNull v then
-                        "null"
-                    else
-                        let vTy = v.GetType()
+            let p = props[i]
+            sb.Append(p.Name).Append('=') |> ignore
+            let v = p.GetValue(obj)
 
-                        if vTy = typeof<string> then
-                            "\"" + v.ToString() + "\""
-                        elif vTy.IsArray then
-                            let elements =
-                                (v :?> Array)
-                                |> Seq.cast<obj>
-                                |> Seq.map(fun x -> if isNull x then "null" else x.ToString())
-                                |> Array.ofSeq
+            if isNull v then
+                sb.Append("null") |> ignore
+            else
+                let vTy = v.GetType()
 
-                            "[" + String.Join("; ", elements) + "]"
+                if vTy = typeof<string> then
+                    sb.Append('"').Append(v.ToString()).Append('"') |> ignore
+                elif vTy.IsArray then
+                    sb.Append('[') |> ignore
+                    let mutable firstEl = true
+
+                    for x in (v :?> Array) |> Seq.cast<obj> do
+                        if not firstEl then
+                            sb.Append("; ") |> ignore
+
+                        firstEl <- false
+
+                        if isNull x then
+                            sb.Append("null") |> ignore
                         else
-                            v.ToString()
+                            sb.Append(x.ToString()) |> ignore
 
-                p.Name + "=" + s)
+                    sb.Append(']') |> ignore
+                else
+                    sb.Append(v.ToString()) |> ignore
 
-        "{" + String.Join("; ", strs) + "}"
+        sb.Append('}').ToString()
 
     // Cached constructor for JsonPropertyNameAttribute to avoid repeated reflection lookups
     // when compiling large schemas with many properties.
