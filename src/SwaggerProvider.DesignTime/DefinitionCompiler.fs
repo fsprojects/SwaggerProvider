@@ -411,43 +411,23 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
         let resolvedType =
             // If schemaObj.Type is missing, but allOf/oneOf/anyOf is present with one subschema, use that
-            if
-                not schemaObj.Type.HasValue
-                && not(isNull schemaObj.AllOf)
-                && schemaObj.AllOf.Count = 1
-            then
-                let firstAllOf = schemaObj.AllOf.[0]
+            let tryResolveSingle(schemas: System.Collections.Generic.IList<IOpenApiSchema>) =
+                if not(isNull schemas) && schemas.Count = 1 then
+                    let first = schemas.[0]
 
-                if not(isNull firstAllOf) && firstAllOf.Type.HasValue then
-                    Some firstAllOf.Type.Value
+                    if not(isNull first) && first.Type.HasValue then
+                        Some first.Type.Value
+                    else
+                        None
                 else
                     None
-            else if
-                not schemaObj.Type.HasValue
-                && not(isNull schemaObj.OneOf)
-                && schemaObj.OneOf.Count = 1
-            then
-                let firstOneOf = schemaObj.OneOf.[0]
 
-                if not(isNull firstOneOf) && firstOneOf.Type.HasValue then
-                    Some firstOneOf.Type.Value
-                else
-                    None
-            else if
-                not schemaObj.Type.HasValue
-                && not(isNull schemaObj.AnyOf)
-                && schemaObj.AnyOf.Count = 1
-            then
-                let firstAnyOf = schemaObj.AnyOf.[0]
-
-                if not(isNull firstAnyOf) && firstAnyOf.Type.HasValue then
-                    Some firstAnyOf.Type.Value
-                else
-                    None
-            else if schemaObj.Type.HasValue then
+            if schemaObj.Type.HasValue then
                 Some schemaObj.Type.Value
             else
-                None
+                tryResolveSingle schemaObj.AllOf
+                |> Option.orElseWith(fun () -> tryResolveSingle schemaObj.OneOf)
+                |> Option.orElseWith(fun () -> tryResolveSingle schemaObj.AnyOf)
 
         // Helper to get full definition path from reference ID
         let getFullPath(refId: string) =
