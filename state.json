@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-05-16T19:44:39Z",
-  "last_run_id": "25971148911",
+  "last_run": "2026-05-17T19:47:08Z",
+  "last_run_id": "26000869764",
   "monthly_activity_issue": 418,
   "issue_backlog_cursor": 33,
   "comments_made": {
@@ -8,7 +8,9 @@
   },
   "fix_attempts": [],
   "open_pr_titles": [
-    "refactor: replace last sprintf with string interpolation in DefinitionCompiler"
+    "perf: replace formatObject Array.map+Join with StringBuilder",
+    "refactor: extract tryResolveSingle helper in DefinitionCompiler",
+    "test: expand RuntimeHelpers coverage (+8 tests, 417->425)"
   ],
-  "notes": "All open issues (#33, #358, #411, #418) have RA comments. Issue #358 is blocked. Issue #411 needs manual PR by maintainer. Unit tests at 417. Task 5: replaced last sprintf in DefinitionCompiler.fs with string interpolation."
+  "notes": "All open issues (#33, #358, #411, #418) have RA comments. Issue #358 is blocked. Issue #411 needs manual PR by maintainer. Unit tests at 425. Task 8: formatObject StringBuilder. Task 5: tryResolveSingle helper. Task 10: 8 new tests."
 }

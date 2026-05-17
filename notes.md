@@ -1,18 +1,25 @@
 # SwaggerProvider Repo Assist Notes
 
-## Last Run: 2026-05-16 19:44 UTC (run 25971148911)
+## Last Run: 2026-05-17 19:47 UTC (run 26000869764)
 
-## Selected Tasks: 2, 3, 5
+## Selected Tasks: 8, 5, 10
 
-### Task 2: Issue Investigation and Comment
-- All open issues (#33, #358, #411, #418) have recent RA comments, no new human activity → no action
-
-### Task 3: Issue Investigation and Fix
-- No fixable bug issues → fallback, no action
+### Task 8: Performance Improvements
+- Refactored `formatObject` in RuntimeHelpers.fs to use StringBuilder
+- Avoids intermediate string[] array and multiple per-property string allocations
+- PR pending
 
 ### Task 5: Coding Improvements
-- Replaced the last `sprintf` in production code with string interpolation in DefinitionCompiler.fs
-- Created PR (pending): refactor: replace last sprintf with string interpolation
+- Simplified the allOf/oneOf/anyOf resolvedType block in DefinitionCompiler.fs
+- Extracted `tryResolveSingle` helper + Option.orElseWith chaining
+- Reduced ~25 lines of repetitive if/else to ~12 lines
+- PR pending
+
+### Task 10: Testing Improvements
+- Added 8 new tests in RuntimeHelpersTests.fs (417→425)
+- formatObject: null array element, mixed null/non-null array, empty object
+- toParam: int64, bool true/false fast-paths, float32/double generic fallback
+- PR pending
 
 ## Comments Made
 - Issue #33: commented Apr 2026 (run 23963519508)
@@ -24,7 +31,7 @@
 
 ## Future Work
 - Issue #358: Microsoft.OpenApi 3.x migration — revisit when .NET 11 ships
-- Consider 4.0.0 release once beta04 feedback received
+- Consider 4.0.0 release when beta04 feedback received (do NOT create release notes PRs)
 
 ## Backlog Cursor
 - All 4 open issues processed; no new unlabelled issues

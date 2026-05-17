@@ -1,6 +1,6 @@
 {
-  "run": "2026-05-14",
-  "rid": "25882384173",
+  "run": "2026-05-17",
+  "rid": "26000869764",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
@@ -14,7 +14,10 @@
     "422": "merged - test: add XmlDoc unit tests (+32 tests)",
     "420": "merged - improve: add <returns> XmlDoc tag",
     "419": "merged - improve: surface schema description as XmlDoc",
-    "435_pending": "PR pending - perf: string/int fast-paths in toParam; StringBuilder+String.Concat in buildXmlDoc (417 tests)"
+    "435": "merged - perf: string/int fast-paths in toParam; StringBuilder+String.Concat in buildXmlDoc (417 tests)",
+    "perf_formatobject_pending": "PR pending - perf: replace formatObject Array.map+Join with StringBuilder",
+    "refactor_defcompiler_pending": "PR pending - refactor: extract tryResolveSingle helper in DefinitionCompiler",
+    "test_coverage_pending": "PR pending - test: expand RuntimeHelpers coverage (+8 tests, 417->425)"
   },
   "comments_made": {
     "33": "2026-04-03",
@@ -36,5 +39,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PRs #433, #434 merged. 2026-05-14: new PR pending for toParam fast-paths + buildXmlDoc StringBuilder (417 tests). Issue #358 (OpenApi 3.x): wait until .NET 11. Unit tests now at 417."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PRs #433,#434,#435 merged. 2026-05-17: 3 new pending PRs: perf/formatObject StringBuilder, refactor/DefinitionCompiler tryResolveSingle, test/RuntimeHelpers +8 tests (417->425). Unit tests now at 425."
 }
