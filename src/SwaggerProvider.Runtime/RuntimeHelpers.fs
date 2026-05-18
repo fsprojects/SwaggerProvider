@@ -212,12 +212,15 @@ module RuntimeHelpers =
         | :? DateTimeOffset as dto -> dto.ToString("O")
         | null -> null
         // Fast paths for the most common scalar param types:
-        // these avoid calling GetType() and the four subsequent type checks
+        // these avoid calling GetType() and the subsequent type checks
         // (FullName twice, IsGenericType, IsEnum) that follow in the generic branch.
         | :? string as s -> s
         | :? int32 as i -> i.ToString()
         | :? int64 as i -> i.ToString()
         | :? bool as b -> b.ToString()
+        | :? float32 as f -> f.ToString()
+        | :? double as d -> d.ToString()
+        | :? Guid as g -> g.ToString()
         | _ ->
             // Hoist GetType() once; previously tryFormatDateOnly and tryFormatTimeOnly
             // each called GetType() internally, resulting in up to 3 GetType() calls for
@@ -575,8 +578,7 @@ module RuntimeHelpers =
         |> Seq.filter(snd >> isNull >> not)
         |> Seq.iter(fun (name, value) ->
             if not <| msg.Headers.TryAddWithoutValidation(name, value) then
-                let errMsg =
-                    String.Format("Cannot add header '{0}'='{1}' to HttpRequestMessage", name, value)
+                let errMsg = $"Cannot add header '{name}'='{value}' to HttpRequestMessage"
 
                 if (name <> "Content-Type") then
                     raise <| Exception(errMsg))
