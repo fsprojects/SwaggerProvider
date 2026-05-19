@@ -327,11 +327,12 @@ module RuntimeHelpers =
             fun ty ->
                 ty.GetProperties(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Instance)
                 |> Array.map(fun prop ->
-                    let name =
-                        match prop.GetCustomAttributes(typeof<JsonPropertyNameAttribute>, false) with
-                        | [| x |] -> (x :?> JsonPropertyNameAttribute).Name
-                        | _ -> prop.Name
+                    // Use the single-attribute overload to avoid allocating an obj[] on each property.
+                    // JsonPropertyNameAttribute has AllowMultiple=false so at most one is present.
+                    let attr =
+                        Attribute.GetCustomAttribute(prop, typeof<JsonPropertyNameAttribute>) :?> JsonPropertyNameAttribute
 
+                    let name = if isNull attr then prop.Name else attr.Name
                     (name, prop))
         )
 

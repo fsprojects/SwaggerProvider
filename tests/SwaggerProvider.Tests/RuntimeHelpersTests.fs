@@ -599,6 +599,47 @@ module CreateHttpRequestTests =
         use req = createHttpRequest "GET" "/pets/42" []
         req.RequestUri.ToString() |> shouldEqual "pets/42"
 
+    [<Fact>]
+    let ``createHttpRequest creates PATCH request``() =
+        use req = createHttpRequest "PATCH" "v1/pets/1" []
+        req.Method.Method |> shouldEqual "PATCH"
+
+    [<Fact>]
+    let ``createHttpRequest creates HEAD request``() =
+        use req = createHttpRequest "HEAD" "v1/ping" []
+        req.Method |> shouldEqual HttpMethod.Head
+
+    [<Fact>]
+    let ``createHttpRequest creates OPTIONS request``() =
+        use req = createHttpRequest "OPTIONS" "v1/resource" []
+        req.Method |> shouldEqual HttpMethod.Options
+
+    [<Fact>]
+    let ``createHttpRequest creates TRACE request``() =
+        use req = createHttpRequest "TRACE" "v1/resource" []
+        req.Method |> shouldEqual HttpMethod.Trace
+
+    [<Fact>]
+    let ``createHttpRequest creates custom method uppercased``() =
+        // Non-standard methods are normalised to upper-case.
+        use req = createHttpRequest "purge" "v1/cache" []
+        req.Method.Method |> shouldEqual "PURGE"
+
+    [<Fact>]
+    let ``createHttpRequest is case-insensitive for PATCH``() =
+        use req = createHttpRequest "patch" "v1/pets/1" []
+        req.Method.Method |> shouldEqual "PATCH"
+
+    [<Fact>]
+    let ``createHttpRequest with multiple query params encodes all``() =
+        use req =
+            createHttpRequest "GET" "v1/search" [ ("q", "cat"); ("page", "1"); ("size", "20") ]
+
+        let uri = req.RequestUri.ToString()
+        uri |> shouldContainText "q=cat"
+        uri |> shouldContainText "page=1"
+        uri |> shouldContainText "size=20"
+
 
 module FillHeadersTests =
 
