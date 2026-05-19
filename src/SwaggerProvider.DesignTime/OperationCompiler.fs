@@ -362,7 +362,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                     let cookieHeader =
                                         %cookies
                                         |> Seq.filter(snd >> isNull >> not)
-                                        |> Seq.map(fun (name, value) -> String.Format("{0}={1}", name, value))
+                                        |> Seq.map(fun (name, value) -> $"{name}={value}")
                                         |> String.concat ";"
 
                                     ("Cookie", cookieHeader) :: (%headers)
