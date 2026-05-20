@@ -329,8 +329,9 @@ module RuntimeHelpers =
                 |> Array.map(fun prop ->
                     // Use the single-attribute overload to avoid allocating an obj[] on each property.
                     // JsonPropertyNameAttribute has AllowMultiple=false so at most one is present.
+                    // Pass inherit=false to match the original GetCustomAttributes(..., false) behaviour.
                     let attr =
-                        Attribute.GetCustomAttribute(prop, typeof<JsonPropertyNameAttribute>) :?> JsonPropertyNameAttribute
+                        Attribute.GetCustomAttribute(prop, typeof<JsonPropertyNameAttribute>, false) :?> JsonPropertyNameAttribute
 
                     let name = if isNull attr then prop.Name else attr.Name
                     (name, prop))

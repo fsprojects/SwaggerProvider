@@ -247,35 +247,6 @@ let ``v2 compiled object type ToString invokeCode does not throw for concrete pr
 /// a schema that has no explicit Type but carries a single allOf/oneOf/anyOf entry
 /// to the underlying type of that entry. This matters for nullable wrappers
 /// common in both Swagger 2 (converted allOf) and OpenAPI 3.
-
-let private compileV3Schema(jsonSchema: string) : ProviderImplementation.ProvidedTypes.ProvidedTypeDefinition list =
-    let settings = Microsoft.OpenApi.Reader.OpenApiReaderSettings()
-    settings.AddYamlReader()
-
-    let readResult =
-        Microsoft.OpenApi.OpenApiDocument.Parse(jsonSchema, settings = settings)
-
-    match readResult.Diagnostic with
-    | null -> ()
-    | diagnostic when diagnostic.Errors |> Seq.isEmpty |> not ->
-        let errorText =
-            diagnostic.Errors
-            |> Seq.map string
-            |> String.concat Environment.NewLine
-
-        failwithf "Failed to parse v3 schema:%s%s" Environment.NewLine errorText
-    | _ -> ()
-
-    let schema =
-        match readResult.Document with
-        | null -> failwith "Failed to parse v3 schema: Document is null."
-        | doc -> doc
-
-    let defCompiler = DefinitionCompiler(schema, false, false)
-    let opCompiler = OperationCompiler(schema, defCompiler, true, false, false)
-    opCompiler.CompileProvidedClients(defCompiler.Namespace)
-    defCompiler.Namespace.GetProvidedTypes()
-
 /// Minimal OpenAPI 3.0 document with a Pet schema and a PetRef schema that wraps
 /// it via allOf with a single $ref. The compiler should resolve PetRef to Pet
 /// rather than creating a new empty object type.
@@ -340,34 +311,34 @@ let private anyOfSingleRefSchema =
 
 [<Fact>]
 let ``allOf single $ref resolves to the referenced type without creating a new object type``() =
-    let types = compileV3Schema allOfSingleRefSchema
+    let types = compileV3Schema allOfSingleRefSchema false
     // PetRef should be resolved to Pet; the compiler calls ReleaseNameReservation
     // for PetRef and returns the already-compiled Pet type.
-    // Result: only one compiled type (Pet) in the namespace, not two.
+    // Pet is present; PetRef is not added as a separate type.
     types |> List.exists(fun t -> t.Name = "Pet") |> shouldEqual true
 
 [<Fact>]
 let ``allOf single $ref does not produce a separate wrapper type``() =
-    let types = compileV3Schema allOfSingleRefSchema
+    let types = compileV3Schema allOfSingleRefSchema false
     // PetRef collapses into Pet; there must be no extra empty type named "PetRef".
     types |> List.exists(fun t -> t.Name = "PetRef") |> shouldEqual false
 
 [<Fact>]
 let ``oneOf single $ref resolves to the referenced type``() =
-    let types = compileV3Schema oneOfSingleRefSchema
+    let types = compileV3Schema oneOfSingleRefSchema false
     types |> List.exists(fun t -> t.Name = "Dog") |> shouldEqual true
 
 [<Fact>]
 let ``oneOf single $ref does not produce a separate wrapper type``() =
-    let types = compileV3Schema oneOfSingleRefSchema
+    let types = compileV3Schema oneOfSingleRefSchema false
     types |> List.exists(fun t -> t.Name = "DogRef") |> shouldEqual false
 
 [<Fact>]
 let ``anyOf single $ref resolves to the referenced type``() =
-    let types = compileV3Schema anyOfSingleRefSchema
+    let types = compileV3Schema anyOfSingleRefSchema false
     types |> List.exists(fun t -> t.Name = "Cat") |> shouldEqual true
 
 [<Fact>]
 let ``anyOf single $ref does not produce a separate wrapper type``() =
-    let types = compileV3Schema anyOfSingleRefSchema
+    let types = compileV3Schema anyOfSingleRefSchema false
     types |> List.exists(fun t -> t.Name = "CatRef") |> shouldEqual false
