@@ -33,8 +33,8 @@ on:
         GH_TOKEN: ${{ github.token }}
       run: |
         MAX_OPEN_PRS=8
-        if [[ "${{ github.event_name }}" != "schedule" ]]; then exit 0; fi
-        COUNT=$(gh pr list --repo ${{ github.repository }} --state open --search 'in:title "[repo-assist]"' --json number --jq 'length')
+        if [[ "$GITHUB_EVENT_NAME" != "schedule" ]]; then exit 0; fi
+        COUNT=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "[repo-assist]"' --json number --jq 'length')
         [[ "$COUNT" -lt "$MAX_OPEN_PRS" ]]
       # exits 0 if not scheduled or <MAX_OPEN_PRS open PRs, 1 if ≥MAX_OPEN_PRS
 
@@ -198,7 +198,7 @@ steps:
           json.dump(result, f, indent=2)
       EOF
 
-source: githubnext/agentics/workflows/repo-assist.md@79c99dfd73f3b7ad8ab2b0f4944838018dbe4736
+source: githubnext/agentics/workflows/repo-assist.md@dcdf09723d42ef9b6c75335e4612fd145d4ccdaa
 ---
 
 # Repo Assist
