@@ -9,8 +9,8 @@ open FsUnitTyped
 // ── allOf/oneOf/anyOf single-$ref wrapper collapse ────────────────────────────
 
 // Tests for the DefinitionCompiler's explicit allOf/oneOf/anyOf single-$ref collapse
-// branches (DefinitionCompiler.fs lines 470-502), which release the name reservation
-// for the wrapper schema and return the already-compiled referenced type directly.
+// branches, which release the name reservation for the wrapper schema and return
+// the already-compiled referenced type directly via ReleaseNameReservation.
 // This avoids emitting an empty wrapper type when a schema has no explicit properties
 // and carries a single $ref inside allOf/oneOf/anyOf.
 

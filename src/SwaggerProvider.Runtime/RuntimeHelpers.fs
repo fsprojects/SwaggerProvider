@@ -328,7 +328,9 @@ module RuntimeHelpers =
                 ty.GetProperties(Reflection.BindingFlags.Public ||| Reflection.BindingFlags.Instance)
                 |> Array.map(fun prop ->
                     // Use the single-attribute overload to avoid allocating an obj[] on each property.
-                    // JsonPropertyNameAttribute has AllowMultiple=false so at most one is present.
+                    // JsonPropertyNameAttribute has AllowMultiple=false (AttributeUsage), so at most one
+                    // instance can ever be present; Attribute.GetCustomAttribute cannot throw
+                    // AmbiguousMatchException for this attribute type.
                     // Pass inherit=false to match the original GetCustomAttributes(..., false) behaviour.
                     let attr =
                         Attribute.GetCustomAttribute(prop, typeof<JsonPropertyNameAttribute>, false) :?> JsonPropertyNameAttribute
