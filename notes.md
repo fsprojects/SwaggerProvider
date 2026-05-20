@@ -1,23 +1,24 @@
 # SwaggerProvider Repo Assist Notes
 
-## Last Run: 2026-05-19 20:02 UTC (run 26121890756)
+## Last Run: 2026-05-20 20:05 UTC (run 26186809474)
 
-## Selected Tasks: 9, 10, 8
+## Selected Tasks: 8, 3, 10
 
 ### Task 8: Performance Improvements
-- Replaced `GetCustomAttributes(type, bool)` array-pattern in `getPropertyNamesAndInfos`
-  with `Attribute.GetCustomAttribute(prop, type)` to avoid `obj[]` allocation per property
-- Part of PR (pending): perf/test improvements-20260519
+- DefinitionCompiler: cache `Seq.isEmpty allOf` result (was evaluated twice)
+- ProvidedApiClientBase.CallAsync: replace `Array.tryFindIndex((=) codeStr)` with `Array.IndexOf`
+- Part of PR (pending): perf-and-tests-20260520
 
-### Task 9: Testing Improvements
-- Added 8 new tests to `CreateHttpRequestTests` (PATCH, HEAD, OPTIONS, TRACE, custom method, case-insensitive, multi-param)
-- Part of PR (pending): perf/test improvements-20260519
+### Task 3: Issue Investigation and Fix → Fallback Task 2
+- No fixable bug issues; all issues already have RA comments, no new human activity
 
 ### Task 10: Take Repository Forward
-- Added 6 tests for `tryResolveSingle` allOf/oneOf/anyOf single-$ref resolution
-  in Schema.V2SchemaCompilationTests.fs
-- Part of PR (pending): perf/test improvements-20260519
-- Total: 425 → 438 tests (+13)
+- Added 5 new V3 schema compilation tests covering:
+  - required vs optional property types
+  - string enum compilation (named type + IsEnum)
+  - schema description as XmlDoc
+- Part of PR (pending): perf-and-tests-20260520
+- Total: 438 → 443 tests (+5)
 
 ## Comments Made
 - Issue #33: commented Apr 2026 (run 23963519508)
@@ -29,6 +30,7 @@
 
 ## Future Work
 - Issue #358: Microsoft.OpenApi 3.x migration — revisit when .NET 11 ships
+- More V3 schema tests: allOf with multiple $refs, nullable types, nested objects
 
 ## Backlog Cursor
 - All 4 open issues processed; no new unlabelled issues
