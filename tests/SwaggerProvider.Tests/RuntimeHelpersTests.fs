@@ -626,9 +626,12 @@ module CreateHttpRequestTests =
         req.Method.Method |> shouldEqual "PURGE"
 
     [<Fact>]
-    let ``createHttpRequest is case-insensitive for PATCH``() =
-        use req = createHttpRequest "patch" "v1/pets/1" []
-        req.Method.Method |> shouldEqual "PATCH"
+    let ``createHttpRequest resolves 'PATCH' and 'patch' to the same cached HttpMethod instance``() =
+        // The standardHttpMethods dictionary uses OrdinalIgnoreCase, so both "PATCH" and "patch"
+        // should return the same cached HttpMethod object reference - not just equal string values.
+        use req1 = createHttpRequest "PATCH" "v1/pets/1" []
+        use req2 = createHttpRequest "patch" "v1/pets/1" []
+        obj.ReferenceEquals(req1.Method, req2.Method) |> shouldEqual true
 
     [<Fact>]
     let ``createHttpRequest with multiple query params encodes all``() =
