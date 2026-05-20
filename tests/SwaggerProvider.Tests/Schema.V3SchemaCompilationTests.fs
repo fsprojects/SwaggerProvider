@@ -107,3 +107,137 @@ let ``anyOf single $ref resolves to the referenced type``() =
 let ``anyOf single $ref does not produce a separate wrapper type``() =
     let types = compileV3Schema anyOfSingleRefSchema false
     types |> List.exists(fun t -> t.Name = "CatRef") |> shouldEqual false
+
+// ── Required vs optional properties ──────────────────────────────────────────
+
+[<Fact>]
+let ``required property compiles to non-option type``() =
+    let schema =
+        """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id":   { "type": "integer" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}"""
+
+    let types = compileV3Schema schema false
+    let orderType = types |> List.find(fun t -> t.Name = "Order")
+    // 'id' is required → int32 (not option)
+    orderType.GetDeclaredProperty("Id").PropertyType
+    |> shouldEqual typeof<int32>
+
+[<Fact>]
+let ``optional property compiles to option type``() =
+    let schema =
+        """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Order": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id":   { "type": "integer" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}"""
+
+    let types = compileV3Schema schema false
+    let orderType = types |> List.find(fun t -> t.Name = "Order")
+    // 'note' is not required → string option
+    orderType.GetDeclaredProperty("Note").PropertyType
+    |> shouldEqual typeof<string option>
+
+// ── String enum compilation ────────────────────────────────────────────────────
+
+[<Fact>]
+let ``string enum schema compiles to a named enum type``() =
+    let schema =
+        """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Status": {
+        "type": "string",
+        "enum": ["active", "inactive", "pending"]
+      }
+    }
+  }
+}"""
+
+    let types = compileV3Schema schema false
+    types |> List.exists(fun t -> t.Name = "Status") |> shouldEqual true
+
+[<Fact>]
+let ``string enum type is an enum``() =
+    let schema =
+        """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Status": {
+        "type": "string",
+        "enum": ["active", "inactive", "pending"]
+      }
+    }
+  }
+}"""
+
+    let types = compileV3Schema schema false
+    let statusType = types |> List.find(fun t -> t.Name = "Status")
+    statusType.IsEnum |> shouldEqual true
+
+// ── Schema description as XmlDoc ─────────────────────────────────────────────
+
+[<Fact>]
+let ``object schema description is surfaced as XmlDoc``() =
+    let schema =
+        """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Widget": {
+        "type": "object",
+        "description": "A widget with a name",
+        "properties": {
+          "name": { "type": "string" }
+        }
+      }
+    }
+  }
+}"""
+
+    let types = compileV3Schema schema false
+    let widgetType = types |> List.find(fun t -> t.Name = "Widget")
+    // XmlDoc is accessible via GetCustomAttributesData on the provided type
+    let doc = widgetType.GetCustomAttributesData()
+
+    doc
+    |> Seq.exists(fun a ->
+        a.ConstructorArguments
+        |> Seq.exists(fun arg ->
+            arg.Value :? string
+            && (arg.Value :?> string).Contains("A widget with a name")))
+    |> shouldEqual true
