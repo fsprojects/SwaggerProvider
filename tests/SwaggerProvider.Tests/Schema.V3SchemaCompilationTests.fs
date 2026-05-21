@@ -364,4 +364,4 @@ let ``property referencing an additionalProperties schema has Map type``() =
     dataProp |> isNull |> shouldEqual false
     // Map<string, string> is optional because Wrapper.data is not required
     let propType = dataProp.PropertyType
-    propType.IsGenericType |> shouldEqual true
+    propType |> shouldEqual typeof<Map<string, string> option>
