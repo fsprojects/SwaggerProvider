@@ -1,6 +1,6 @@
 {
-  "run": "2026-05-18",
-  "rid": "26057056437",
+  "run": "2026-05-21",
+  "rid": "26249910043",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
@@ -19,7 +19,8 @@
     "440": "merged - perf: replace formatObject Array.map+Join with StringBuilder",
     "441": "merged - refactor: extract tryResolveSingle helper in DefinitionCompiler",
     "442": "merged - test: expand RuntimeHelpers coverage (+8 tests, 417->425)",
-    "perf_fastpaths_pending": "PR pending - perf: float32/double/Guid fast-paths in toParam; replace String.Format with interpolation"
+    "444": "merged - perf/test: avoid obj[] alloc in getPropertyNamesAndInfos; add HTTP method + schema compilation tests (+13 tests, 425->438)",
+    "pending_20260521": "PR pending - test+refactor: V3 allOf composite/nullable/additionalProperties tests; hoist isEmpty checks (+5 tests, 443->448)"
   },
   "comments_made": {
     "33": "2026-04-03",
@@ -41,5 +42,5 @@
     "376": "2026-04-13",
     "381": "2026-04-15"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. PRs #439,#440,#441,#442 merged. 2026-05-18: New PR pending: perf/float32/double/Guid fast-paths + String.Format->interpolation. Unit tests at 425. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-18: PR #444 merged. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments. 2026-05-21: All deps up to date. Unit tests at 448. Pending PR: V3 allOf composite/nullable/additionalProperties tests + hoist isEmpty (Tasks 9, 5, 10)."
 }
