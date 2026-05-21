@@ -281,22 +281,26 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                     ty.AddXmlDoc schemaObj.Description
 
                 // Combine composite schemas
+                // Cache the isEmpty check to avoid iterating `allOf` twice (once per field/required block).
+                let allOfEmpty = Seq.isEmpty allOf
+
                 let schemaObjProperties =
                     let getProps(s: IOpenApiSchema) =
                         s.Properties |> toSeq
 
-                    match Seq.isEmpty allOf with
-                    | false -> allOf |> Seq.append [ schemaObj ] |> Seq.collect getProps
-                    | true -> getProps schemaObj
-
+                    if allOfEmpty then
+                        getProps schemaObj
+                    else
+                        allOf |> Seq.append [ schemaObj ] |> Seq.collect getProps
 
                 let schemaObjRequired =
                     let getReq(s: IOpenApiSchema) =
                         s.Required |> toSeq
 
-                    match Seq.isEmpty allOf with
-                    | false -> allOf |> Seq.append [ schemaObj ] |> Seq.collect getReq
-                    | true -> getReq schemaObj
+                    if allOfEmpty then
+                        getReq schemaObj
+                    else
+                        allOf |> Seq.append [ schemaObj ] |> Seq.collect getReq
                     |> Set.ofSeq
 
                 // Helper to check if a schema has the Null type flag (OpenAPI 3.0 nullable)

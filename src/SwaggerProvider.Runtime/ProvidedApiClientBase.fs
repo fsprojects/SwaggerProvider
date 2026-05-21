@@ -72,12 +72,14 @@ type ProvidedApiClientBase(httpClient: HttpClient, options: JsonSerializerOption
                             return ""
                     }
 
-                match errorCodes |> Array.tryFindIndex((=) codeStr) with
-                | Some idx ->
-                    let desc = errorDescriptions[idx]
+                // Use Array.IndexOf to avoid allocating a partial-application closure on every error response.
+                let errorIdx = System.Array.IndexOf(errorCodes, codeStr)
+
+                if errorIdx >= 0 then
+                    let desc = errorDescriptions[errorIdx]
                     let! body = readBody()
                     return raise(OpenApiException(code, desc, response.Headers, response.Content, body))
-                | None ->
+                else
                     let! body = readBody()
 
                     let desc =
