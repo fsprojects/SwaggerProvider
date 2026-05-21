@@ -362,6 +362,7 @@ let ``property referencing an additionalProperties schema has Map type``() =
     let wrapperType = types |> List.find(fun t -> t.Name = "Wrapper")
     let dataProp = wrapperType.GetDeclaredProperty("Data")
     dataProp |> isNull |> shouldEqual false
-    // Map<string, string> is optional because Wrapper.data is not required
+    // Map types are left unwrapped (not option) for non-required properties;
+    // collection types naturally express absence via null/empty.
     let propType = dataProp.PropertyType
-    propType |> shouldEqual typeof<Map<string, string> option>
+    propType |> shouldEqual typeof<Map<string, string>>
