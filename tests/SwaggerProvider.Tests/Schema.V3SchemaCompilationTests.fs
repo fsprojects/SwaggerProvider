@@ -285,8 +285,12 @@ let ``allOf composite with multiple inline schemas emits all merged properties``
 let ``allOf composite merged properties have correct types``() =
     let types = compileV3Schema allOfCompositeSchema false
     let dogType = types |> List.find(fun t -> t.Name = "Dog")
-    dogType.GetDeclaredProperty("Name").PropertyType |> shouldEqual typeof<string option>
-    dogType.GetDeclaredProperty("Breed").PropertyType |> shouldEqual typeof<string option>
+
+    dogType.GetDeclaredProperty("Name").PropertyType
+    |> shouldEqual typeof<string option>
+
+    dogType.GetDeclaredProperty("Breed").PropertyType
+    |> shouldEqual typeof<string option>
 
 // ── nullable required property → option type ─────────────────────────────────
 
@@ -314,7 +318,9 @@ let ``required nullable property compiles to option type``() =
 
     let types = compileV3Schema schema false
     let statusType = types |> List.find(fun t -> t.Name = "Status")
-    statusType.GetDeclaredProperty("Code").PropertyType |> shouldEqual typeof<string option>
+
+    statusType.GetDeclaredProperty("Code").PropertyType
+    |> shouldEqual typeof<string option>
 
 // ── additionalProperties → Map<string, T> ────────────────────────────────────
 
@@ -346,7 +352,9 @@ let private additionalPropertiesSchema =
 let ``schema with only additionalProperties does not emit a named type``() =
     let types = compileV3Schema additionalPropertiesSchema false
     // StringMap's name reservation is released; no separate named type is emitted
-    types |> List.exists(fun t -> t.Name = "StringMap") |> shouldEqual false
+    types
+    |> List.exists(fun t -> t.Name = "StringMap")
+    |> shouldEqual false
 
 [<Fact>]
 let ``property referencing an additionalProperties schema has Map type``() =
