@@ -236,8 +236,8 @@ let ``object schema description is surfaced as XmlDoc``() =
 
     doc
     |> Seq.exists(fun a ->
-        a.ConstructorArguments
-        |> Seq.exists(fun arg ->
-            arg.Value :? string
-            && (arg.Value :?> string).Contains("A widget with a name")))
+        a.AttributeType.Name = "TypeProviderXmlDocAttribute"
+        && a.ConstructorArguments.Count > 0
+        && a.ConstructorArguments.[0].Value :? string
+        && (a.ConstructorArguments.[0].Value :?> string).Contains("A widget with a name"))
     |> shouldEqual true
