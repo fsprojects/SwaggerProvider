@@ -185,6 +185,110 @@ let ``v2 schema with integer enum property compiles``() =
     // integer enum — Microsoft.OpenApi maps this to the integer base type
     codeProp.PropertyType |> shouldEqual typeof<int32>
 
+// ── Required vs optional properties ─────────────────────────────────────────
+
+[<Fact>]
+let ``v2 required property compiles to non-option type``() =
+    let schema =
+        """{
+  "swagger": "2.0",
+  "info": { "title": "RequiredTest", "version": "1.0.0" },
+  "basePath": "/",
+  "paths": {},
+  "definitions": {
+    "Order": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id":   { "type": "integer" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}"""
+
+    let types = compileV2Schema schema
+    let orderType = types |> List.find(fun t -> t.Name = "Order")
+
+    getProp orderType "Id"
+    |> (fun p -> p.PropertyType)
+    |> shouldEqual typeof<int32>
+
+[<Fact>]
+let ``v2 optional property compiles to option type``() =
+    let schema =
+        """{
+  "swagger": "2.0",
+  "info": { "title": "RequiredTest", "version": "1.0.0" },
+  "basePath": "/",
+  "paths": {},
+  "definitions": {
+    "Order": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id":   { "type": "integer" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}"""
+
+    let types = compileV2Schema schema
+    let orderType = types |> List.find(fun t -> t.Name = "Order")
+
+    getProp orderType "Note"
+    |> (fun p -> p.PropertyType)
+    |> shouldEqual typeof<string option>
+
+// ── allOf inheritance: $ref + extra properties ─────────────────────────────
+
+/// Swagger 2.0 allOf inheritance pattern: Dog extends Animal.
+/// allOf contains a $ref to Animal and an inline schema with Dog's own properties.
+let private v2InheritanceSchema =
+    """{
+  "swagger": "2.0",
+  "info": { "title": "InheritanceTest", "version": "1.0.0" },
+  "basePath": "/",
+  "paths": {},
+  "definitions": {
+    "Animal": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" }
+      }
+    },
+    "Dog": {
+      "allOf": [
+        { "$ref": "#/definitions/Animal" },
+        {
+          "type": "object",
+          "properties": {
+            "breed": { "type": "string" }
+          }
+        }
+      ]
+    }
+  }
+}"""
+
+[<Fact>]
+let ``v2 allOf inheritance emits the base type``() =
+    let types = compileV2Schema v2InheritanceSchema
+    types |> List.exists(fun t -> t.Name = "Animal") |> shouldEqual true
+
+[<Fact>]
+let ``v2 allOf inheritance emits the derived type``() =
+    let types = compileV2Schema v2InheritanceSchema
+    types |> List.exists(fun t -> t.Name = "Dog") |> shouldEqual true
+
+[<Fact>]
+let ``v2 allOf inheritance derived type has its own property``() =
+    let types = compileV2Schema v2InheritanceSchema
+    let dogType = types |> List.find(fun t -> t.Name = "Dog")
+    dogType.GetDeclaredProperty("Breed") |> isNull |> shouldEqual false
+
 // ── ToString tests ───────────────────────────────────────────────────────────
 
 [<Fact>]

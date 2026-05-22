@@ -366,3 +366,132 @@ let ``property referencing an additionalProperties schema has Map type``() =
     // collection types naturally express absence via null/empty.
     let propType = dataProp.PropertyType
     propType |> shouldEqual typeof<Map<string, string>>
+
+// ── oneOf / anyOf with multiple $refs → name alias (no wrapper type) ─────────
+
+/// OpenAPI 3.0 schema where Union uses oneOf with two $refs and no own properties.
+/// Because OneOf.Count <> 1, the single-$ref collapse guard does not fire.
+/// compileNewObject() then marks Union as a name alias and returns typeof<obj>, so no wrapper type is emitted.
+let private oneOfMultiRefSchema =
+    """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Cat": {
+        "type": "object",
+        "properties": { "meow": { "type": "string" } }
+      },
+      "Dog": {
+        "type": "object",
+        "properties": { "bark": { "type": "string" } }
+      },
+      "Union": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/Cat" },
+          { "$ref": "#/components/schemas/Dog" }
+        ]
+      }
+    }
+  }
+}"""
+
+[<Fact>]
+let ``oneOf with multiple refs does not emit a named wrapper type``() =
+    // With no own properties and no allOf, compileNewObject() marks Union as a name alias
+    // and returns typeof<obj> — no separate named type is emitted for the wrapper.
+    let types = compileV3Schema oneOfMultiRefSchema false
+    types |> List.exists(fun t -> t.Name = "Union") |> shouldEqual false
+
+[<Fact>]
+let ``oneOf with multiple refs emits the referenced component types``() =
+    let types = compileV3Schema oneOfMultiRefSchema false
+    types |> List.exists(fun t -> t.Name = "Cat") |> shouldEqual true
+    types |> List.exists(fun t -> t.Name = "Dog") |> shouldEqual true
+
+/// OpenAPI 3.0 schema where AnyUnion uses anyOf with two $refs.
+let private anyOfMultiRefSchema =
+    """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Fish": {
+        "type": "object",
+        "properties": { "fins": { "type": "integer" } }
+      },
+      "Bird": {
+        "type": "object",
+        "properties": { "wings": { "type": "integer" } }
+      },
+      "AnyUnion": {
+        "anyOf": [
+          { "$ref": "#/components/schemas/Fish" },
+          { "$ref": "#/components/schemas/Bird" }
+        ]
+      }
+    }
+  }
+}"""
+
+[<Fact>]
+let ``anyOf with multiple refs does not emit a named wrapper type``() =
+    // Same behaviour as oneOf multi-ref: no own properties → compileNewObject() marks
+    // AnyUnion as a name alias and returns typeof<obj>.
+    let types = compileV3Schema anyOfMultiRefSchema false
+
+    types
+    |> List.exists(fun t -> t.Name = "AnyUnion")
+    |> shouldEqual false
+
+[<Fact>]
+let ``anyOf with multiple refs emits the referenced component types``() =
+    let types = compileV3Schema anyOfMultiRefSchema false
+    types |> List.exists(fun t -> t.Name = "Fish") |> shouldEqual true
+    types |> List.exists(fun t -> t.Name = "Bird") |> shouldEqual true
+
+// ── allOf single $ref with extra wrapper properties → new object type ─────────
+
+/// OpenAPI 3.0 schema where Extended wraps Base via allOf with a single $ref,
+/// but also declares its own extra property.  The single-$ref collapse guard
+/// requires Properties.Count = 0; here it has extra properties, so it fires
+/// compileNewObject() instead and emits Extended as a new object type.
+let private allOfSingleRefWithExtraPropsSchema =
+    """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Base": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" }
+        }
+      },
+      "Extended": {
+        "allOf": [ { "$ref": "#/components/schemas/Base" } ],
+        "properties": {
+          "extra": { "type": "string" }
+        }
+      }
+    }
+  }
+}"""
+
+[<Fact>]
+let ``allOf single ref with extra wrapper properties emits a new named type``() =
+    // Because Extended has its own properties, the collapse guard fails and a new object type is emitted.
+    let types = compileV3Schema allOfSingleRefWithExtraPropsSchema false
+    types |> List.exists(fun t -> t.Name = "Extended") |> shouldEqual true
+
+[<Fact>]
+let ``allOf single ref with extra wrapper properties emits the extra property``() =
+    let types = compileV3Schema allOfSingleRefWithExtraPropsSchema false
+    let extendedType = types |> List.find(fun t -> t.Name = "Extended")
+
+    extendedType.GetDeclaredProperty("Extra")
+    |> isNull
+    |> shouldEqual false
