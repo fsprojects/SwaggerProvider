@@ -367,11 +367,11 @@ let ``property referencing an additionalProperties schema has Map type``() =
     let propType = dataProp.PropertyType
     propType |> shouldEqual typeof<Map<string, string>>
 
-// ── oneOf / anyOf with multiple $refs → no collapse, named object type ────────
+// ── oneOf / anyOf with multiple $refs → name alias (no wrapper type) ─────────
 
-/// OpenAPI 3.0 schema where Union uses oneOf with two $refs.
-/// The single-$ref collapse guard (Count = 1) does not fire, so the compiler
-/// falls through to compileNewObject() and emits an empty named object type.
+/// OpenAPI 3.0 schema where Union uses oneOf with two $refs and no own properties.
+/// Because OneOf.Count <> 1, the single-$ref collapse guard does not fire.
+/// compileNewObject() then marks Union as a name alias and returns typeof<obj>, so no wrapper type is emitted.
 let private oneOfMultiRefSchema =
     """{
   "openapi": "3.0.0",
