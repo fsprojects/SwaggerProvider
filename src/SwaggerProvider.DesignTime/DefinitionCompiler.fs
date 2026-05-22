@@ -265,7 +265,11 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             let properties = schemaObj.Properties |> toSeq
             let allOf = schemaObj.AllOf |> toSeq
 
-            if Seq.isEmpty properties && Seq.isEmpty allOf then
+            // Hoist isEmpty checks so neither sequence is evaluated more than once.
+            let propertiesEmpty = Seq.isEmpty properties
+            let allOfEmpty = Seq.isEmpty allOf
+
+            if propertiesEmpty && allOfEmpty then
                 if not <| isNull tyName then
                     ns.MarkTypeAsNameAlias tyName
 
@@ -280,10 +284,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 if not(String.IsNullOrWhiteSpace schemaObj.Description) then
                     ty.AddXmlDoc schemaObj.Description
 
-                // Combine composite schemas
-                // Cache the isEmpty check to avoid iterating `allOf` twice (once per field/required block).
-                let allOfEmpty = Seq.isEmpty allOf
-
+                // Combine composite schemas: collect properties and required from all allOf schemas.
                 let schemaObjProperties =
                     let getProps(s: IOpenApiSchema) =
                         s.Properties |> toSeq

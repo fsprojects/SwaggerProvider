@@ -241,3 +241,128 @@ let ``object schema description is surfaced as XmlDoc``() =
         && a.ConstructorArguments.[0].Value :? string
         && (a.ConstructorArguments.[0].Value :?> string).Contains("A widget with a name"))
     |> shouldEqual true
+
+// ── allOf composite with multiple inline schemas ──────────────────────────────
+
+/// OpenAPI 3.0 schema where Dog uses allOf to merge two inline objects.
+/// Both inline schemas contribute properties; the compiler should emit all of them.
+let private allOfCompositeSchema =
+    """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Dog": {
+        "type": "object",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "breed": { "type": "string" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}"""
+
+[<Fact>]
+let ``allOf composite with multiple inline schemas emits all merged properties``() =
+    let types = compileV3Schema allOfCompositeSchema false
+    let dogType = types |> List.find(fun t -> t.Name = "Dog")
+    dogType.GetDeclaredProperty("Name") |> isNull |> shouldEqual false
+    dogType.GetDeclaredProperty("Breed") |> isNull |> shouldEqual false
+
+[<Fact>]
+let ``allOf composite merged properties have correct types``() =
+    let types = compileV3Schema allOfCompositeSchema false
+    let dogType = types |> List.find(fun t -> t.Name = "Dog")
+
+    dogType.GetDeclaredProperty("Name").PropertyType
+    |> shouldEqual typeof<string option>
+
+    dogType.GetDeclaredProperty("Breed").PropertyType
+    |> shouldEqual typeof<string option>
+
+// ── nullable required property → option type ─────────────────────────────────
+
+[<Fact>]
+let ``required nullable property compiles to option type``() =
+    // In OpenAPI 3.0, a required + nullable property must be Option<T>
+    // because the value may be present but null.
+    let schema =
+        """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Status": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": { "type": "string", "nullable": true }
+        }
+      }
+    }
+  }
+}"""
+
+    let types = compileV3Schema schema false
+    let statusType = types |> List.find(fun t -> t.Name = "Status")
+
+    statusType.GetDeclaredProperty("Code").PropertyType
+    |> shouldEqual typeof<string option>
+
+// ── additionalProperties → Map<string, T> ────────────────────────────────────
+
+/// OpenAPI 3.0 schema where StringMap has only additionalProperties (no explicit properties).
+/// The compiler releases the name reservation and compiles it to Map<string, string>.
+/// Any property referencing StringMap by $ref should receive type Map<string, string>.
+let private additionalPropertiesSchema =
+    """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "StringMap": {
+        "type": "object",
+        "additionalProperties": { "type": "string" }
+      },
+      "Wrapper": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/StringMap" }
+        }
+      }
+    }
+  }
+}"""
+
+[<Fact>]
+let ``schema with only additionalProperties does not emit a named type``() =
+    let types = compileV3Schema additionalPropertiesSchema false
+    // StringMap's name reservation is released; no separate named type is emitted
+    types
+    |> List.exists(fun t -> t.Name = "StringMap")
+    |> shouldEqual false
+
+[<Fact>]
+let ``property referencing an additionalProperties schema has Map type``() =
+    let types = compileV3Schema additionalPropertiesSchema false
+    let wrapperType = types |> List.find(fun t -> t.Name = "Wrapper")
+    let dataProp = wrapperType.GetDeclaredProperty("Data")
+    dataProp |> isNull |> shouldEqual false
+    // Map types are left unwrapped (not option) for non-required properties;
+    // collection types naturally express absence via null/empty.
+    let propType = dataProp.PropertyType
+    propType |> shouldEqual typeof<Map<string, string>>
