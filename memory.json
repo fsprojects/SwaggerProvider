@@ -1,6 +1,6 @@
 {
-  "run": "2026-05-21",
-  "rid": "26249910043",
+  "run": "2026-05-22",
+  "rid": "26309193185",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
@@ -20,27 +20,13 @@
     "441": "merged - refactor: extract tryResolveSingle helper in DefinitionCompiler",
     "442": "merged - test: expand RuntimeHelpers coverage (+8 tests, 417->425)",
     "444": "merged - perf/test: avoid obj[] alloc in getPropertyNamesAndInfos; add HTTP method + schema compilation tests (+13 tests, 425->438)",
-    "pending_20260521": "PR pending - test+refactor: V3 allOf composite/nullable/additionalProperties tests; hoist isEmpty checks (+5 tests, 443->448)"
+    "445": "merged - perf: avoid allOf double-isEmpty + Array.IndexOf in CallAsync; add V3 schema tests (+5 tests, 438->443)",
+    "446": "merged - test+refactor: V3 allOf composite/nullable/additionalProperties tests; hoist isEmpty checks (+5 tests, 443->448)",
+    "pending_20260522": "PR pending - test: expand V3 oneOf/anyOf/allOf and V2 inheritance schema compilation tests (+11 tests, 448->459)"
   },
   "comments_made": {
     "33": "2026-04-03",
-    "116": "2026-03-25",
-    "122": "2026-04-06",
-    "146": "2026-04-02",
-    "150": "2026-04-07",
-    "163": "2026-03-23",
-    "178": "2026-03-18",
-    "179": "2026-04-04",
-    "182": "2026-03-19",
-    "190": "2026-04-11",
-    "215": "2026-04-14",
-    "226": "2026-03-25",
-    "231": "2026-03-31",
-    "243": "2026-04-12",
-    "263": "2026-03-17",
-    "358": "2026-04-12",
-    "376": "2026-04-13",
-    "381": "2026-04-15"
+    "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-18: PR #444 merged. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments. 2026-05-21: All deps up to date. Unit tests at 448. Pending PR: V3 allOf composite/nullable/additionalProperties tests + hoist isEmpty (Tasks 9, 5, 10)."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-22: All deps up to date. Unit tests at 459. Pending PR: V3 oneOf/anyOf multi-ref + allOf single-ref with extra props + V2 required/optional + V2 allOf inheritance tests. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments. Task 2: no new human activity on any issue."
 }
