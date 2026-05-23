@@ -452,6 +452,50 @@ let ``anyOf with multiple refs emits the referenced component types``() =
     types |> List.exists(fun t -> t.Name = "Fish") |> shouldEqual true
     types |> List.exists(fun t -> t.Name = "Bird") |> shouldEqual true
 
+// ── $ref to enum type → property uses the named enum type ────────────────────
+
+/// OpenAPI 3.0 schema where Task.status references Status (a string enum) via $ref.
+let private refToEnumSchema =
+    """{
+  "openapi": "3.0.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Status": {
+        "type": "string",
+        "enum": ["open", "closed"]
+      },
+      "Task": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "$ref": "#/components/schemas/Status" }
+        }
+      }
+    }
+  }
+}"""
+
+[<Fact>]
+let ``required property referencing a string enum uses the named enum type``() =
+    let types = compileV3Schema refToEnumSchema false
+    let statusType = types |> List.find(fun t -> t.Name = "Status")
+    let taskType = types |> List.find(fun t -> t.Name = "Task")
+    let statusProp = taskType.GetDeclaredProperty("Status")
+    statusProp |> isNull |> shouldEqual false
+    statusProp.PropertyType |> shouldEqual statusType
+
+[<Fact>]
+let ``required property referencing a string enum is not wrapped in option``() =
+    // Required $ref to enum: the property should use the enum type directly (not Option<EnumType>).
+    let types = compileV3Schema refToEnumSchema false
+    let statusType = types |> List.find(fun t -> t.Name = "Status")
+    let taskType = types |> List.find(fun t -> t.Name = "Task")
+    let statusProp = taskType.GetDeclaredProperty("Status")
+    statusProp.PropertyType |> shouldEqual statusType
+    statusProp.PropertyType.IsGenericType |> shouldEqual false
+
 // ── allOf single $ref with extra wrapper properties → new object type ─────────
 
 /// OpenAPI 3.0 schema where Extended wraps Base via allOf with a single $ref,
