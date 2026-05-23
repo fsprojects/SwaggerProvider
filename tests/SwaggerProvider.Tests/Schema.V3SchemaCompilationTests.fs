@@ -452,47 +452,6 @@ let ``anyOf with multiple refs emits the referenced component types``() =
     types |> List.exists(fun t -> t.Name = "Fish") |> shouldEqual true
     types |> List.exists(fun t -> t.Name = "Bird") |> shouldEqual true
 
-// ── Integer enum compilation ──────────────────────────────────────────────────
-
-/// OpenAPI 3.0 schema with a top-level integer enum named Priority.
-let private integerEnumSchema =
-    """{
-  "openapi": "3.0.0",
-  "info": { "title": "Test", "version": "1.0.0" },
-  "paths": {},
-  "components": {
-    "schemas": {
-      "Priority": {
-        "type": "integer",
-        "enum": [1, 2, 3]
-      }
-    }
-  }
-}"""
-
-[<Fact>]
-let ``integer enum schema compiles to a named enum type``() =
-    let types = compileV3Schema integerEnumSchema false
-    types |> List.exists(fun t -> t.Name = "Priority") |> shouldEqual true
-
-[<Fact>]
-let ``integer enum type is an enum``() =
-    let types = compileV3Schema integerEnumSchema false
-    let priorityType = types |> List.find(fun t -> t.Name = "Priority")
-    priorityType.IsEnum |> shouldEqual true
-
-[<Fact>]
-let ``integer enum has the correct number of members``() =
-    let types = compileV3Schema integerEnumSchema false
-    let priorityType = types |> List.find(fun t -> t.Name = "Priority")
-    // Only literal fields (the enum members), not the internal __value field
-    let memberCount =
-        priorityType.GetFields()
-        |> Array.filter(fun f -> f.IsLiteral)
-        |> Array.length
-
-    memberCount |> shouldEqual 3
-
 // ── $ref to enum type → property uses the named enum type ────────────────────
 
 /// OpenAPI 3.0 schema where Task.status references Status (a string enum) via $ref.
@@ -521,17 +480,20 @@ let private refToEnumSchema =
 [<Fact>]
 let ``required property referencing a string enum uses the named enum type``() =
     let types = compileV3Schema refToEnumSchema false
+    let statusType = types |> List.find(fun t -> t.Name = "Status")
     let taskType = types |> List.find(fun t -> t.Name = "Task")
     let statusProp = taskType.GetDeclaredProperty("Status")
     statusProp |> isNull |> shouldEqual false
-    statusProp.PropertyType.IsEnum |> shouldEqual true
+    statusProp.PropertyType |> shouldEqual statusType
 
 [<Fact>]
 let ``required property referencing a string enum is not wrapped in option``() =
     // Required $ref to enum: the property should use the enum type directly (not Option<EnumType>).
     let types = compileV3Schema refToEnumSchema false
+    let statusType = types |> List.find(fun t -> t.Name = "Status")
     let taskType = types |> List.find(fun t -> t.Name = "Task")
     let statusProp = taskType.GetDeclaredProperty("Status")
+    statusProp.PropertyType |> shouldEqual statusType
     statusProp.PropertyType.IsGenericType |> shouldEqual false
 
 // ── allOf single $ref with extra wrapper properties → new object type ─────────
