@@ -1,6 +1,6 @@
 {
-  "run": "2026-05-22",
-  "rid": "26309193185",
+  "run": "2026-05-23",
+  "rid": "26341858305",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
@@ -22,11 +22,12 @@
     "444": "merged - perf/test: avoid obj[] alloc in getPropertyNamesAndInfos; add HTTP method + schema compilation tests (+13 tests, 425->438)",
     "445": "merged - perf: avoid allOf double-isEmpty + Array.IndexOf in CallAsync; add V3 schema tests (+5 tests, 438->443)",
     "446": "merged - test+refactor: V3 allOf composite/nullable/additionalProperties tests; hoist isEmpty checks (+5 tests, 443->448)",
-    "pending_20260522": "PR pending - test: expand V3 oneOf/anyOf/allOf and V2 inheritance schema compilation tests (+11 tests, 448->459)"
+    "447": "merged - test: expand V3 oneOf/anyOf/allOf and V2 inheritance schema compilation tests (+11 tests, 448->459)",
+    "pending_20260523": "PR pending - test: integer enum, $ref-to-enum, v2 allOf collapse, v2 string enum (+9 tests, 459->468)"
   },
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-22: All deps up to date. Unit tests at 459. Pending PR: V3 oneOf/anyOf multi-ref + allOf single-ref with extra props + V2 required/optional + V2 allOf inheritance tests. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments. Task 2: no new human activity on any issue."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-23: All deps up to date. Unit tests at 468. Pending PR: integer enum, $ref-to-enum, v2 allOf collapse, v2 string enum tests. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments. Task 3: no fixable bugs. Task 2 fallback: no new human activity on any issue."
 }
