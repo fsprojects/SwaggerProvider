@@ -289,6 +289,67 @@ let ``v2 allOf inheritance derived type has its own property``() =
     let dogType = types |> List.find(fun t -> t.Name = "Dog")
     dogType.GetDeclaredProperty("Breed") |> isNull |> shouldEqual false
 
+// ── V2 allOf single $ref collapse ─────────────────────────────────────────────
+
+/// Swagger 2.0 schema where Alias wraps Pet via allOf with a single $ref and no
+/// own properties.  The compiler should collapse Alias into Pet.
+let private v2AllOfSingleRefSchema =
+    """{
+  "swagger": "2.0",
+  "info": { "title": "AliasTest", "version": "1.0.0" },
+  "basePath": "/",
+  "paths": {},
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" }
+      }
+    },
+    "Alias": {
+      "allOf": [ { "$ref": "#/definitions/Pet" } ]
+    }
+  }
+}"""
+
+[<Fact>]
+let ``v2 allOf single ref collapses to the referenced type``() =
+    let types = compileV2Schema v2AllOfSingleRefSchema
+    types |> List.exists(fun t -> t.Name = "Pet") |> shouldEqual true
+
+[<Fact>]
+let ``v2 allOf single ref does not produce a separate wrapper type``() =
+    let types = compileV2Schema v2AllOfSingleRefSchema
+    types |> List.exists(fun t -> t.Name = "Alias") |> shouldEqual false
+
+// ── V2 top-level string enum ──────────────────────────────────────────────────
+
+/// Swagger 2.0 schema with a top-level string enum definition.
+let private v2StringEnumSchema =
+    """{
+  "swagger": "2.0",
+  "info": { "title": "EnumTest", "version": "1.0.0" },
+  "basePath": "/",
+  "paths": {},
+  "definitions": {
+    "Color": {
+      "type": "string",
+      "enum": ["red", "green", "blue"]
+    }
+  }
+}"""
+
+[<Fact>]
+let ``v2 top-level string enum compiles to a named enum type``() =
+    let types = compileV2Schema v2StringEnumSchema
+    types |> List.exists(fun t -> t.Name = "Color") |> shouldEqual true
+
+[<Fact>]
+let ``v2 top-level string enum type is an enum``() =
+    let types = compileV2Schema v2StringEnumSchema
+    let colorType = types |> List.find(fun t -> t.Name = "Color")
+    colorType.IsEnum |> shouldEqual true
+
 // ── ToString tests ───────────────────────────────────────────────────────────
 
 [<Fact>]
