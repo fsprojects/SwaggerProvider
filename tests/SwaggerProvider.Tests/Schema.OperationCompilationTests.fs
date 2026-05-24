@@ -1112,3 +1112,194 @@ let ``ignoreOperationId=true does not generate the original operationId as metho
     let methodNames = allMethods |> List.map(fun m -> m.Name)
     methodNames |> shouldNotContain "ListAllPets"
     methodNames |> shouldNotContain "GetPetById"
+
+// ── Response types: $ref to component schema ──────────────────────────────────
+// Verifies that when a response schema is a $ref to a component, the generated
+// method's return type is Task<ComponentType> (not Task<unit> or Task<obj>).
+
+let private refResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: RefResponseTest
+  version: "1.0.0"
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        age:
+          type: integer
+"""
+
+[<Fact>]
+let ``GET returning component $ref produces Task<T> with a non-primitive type argument``() =
+    let types = compileTaskSchema refResponseSchema
+    let method = (findMethod types "GetPet").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    // The generic argument should not be unit, string, or any other primitive —
+    // it should be the compiled Pet ProvidedType
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg |> shouldNotEqual typeof<unit>
+    returnArg |> shouldNotEqual typeof<string>
+    returnArg.Name |> shouldEqual "Pet"
+
+[<Fact>]
+let ``GET returning component $ref compiles the referenced schema as a named type``() =
+    let types = compileTaskSchema refResponseSchema
+    let typeNames = types |> List.map(fun t -> t.Name)
+    typeNames |> shouldContain "Pet"
+
+[<Fact>]
+let ``GET returning component $ref: Pet type has the declared properties``() =
+    let types = compileTaskSchema refResponseSchema
+    let petType = types |> List.find(fun t -> t.Name = "Pet")
+    let propNames = petType.GetProperties() |> Array.map(fun p -> p.Name)
+    propNames |> shouldContain "Name"
+
+// ── Response types: array of $ref to component schema ─────────────────────────
+// Verifies that when a response schema is an array of $ref items, the method's
+// return type is Task<ComponentType[]>.
+
+let private arrayRefResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: ArrayRefResponseTest
+  version: "1.0.0"
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+"""
+
+[<Fact>]
+let ``GET returning array-of-$ref produces Task<T[]> return type``() =
+    let types = compileTaskSchema arrayRefResponseSchema
+    let method = (findMethod types "ListPets").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg.IsArray |> shouldEqual true
+
+[<Fact>]
+let ``GET returning array-of-$ref: array element type is the component schema type``() =
+    let types = compileTaskSchema arrayRefResponseSchema
+    let method = (findMethod types "ListPets").Value
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg.GetElementType().Name |> shouldEqual "Pet"
+
+// ── Response types: POST returning created resource ───────────────────────────
+// Verifies that POST with a 201 response body produces Task<ComponentType>.
+
+let private postCreatedResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: PostCreatedTest
+  version: "1.0.0"
+paths:
+  /pets:
+    post:
+      operationId: createPet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPet'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    NewPet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+"""
+
+[<Fact>]
+let ``POST with 201 response produces Task<T> (not Task<unit>)``() =
+    let types = compileTaskSchema postCreatedResponseSchema
+    let method = (findMethod types "CreatePet").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg |> shouldNotEqual typeof<unit>
+
+[<Fact>]
+let ``POST with 201 $ref response return type is the component schema type``() =
+    let types = compileTaskSchema postCreatedResponseSchema
+    let method = (findMethod types "CreatePet").Value
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg.Name |> shouldEqual "Pet"
+
+[<Fact>]
+let ``POST with 201 response: request body param type is the NewPet component schema type``() =
+    let types = compileTaskSchema postCreatedResponseSchema
+    let method = (findMethod types "CreatePet").Value
+    let parameters = method.GetParameters()
+    // body param is first, CancellationToken last
+    let bodyParam = parameters[0]
+    bodyParam.ParameterType.Name |> shouldEqual "NewPet"
