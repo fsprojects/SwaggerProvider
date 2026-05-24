@@ -1,33 +1,16 @@
 {
-  "run": "2026-05-23",
-  "rid": "26341858305",
+  "run": "2026-05-24",
+  "rid": "26371024771",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "433": "merged - perf: string concatenation fast-paths + skip UriBuilder when no query params",
-    "434": "merged - eng: bump FSharp.Compiler.Service 43.12.203 to 43.12.204",
-    "432": "merged - test: cover request body content types and OperationCompiler options (+18 tests, 396->414)",
-    "431": "merged - refactor: replace Regex.Replace with String.Replace",
-    "430": "merged - refactor: simplify validateContentType",
-    "429": "merged - perf: XmlDoc.escapeXml fast-path + UniqueNameGenerator dedup",
-    "427": "merged - eng: relax version pins",
-    "422": "merged - test: add XmlDoc unit tests (+32 tests)",
-    "420": "merged - improve: add <returns> XmlDoc tag",
-    "419": "merged - improve: surface schema description as XmlDoc",
-    "435": "merged - perf: string/int fast-paths in toParam; StringBuilder+String.Concat in buildXmlDoc (417 tests)",
-    "439": "merged - refactor: replace last sprintf with string interpolation in DefinitionCompiler",
-    "440": "merged - perf: replace formatObject Array.map+Join with StringBuilder",
-    "441": "merged - refactor: extract tryResolveSingle helper in DefinitionCompiler",
-    "442": "merged - test: expand RuntimeHelpers coverage (+8 tests, 417->425)",
-    "444": "merged - perf/test: avoid obj[] alloc in getPropertyNamesAndInfos; add HTTP method + schema compilation tests (+13 tests, 425->438)",
-    "445": "merged - perf: avoid allOf double-isEmpty + Array.IndexOf in CallAsync; add V3 schema tests (+5 tests, 438->443)",
-    "446": "merged - test+refactor: V3 allOf composite/nullable/additionalProperties tests; hoist isEmpty checks (+5 tests, 443->448)",
-    "447": "merged - test: expand V3 oneOf/anyOf/allOf and V2 inheritance schema compilation tests (+11 tests, 448->459)",
-    "pending_20260523": "PR pending - test: integer enum, $ref-to-enum, v2 allOf collapse, v2 string enum (+9 tests, 459->468)"
+    "449": "merged - test: integer enum, $ref-to-enum, v2 allOf collapse, v2 string enum (+9 tests, 459->468)",
+    "pending_task10_20260524": "PR pending - test: OperationCompiler response-type tests for component $ref and array responses (+8 tests, 465->473)",
+    "pending_task4_20260524": "PR pending - eng: bump Azure.Core 1.56->1.57, Azure.Monitor.OpenTelemetry.Exporter 1.8->1.8.1, Microsoft.Identity.Client 4.84->4.84.1, System.ClientModel 1.12->1.13"
   },
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-23: All deps up to date. Unit tests at 468. Pending PR: integer enum, $ref-to-enum, v2 allOf collapse, v2 string enum tests. Open issues: #33 (enhancement/help wanted), #358 (blocked, OpenApi 3.x), #411 (protected workflow file, manual PR needed), #418 (monthly). All have RA comments. Task 3: no fixable bugs. Task 2 fallback: no new human activity on any issue."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-24: Unit tests at 465 (master) / 473 (with pending test PR). Actual count differs from PR descriptions due to parameterized theory tests. Open issues: #33 (enhancement/help wanted), #358 (blocked), #411 (protected workflow file), #418 (monthly). All have RA comments. No new human activity on any issue. Dependabot PR #448 open (gh-aw-actions bump, workflow action)."
 }
