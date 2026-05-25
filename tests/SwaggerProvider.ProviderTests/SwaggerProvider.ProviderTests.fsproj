@@ -11,6 +11,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Swagger.PetStore.Tests.fs" />
     <Compile Include="Swagger.I0173.Tests.fs" />
     <Compile Include="Swagger.I0181.Tests.fs" />
