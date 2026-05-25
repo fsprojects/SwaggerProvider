@@ -1165,6 +1165,7 @@ let ``GET returning component $ref produces Task<T> with a non-primitive type ar
     // it should be the compiled Pet ProvidedType
     let returnArg = method.ReturnType.GetGenericArguments()[0]
     returnArg |> shouldNotEqual typeof<unit>
+    returnArg |> shouldNotEqual typeof<obj>
     returnArg |> shouldNotEqual typeof<string>
     returnArg.Name |> shouldEqual "Pet"
 
@@ -1180,6 +1181,7 @@ let ``GET returning component $ref: Pet type has the declared properties``() =
     let petType = types |> List.find(fun t -> t.Name = "Pet")
     let propNames = petType.GetProperties() |> Array.map(fun p -> p.Name)
     propNames |> shouldContain "Name"
+    propNames |> shouldContain "Age"
 
 // ── Response types: array of $ref to component schema ─────────────────────────
 // Verifies that when a response schema is an array of $ref items, the method's
@@ -1231,6 +1233,7 @@ let ``GET returning array-of-$ref: array element type is the component schema ty
     let types = compileTaskSchema arrayRefResponseSchema
     let method = (findMethod types "ListPets").Value
     let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg.IsArray |> shouldEqual true
     returnArg.GetElementType().Name |> shouldEqual "Pet"
 
 // ── Response types: POST returning created resource ───────────────────────────
@@ -1301,5 +1304,7 @@ let ``POST with 201 response: request body param type is the NewPet component sc
     let method = (findMethod types "CreatePet").Value
     let parameters = method.GetParameters()
     // body param is first, CancellationToken last
+    parameters.Length |> shouldEqual 2
+    parameters[1].ParameterType |> shouldEqual typeof<CancellationToken>
     let bodyParam = parameters[0]
     bodyParam.ParameterType.Name |> shouldEqual "NewPet"
