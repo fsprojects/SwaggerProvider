@@ -1,16 +1,15 @@
 {
-  "run": "2026-05-24",
-  "rid": "26371024771",
+  "run": "2026-05-25",
+  "rid": "26417466624",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
-    "449": "merged - test: integer enum, $ref-to-enum, v2 allOf collapse, v2 string enum (+9 tests, 459->468)",
-    "pending_task10_20260524": "PR pending - test: OperationCompiler response-type tests for component $ref and array responses (+8 tests, 465->473)",
-    "pending_task4_20260524": "PR pending - eng: bump Azure.Core 1.56->1.57, Azure.Monitor.OpenTelemetry.Exporter 1.8->1.8.1, Microsoft.Identity.Client 4.84->4.84.1, System.ClientModel 1.12->1.13"
+    "450": "open - test: OperationCompiler response-type tests for component $ref and array responses (+5 tests, 468→473)",
+    "pending_task5_task10_20260525": "PR pending - refactor+test: extract compileSingleRefOrNewObject helper; add text/plain body, octet-stream response, path-level param tests (+9 tests, 465→474)"
   },
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-24: Unit tests at 465 (master) / 473 (with pending test PR). Actual count differs from PR descriptions due to parameterized theory tests. Open issues: #33 (enhancement/help wanted), #358 (blocked), #411 (protected workflow file), #418 (monthly). All have RA comments. No new human activity on any issue. Dependabot PR #448 open (gh-aw-actions bump, workflow action)."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-25: Unit tests at 465 (master) / 474 (with new test PR). Open issues: #33 (enhancement/help wanted), #358 (blocked), #411 (protected workflow file), #418 (monthly). All have RA comments. No new human activity on any issue. Dependabot PR #448 merged by maintainer (paket update commit). PR #450 still open. New PR pending (task5+task10)."
 }
