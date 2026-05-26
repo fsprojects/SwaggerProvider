@@ -126,14 +126,20 @@ let runTestsWithRetries assembly args maxRetries =
             ()
         else
             let hasInvalidProgramException =
-                result.Messages
+                (result.Errors @ result.Messages)
                 |> Seq.exists(fun msg -> msg.Contains("InvalidProgramException"))
 
             if hasInvalidProgramException && attempt < maxRetries then
                 Trace.tracefn $"Retrying tests for {assembly} after InvalidProgramException (attempt {attempt + 1} of {maxRetries})"
                 loop(attempt + 1)
             else
-                failwithf "Failed: %A" result.Errors
+                let retryHint =
+                    if hasInvalidProgramException then
+                        $" after {attempt} attempt(s)"
+                    else
+                        ""
+
+                failwith $"Failed to run tests for {assembly}{retryHint}"
 
     loop 1
 
