@@ -96,17 +96,25 @@ let ``call provided methods``() =
                 else
                     exn.InnerException.Message
 
+            let hasResourceUnavailableMessage =
+                not(isNull msg) && msg.Contains("Resource temporarily unavailable")
+
             let isExternalConnectivityIssue =
                 match exn with
                 | :? HttpRequestException -> true
                 | :? AggregateException as aex ->
                     match aex.InnerException with
                     | :? HttpRequestException -> true
+                    | :? OpenApiException as oex ->
+                        hasResourceUnavailableMessage
+                        || (not(isNull oex.Description)
+                            && oex.Description.Contains("Resource temporarily unavailable"))
                     | _ -> false
-                | :? OpenApiException -> msg.Contains("Resource temporarily unavailable")
-                | _ ->
-                    not(isNull exn.InnerException)
-                    && exn.InnerException :? HttpRequestException
+                | :? OpenApiException as oex ->
+                    hasResourceUnavailableMessage
+                    || (not(isNull oex.Description)
+                        && oex.Description.Contains("Resource temporarily unavailable"))
+                | _ -> false
 
             if isExternalConnectivityIssue then
                 ()
