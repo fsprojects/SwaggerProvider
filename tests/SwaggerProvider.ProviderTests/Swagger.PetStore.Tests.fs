@@ -20,6 +20,7 @@ type PetStoreControllerPrefix = OpenApiClientProvider<Schema, IgnoreControllerPr
 let store = PetStore.Client()
 let storeTask = PetStoreTask.Client()
 let apiKey = "test-key"
+let resourceUnavailableText = "Resource temporarily unavailable"
 
 [<Fact>]
 let ``Test provided Host property``() =
@@ -97,7 +98,11 @@ let ``call provided methods``() =
                     exn.InnerException.Message
 
             let hasResourceUnavailableMessage =
-                not(isNull msg) && msg.Contains("Resource temporarily unavailable")
+                not(isNull msg) && msg.Contains(resourceUnavailableText)
+
+            let hasResourceUnavailableDescription(oex: OpenApiException) =
+                not(isNull oex.Description)
+                && oex.Description.Contains(resourceUnavailableText)
 
             let isExternalConnectivityIssue =
                 match exn with
@@ -105,20 +110,12 @@ let ``call provided methods``() =
                 | :? AggregateException as aex ->
                     match aex.InnerException with
                     | :? HttpRequestException -> true
-                    | :? OpenApiException as oex ->
-                        hasResourceUnavailableMessage
-                        || (not(isNull oex.Description)
-                            && oex.Description.Contains("Resource temporarily unavailable"))
+                    | :? OpenApiException as oex -> hasResourceUnavailableMessage || hasResourceUnavailableDescription oex
                     | _ -> false
-                | :? OpenApiException as oex ->
-                    hasResourceUnavailableMessage
-                    || (not(isNull oex.Description)
-                        && oex.Description.Contains("Resource temporarily unavailable"))
+                | :? OpenApiException as oex -> hasResourceUnavailableMessage || hasResourceUnavailableDescription oex
                 | _ -> false
 
-            if isExternalConnectivityIssue then
-                ()
-            else
+            if not isExternalConnectivityIssue then
                 failwith $"Adding pet failed with message: %s{msg}"
     }
 
