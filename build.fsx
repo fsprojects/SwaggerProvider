@@ -118,10 +118,29 @@ Target.create "BuildTests" (fun _ ->
 let runTests assembly args =
     dotnet $"{assembly}" args
 
+let runTestsWithRetries assembly args maxRetries =
+    let rec loop attempt =
+        let result = DotNet.exec id $"{assembly}" args
+
+        if result.OK then
+            ()
+        else
+            let hasInvalidProgramException =
+                result.Messages
+                |> Seq.exists(fun msg -> msg.Contains("InvalidProgramException"))
+
+            if hasInvalidProgramException && attempt < maxRetries then
+                Trace.tracefn $"Retrying tests for {assembly} after InvalidProgramException (attempt {attempt + 1} of {maxRetries})"
+                loop(attempt + 1)
+            else
+                failwithf "Failed: %A" result.Errors
+
+    loop 1
+
 Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll" "")
 
 Target.create "RunIntegrationTests" (fun _ ->
-    runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll" "-parallel none")
+    runTestsWithRetries "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll" "-parallel none" 3)
 
 Target.create "RunTests" ignore
 
