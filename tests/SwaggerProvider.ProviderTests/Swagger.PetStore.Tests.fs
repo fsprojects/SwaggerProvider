@@ -96,7 +96,19 @@ let ``call provided methods``() =
                 else
                     exn.InnerException.Message
 
-            if msg.Contains("Resource temporarily unavailable") then
+            let isExternalConnectivityIssue =
+                match exn with
+                | :? HttpRequestException -> true
+                | :? AggregateException as aex ->
+                    match aex.InnerException with
+                    | :? HttpRequestException -> true
+                    | _ -> false
+                | :? OpenApiException -> msg.Contains("Resource temporarily unavailable")
+                | _ ->
+                    not(isNull exn.InnerException)
+                    && exn.InnerException :? HttpRequestException
+
+            if isExternalConnectivityIssue then
                 ()
             else
                 failwith $"Adding pet failed with message: %s{msg}"
