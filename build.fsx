@@ -115,12 +115,13 @@ Target.create "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-let runTests assembly =
-    dotnet $"{assembly}" ""
+let runTests assembly args =
+    dotnet $"{assembly}" args
 
-Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll")
+Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll" "")
 
-Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll")
+Target.create "RunIntegrationTests" (fun _ ->
+    runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll" "-parallel none")
 
 Target.create "RunTests" ignore
 
