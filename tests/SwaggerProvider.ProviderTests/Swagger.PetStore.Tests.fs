@@ -98,7 +98,8 @@ let ``call provided methods``() =
                     exn.InnerException.Message
 
             let hasResourceUnavailableMessage =
-                not(isNull msg) && msg.Contains(resourceUnavailableText)
+                not(String.IsNullOrEmpty(msg))
+                && msg.Contains(resourceUnavailableText)
 
             let hasResourceUnavailableDescription(oex: OpenApiException) =
                 not(isNull oex.Description)
