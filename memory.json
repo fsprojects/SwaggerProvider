@@ -1,15 +1,16 @@
 {
-  "run": "2026-05-25",
-  "rid": "26417466624",
+  "run": "2026-05-26",
+  "rid": "26472051953",
   "monthly": "aw_may2026",
   "monthly_issue": 418,
   "prs": {
     "450": "open - test: OperationCompiler response-type tests for component $ref and array responses (+5 tests, 468→473)",
-    "pending_task5_task10_20260525": "PR pending - refactor+test: extract compileSingleRefOrNewObject helper; add text/plain body, octet-stream response, path-level param tests (+9 tests, 465→474)"
+    "452": "open (CI fixed this run) - refactor+test: extract compileSingleRefOrNewObject helper; add text/plain body, octet-stream response, path-level param tests (+9 tests, 465→474)",
+    "453": "open (created this run) - test: async IO.Stream and non-200 2xx response return-type tests (+3 tests, 465→468)"
   },
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-25: Unit tests at 465 (master) / 474 (with new test PR). Open issues: #33 (enhancement/help wanted), #358 (blocked), #411 (protected workflow file), #418 (monthly). All have RA comments. No new human activity on any issue. Dependabot PR #448 merged by maintainer (paket update commit). PR #450 still open. New PR pending (task5+task10)."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-26: Fixed CI failures in PR #452 (FieldGetUnchecked/FieldSetUnchecked revert). Created PR #453 with 3 new tests: async IO.Stream response, 201 2xx fallback Task<string>, 201 2xx fallback Async<string>. Open issues: #33, #358, #411, #418. All have RA comments. No new human activity."
 }
