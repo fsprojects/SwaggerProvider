@@ -1,6 +1,6 @@
 ---
 description: |
-  A friendly repository assistant that runs regularly (twice a day by default) to assist maintainers.
+  A friendly repository assistant that runs regularly (weekly by default) to assist maintainers.
   Can also be triggered on-demand via '/repo-assist <instructions>' to perform specific tasks.
   - Labels and triages open issues
   - Comments helpfully on open issues to unblock contributors and onboard newcomers
@@ -14,7 +14,7 @@ description: |
   Always polite, constructive, and mindful of the project's goals.
 
 on:
-  schedule: daily
+  schedule: weekly
   workflow_dispatch:
     inputs:
       command:
