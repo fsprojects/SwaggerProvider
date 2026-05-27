@@ -1268,3 +1268,86 @@ let ``path-level parameter is inherited by POST operation``() =
     let method = (findMethod types "CreateUserPost").Value
     let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
     paramNames |> shouldContain "userId"
+
+// ── asAsync=true: octet-stream response produces Async<IO.Stream> ─────────────
+
+let private octetStreamResponseAsyncSchema =
+    """openapi: "3.0.0"
+info:
+  title: OctetStreamResponseAsyncTest
+  version: "1.0.0"
+paths:
+  /download:
+    get:
+      operationId: downloadData
+      responses:
+        "200":
+          description: File data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``asAsync=true: octet-stream response produces Async<IO.Stream> return type``() =
+    let types = compileAsyncSchema octetStreamResponseAsyncSchema
+    let method = (findMethod types "DownloadData").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Async<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<IO.Stream>
+
+// ── Non-200 2xx response used as return type ───────────────────────────────────
+// The okResponse lookup in OperationCompiler falls back to any 2xx code when
+// there is no explicit "200" response defined. These tests exercise that path.
+
+let private created201ResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: Created201Test
+  version: "1.0.0"
+paths:
+  /items:
+    post:
+      operationId: createItem
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``201 response with JSON body resolves to Task<string> when no 200 defined``() =
+    let types = compileTaskSchema created201ResponseSchema
+    let method = (findMethod types "CreateItem").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``201 response in async mode resolves to Async<string> when no 200 defined``() =
+    let types = compileAsyncSchema created201ResponseSchema
+    let method = (findMethod types "CreateItem").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Async<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
