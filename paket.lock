@@ -49,8 +49,8 @@ NUGET
     System.ValueTuple (4.6.2) - restriction: >= net462
 GITHUB
   remote: fsprojects/FSharp.TypeProviders.SDK
-    src/ProvidedTypes.fs (ceeb6bceb234baa72d3b2a469e8b33cc764d88ab)
-    src/ProvidedTypes.fsi (ceeb6bceb234baa72d3b2a469e8b33cc764d88ab)
+    src/ProvidedTypes.fs (a54d92b72be3b3ce47461c742d0ded8d2e6998c4)
+    src/ProvidedTypes.fsi (a54d92b72be3b3ce47461c742d0ded8d2e6998c4)
   remote: fsprojects/FSharp.Data
     src/FSharp.Data.Runtime.Utilities/NameUtils.fs (de8b19e405242d81b099b325d2b2c6e4246a725c)
     src/FSharp.Data.Runtime.Utilities/Pluralizer.fs (de8b19e405242d81b099b325d2b2c6e4246a725c)
