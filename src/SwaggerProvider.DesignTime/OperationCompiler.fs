@@ -319,13 +319,28 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 | _ -> failwithf $"Function '%s{providedMethodName}' does not support functions as arguments.")
 
                         // Makes argument a string // TODO: Make body an exception
+                        // NOTE: use Expr.Let with a fresh Var each call — quotation literals share a
+                        // single Var object across invocations, causing "duplicate key" exceptions
+                        // when coerceString/coerceQueryString is called for multiple parameters.
                         let coerceString exp =
-                            let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                            <@ let x = (%obj) in RuntimeHelpers.toParam x @>
+                            let xVar = Var("x", typeof<obj>)
+                            let obj = Expr.Coerce(exp, typeof<obj>)
+                            Expr.Let(
+                                xVar,
+                                obj,
+                                <@@ RuntimeHelpers.toParam (%%Expr.Var xVar: obj) @@>
+                            )
+                            |> Expr.Cast<string>
 
                         let rec coerceQueryString name expr =
+                            let oVar = Var("o", typeof<obj>)
                             let obj = Expr.Coerce(expr, typeof<obj>)
-                            <@ let o = (%%obj: obj) in RuntimeHelpers.toQueryParams name o (%this) @>
+                            Expr.Let(
+                                oVar,
+                                obj,
+                                <@@ RuntimeHelpers.toQueryParams name (%%Expr.Var oVar: obj) (%this) @@>
+                            )
+                            |> Expr.Cast<(string * string) list>
 
                         // Partitions arguments based on their locations
                         let path, queryParams, headers =
