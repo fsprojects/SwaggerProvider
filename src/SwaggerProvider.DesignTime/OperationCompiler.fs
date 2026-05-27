@@ -325,21 +325,15 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         let coerceString exp =
                             let xVar = Var("x", typeof<obj>)
                             let obj = Expr.Coerce(exp, typeof<obj>)
-                            Expr.Let(
-                                xVar,
-                                obj,
-                                <@@ RuntimeHelpers.toParam (%%Expr.Var xVar: obj) @@>
-                            )
+
+                            Expr.Let(xVar, obj, <@@ RuntimeHelpers.toParam(%%Expr.Var xVar: obj) @@>)
                             |> Expr.Cast<string>
 
                         let rec coerceQueryString name expr =
                             let oVar = Var("o", typeof<obj>)
                             let obj = Expr.Coerce(expr, typeof<obj>)
-                            Expr.Let(
-                                oVar,
-                                obj,
-                                <@@ RuntimeHelpers.toQueryParams name (%%Expr.Var oVar: obj) (%this) @@>
-                            )
+
+                            Expr.Let(oVar, obj, <@@ RuntimeHelpers.toQueryParams name (%%Expr.Var oVar: obj) (%this) @@>)
                             |> Expr.Cast<(string * string) list>
 
                         // Partitions arguments based on their locations
