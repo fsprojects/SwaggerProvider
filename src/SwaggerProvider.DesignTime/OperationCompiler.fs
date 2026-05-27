@@ -365,7 +365,10 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                         |> Seq.map(fun (name, value) -> $"{name}={value}")
                                         |> String.concat ";"
 
-                                    ("Cookie", cookieHeader) :: (%headers)
+                                    if String.IsNullOrEmpty cookieHeader then
+                                        %headers
+                                    else
+                                        ("Cookie", cookieHeader) :: (%headers)
                                 @>
 
                             (path, queryParams, headers')
