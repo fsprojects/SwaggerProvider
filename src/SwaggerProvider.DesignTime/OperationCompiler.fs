@@ -7,6 +7,7 @@ open System.Text.Json
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
+open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.OpenApi
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
@@ -319,13 +320,29 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 | _ -> failwithf $"Function '%s{providedMethodName}' does not support functions as arguments.")
 
                         // Makes argument a string // TODO: Make body an exception
+                        // NOTE: avoid `let x = ...` in quotation literals — they share a single Var
+                        // object across all calls, causing "duplicate key" exceptions in ProvidedTypes
+                        // when the same helper is called for multiple parameters in one operation.
+                        // Instead, build the call expression directly without an intermediate binding.
+                        let toParamMethod =
+                            match <@@ RuntimeHelpers.toParam(null) @@> with
+                            | Call(None, m, _) -> m
+                            | _ -> failwith "Cannot extract toParam MethodInfo"
+
                         let coerceString exp =
-                            let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                            <@ let x = (%obj) in RuntimeHelpers.toParam x @>
+                            let obj = Expr.Coerce(exp, typeof<obj>)
+                            Expr.Call(toParamMethod, [ obj ]) |> Expr.Cast<string>
+
+                        let toQueryParamsMethod =
+                            match <@@ RuntimeHelpers.toQueryParams "" null (%this) @@> with
+                            | Call(None, m, _) -> m
+                            | _ -> failwith "Cannot extract toQueryParams MethodInfo"
 
                         let rec coerceQueryString name expr =
                             let obj = Expr.Coerce(expr, typeof<obj>)
-                            <@ let o = (%%obj: obj) in RuntimeHelpers.toQueryParams name o (%this) @>
+
+                            Expr.Call(toQueryParamsMethod, [ Expr.Value name; obj; this ])
+                            |> Expr.Cast<(string * string) list>
 
                         // Partitions arguments based on their locations
                         let path, queryParams, headers =

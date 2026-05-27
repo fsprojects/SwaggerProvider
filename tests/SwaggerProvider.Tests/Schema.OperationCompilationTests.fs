@@ -1113,6 +1113,162 @@ let ``ignoreOperationId=true does not generate the original operationId as metho
     methodNames |> shouldNotContain "ListAllPets"
     methodNames |> shouldNotContain "GetPetById"
 
+// ── text/plain request body ───────────────────────────────────────────────────
+
+let private textPlainBodySchema =
+    """openapi: "3.0.0"
+info:
+  title: TextPlainBodyTest
+  version: "1.0.0"
+paths:
+  /echo:
+    post:
+      operationId: echoText
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``text/plain request body generates a method``() =
+    let types = compileTaskSchema textPlainBodySchema
+    let method = findMethod types "EchoText"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``text/plain request body parameter is named textPlain``() =
+    let types = compileTaskSchema textPlainBodySchema
+    let method = (findMethod types "EchoText").Value
+    let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "textPlain"
+
+[<Fact>]
+let ``text/plain request body has CancellationToken as last parameter``() =
+    let types = compileTaskSchema textPlainBodySchema
+    let method = (findMethod types "EchoText").Value
+    let lastParam = method.GetParameters() |> Array.last
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── application/octet-stream response ────────────────────────────────────────
+
+let private octetStreamResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: OctetStreamResponseTest
+  version: "1.0.0"
+paths:
+  /file:
+    get:
+      operationId: downloadFile
+      responses:
+        "200":
+          description: File contents
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``octet-stream response generates a method``() =
+    let types = compileTaskSchema octetStreamResponseSchema
+    let method = findMethod types "DownloadFile"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``octet-stream response produces Task<IO.Stream> return type``() =
+    let types = compileTaskSchema octetStreamResponseSchema
+    let method = (findMethod types "DownloadFile").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<IO.Stream>
+
+[<Fact>]
+let ``octet-stream response has CancellationToken as its only parameter``() =
+    let types = compileTaskSchema octetStreamResponseSchema
+    let method = (findMethod types "DownloadFile").Value
+    let parameters = method.GetParameters()
+    parameters.Length |> shouldEqual 1
+    parameters[0].ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── Path-level parameters (inherited from PathItem) ───────────────────────────
+
+let private pathLevelParamSchema =
+    """openapi: "3.0.0"
+info:
+  title: PathLevelParamTest
+  version: "1.0.0"
+paths:
+  /users/{userId}/posts:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getUserPosts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    post:
+      operationId: createUserPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "201":
+          description: Created
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``path-level parameter is inherited by GET operation``() =
+    let types = compileTaskSchema pathLevelParamSchema
+    let method = (findMethod types "GetUserPosts").Value
+    let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "userId"
+
+[<Fact>]
+let ``path-level parameter is required with correct type``() =
+    let types = compileTaskSchema pathLevelParamSchema
+    let method = (findMethod types "GetUserPosts").Value
+    let userIdParam = method.GetParameters() |> Array.find(fun p -> p.Name = "userId")
+    userIdParam.ParameterType |> shouldEqual typeof<int32>
+    userIdParam.IsOptional |> shouldEqual false
+
+[<Fact>]
+let ``path-level parameter is inherited by POST operation``() =
+    let types = compileTaskSchema pathLevelParamSchema
+    let method = (findMethod types "CreateUserPost").Value
+    let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "userId"
+
 // ── asAsync=true: octet-stream response produces Async<IO.Stream> ─────────────
 
 let private octetStreamResponseAsyncSchema =
