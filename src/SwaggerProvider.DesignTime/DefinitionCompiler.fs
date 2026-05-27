@@ -220,11 +220,11 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                 ty,
                 getterCode =
                     (function
-                    | [ this ] -> Expr.FieldGetUnchecked(this, providedField)
+                    | [ this ] -> Expr.FieldGet(this, providedField)
                     | _ -> failwith "invalid property getter params"),
                 setterCode =
                     (function
-                    | [ this; v ] -> Expr.FieldSetUnchecked(this, providedField, v)
+                    | [ this; v ] -> Expr.FieldSet(this, providedField, v)
                     | _ -> failwith "invalid property setter params")
             )
 
