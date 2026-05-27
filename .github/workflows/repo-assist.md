@@ -84,7 +84,7 @@ safe-outputs:
     max: 4
   push-to-pull-request-branch:
     target: "*"
-    title-prefix: "[repo-assist] "
+    required-title-prefix: "[repo-assist] "
     max: 4
     protected-files: fallback-to-issue
   create-issue:
@@ -93,7 +93,7 @@ safe-outputs:
     max: 4
   update-issue:
     target: "*"
-    title-prefix: "[repo-assist] "
+    required-title-prefix: "[repo-assist] "
     max: 1
   add-labels:
     allowed: [bug, enhancement, "help wanted", "good first issue", "spam", "off topic", documentation, question, duplicate, wontfix, "needs triage", "needs investigation", "breaking change", performance, security, refactor]
@@ -198,7 +198,7 @@ steps:
           json.dump(result, f, indent=2)
       EOF
 
-source: githubnext/agentics/workflows/repo-assist.md@dcdf09723d42ef9b6c75335e4612fd145d4ccdaa
+source: githubnext/agentics/workflows/repo-assist.md@298f992955146a6731d380a9de808e17861708e5
 ---
 
 # Repo Assist
