@@ -3,10 +3,12 @@ namespace SwaggerProvider.Internal.Compilers
 open System
 open System.Collections.Generic
 open System.Net.Http
+open System.Reflection
 open System.Text.Json
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.ExprShape
+open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.OpenApi
 open ProviderImplementation.ProvidedTypes
 open FSharp.Data.Runtime.NameUtils
@@ -59,6 +61,44 @@ type PayloadType =
 
 /// Object for compiling operations.
 type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler, ignoreControllerPrefix, ignoreOperationId, asAsync: bool) =
+    let toParamMethod =
+        match <@@ RuntimeHelpers.toParam(null) @@> with
+        | Call(None, m, _) -> m
+        | _ -> failwith "Cannot extract toParam MethodInfo"
+
+    let toQueryParamsMethod =
+        match <@@ RuntimeHelpers.toQueryParams "" null Unchecked.defaultof<ProvidedApiClientBase> @@> with
+        | Call(None, m, _) -> m
+        | _ -> failwith "Cannot extract toQueryParams MethodInfo"
+
+    let resolveCastMethod(ownerType: Type) =
+        ownerType.GetMethods(BindingFlags.Public ||| BindingFlags.Static)
+        |> Array.tryFind(fun m ->
+            m.Name = "cast"
+            && m.IsGenericMethodDefinition
+            && m.GetGenericArguments().Length = 1
+            && m.GetParameters().Length = 1)
+        |> Option.defaultWith(fun () -> failwithf "Cannot extract %s.cast<'T> MethodInfo" ownerType.FullName)
+
+    let taskCastMethod = resolveCastMethod typeof<TaskExtensions>
+    let asyncCastMethod = resolveCastMethod typeof<AsyncExtensions>
+
+    let stringPairListExpr(items: (string * string) list) : Expr<(string * string) list> =
+        let empty = <@ [] @>
+
+        (empty, List.rev items)
+        ||> List.fold(fun acc (name, value) ->
+            let nameExpr = Expr.Value(name, typeof<string>) |> Expr.Cast<string>
+            let valueExpr = Expr.Value(value, typeof<string>) |> Expr.Cast<string>
+
+            <@ (%nameExpr, %valueExpr) :: %acc @>)
+
+    let typedListExpr(items: Expr<'T> list) : Expr<'T list> =
+        let empty = <@ [] @>
+
+        (empty, List.rev items)
+        ||> List.fold(fun acc item -> <@ %item :: %acc @>)
+
     let compileOperation (providedMethodName: string) (apiCall: ApiCall) =
         let path, pathItem, opTy = apiCall
         let operation = pathItem.Operations[opTy]
@@ -95,7 +135,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let (|NoMediaType|_|)(content: IDictionary<string, OpenApiMediaType>) =
             if isNull content || content.Count = 0 then Some() else None
 
-        let payloadTy, payloadMime, parameters, ctArgIndex =
+        let payloadTy, payloadMime, parameters, ctArgIndex, apiParamByProvidedName =
             /// handles de-duplicating Swagger parameter names if the same parameter name
             /// appears in multiple locations in a given operation definition.
             let uniqueParamName usedNames (param: IOpenApiParameter) =
@@ -155,8 +195,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 |> List.partition(_.Required)
 
             let buildProvidedParameters usedNames (paramList: IOpenApiParameter list) =
-                ((usedNames, []), paramList)
-                ||> List.fold(fun (names, parameters) current ->
+                ((usedNames, [], []), paramList)
+                ||> List.fold(fun (names, parameters, lookup) current ->
                     let names, paramName = uniqueParamName names current
 
                     let paramType =
@@ -169,14 +209,19 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             let paramDefaultValue = defCompiler.GetDefaultValue paramType
                             ProvidedParameter(paramName, paramType, false, paramDefaultValue)
 
-                    (names, providedParam :: parameters))
-                |> fun (finalNames, ps) -> finalNames, List.rev ps
+                    (names, providedParam :: parameters, (paramName, current) :: lookup))
+                |> fun (finalNames, ps, lookup) -> finalNames, List.rev ps, List.rev lookup
 
-            let namesAfterRequired, requiredProvidedParams =
+            let namesAfterRequired, requiredProvidedParams, requiredLookup =
                 buildProvidedParameters Set.empty requiredOpenApiParams
 
-            let _, optionalProvidedParams =
+            let _, optionalProvidedParams, optionalLookup =
                 buildProvidedParameters namesAfterRequired optionalOpenApiParams
+
+            let apiParamByProvidedName =
+                requiredLookup @ optionalLookup
+                |> List.choose(fun (paramName, param) -> if param.In.HasValue then Some(paramName, param) else None)
+                |> Map.ofList
 
             let ctArgIndex, parameters =
                 let scope = UniqueNameGenerator()
@@ -195,7 +240,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 ctArgIndex, requiredProvidedParams @ optionalProvidedParams @ [ ctParam ]
 
-            payloadTy, payloadTy.ToMediaType(), parameters, ctArgIndex
+            payloadTy, payloadTy.ToMediaType(), parameters, ctArgIndex, apiParamByProvidedName
 
         // find the inner type value
         let okResponse =
@@ -257,6 +302,12 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             |> Seq.toArray
             |> Array.unzip
 
+        let fixedHeaders =
+            [ if not(isNull payloadMime) then
+                  "Content-Type", payloadMime
+              if not(isNull retMime) then
+                  "Accept", retMime ]
+
         let m =
             ProvidedMethod(
                 providedMethodName,
@@ -270,13 +321,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                         let httpMethod = opTy.ToString()
 
-                        let headers =
-                            <@
-                                [ if not(isNull payloadMime) then
-                                      "Content-Type", payloadMime
-                                  if not(isNull retMime) then
-                                      "Accept", retMime ]
-                            @>
+                        let headers = stringPairListExpr fixedHeaders
 
                         // Locates parameters matching the arguments
                         let mutable payloadExp = None
@@ -297,14 +342,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                             apiArgs
                             |> List.choose (function
                                 | ShapeVar sVar as expr ->
-                                    let param =
-                                        openApiParameters
-                                        |> Seq.tryFind(fun x ->
-                                            // pain point: we have to make sure that the set of names we search for here are the same as the set of names generated when we make `parameters` above
-                                            let baseName = niceCamelName x.Name
-                                            baseName = sVar.Name || (unambiguousName x) = sVar.Name)
-
-                                    match param with
+                                    match apiParamByProvidedName |> Map.tryFind sVar.Name with
                                     | Some(par) -> Some(par, expr)
                                     | _ ->
                                         let payloadType = PayloadType.Parse sVar.Name
@@ -319,19 +357,25 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 | _ -> failwithf $"Function '%s{providedMethodName}' does not support functions as arguments.")
 
                         // Makes argument a string // TODO: Make body an exception
+                        // NOTE: avoid `let x = ...` in quotation literals — they share a single Var
+                        // object across all calls, causing "duplicate key" exceptions in ProvidedTypes
+                        // when the same helper is called for multiple parameters in one operation.
+                        // Instead, build the call expression directly without an intermediate binding.
                         let coerceString exp =
-                            let obj = Expr.Coerce(exp, typeof<obj>) |> Expr.Cast<obj>
-                            <@ let x = (%obj) in RuntimeHelpers.toParam x @>
+                            let obj = Expr.Coerce(exp, typeof<obj>)
+                            Expr.Call(toParamMethod, [ obj ]) |> Expr.Cast<string>
 
                         let rec coerceQueryString name expr =
                             let obj = Expr.Coerce(expr, typeof<obj>)
-                            <@ let o = (%%obj: obj) in RuntimeHelpers.toQueryParams name o (%this) @>
+
+                            Expr.Call(toQueryParamsMethod, [ Expr.Value name; obj; this ])
+                            |> Expr.Cast<(string * string) list>
 
                         // Partitions arguments based on their locations
-                        let path, queryParams, headers =
-                            let path, queryParams, headers, cookies =
-                                ((<@ path @>, <@ [] @>, headers, <@ [] @>), parameters)
-                                ||> List.fold(fun (path, query, headers, cookies) (param: IOpenApiParameter, valueExpr) ->
+                        let path, queryParamLists, headers, cookies =
+                            let path, queryParamLists, headers, cookies =
+                                ((<@ path @>, [], headers, <@ [] @>), parameters)
+                                ||> List.fold(fun (path, queryParamLists, headers, cookies) (param: IOpenApiParameter, valueExpr) ->
                                     if param.In.HasValue then
                                         let name = param.Name
 
@@ -340,41 +384,32 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                             let value = coerceString valueExpr
                                             let pattern = $"{{%s{name}}}"
                                             let path' = <@ (%path).Replace(pattern, %value) @>
-                                            (path', query, headers, cookies)
+                                            (path', queryParamLists, headers, cookies)
                                         | ParameterLocation.Query ->
                                             let listValues = coerceQueryString name valueExpr
-                                            let query' = <@ List.append %query %listValues @>
-                                            (path, query', headers, cookies)
+                                            (path, listValues :: queryParamLists, headers, cookies)
                                         | ParameterLocation.Header ->
                                             let value = coerceString valueExpr
                                             let headers' = <@ (name, %value) :: (%headers) @>
-                                            (path, query, headers', cookies)
+                                            (path, queryParamLists, headers', cookies)
                                         | ParameterLocation.Cookie ->
                                             let value = coerceString valueExpr
                                             let cookies' = <@ (name, %value) :: (%cookies) @>
-                                            (path, query, headers, cookies')
+                                            (path, queryParamLists, headers, cookies')
                                         | x -> failwithf $"Unsupported parameter location '%A{x}'"
                                     else
                                         failwithf "This should not happen, payload expression is already parsed")
 
-                            let headers' =
-                                <@
-                                    let cookieHeader =
-                                        %cookies
-                                        |> Seq.filter(snd >> isNull >> not)
-                                        |> Seq.map(fun (name, value) -> $"{name}={value}")
-                                        |> String.concat ";"
+                            path, List.rev queryParamLists, headers, cookies
 
-                                    ("Cookie", cookieHeader) :: (%headers)
-                                @>
-
-                            (path, queryParams, headers')
-
+                        let queryParamLists = typedListExpr queryParamLists
 
                         let httpRequestMessage =
                             <@
-                                let msg = RuntimeHelpers.createHttpRequest httpMethod %path %queryParams
-                                RuntimeHelpers.fillHeaders msg %headers
+                                let msg =
+                                    RuntimeHelpers.createHttpRequestFromQueryLists httpMethod %path %queryParamLists
+
+                                RuntimeHelpers.fillHeadersAndCookies msg %headers %cookies
                                 msg
                             @>
 
@@ -421,7 +456,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         let action =
                             <@ (%this).CallAsync(%httpRequestMessageWithPayload, errorCodes, errorDescriptions, %ct) @>
 
-                        let responseObj =
+                        let responseObj() =
                             let innerReturnType = defaultArg retTy null
 
                             <@
@@ -435,7 +470,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 }
                             @>
 
-                        let responseStream =
+                        let responseStream() =
                             <@
                                 let x = %action
                                 let ct = %ct
@@ -447,7 +482,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 }
                             @>
 
-                        let responseString =
+                        let responseString() =
                             <@
                                 let x = %action
                                 let ct = %ct
@@ -459,7 +494,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 }
                             @>
 
-                        let responseUnit =
+                        let responseUnit() =
                             <@
                                 let x = %action
 
@@ -469,27 +504,36 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                                 }
                             @>
 
-                        // if we're an async method, then we can just return the above, coerced to the overallReturnType.
-                        // if we're not async, then run that^ through Async.RunSynchronously before doing the coercion.
+                        // Build only the response quotation needed for this operation's return shape.
+                        // For typed JSON responses, emit direct generic cast calls so generated clients
+                        // do not pay MethodInfo.Invoke costs on every API call.
                         if not asAsync then
                             match retTy with
-                            | None -> responseUnit.Raw
-                            | Some t when t = typeof<IO.Stream> -> <@ %responseStream @>.Raw
+                            | None -> (responseUnit()).Raw
+                            | Some t when t = typeof<IO.Stream> -> <@ %(responseStream()) @>.Raw
                             | Some t ->
                                 match retMime with
-                                | TextReturn _ -> <@ %responseString @>.Raw
-                                | _ -> Expr.Coerce(<@ RuntimeHelpers.taskCast t %responseObj @>, overallReturnType)
+                                | TextReturn _ -> <@ %(responseString()) @>.Raw
+                                | _ ->
+                                    let castMethod = ProvidedTypeBuilder.MakeGenericMethod(taskCastMethod, [ t ])
+
+                                    Expr.Call(castMethod, [ responseObj() ])
+                                    |> fun e -> Expr.Coerce(e, overallReturnType)
                         else
                             let awaitTask t =
                                 <@ Async.AwaitTask(%t) @>
 
                             match retTy with
-                            | None -> (awaitTask responseUnit).Raw
-                            | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask responseStream) @>.Raw
+                            | None -> (awaitTask(responseUnit())).Raw
+                            | Some t when t = typeof<IO.Stream> -> <@ %(awaitTask(responseStream())) @>.Raw
                             | Some t ->
                                 match retMime with
-                                | TextReturn _ -> <@ %(awaitTask responseString) @>.Raw
-                                | _ -> Expr.Coerce(<@ RuntimeHelpers.asyncCast t %(awaitTask responseObj) @>, overallReturnType)
+                                | TextReturn _ -> <@ %(awaitTask(responseString())) @>.Raw
+                                | _ ->
+                                    let castMethod = ProvidedTypeBuilder.MakeGenericMethod(asyncCastMethod, [ t ])
+
+                                    Expr.Call(castMethod, [ awaitTask(responseObj()) ])
+                                    |> fun e -> Expr.Coerce(e, overallReturnType)
             )
 
         let xmlDoc =

@@ -8,6 +8,9 @@ open System
 open System.Reflection
 open System.Threading
 open System.Threading.Tasks
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.ExprShape
+open Microsoft.FSharp.Quotations.Patterns
 open Xunit
 open FsUnitTyped
 
@@ -23,6 +26,37 @@ let private findMethod (types: ProviderImplementation.ProvidedTypes.ProvidedType
     types
     |> List.collect(fun t -> t.GetMethods() |> Array.toList)
     |> List.tryFind(fun m -> m.Name = methodName)
+
+let private getInvokeCode(method: MethodInfo) =
+    let providedMethod = method :?> ProviderImplementation.ProvidedTypes.ProvidedMethod
+
+    let invokeCodeProp =
+        providedMethod.GetType().GetProperty("GetInvokeCode", BindingFlags.Instance ||| BindingFlags.NonPublic)
+
+    if isNull invokeCodeProp then
+        failwith "GetInvokeCode property not found on ProvidedMethod"
+
+    match invokeCodeProp.GetValue(providedMethod) :?> (Expr list -> Expr) option with
+    | Some invokeCode -> invokeCode
+    | None -> failwith $"Method '%s{method.Name}' has no invoke code"
+
+let private letBoundVars expr =
+    let rec loop expr =
+        match expr with
+        | Let(v, value, body) -> v :: (loop value @ loop body)
+        | ShapeVar _ -> []
+        | ShapeLambda(_, body) -> loop body
+        | ShapeCombination(_, args) -> args |> List.collect loop
+
+    loop expr
+
+let private containsDuplicateVarObject vars =
+    vars
+    |> List.mapi(fun i v ->
+        vars
+        |> List.skip(i + 1)
+        |> List.exists(fun other -> obj.ReferenceEquals(v, other)))
+    |> List.exists id
 
 // ── Simple GET with no parameters ─────────────────────────────────────────────
 
@@ -706,6 +740,73 @@ let ``multiple path params appear before CancellationToken``() =
 
     parameters.Length |> shouldEqual 3 // userId, postId, CancellationToken
 
+[<Fact>]
+let ``invokeCode for multiple path params does not reuse the same quotation Var binding``() =
+    let types = compileTaskSchema multiplePathParamsSchema
+    let method = (findMethod types "GetUserPost").Value
+    let invokeCode = getInvokeCode method
+
+    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
+    let userIdExpr = Expr.Var(Var("userId", typeof<int32>))
+    let postIdExpr = Expr.Var(Var("postId", typeof<int32>))
+    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
+
+    let body = invokeCode [ thisExpr; userIdExpr; postIdExpr; ctExpr ]
+
+    body
+    |> letBoundVars
+    |> containsDuplicateVarObject
+    |> shouldEqual false
+
+let private multipleQueryParamsSchema =
+    """openapi: "3.0.0"
+info:
+  title: MultipleQueryParamsTest
+  version: "1.0.0"
+paths:
+  /search:
+    get:
+      operationId: searchItems
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``invokeCode for multiple query params does not reuse the same quotation Var binding``() =
+    let types = compileTaskSchema multipleQueryParamsSchema
+    let method = (findMethod types "SearchItems").Value
+    let invokeCode = getInvokeCode method
+
+    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
+    let qExpr = Expr.Var(Var("q", typeof<string>))
+    let pageExpr = Expr.Var(Var("page", typeof<int32>))
+    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
+
+    let body = invokeCode [ thisExpr; qExpr; pageExpr; ctExpr ]
+
+    body
+    |> letBoundVars
+    |> containsDuplicateVarObject
+    |> shouldEqual false
+
 // ── PATCH operation ────────────────────────────────────────────────────────────
 
 let private patchSchema =
@@ -1308,3 +1409,242 @@ let ``POST with 201 response: request body param type is the NewPet component sc
     parameters[1].ParameterType |> shouldEqual typeof<CancellationToken>
     let bodyParam = parameters[0]
     bodyParam.ParameterType.Name |> shouldEqual "NewPet"
+
+// ── text/plain request body ───────────────────────────────────────────────────
+
+let private textPlainBodySchema =
+    """openapi: "3.0.0"
+info:
+  title: TextPlainBodyTest
+  version: "1.0.0"
+paths:
+  /echo:
+    post:
+      operationId: echoText
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``text/plain request body generates a method``() =
+    let types = compileTaskSchema textPlainBodySchema
+    let method = findMethod types "EchoText"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``text/plain request body parameter is named textPlain``() =
+    let types = compileTaskSchema textPlainBodySchema
+    let method = (findMethod types "EchoText").Value
+    let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "textPlain"
+
+[<Fact>]
+let ``text/plain request body has CancellationToken as last parameter``() =
+    let types = compileTaskSchema textPlainBodySchema
+    let method = (findMethod types "EchoText").Value
+    let lastParam = method.GetParameters() |> Array.last
+    lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── application/octet-stream response ────────────────────────────────────────
+
+let private octetStreamResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: OctetStreamResponseTest
+  version: "1.0.0"
+paths:
+  /file:
+    get:
+      operationId: downloadFile
+      responses:
+        "200":
+          description: File contents
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``octet-stream response generates a method``() =
+    let types = compileTaskSchema octetStreamResponseSchema
+    let method = findMethod types "DownloadFile"
+    method.IsSome |> shouldEqual true
+
+[<Fact>]
+let ``octet-stream response produces Task<IO.Stream> return type``() =
+    let types = compileTaskSchema octetStreamResponseSchema
+    let method = (findMethod types "DownloadFile").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<IO.Stream>
+
+[<Fact>]
+let ``octet-stream response has CancellationToken as its only parameter``() =
+    let types = compileTaskSchema octetStreamResponseSchema
+    let method = (findMethod types "DownloadFile").Value
+    let parameters = method.GetParameters()
+    parameters.Length |> shouldEqual 1
+    parameters[0].ParameterType |> shouldEqual typeof<CancellationToken>
+
+// ── Path-level parameters (inherited from PathItem) ───────────────────────────
+
+let private pathLevelParamSchema =
+    """openapi: "3.0.0"
+info:
+  title: PathLevelParamTest
+  version: "1.0.0"
+paths:
+  /users/{userId}/posts:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: getUserPosts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    post:
+      operationId: createUserPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "201":
+          description: Created
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``path-level parameter is inherited by GET operation``() =
+    let types = compileTaskSchema pathLevelParamSchema
+    let method = (findMethod types "GetUserPosts").Value
+    let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "userId"
+
+[<Fact>]
+let ``path-level parameter is required with correct type``() =
+    let types = compileTaskSchema pathLevelParamSchema
+    let method = (findMethod types "GetUserPosts").Value
+    let userIdParam = method.GetParameters() |> Array.find(fun p -> p.Name = "userId")
+    userIdParam.ParameterType |> shouldEqual typeof<int32>
+    userIdParam.IsOptional |> shouldEqual false
+
+[<Fact>]
+let ``path-level parameter is inherited by POST operation``() =
+    let types = compileTaskSchema pathLevelParamSchema
+    let method = (findMethod types "CreateUserPost").Value
+    let paramNames = method.GetParameters() |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "userId"
+
+// ── asAsync=true: octet-stream response produces Async<IO.Stream> ─────────────
+
+let private octetStreamResponseAsyncSchema =
+    """openapi: "3.0.0"
+info:
+  title: OctetStreamResponseAsyncTest
+  version: "1.0.0"
+paths:
+  /download:
+    get:
+      operationId: downloadData
+      responses:
+        "200":
+          description: File data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``asAsync=true: octet-stream response produces Async<IO.Stream> return type``() =
+    let types = compileAsyncSchema octetStreamResponseAsyncSchema
+    let method = (findMethod types "DownloadData").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Async<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<IO.Stream>
+
+// ── Non-200 2xx response used as return type ───────────────────────────────────
+// The okResponse lookup in OperationCompiler falls back to any 2xx code when
+// there is no explicit "200" response defined. These tests exercise that path.
+
+let private created201ResponseSchema =
+    """openapi: "3.0.0"
+info:
+  title: Created201Test
+  version: "1.0.0"
+paths:
+  /items:
+    post:
+      operationId: createItem
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``201 response with JSON body resolves to Task<string> when no 200 defined``() =
+    let types = compileTaskSchema created201ResponseSchema
+    let method = (findMethod types "CreateItem").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``201 response in async mode resolves to Async<string> when no 200 defined``() =
+    let types = compileAsyncSchema created201ResponseSchema
+    let method = (findMethod types "CreateItem").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Async<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>

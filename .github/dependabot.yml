@@ -1,14 +1,16 @@
-version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "enhancement"
-  - package-ecosystem: "nuget"
-    directory: "/.config"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "enhancement"
+- directory: /
+  ignore:
+  - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+  labels:
+  - enhancement
+  package-ecosystem: github-actions
+  schedule:
+    interval: weekly
+- directory: /.config
+  labels:
+  - enhancement
+  package-ecosystem: nuget
+  schedule:
+    interval: weekly
+version: 2
