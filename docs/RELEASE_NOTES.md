@@ -1,3 +1,23 @@
+#### 4.1.0 - May 28, 2026
+
+- fix: skip empty `Cookie` header when no cookie parameters are present (#454)
+- fix: revert TypeProviders SDK to avoid `InvalidProgramException` in generated property setters
+- fix: avoid duplicate quotation variables in generated parameter coercion expressions (#452)
+- fix: restore unchecked field access in generated property getters/setters (#452)
+- perf: reduce allocations and reflection in generated operation code (#455)
+- perf: avoid redundant `allOf` emptiness checks and `Array.IndexOf` in `CallAsync` (#445)
+- perf: avoid `obj[]` allocation in `getPropertyNamesAndInfos` (#444)
+- perf: add `float32`/`double`/`Guid` fast-paths in `toParam`; replace `String.Format` with interpolation (#443)
+- perf: replace `formatObject` array allocation and join with `StringBuilder` (#440)
+- refactor: extract `compileSingleRefOrNewObject` helper for single-`$ref` schema collapse (#452)
+- refactor: extract `tryResolveSingle` helper in `DefinitionCompiler` (#441)
+- refactor: replace remaining `sprintf` in `DefinitionCompiler` with string interpolation (#439)
+- eng: update dependencies and GitHub Actions workflows
+- eng: change repo-assist schedule from daily to weekly
+- test: add OperationCompiler response-type tests for component `$ref`, arrays, async streams, and non-200 2xx responses (+8 tests) (#450, #453)
+- test: add request/response/path-level parameter coverage for `text/plain`, octet-stream, and inherited path parameters (+9 tests) (#452)
+- test: expand enum, inheritance, composite schema, HTTP method, and runtime helper coverage (+51 tests) (#442, #444, #446, #447, #449)
+
 #### 4.0.0 - May 16, 2026
 
 - improve: surface schema description as XmlDoc on generated object and enum types (#419)
