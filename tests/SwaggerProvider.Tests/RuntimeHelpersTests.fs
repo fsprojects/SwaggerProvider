@@ -667,6 +667,103 @@ module FillHeadersTests =
         fillHeaders req [ ("Content-Type", "application/json") ]
 
 
+module CreateHttpRequestFromQueryListsTests =
+
+    [<Fact>]
+    let ``createHttpRequestFromQueryLists flattens multiple query lists``() =
+        use req =
+            createHttpRequestFromQueryLists "GET" "v1/items" [ [ ("a", "1"); ("b", "2") ]; [ ("c", "3") ] ]
+
+        req.RequestUri.OriginalString |> shouldEqual "v1/items?a=1&b=2&c=3"
+
+    [<Fact>]
+    let ``createHttpRequestFromQueryLists with all empty lists strips leading slash``() =
+        use req =
+            createHttpRequestFromQueryLists "GET" "/pets" ([]: (string * string) list list)
+
+        req.RequestUri.OriginalString |> shouldEqual "pets"
+
+    [<Fact>]
+    let ``createHttpRequestFromQueryLists with empty inner lists strips leading slash``() =
+        use req =
+            createHttpRequestFromQueryLists "GET" "/pets" [ ([]: (string * string) list); [] ]
+
+        req.RequestUri.OriginalString |> shouldEqual "pets"
+
+    [<Fact>]
+    let ``createHttpRequestFromQueryLists skips null-valued pairs``() =
+        use req =
+            createHttpRequestFromQueryLists "GET" "v1/items" [ [ ("a", "1"); ("b", null) ]; [ ("c", null); ("d", "4") ] ]
+
+        req.RequestUri.OriginalString |> shouldEqual "v1/items?a=1&d=4"
+
+    [<Fact>]
+    let ``createHttpRequestFromQueryLists with only null values produces no query string``() =
+        use req =
+            createHttpRequestFromQueryLists "GET" "/pets" [ [ ("a", null); ("b", null) ] ]
+
+        req.RequestUri.OriginalString |> shouldEqual "pets"
+
+    [<Fact>]
+    let ``createHttpRequestFromQueryLists preserves method``() =
+        use req =
+            createHttpRequestFromQueryLists "POST" "v1/items" ([]: (string * string) list list)
+
+        req.Method |> shouldEqual HttpMethod.Post
+
+
+module FillHeadersAndCookiesTests =
+
+    [<Fact>]
+    let ``fillHeadersAndCookies emits Cookie header with canonical '; ' separator``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+        fillHeadersAndCookies req [] [ ("a", "1"); ("b", "2"); ("c", "3") ]
+        let cookie = req.Headers.GetValues("Cookie") |> Seq.exactlyOne
+        cookie |> shouldEqual "a=1; b=2; c=3"
+
+    [<Fact>]
+    let ``fillHeadersAndCookies single cookie has no separator``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+        fillHeadersAndCookies req [] [ ("session", "abc") ]
+        let cookie = req.Headers.GetValues("Cookie") |> Seq.exactlyOne
+        cookie |> shouldEqual "session=abc"
+
+    [<Fact>]
+    let ``fillHeadersAndCookies skips null cookie values``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+        fillHeadersAndCookies req [] [ ("a", "1"); ("b", null); ("c", "3") ]
+        let cookie = req.Headers.GetValues("Cookie") |> Seq.exactlyOne
+        cookie |> shouldEqual "a=1; c=3"
+
+    [<Fact>]
+    let ``fillHeadersAndCookies omits Cookie header when all values are null``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+        fillHeadersAndCookies req [] [ ("a", null); ("b", null) ]
+        req.Headers.Contains("Cookie") |> shouldEqual false
+
+    [<Fact>]
+    let ``fillHeadersAndCookies omits Cookie header when cookie list is empty``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+        fillHeadersAndCookies req [ ("Accept", "application/json") ] []
+        req.Headers.Contains("Cookie") |> shouldEqual false
+
+    [<Fact>]
+    let ``fillHeadersAndCookies adds normal headers via fillHeaders``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+
+        fillHeadersAndCookies req [ ("Accept", "application/json"); ("X-Api-Key", "secret") ] [ ("session", "abc") ]
+
+        req.Headers.Contains("Accept") |> shouldEqual true
+        req.Headers.Contains("X-Api-Key") |> shouldEqual true
+        req.Headers.Contains("Cookie") |> shouldEqual true
+
+    [<Fact>]
+    let ``fillHeadersAndCookies skips null-value headers like fillHeaders``() =
+        use req = new HttpRequestMessage(HttpMethod.Get, "http://example.com/")
+        fillHeadersAndCookies req [ ("X-Missing", null) ] []
+        req.Headers.Contains("X-Missing") |> shouldEqual false
+
+
 module ToContentTests =
 
     [<Fact>]
