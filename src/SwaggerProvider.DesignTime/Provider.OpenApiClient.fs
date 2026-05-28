@@ -30,13 +30,14 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
     // check we contain a copy of runtime files, and are not referencing the runtime DLL
     do assert (typeof<ProvidedApiClientBase>.Assembly.GetName().Name = asm.GetName().Name)
 
-    let buildStringListExpr(items: string list) : Expr =
+    let stringListNilCase, stringListConsCase =
         let cases = FSharpType.GetUnionCases typeof<string list>
-        let nilCase = cases |> Array.find(fun c -> c.Name = "Empty")
-        let consCase = cases |> Array.find(fun c -> c.Name = "Cons")
-        let nil = Expr.NewUnionCase(nilCase, [])
+        cases |> Array.find(fun c -> c.Name = "Empty"), cases |> Array.find(fun c -> c.Name = "Cons")
 
-        List.foldBack (fun (s: string) acc -> Expr.NewUnionCase(consCase, [ Expr.Value(s, typeof<string>); acc ])) items nil
+    let buildStringListExpr(items: string list) : Expr =
+        let nil = Expr.NewUnionCase(stringListNilCase, [])
+
+        List.foldBack (fun (s: string) acc -> Expr.NewUnionCase(stringListConsCase, [ Expr.Value(s, typeof<string>); acc ])) items nil
 
     let myParamType =
         let t =

@@ -3,6 +3,7 @@ namespace Swagger.Internal
 open System
 open System.Net.Http
 open System.Net.Http.Headers
+open System.Text
 open System.Text.Json.Serialization
 open System.Threading.Tasks
 
@@ -577,6 +578,16 @@ module RuntimeHelpers =
         let method = resolveHttpMethod httpMethod
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
+    let createHttpRequestFromQueryLists (httpMethod: string) (address: string) (queryParamLists: seq<#seq<string * string>>) =
+        let queryParams = ResizeArray<string * string>()
+
+        for queryParamList in queryParamLists do
+            for name, value in queryParamList do
+                if not(isNull value) then
+                    queryParams.Add(name, value)
+
+        createHttpRequest httpMethod address queryParams
+
     let fillHeaders (msg: HttpRequestMessage) (headers: (string * string) seq) =
         headers
         |> Seq.filter(snd >> isNull >> not)
@@ -586,6 +597,25 @@ module RuntimeHelpers =
 
                 if (name <> "Content-Type") then
                     raise <| Exception(errMsg))
+
+    let fillHeadersAndCookies (msg: HttpRequestMessage) (headers: (string * string) seq) (cookies: (string * string) seq) =
+        fillHeaders msg headers
+
+        let cookieHeader = StringBuilder()
+
+        for name, value in cookies do
+            if not(isNull value) then
+                if cookieHeader.Length > 0 then
+                    cookieHeader.Append(';').Append(' ') |> ignore
+
+                cookieHeader.Append(name).Append('=').Append(value) |> ignore
+
+        if cookieHeader.Length > 0 then
+            let value = cookieHeader.ToString()
+
+            if not <| msg.Headers.TryAddWithoutValidation("Cookie", value) then
+                raise
+                <| Exception($"Cannot add header 'Cookie'='{value}' to HttpRequestMessage")
 
     /// Resolves a public static generic method definition with one type parameter and one
     /// value parameter by name from the given type. Raises a descriptive exception if the
@@ -633,6 +663,7 @@ module RuntimeHelpers =
 #else
         content.ReadAsStreamAsync()
 #endif
+
 
     let taskCast runtimeTy (task: Task<obj>) =
         let m =
