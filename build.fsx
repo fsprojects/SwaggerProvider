@@ -115,38 +115,12 @@ Target.create "BuildTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
-let runTests assembly args =
-    dotnet $"{assembly}" args
+let runTests assembly =
+    dotnet $"{assembly}" ""
 
-let runTestsWithRetries assembly args maxRetries =
-    let rec loop attempt =
-        let result = DotNet.exec id $"{assembly}" args
+Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll")
 
-        if result.OK then
-            ()
-        else
-            let hasInvalidProgramException =
-                (result.Errors @ result.Messages)
-                |> Seq.exists(fun msg -> msg.Contains("InvalidProgramException"))
-
-            if hasInvalidProgramException && attempt < maxRetries then
-                Trace.tracefn $"Retrying tests for {assembly} after InvalidProgramException (attempt {attempt + 1} of {maxRetries})"
-                loop(attempt + 1)
-            else
-                let retryHint =
-                    if hasInvalidProgramException then
-                        $" after {attempt} attempt(s)"
-                    else
-                        ""
-
-                failwith $"Failed to run tests for {assembly}{retryHint}"
-
-    loop 1
-
-Target.create "RunUnitTests" (fun _ -> runTests "tests/SwaggerProvider.Tests/bin/Release/net10.0/SwaggerProvider.Tests.dll" "")
-
-Target.create "RunIntegrationTests" (fun _ ->
-    runTestsWithRetries "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll" "-parallel none" 3)
+Target.create "RunIntegrationTests" (fun _ -> runTests "tests/SwaggerProvider.ProviderTests/bin/Release/net10.0/SwaggerProvider.ProviderTests.dll")
 
 Target.create "RunTests" ignore
 

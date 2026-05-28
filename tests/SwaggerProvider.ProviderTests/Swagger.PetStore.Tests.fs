@@ -8,7 +8,7 @@ open System
 open System.Net.Http
 
 [<Literal>]
-let Schema = "Schemas/petstore-v2.json"
+let Schema = "https://petstore.swagger.io/v2/swagger.json"
 
 type PetStore = OpenApiClientProvider<Schema, PreferAsync=true>
 type PetStoreTask = OpenApiClientProvider<Schema, PreferAsync=false>
@@ -20,7 +20,6 @@ type PetStoreControllerPrefix = OpenApiClientProvider<Schema, IgnoreControllerPr
 let store = PetStore.Client()
 let storeTask = PetStoreTask.Client()
 let apiKey = "test-key"
-let resourceUnavailableText = "Resource temporarily unavailable"
 
 [<Fact>]
 let ``Test provided Host property``() =
@@ -97,27 +96,7 @@ let ``call provided methods``() =
                 else
                     exn.InnerException.Message
 
-            let hasResourceUnavailableMessage =
-                not(String.IsNullOrEmpty(msg))
-                && msg.Contains(resourceUnavailableText)
-
-            let hasResourceUnavailableDescription(oex: OpenApiException) =
-                not(isNull oex.Description)
-                && oex.Description.Contains(resourceUnavailableText)
-
-            let isExternalConnectivityIssue =
-                match exn with
-                | :? HttpRequestException -> true
-                | :? AggregateException as aex ->
-                    match aex.InnerException with
-                    | :? HttpRequestException -> true
-                    | :? OpenApiException as oex -> hasResourceUnavailableMessage || hasResourceUnavailableDescription oex
-                    | _ -> false
-                | :? OpenApiException as oex -> hasResourceUnavailableMessage || hasResourceUnavailableDescription oex
-                | _ -> false
-
-            if not isExternalConnectivityIssue then
-                failwith $"Adding pet failed with message: %s{msg}"
+            failwith $"Adding pet failed with message: %s{msg}"
     }
 
 [<Fact>]
