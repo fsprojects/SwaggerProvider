@@ -8,6 +8,9 @@ open System
 open System.Reflection
 open System.Threading
 open System.Threading.Tasks
+open Microsoft.FSharp.Quotations
+open Microsoft.FSharp.Quotations.ExprShape
+open Microsoft.FSharp.Quotations.Patterns
 open Xunit
 open FsUnitTyped
 
@@ -23,6 +26,37 @@ let private findMethod (types: ProviderImplementation.ProvidedTypes.ProvidedType
     types
     |> List.collect(fun t -> t.GetMethods() |> Array.toList)
     |> List.tryFind(fun m -> m.Name = methodName)
+
+let private getInvokeCode(method: MethodInfo) =
+    let providedMethod = method :?> ProviderImplementation.ProvidedTypes.ProvidedMethod
+
+    let invokeCodeProp =
+        providedMethod.GetType().GetProperty("GetInvokeCode", BindingFlags.Instance ||| BindingFlags.NonPublic)
+
+    if isNull invokeCodeProp then
+        failwith "GetInvokeCode property not found on ProvidedMethod"
+
+    match invokeCodeProp.GetValue(providedMethod) :?> (Expr list -> Expr) option with
+    | Some invokeCode -> invokeCode
+    | None -> failwith $"Method '%s{method.Name}' has no invoke code"
+
+let private letBoundVars expr =
+    let rec loop expr =
+        match expr with
+        | Let(v, value, body) -> v :: (loop value @ loop body)
+        | ShapeVar _ -> []
+        | ShapeLambda(_, body) -> loop body
+        | ShapeCombination(_, args) -> args |> List.collect loop
+
+    loop expr
+
+let private containsDuplicateVarObject vars =
+    vars
+    |> List.mapi(fun i v ->
+        vars
+        |> List.skip(i + 1)
+        |> List.exists(fun other -> obj.ReferenceEquals(v, other)))
+    |> List.exists id
 
 // ── Simple GET with no parameters ─────────────────────────────────────────────
 
@@ -705,6 +739,73 @@ let ``multiple path params appear before CancellationToken``() =
     lastParam.ParameterType |> shouldEqual typeof<CancellationToken>
 
     parameters.Length |> shouldEqual 3 // userId, postId, CancellationToken
+
+[<Fact>]
+let ``invokeCode for multiple path params does not reuse the same quotation Var binding``() =
+    let types = compileTaskSchema multiplePathParamsSchema
+    let method = (findMethod types "GetUserPost").Value
+    let invokeCode = getInvokeCode method
+
+    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
+    let userIdExpr = Expr.Var(Var("userId", typeof<int32>))
+    let postIdExpr = Expr.Var(Var("postId", typeof<int32>))
+    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
+
+    let body = invokeCode [ thisExpr; userIdExpr; postIdExpr; ctExpr ]
+
+    body
+    |> letBoundVars
+    |> containsDuplicateVarObject
+    |> shouldEqual false
+
+let private multipleQueryParamsSchema =
+    """openapi: "3.0.0"
+info:
+  title: MultipleQueryParamsTest
+  version: "1.0.0"
+paths:
+  /search:
+    get:
+      operationId: searchItems
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``invokeCode for multiple query params does not reuse the same quotation Var binding``() =
+    let types = compileTaskSchema multipleQueryParamsSchema
+    let method = (findMethod types "SearchItems").Value
+    let invokeCode = getInvokeCode method
+
+    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
+    let qExpr = Expr.Var(Var("q", typeof<string>))
+    let pageExpr = Expr.Var(Var("page", typeof<int32>))
+    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
+
+    let body = invokeCode [ thisExpr; qExpr; pageExpr; ctExpr ]
+
+    body
+    |> letBoundVars
+    |> containsDuplicateVarObject
+    |> shouldEqual false
 
 // ── PATCH operation ────────────────────────────────────────────────────────────
 
