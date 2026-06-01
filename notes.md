@@ -1,47 +1,52 @@
 # SwaggerProvider Repo Assist Notes
 
-## Last Run: 2026-05-27 20:05 UTC (run 26535594763)
+## Last Run: 2026-06-01 20:45 UTC (run 26780901012)
 
-## Selected Tasks: 5, 1 (→Task 2 fallback), 6
+## Selected Tasks: 9, 4 (→Task 5 fallback), 8
 
-### Task 5: Coding Improvements
-- Fixed empty Cookie header bug in OperationCompiler.fs
-  - OperationCompiler always prepended ("Cookie", "") to headers even with no cookie params
-  - fillHeaders only filters null, not empty strings → spurious Cookie: header on every request
-  - Fix: only prepend Cookie header when cookieHeader is non-empty
-- Part of PR (pending): improve-cookie-header-20260527 (PR #454)
-- Tests: 465/465 pass
+### Task 9: Testing Improvements
+- Added 9 new tests (500→509):
+  - RuntimeHelpersTests: 4 tests for RFC 3986 percent-encoding in createHttpRequest
+    (spaces→%20, special chars in values/names)
+  - Schema.OperationCompilationTests: 2 tests - 200 wins over 201 when both defined
+  - Schema.V2SchemaCompilationTests: 4 tests - V2 operation return types:
+    listPets→Task<Pet[]>, getPet→Task<Pet>, getPet path param int64,
+    createPet→Task<IO.Stream> (documents Microsoft.OpenApi normalization behavior)
 
-### Task 1 → Fallback Task 2
-- All 4 open issues have RA comments, no new human activity
+### Task 4 → Task 5: Coding Improvement
+- toFormUrlEncodedContent: merged Seq.filter+choose into single Seq.choose pass
+  (avoids intermediate sequence allocation)
 
-### Task 6: Maintain Repo Assist PRs
-- PR #452: CI failures are pre-existing on master (ProvidedTypes.fs regression from ceeb6bc)
-  - Commented to explain
-- PR #453: CI failures are pre-existing on master
-  - Commented to explain
+### Task 8: Performance
+- createHttpRequest: replaced UriBuilder+ParseQueryString+NameValueCollection
+  with StringBuilder+Uri.EscapeDataString
+  - Reduces ~5 allocations per API call to 1
+  - Encoding: %20 for spaces (RFC 3986) instead of + (form-encoding)
+  - Removed System.Web dependency
 
-## Infrastructure Issue Found
-- `InvalidProgramException` at PetStoreNullable.Tag.set_Name in integration tests
-- Regression from paket update (commit e048624, May 25)
-- ProvidedTypes.fs bumped from a54d92b to ceeb6bc
-- Affects master and all open PRs
-- Added to monthly summary Suggested Actions
+### Task 11: Monthly Activity Summary
+- Closed May 2026 monthly issue #418
+- Created June 2026 monthly issue (PR pending push for exact number)
+
+## Infrastructure Notes
+- Issue #411: dead .paket CI cache step — requires manual PR (protected workflow files)
+- Issue #358: Microsoft.OpenApi 3.x migration — blocked/complex, revisit with .NET 11
+
+## Open Items
+- June monthly issue just created (number unknown until push)
+- PR pending: perf+test StringBuilder query builder (branch: repo-assist/test-perf-june-20260601)
 
 ## Comments Made
-- Issue #33: commented Apr 2026 (run 23963519508)
-- Issue #418: monthly issue (updated each run)
-- PR #452: CI comment (run 26535594763)
-- PR #453: CI comment (run 26535594763)
+- Issue #33: commented Apr 2026
+- Issue #418: monthly issue (now closed)
+- PRs #452,#453: CI comments (run 26535594763)
 
-## Open Items Requiring Attention
-- Issue #411: CI dead .paket cache step — requires manual PR (protected workflow files)
-- Issue #358: Microsoft.OpenApi 3.x migration — blocked/complex
-- Integration test regression: InvalidProgramException (ProvidedTypes.fs ceeb6bc)
-
-## Future Work
-- Issue #358: Microsoft.OpenApi 3.x migration — revisit when .NET 11 ships
-- More V3 schema tests: allOf with multiple $refs, nullable types, nested objects
+## Recent History
+- v4.1.0 released (tag 7de7d9a)
+- PR #455 by maintainer: reduce allocations in generated operation code
+- All May RA PRs (#450,#452,#453,#454) merged
+- schedule changed to weekly (commit 682c5c5)
 
 ## Backlog Cursor
 - All 4 open issues processed; no new unlabelled issues
+- Open issues: #33 (Feature Request), #358 (OpenApi 3.x), #411 (dead cache step)

@@ -1,16 +1,14 @@
 {
-  "run": "2026-05-26",
-  "rid": "26472051953",
-  "monthly": "aw_may2026",
-  "monthly_issue": 418,
+  "run": "2026-06-01",
+  "rid": "26780901012",
+  "monthly": "aw_jun2026",
+  "monthly_issue": null,
   "prs": {
-    "450": "open - test: OperationCompiler response-type tests for component $ref and array responses (+5 tests, 468→473)",
-    "452": "open (CI fixed this run) - refactor+test: extract compileSingleRefOrNewObject helper; add text/plain body, octet-stream response, path-level param tests (+9 tests, 465→474)",
-    "453": "open (created this run) - test: async IO.Stream and non-200 2xx response return-type tests (+3 tests, 465→468)"
+    "pending_jun01": "open (pending push) - perf+test: replace UriBuilder+ParseQueryString with StringBuilder; add 9 tests (500→509)"
   },
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-05-26: Fixed CI failures in PR #452 (FieldGetUnchecked/FieldSetUnchecked revert). Created PR #453 with 3 new tests: async IO.Stream response, 201 2xx fallback Task<string>, 201 2xx fallback Async<string>. Open issues: #33, #358, #411, #418. All have RA comments. No new human activity."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs (#450,#452,#453,#454) merged; v4.1.0 released. May monthly issue #418 closed. Created June monthly issue. Created PR: perf+test StringBuilder query builder + 9 tests (500→509). Open issues: #33, #358, #411 (CI cache step, workflow protected). No new human activity on any issue."
 }
