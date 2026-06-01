@@ -405,3 +405,62 @@ let ``v2 compiled object type ToString invokeCode does not throw for concrete pr
         let body = invokeCode [ thisExpr ]
         // Expr is a value type; just verifying invokeCode did not throw is sufficient
         body.Type |> shouldEqual typeof<string>
+
+// ── V2 operation return types ─────────────────────────────────────────────────
+
+/// Finds a method on any type in the compiled result list.
+let private findMethod (types: ProviderImplementation.ProvidedTypes.ProvidedTypeDefinition list) (name: string) =
+    types
+    |> List.collect(fun t -> t.GetMethods() |> Array.toList)
+    |> List.tryFind(fun m -> m.Name = name)
+
+[<Fact>]
+let ``v2 listPets generates a method with Task<Pet[]> return type``() =
+    let types = compileV2Schema minimalPetstoreV2
+    let method = (findMethod types "ListPets").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<System.Threading.Tasks.Task<_>>
+
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg.IsArray |> shouldEqual true
+    returnArg.GetElementType().Name |> shouldEqual "Pet"
+
+[<Fact>]
+let ``v2 getPet generates a method with Task<Pet> return type``() =
+    let types = compileV2Schema minimalPetstoreV2
+    let method = (findMethod types "GetPet").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<System.Threading.Tasks.Task<_>>
+
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg.Name |> shouldEqual "Pet"
+
+[<Fact>]
+let ``v2 getPet has an integer path parameter``() =
+    let types = compileV2Schema minimalPetstoreV2
+    let method = (findMethod types "GetPet").Value
+    let parameters = method.GetParameters()
+    // id path param (int64) + CancellationToken
+    parameters.Length |> shouldEqual 2
+    let idParam = parameters |> Array.find(fun p -> p.Name = "id")
+    idParam.ParameterType |> shouldEqual typeof<int64>
+    idParam.IsOptional |> shouldEqual false
+
+[<Fact>]
+let ``v2 createPet generates a method with Task<IO.Stream> return type``() =
+    // In Swagger 2.0, when the 201 response has no explicit schema and no 'produces' key,
+    // Microsoft.OpenApi normalises the response to application/octet-stream with a null
+    // schema, which the OperationCompiler maps to Task<IO.Stream>.
+    let types = compileV2Schema minimalPetstoreV2
+    let method = (findMethod types "CreatePet").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<System.Threading.Tasks.Task<_>>
+
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<System.IO.Stream>

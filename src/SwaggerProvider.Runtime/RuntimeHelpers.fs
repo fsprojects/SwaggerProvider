@@ -503,14 +503,16 @@ module RuntimeHelpers =
     let toFormUrlEncodedContent(keyValues: seq<string * obj>) =
         let keyValues =
             keyValues
-            |> Seq.filter(snd >> isNull >> not)
             |> Seq.choose(fun (k, v) ->
-                let param = toParam v
-
-                if isNull param then
+                if isNull v then
                     None
                 else
-                    Some(Collections.Generic.KeyValuePair(k, param)))
+                    let param = toParam v
+
+                    if isNull param then
+                        None
+                    else
+                        Some(Collections.Generic.KeyValuePair(k, param)))
 
         new FormUrlEncodedContent(keyValues)
 
@@ -556,24 +558,25 @@ module RuntimeHelpers =
 
     let createHttpRequest (httpMethod: string) (address: string) (queryParams: seq<string * string>) =
         let requestUrl =
-            // Fast path: avoid UriBuilder + ParseQueryString allocation when there are no query params.
-            // TrimStart('/') mirrors the UriBuilder path's PathAndQuery.TrimStart('/') normalisation,
-            // which strips the leading slash from schema paths such as "/pets" → "pets".  A leading-
-            // slash relative URI resolves from the host root and silently drops any base path, so
-            // normalisation must be applied on both branches.
-            if Seq.isEmpty queryParams then
-                address.TrimStart('/')
-            else
-                let fakeHost = "http://fake-host/"
-                let builder = UriBuilder(combineUrl fakeHost address)
-                let query = System.Web.HttpUtility.ParseQueryString(builder.Query)
+            // Build the request URL using a StringBuilder to avoid UriBuilder + ParseQueryString
+            // allocations (NameValueCollection, internal Hashtable, multiple string copies).
+            // TrimStart('/') strips the leading slash from schema paths such as "/pets" → "pets"
+            // so that the relative URI resolves from the HttpClient.BaseAddress path rather than
+            // the host root.
+            // Values are RFC 3986 percent-encoded via Uri.EscapeDataString (spaces → %20), which
+            // is accepted by all standards-compliant HTTP servers.
+            let sb = Text.StringBuilder(address.TrimStart('/'))
+            let mutable sep = '?'
 
-                for name, value in queryParams do
-                    if not <| isNull value then
-                        query.Add(name, value)
+            for name, value in queryParams do
+                if not(isNull value) then
+                    sb.Append(sep) |> ignore
+                    sb.Append(Uri.EscapeDataString(name)) |> ignore
+                    sb.Append('=') |> ignore
+                    sb.Append(Uri.EscapeDataString(value)) |> ignore
+                    sep <- '&'
 
-                builder.Query <- query.ToString()
-                builder.Uri.PathAndQuery.TrimStart('/')
+            sb.ToString()
 
         let method = resolveHttpMethod httpMethod
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))

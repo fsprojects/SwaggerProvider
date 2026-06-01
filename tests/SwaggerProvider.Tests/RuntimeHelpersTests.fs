@@ -643,6 +643,29 @@ module CreateHttpRequestTests =
         uri |> shouldContainText "page=1"
         uri |> shouldContainText "size=20"
 
+    [<Fact>]
+    let ``createHttpRequest percent-encodes spaces in query parameter values``() =
+        // The StringBuilder+Uri.EscapeDataString implementation encodes spaces as %20
+        // (RFC 3986 percent-encoding) rather than + (application/x-www-form-urlencoded).
+        use req = createHttpRequest "GET" "v1/search" [ ("q", "hello world") ]
+        let uri = req.RequestUri.ToString()
+        uri |> shouldContainText "q=hello%20world"
+        uri |> shouldNotContainText "q=hello+world"
+        uri |> shouldNotContainText "q=hello world"
+
+    [<Fact>]
+    let ``createHttpRequest percent-encodes special characters in query parameter values``() =
+        use req = createHttpRequest "GET" "v1/items" [ ("filter", "a=1&b=2") ]
+        let uri = req.RequestUri.ToString()
+        // & and = in values must be encoded so they are not confused with separators
+        uri |> shouldContainText "filter=a%3D1%26b%3D2"
+
+    [<Fact>]
+    let ``createHttpRequest percent-encodes special characters in parameter names``() =
+        use req = createHttpRequest "GET" "v1/items" [ ("my param", "value") ]
+        let uri = req.RequestUri.ToString()
+        uri |> shouldContainText "my%20param=value"
+
 
 module FillHeadersTests =
 
