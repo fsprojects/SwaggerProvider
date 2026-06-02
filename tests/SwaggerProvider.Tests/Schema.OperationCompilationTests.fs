@@ -1648,3 +1648,55 @@ let ``201 response in async mode resolves to Async<string> when no 200 defined``
 
     method.ReturnType.GetGenericArguments()[0]
     |> shouldEqual typeof<string>
+
+// ── 200 response takes priority over other 2xx when both are defined ─────────
+
+/// OpenAPI 3.0 schema where an operation defines both a 200 (string) and a 201
+/// (integer) response. The 200 response must win and determine the return type.
+let private twoHundredAndCreatedSchema =
+    """openapi: "3.0.0"
+info:
+  title: PriorityTest
+  version: "1.0.0"
+paths:
+  /items:
+    post:
+      operationId: createItem
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: integer
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``200 response takes priority over 201 when both are defined``() =
+    let types = compileTaskSchema twoHundredAndCreatedSchema
+    let method = (findMethod types "CreateItem").Value
+    method.ReturnType.IsGenericType |> shouldEqual true
+
+    method.ReturnType.GetGenericTypeDefinition()
+    |> shouldEqual typedefof<Task<_>>
+
+    // 200 (string) must win over 201 (integer)
+    method.ReturnType.GetGenericArguments()[0]
+    |> shouldEqual typeof<string>
+
+[<Fact>]
+let ``200 response schema is used not 201 when both are present``() =
+    // Verify that the 201 integer schema is not used when a 200 string schema is present.
+    let types = compileTaskSchema twoHundredAndCreatedSchema
+    let method = (findMethod types "CreateItem").Value
+    let returnArg = method.ReturnType.GetGenericArguments()[0]
+    returnArg |> shouldNotEqual typeof<int32>
+    returnArg |> shouldEqual typeof<string>
