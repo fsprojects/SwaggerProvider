@@ -565,18 +565,44 @@ module RuntimeHelpers =
             // the host root.
             // Values are RFC 3986 percent-encoded via Uri.EscapeDataString (spaces → %20), which
             // is accepted by all standards-compliant HTTP servers.
-            let sb = Text.StringBuilder(address.TrimStart('/'))
-            let mutable sep = '?'
+            let address = address.TrimStart('/')
+            let fragmentStart = address.IndexOf('#')
+
+            let baseAddress, fragment =
+                if fragmentStart >= 0 then
+                    address.Substring(0, fragmentStart), address.Substring(fragmentStart)
+                else
+                    address, null
+
+            let mutable sb = null
 
             for name, value in queryParams do
                 if not(isNull value) then
-                    sb.Append(sep) |> ignore
+                    if isNull sb then
+                        sb <- Text.StringBuilder(baseAddress)
+
+                        if baseAddress.Contains("?") then
+                            if sb.Length > 0 then
+                                let last = sb[sb.Length - 1]
+
+                                if last <> '?' && last <> '&' then
+                                    sb.Append('&') |> ignore
+                        else
+                            sb.Append('?') |> ignore
+                    else
+                        sb.Append('&') |> ignore
+
                     sb.Append(Uri.EscapeDataString(name)) |> ignore
                     sb.Append('=') |> ignore
                     sb.Append(Uri.EscapeDataString(value)) |> ignore
-                    sep <- '&'
 
-            sb.ToString()
+            if isNull sb then
+                address
+            else
+                if not(isNull fragment) then
+                    sb.Append(fragment) |> ignore
+
+                sb.ToString()
 
         let method = resolveHttpMethod httpMethod
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))

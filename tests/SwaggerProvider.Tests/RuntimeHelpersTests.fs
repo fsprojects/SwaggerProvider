@@ -666,6 +666,21 @@ module CreateHttpRequestTests =
         let uri = req.RequestUri.ToString()
         uri |> shouldContainText "my%20param=value"
 
+    [<Fact>]
+    let ``createHttpRequest appends query params to address with existing query``() =
+        use req =
+            createHttpRequest "GET" "v1/items?existing=1" [ ("page", "2"); ("size", "10") ]
+
+        req.RequestUri.OriginalString
+        |> shouldEqual "v1/items?existing=1&page=2&size=10"
+
+    [<Fact>]
+    let ``createHttpRequest inserts query params before fragment``() =
+        use req = createHttpRequest "GET" "v1/items?existing=1#section" [ ("page", "2") ]
+
+        req.RequestUri.OriginalString
+        |> shouldEqual "v1/items?existing=1&page=2#section"
+
 
 module FillHeadersTests =
 
