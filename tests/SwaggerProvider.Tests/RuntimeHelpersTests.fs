@@ -851,6 +851,18 @@ type private StubHttpMessageHandler(statusCode: HttpStatusCode, responseBody: st
         response.Content <- new StringContent(responseBody)
         Task.FromResult(response)
 
+/// A stub handler that returns a fixed status code with an explicitly empty ReasonPhrase,
+/// exercising the "HTTP {code}" fallback branch in CallAsync.
+type private EmptyReasonPhraseHandler(statusCode: HttpStatusCode) =
+    inherit HttpMessageHandler()
+
+    override _.SendAsync(_request: HttpRequestMessage, cancellationToken: CancellationToken) =
+        cancellationToken.ThrowIfCancellationRequested()
+        let response = new HttpResponseMessage(statusCode)
+        response.ReasonPhrase <- ""
+        response.Content <- new StringContent("")
+        Task.FromResult(response)
+
 
 module OpenApiExceptionTests =
 
@@ -1002,7 +1014,25 @@ module OpenApiExceptionTests =
             ()
         }
 
-/// Test types for formatObject tests — must be plain .NET classes with declared public properties.
+    [<Fact>]
+    let ``CallAsync uses HTTP status code in description when reason phrase is empty``() =
+        task {
+            // EmptyReasonPhraseHandler sets ReasonPhrase = "" so CallAsync falls back to "HTTP {code}".
+            use handler = new EmptyReasonPhraseHandler(HttpStatusCode.ServiceUnavailable)
+            let client = makeClient handler
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/test")
+
+            let! ex =
+                Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [||], [||], CancellationToken.None)
+                        ()
+                    })
+
+            ex.StatusCode |> shouldEqual 503
+            ex.Message |> shouldEqual "HTTP 503"
+        }
+
 type FmtSingle(name: string) =
     member _.Name = name
 
@@ -1264,7 +1294,20 @@ module ToMultipartFormDataContentTests =
         }
 
     [<Fact>]
-    let ``toMultipartFormDataContent skips values when toParam returns null``() =
+    let ``toMultipartFormDataContent adds each stream in a Stream array as a separate part``() =
+        use stream1 = new MemoryStream([| 1uy; 2uy |])
+        use stream2 = new MemoryStream([| 3uy; 4uy |])
+        let streams: IO.Stream[] = [| stream1; stream2 |]
+        use content = toMultipartFormDataContent(seq { ("files", box streams) })
+        let parts = content |> Seq.toArray
+        // Each stream in the array becomes a separate multipart part
+        parts.Length |> shouldEqual 2
+
+        parts
+        |> Array.forall(fun p -> p.Headers.ContentDisposition.Name.Trim('"') = "files")
+        |> shouldEqual true
+
+
         task {
             let nestedNone = box(Some(None: string option))
 
