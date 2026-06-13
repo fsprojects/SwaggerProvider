@@ -1,14 +1,14 @@
 {
-  "run": "2026-06-01",
-  "rid": "26780901012",
+  "run": "2026-06-13",
+  "rid": "27455064705",
   "monthly": "aw_jun2026",
-  "monthly_issue": null,
+  "monthly_issue": 458,
   "prs": {
-    "pending_jun01": "open (pending push) - perf+test: replace UriBuilder+ParseQueryString with StringBuilder; add 9 tests (500→509)"
+    "pending_jun13": "open (pending push) - refactor: deduplicate CallAsync error branch; add stream-array and HTTP-fallback tests (511→512)"
   },
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs (#450,#452,#453,#454) merged; v4.1.0 released. May monthly issue #418 closed. Created June monthly issue. Created PR: perf+test StringBuilder query builder + 9 tests (500→509). Open issues: #33, #358, #411 (CI cache step, workflow protected). No new human activity on any issue."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs (#450,#452,#453,#454) merged; v4.1.0 released. May monthly issue #418 closed. Created June monthly issue. PR #457 (perf+test StringBuilder query builder + 9 tests) merged. 2026-06-13: Created PR (branch repo-assist/improve-callasyncs-dedup-tests-2025-06): refactor CallAsync dedup + 2 new tests (IO.Stream[] multipart, EmptyReasonPhraseHandler). 512 tests passing. Open issues: #33, #358, #411 (CI cache step, workflow protected), #459 (workflow failure self-created). No new human activity on any issue. Task 2 and Task 3 had no actionable work."
 }
