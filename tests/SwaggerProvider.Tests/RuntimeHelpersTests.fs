@@ -509,6 +509,53 @@ module ToQueryParamsTests =
         let result = toQueryParams "times" (box values) stubClient
         result |> shouldEqual [ ("times", "08:00:00") ]
 
+    [<Fact>]
+    let ``toQueryParams handles single integer enum value``() =
+        // Single CLI enum values fall through to toParam, which uses buildEnumSerializer
+        // (cached) to produce the underlying integer as a string.
+        let result =
+            toQueryParams "status" (box EnumToParamTests.IntStatus.Running) stubClient
+
+        result |> shouldEqual [ ("status", "2") ]
+
+    [<Fact>]
+    let ``toQueryParams handles single string enum value``() =
+        // String enums (annotated with JsonStringEnumConverter) are serialised to their
+        // OpenAPI wire value via the cached buildEnumSerializer.
+        let result =
+            toQueryParams "status" (box EnumToParamTests.StringStatus.Active) stubClient
+
+        result |> shouldEqual [ ("status", "active") ]
+
+    [<Fact>]
+    let ``toQueryParams handles string enum value with special-character wire name``() =
+        let result =
+            toQueryParams "status" (box EnumToParamTests.StringStatus.InProgress) stubClient
+
+        result |> shouldEqual [ ("status", "in-progress") ]
+
+    [<Fact>]
+    let ``toQueryParams handles integer enum array``() =
+        // Arrays of CLI enum types go through the generic Array branch (t.IsEnum check),
+        // which calls toParam on each element to produce the underlying integer string.
+        let values: EnumToParamTests.IntStatus[] =
+            [| EnumToParamTests.IntStatus.Pending; EnumToParamTests.IntStatus.Done |]
+
+        let result = toQueryParams "status" (box values) stubClient
+        result |> shouldEqual [ ("status", "1"); ("status", "3") ]
+
+    [<Fact>]
+    let ``toQueryParams handles string enum array``() =
+        // Each element is serialised to its OpenAPI wire value.
+        let values: EnumToParamTests.StringStatus[] =
+            [| EnumToParamTests.StringStatus.Active
+               EnumToParamTests.StringStatus.InProgress |]
+
+        let result = toQueryParams "status" (box values) stubClient
+
+        result
+        |> shouldEqual [ ("status", "active"); ("status", "in-progress") ]
+
 
 module CombineUrlTests =
 
