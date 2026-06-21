@@ -536,8 +536,8 @@ module ToQueryParamsTests =
 
     [<Fact>]
     let ``toQueryParams handles integer enum array``() =
-        // Arrays of CLI enum types go through the generic Array branch (t.IsEnum check),
-        // which calls toParam on each element to produce the underlying integer string.
+        // Arrays of CLI enum types are handled by the dedicated enum-array branch in toQueryParams,
+        // which serialises each element via the cached buildEnumSerializer.
         let values: EnumToParamTests.IntStatus[] =
             [| EnumToParamTests.IntStatus.Pending; EnumToParamTests.IntStatus.Done |]
 
