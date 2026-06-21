@@ -266,6 +266,19 @@ module RuntimeHelpers =
                 match x with
                 | Some xs -> [ name, (client.Serialize xs).Trim('\"') ]
                 | None -> []
+            // Handle enum arrays before the concrete int32/int64/bool array arms.
+            // CLR array variance lets any int32-backed enum[] match "| :? array<int32>", which
+            // would lose the wire-name information for string enums.  We intercept enum arrays
+            // first and serialise each element via the cached buildEnumSerializer.
+            | :? Array as xs when (let et = xs.GetType().GetElementType() in not(isNull et) && et.IsEnum) ->
+                let elTy = xs.GetType().GetElementType()
+                let serializer = enumSerializerCache.GetOrAdd(elTy, enumSerializerFactory)
+
+                [ for i in 0 .. xs.Length - 1 do
+                      let param = serializer(xs.GetValue(i))
+
+                      if not(isNull param) then
+                          yield name, param ]
             | :? array<bool> as xs -> xs |> toStrArray name
             | :? array<int32> as xs -> xs |> toStrArray name
             | :? array<int64> as xs -> xs |> toStrArray name
@@ -287,7 +300,7 @@ module RuntimeHelpers =
             | :? Array as xs when
                 xs.GetType().GetElementType()
                 |> Option.ofObj
-                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t || t.IsEnum)
+                |> Option.exists(fun t -> isDateOnlyLikeType t || isTimeOnlyLikeType t)
                 ->
                 xs
                 |> Seq.cast<obj>
@@ -608,14 +621,9 @@ module RuntimeHelpers =
         new HttpRequestMessage(method, Uri(requestUrl, UriKind.Relative))
 
     let createHttpRequestFromQueryLists (httpMethod: string) (address: string) (queryParamLists: seq<#seq<string * string>>) =
-        let queryParams = ResizeArray<string * string>()
-
-        for queryParamList in queryParamLists do
-            for name, value in queryParamList do
-                if not(isNull value) then
-                    queryParams.Add(name, value)
-
-        createHttpRequest httpMethod address queryParams
+        // Seq.concat lazily flattens the nested sequences without allocating an intermediate ResizeArray.
+        // createHttpRequest already filters out null values in its own loop.
+        createHttpRequest httpMethod address (Seq.concat queryParamLists)
 
     let fillHeaders (msg: HttpRequestMessage) (headers: (string * string) seq) =
         headers
