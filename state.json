@@ -1,18 +1,11 @@
 {
-  "last_run": "2026-06-20T03:30:00Z",
-  "last_run_id": "27858647772",
+  "last_run": "2026-06-27T03:22:00Z",
+  "last_run_id": "28277055221",
   "monthly_activity_issue": 458,
   "issue_backlog_cursor": 33,
   "comments_made": {
     "33": "2026-04-03T22:21:07Z"
   },
-  "fix_attempts": [
-    {
-      "issue": "string enum array bug in toQueryParams",
-      "pr_branch": "repo-assist/perf-test-enum-queryparams-20260620",
-      "status": "open",
-      "run_id": "27858647772"
-    }
-  ],
-  "notes": "All open issues (#33, #358, #411) have RA comments. Issue #358 blocked. Issue #411 needs manual PR by maintainer. PR #460 (CallAsync dedup) merged June 13. Unit tests at 517 (added 5 enum query-param tests June 20). CLR enum-array variance bug fixed in toQueryParams. Open Dependabot PR #461 (actions/checkout v6->v7) cannot be merged by repo-assist (workflows permission). Monthly issue #458 for June 2026."
+  "fix_attempts": [],
+  "notes": "All open issues (#33, #358, #411) have RA comments. No new human activity. PR #462 (string enum array fix) merged June 20. PR #463 (Dependabot actions/cache 5→6) opened June 27 - needs maintainer review. Created PR (branch repo-assist/test-query-param-gaps-20260627) adding 5 tests (517→522): Option<byte[]> Some/None in toQueryParams, plain Guid in toQueryParams, createHttpRequest with leading-slash+fragment. Issue #411 still needs manual workflow PR by maintainer. Issue #459 (workflow failure) auto-expired June 13."
 }

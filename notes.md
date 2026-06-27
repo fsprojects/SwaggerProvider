@@ -1,52 +1,51 @@
 # SwaggerProvider Repo Assist Notes
 
-## Last Run: 2026-06-01 20:45 UTC (run 26780901012)
+## Last Run: 2026-06-27 03:22 UTC (run 28277055221)
 
-## Selected Tasks: 9, 4 (→Task 5 fallback), 8
+## Selected Tasks: 4, 9, 2
 
 ### Task 9: Testing Improvements
-- Added 9 new tests (500→509):
-  - RuntimeHelpersTests: 4 tests for RFC 3986 percent-encoding in createHttpRequest
-    (spaces→%20, special chars in values/names)
-  - Schema.OperationCompilationTests: 2 tests - 200 wins over 201 when both defined
-  - Schema.V2SchemaCompilationTests: 4 tests - V2 operation return types:
-    listPets→Task<Pet[]>, getPet→Task<Pet>, getPet path param int64,
-    createPet→Task<IO.Stream> (documents Microsoft.OpenApi normalization behavior)
+- Added 5 new tests (517→522) to RuntimeHelpersTests.fs:
+  - ToQueryParamsTests: Option<byte[]> Some as base64, Option<byte[]> None → []
+  - ToQueryParamsTests: plain Guid (non-option, non-array) falls through to toParam
+  - CreateHttpRequestTests: leading slash + fragment with no params → "path#section"
+  - CreateHttpRequestTests: leading slash + fragment + params → "path?q=v#section"
+- All 522 tests pass, Fantomas formatting check passes
+- PR branch: repo-assist/test-query-param-gaps-20260627
 
-### Task 4 → Task 5: Coding Improvement
-- toFormUrlEncodedContent: merged Seq.filter+choose into single Seq.choose pass
-  (avoids intermediate sequence allocation)
+### Task 4: Engineering Investments
+- Only open engineering item: Dependabot PR #463 (actions/cache 5→6) — modifies workflow files, cannot push
+- No other non-workflow engineering improvements identified
+- Noted PR #463 in monthly issue suggested actions
 
-### Task 8: Performance
-- createHttpRequest: replaced UriBuilder+ParseQueryString+NameValueCollection
-  with StringBuilder+Uri.EscapeDataString
-  - Reduces ~5 allocations per API call to 1
-  - Encoding: %20 for spaces (RFC 3986) instead of + (form-encoding)
-  - Removed System.Web dependency
+### Task 2: Issue Investigation and Comment
+- All open issues (#33, #358, #411) have RA comments, no new human activity since June 20
+- Task 1 fallback: all issues already labelled
+- No actionable comment work this run
 
 ### Task 11: Monthly Activity Summary
-- Closed May 2026 monthly issue #418
-- Created June 2026 monthly issue (PR pending push for exact number)
+- Updated issue #458 (June 2026 monthly)
+- Fixed #aw_pr_enumfix → #462 (merged) in run history
+- Added current run entry and new suggested actions
 
 ## Infrastructure Notes
 - Issue #411: dead .paket CI cache step — requires manual PR (protected workflow files)
-- Issue #358: Microsoft.OpenApi 3.x migration — blocked/complex, revisit with .NET 11
+- Issue #358: Microsoft.OpenApi 3.x migration — blocked, revisit with .NET 11
+- PR #463: Dependabot actions/cache 5→6 — awaiting maintainer review
 
-## Open Items
-- June monthly issue just created (number unknown until push)
-- PR pending: perf+test StringBuilder query builder (branch: repo-assist/test-perf-june-20260601)
+## Open PRs (Repo Assist)
+- PR (branch repo-assist/test-query-param-gaps-20260627): 5 new tests for query param + URL coverage gaps
 
 ## Comments Made
-- Issue #33: commented Apr 2026
-- Issue #418: monthly issue (now closed)
-- PRs #452,#453: CI comments (run 26535594763)
+- Issue #33: Apr 2026
+- Issue #358: Apr 2026
+- Issue #411: (created by repo-assist, no comment needed)
 
 ## Recent History
-- v4.1.0 released (tag 7de7d9a)
-- PR #455 by maintainer: reduce allocations in generated operation code
-- All May RA PRs (#450,#452,#453,#454) merged
-- schedule changed to weekly (commit 682c5c5)
+- v4.1.0 released
+- PR #460 (CallAsync dedup), #462 (enum query-param fix), all merged June 2026
+- PR #461 (actions/checkout 6→7) merged June 2026
+- PR #463 (actions/cache 5→6) opened June 27
 
 ## Backlog Cursor
-- All 4 open issues processed; no new unlabelled issues
-- Open issues: #33 (Feature Request), #358 (OpenApi 3.x), #411 (dead cache step)
+- issue_backlog_cursor: 33 (all issues processed)
