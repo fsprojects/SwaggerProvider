@@ -372,6 +372,26 @@ module ToQueryParamsTests =
         result |> shouldEqual [ ("data", expected) ]
 
     [<Fact>]
+    let ``toQueryParams handles Option<byte array> Some as base64``() =
+        // Option<byte[]> Some is handled by the dedicated arm (lines 265-268 of RuntimeHelpers.fs)
+        let bytes = [| 72uy; 101uy; 108uy; 108uy; 111uy |] // "Hello" in ASCII
+        let expected = (JsonSerializer.Serialize bytes).Trim('"')
+        let result = toQueryParams "data" (box(Some bytes)) stubClient
+        result |> shouldEqual [ ("data", expected) ]
+
+    [<Fact>]
+    let ``toQueryParams handles Option<byte array> None as empty list``() =
+        let result = toQueryParams "data" (box(None: byte[] option)) stubClient
+        result |> shouldEqual []
+
+    [<Fact>]
+    let ``toQueryParams handles plain Guid``() =
+        // Plain Guid (non-option, non-array) falls through to toParam which uses Guid.ToString()
+        let g = Guid("d3b07384-d9a2-4e3f-9a4b-1234567890ab")
+        let result = toQueryParams "id" (box g) stubClient
+        result |> shouldEqual [ ("id", g.ToString()) ]
+
+    [<Fact>]
     let ``toQueryParams skips None items in Option<string> array``() =
         let values: Option<string>[] = [| Some "a"; None; Some "c" |]
         let result = toQueryParams "q" (box values) stubClient
@@ -727,6 +747,18 @@ module CreateHttpRequestTests =
 
         req.RequestUri.OriginalString
         |> shouldEqual "v1/items?existing=1&page=2#section"
+
+    [<Fact>]
+    let ``createHttpRequest strips leading slash from path with fragment and no query params``() =
+        // The fragment must be preserved when TrimStart('/') strips the leading slash and no
+        // params are added (sb remains null, so the original trimmed address is returned).
+        use req = createHttpRequest "GET" "/path#section" []
+        req.RequestUri.OriginalString |> shouldEqual "path#section"
+
+    [<Fact>]
+    let ``createHttpRequest strips leading slash and appends params before fragment``() =
+        use req = createHttpRequest "GET" "/path#section" [ ("q", "v") ]
+        req.RequestUri.OriginalString |> shouldEqual "path?q=v#section"
 
 
 module FillHeadersTests =
