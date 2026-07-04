@@ -222,6 +222,12 @@ module RuntimeHelpers =
         | :? float32 as f -> f.ToString()
         | :? double as d -> d.ToString()
         | :? Guid as g -> g.ToString()
+        // Byte arrays are encoded as base64 — the OpenAPI "byte" format (RFC 4648).
+        // Without this arm, byte[] falls through to obj.ToString() → "System.Byte[]",
+        // which is incorrect for path, header, cookie, and form-urlencoded parameters.
+        // Note: toQueryParams has its own byte[]/Option<byte[]> arms that use
+        // client.Serialize; this arm aligns with that behaviour for all other contexts.
+        | :? array<byte> as xs -> Convert.ToBase64String xs
         | _ ->
             // Hoist GetType() once; previously tryFormatDateOnly and tryFormatTimeOnly
             // each called GetType() internally, resulting in up to 3 GetType() calls for
