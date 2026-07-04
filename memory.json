@@ -1,14 +1,15 @@
 {
-  "run": "2026-06-13",
-  "rid": "27455064705",
-  "monthly": "aw_jun2026",
-  "monthly_issue": 458,
-  "prs": {
-    "pending_jun13": "open (pending push) - refactor: deduplicate CallAsync error branch; add stream-array and HTTP-fallback tests (511→512)"
-  },
+  "run": "2026-07-04",
+  "rid": "28693194879",
+  "monthly": "aw_july2026",
+  "monthly_issue": null,
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs (#450,#452,#453,#454) merged; v4.1.0 released. May monthly issue #418 closed. Created June monthly issue. PR #457 (perf+test StringBuilder query builder + 9 tests) merged. 2026-06-13: Created PR (branch repo-assist/improve-callasyncs-dedup-tests-2025-06): refactor CallAsync dedup + 2 new tests (IO.Stream[] multipart, EmptyReasonPhraseHandler). 512 tests passing. Open issues: #33, #358, #411 (CI cache step, workflow protected), #459 (workflow failure self-created). No new human activity on any issue. Task 2 and Task 3 had no actionable work."
+  "open_prs": {
+    "bytes_fix": "repo-assist/improve-toparam-bytes-20260704 (byte[] base64 fix, 522->527 tests)",
+    "sdk_update": "repo-assist/eng-update-sdk-10.0.301-20260704 (global.json SDK 10.0.301)"
+  },
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs merged; v4.1.0 released. 2026-06-27: PRs #460,#461,#462,#463,#464 all merged. 2026-07-04: Closed June monthly issue #458, created July monthly issue (temp #aw_july_summary). Created PR (temp #aw_pr_bytes65): fix toParam byte[] encoding. Created PR (temp #aw_pr_sdk301): update global.json SDK to 10.0.301. Issue #411 still open (workflow file protected, cannot fix). Issue #33 (feature request, help wanted) - last RA comment 2026-04-03, no new human activity. Issue #358 (OpenApi migration) - last RA comment 2026-04-12, blocked pending .NET 11."
 }
