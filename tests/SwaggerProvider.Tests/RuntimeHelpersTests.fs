@@ -142,6 +142,32 @@ module ToParamTests =
         let result = toParam(box(None: TimeOnly option))
         result |> shouldEqual null
 
+    [<Fact>]
+    let ``toParam encodes byte array as base64 (OpenAPI 'byte' format)``() =
+        // Without the byte[] arm, obj.ToString() would yield "System.Byte[]".
+        // The correct encoding for the OpenAPI "byte" format is standard base64.
+        let bytes = [| 1uy; 2uy; 3uy |]
+        let result = toParam(box bytes)
+        result |> shouldEqual(Convert.ToBase64String bytes)
+
+    [<Fact>]
+    let ``toParam encodes empty byte array as empty base64 string``() =
+        let result = toParam(box([||]: byte[]))
+        result |> shouldEqual ""
+
+    [<Fact>]
+    let ``toParam unwraps Some(byte array) and encodes as base64``() =
+        // Option<byte[]> Some is unwrapped by the generic option arm, then toParam
+        // is called recursively on the inner byte[] value.
+        let bytes = [| 72uy; 101uy; 108uy; 108uy; 111uy |] // "Hello" in ASCII
+        let result = toParam(box(Some bytes))
+        result |> shouldEqual(Convert.ToBase64String bytes)
+
+    [<Fact>]
+    let ``toParam returns null for None(byte array)``() =
+        let result = toParam(box(None: byte[] option))
+        result |> shouldEqual null
+
 
 // ── CLI enum serialization via toParam ──────────────────────────────────────────────────────
 // toParam must serialize string enums to their original OpenAPI wire values and integer
@@ -1290,6 +1316,23 @@ module ToFormUrlEncodedContentTests =
             let! body = content.ReadAsStringAsync()
             body |> shouldContainText "present=yes"
             body |> shouldNotContainText "nestedNone"
+        }
+
+    [<Fact>]
+    let ``toFormUrlEncodedContent encodes byte array as base64``() =
+        // Without the byte[] arm in toParam, this produced "data=System.Byte%5B%5D".
+        // With the fix, byte arrays are encoded as standard base64 (OpenAPI 'byte' format).
+        task {
+            let bytes = [| 1uy; 2uy; 3uy |]
+            let expected = Convert.ToBase64String bytes
+
+            use content = toFormUrlEncodedContent(seq { ("data", box bytes) })
+
+            let! body = content.ReadAsStringAsync()
+            let encodedValue = body.Substring("data=".Length)
+            let decodedValue = WebUtility.UrlDecode(encodedValue)
+
+            decodedValue |> shouldEqual expected
         }
 
 
