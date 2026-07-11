@@ -393,7 +393,14 @@ module RuntimeHelpers =
                         if isNull x then
                             sb.Append("null") |> ignore
                         else
-                            sb.Append(x.ToString()) |> ignore
+                            let xTy = x.GetType()
+
+                            if xTy.FullName = dateOnlyTypeName then
+                                sb.Append(formatDateOrTimeValue "yyyy-MM-dd" xTy x) |> ignore
+                            elif xTy.FullName = timeOnlyTypeName then
+                                sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" xTy x) |> ignore
+                            else
+                                sb.Append(x.ToString()) |> ignore
 
                     sb.Append(']') |> ignore
                 else
