@@ -1128,6 +1128,12 @@ type FmtMulti(age: int, name: string) =
 type FmtArray(tags: string[]) =
     member _.Tags = tags
 
+type FmtDateOnly(date: DateOnly) =
+    member _.Date = date
+
+type FmtTimeOnly(time: TimeOnly) =
+    member _.Time = time
+
 
 module FormatObjectTests =
 
@@ -1176,6 +1182,21 @@ module FormatObjectTests =
         // Age < Name alphabetically
         let obj = FmtMulti(30, "Bob")
         formatObject obj |> shouldEqual "{Age=30; Name=\"Bob\"}"
+
+    [<Fact>]
+    let ``formatObject formats DateOnly property as ISO 8601``() =
+        let obj = FmtDateOnly(DateOnly(2025, 7, 4))
+        formatObject obj |> shouldEqual "{Date=2025-07-04}"
+
+    [<Fact>]
+    let ``formatObject formats TimeOnly property using HH:mm:ss.FFFFFFF``() =
+        let obj = FmtTimeOnly(TimeOnly(14, 30, 0))
+        formatObject obj |> shouldEqual "{Time=14:30:00}"
+
+    [<Fact>]
+    let ``formatObject formats TimeOnly property with sub-second precision``() =
+        let obj = FmtTimeOnly(TimeOnly(9, 5, 3, 123))
+        formatObject obj |> shouldEqual "{Time=09:05:03.123}"
 
 
 module ToFormUrlEncodedContentTests =

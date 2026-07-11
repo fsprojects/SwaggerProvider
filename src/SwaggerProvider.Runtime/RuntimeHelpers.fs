@@ -376,6 +376,10 @@ module RuntimeHelpers =
 
                 if vTy = typeof<string> then
                     sb.Append('"').Append(v.ToString()).Append('"') |> ignore
+                elif vTy.FullName = dateOnlyTypeName then
+                    sb.Append(formatDateOrTimeValue "yyyy-MM-dd" vTy v) |> ignore
+                elif vTy.FullName = timeOnlyTypeName then
+                    sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" vTy v) |> ignore
                 elif vTy.IsArray then
                     sb.Append('[') |> ignore
                     let mutable firstEl = true
