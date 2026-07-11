@@ -1134,6 +1134,12 @@ type FmtDateOnly(date: DateOnly) =
 type FmtTimeOnly(time: TimeOnly) =
     member _.Time = time
 
+type FmtDateOnlyArray(dates: DateOnly[]) =
+    member _.Dates = dates
+
+type FmtTimeOnlyArray(times: TimeOnly[]) =
+    member _.Times = times
+
 
 module FormatObjectTests =
 
@@ -1197,6 +1203,16 @@ module FormatObjectTests =
     let ``formatObject formats TimeOnly property with sub-second precision``() =
         let obj = FmtTimeOnly(TimeOnly(9, 5, 3, 123))
         formatObject obj |> shouldEqual "{Time=09:05:03.123}"
+
+    [<Fact>]
+    let ``formatObject formats DateOnly array elements as ISO 8601``() =
+        let obj = FmtDateOnlyArray([| DateOnly(2025, 1, 1); DateOnly(2025, 12, 31) |])
+        formatObject obj |> shouldEqual "{Dates=[2025-01-01; 2025-12-31]}"
+
+    [<Fact>]
+    let ``formatObject formats TimeOnly array elements using HH:mm:ss.FFFFFFF``() =
+        let obj = FmtTimeOnlyArray([| TimeOnly(8, 0, 0); TimeOnly(14, 30, 45, 500) |])
+        formatObject obj |> shouldEqual "{Times=[08:00:00; 14:30:45.5]}"
 
 
 module ToFormUrlEncodedContentTests =

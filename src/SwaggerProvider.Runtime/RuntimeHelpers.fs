@@ -383,6 +383,9 @@ module RuntimeHelpers =
                 elif vTy.IsArray then
                     sb.Append('[') |> ignore
                     let mutable firstEl = true
+                    let elTy = vTy.GetElementType()
+                    let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
+                    let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
 
                     for x in (v :?> Array) |> Seq.cast<obj> do
                         if not firstEl then
@@ -395,9 +398,9 @@ module RuntimeHelpers =
                         else
                             let xTy = x.GetType()
 
-                            if xTy.FullName = dateOnlyTypeName then
+                            if isDateOnly then
                                 sb.Append(formatDateOrTimeValue "yyyy-MM-dd" xTy x) |> ignore
-                            elif xTy.FullName = timeOnlyTypeName then
+                            elif isTimeOnly then
                                 sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" xTy x) |> ignore
                             else
                                 sb.Append(x.ToString()) |> ignore
