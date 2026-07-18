@@ -377,6 +377,32 @@ module RuntimeHelpers =
     let formatObject(obj: obj) : string =
         let props = getProperties(obj.GetType())
         let sb = System.Text.StringBuilder()
+
+        let appendFormattedArray(v: obj) =
+            let vTy = v.GetType()
+            sb.Append('[') |> ignore
+            let mutable firstEl = true
+            let elTy = vTy.GetElementType()
+            let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
+            let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
+
+            for x in (v :?> Array) |> Seq.cast<obj> do
+                if not firstEl then
+                    sb.Append("; ") |> ignore
+
+                firstEl <- false
+
+                if isNull x then
+                    sb.Append("null") |> ignore
+                elif isDateOnly then
+                    sb.Append(formatDateOrTimeValue "yyyy-MM-dd" elTy x) |> ignore
+                elif isTimeOnly then
+                    sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" elTy x) |> ignore
+                else
+                    sb.Append(x.ToString()) |> ignore
+
+            sb.Append(']') |> ignore
+
         sb.Append('{') |> ignore
 
         for i in 0 .. props.Length - 1 do
@@ -393,28 +419,7 @@ module RuntimeHelpers =
                 let vTy = v.GetType()
 
                 if vTy.IsArray then
-                    sb.Append('[') |> ignore
-                    let mutable firstEl = true
-                    let elTy = vTy.GetElementType()
-                    let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
-                    let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
-
-                    for x in (v :?> Array) |> Seq.cast<obj> do
-                        if not firstEl then
-                            sb.Append("; ") |> ignore
-
-                        firstEl <- false
-
-                        if isNull x then
-                            sb.Append("null") |> ignore
-                        elif isDateOnly then
-                            sb.Append(formatDateOrTimeValue "yyyy-MM-dd" elTy x) |> ignore
-                        elif isTimeOnly then
-                            sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" elTy x) |> ignore
-                        else
-                            sb.Append(x.ToString()) |> ignore
-
-                    sb.Append(']') |> ignore
+                    appendFormattedArray v
                 // Unwrap F# Option<T> before formatting: Some(x) → format x, None → "null".
                 // Without this arm, Option<DateOnly> and Option<TimeOnly> properties fall through
                 // to obj.ToString(), which produces "Some(07/04/2025)" (locale-specific) instead
@@ -432,7 +437,12 @@ module RuntimeHelpers =
                         if isNull inner then
                             sb.Append("null") |> ignore
                         else
-                            appendFormattedValue sb inner (inner.GetType())
+                            let innerTy = inner.GetType()
+
+                            if innerTy.IsArray then
+                                appendFormattedArray inner
+                            else
+                                appendFormattedValue sb inner innerTy
                     else
                         sb.Append("null") |> ignore
                 else

@@ -1178,6 +1178,12 @@ type FmtOptionString(name: string option) =
 type FmtOptionInt(count: int option) =
     member _.Count = count
 
+type FmtOptionStringArray(tags: string[] option) =
+    member _.Tags = tags
+
+type FmtOptionDateOnlyArray(dates: DateOnly[] option) =
+    member _.Dates = dates
+
 
 module FormatObjectTests =
 
@@ -1291,6 +1297,18 @@ module FormatObjectTests =
     let ``formatObject formats Option int None as null``() =
         let obj = FmtOptionInt(None)
         formatObject obj |> shouldEqual "{Count=null}"
+
+    [<Fact>]
+    let ``formatObject formats Option string array Some as bracketed list``() =
+        let obj = FmtOptionStringArray(Some([| "first"; "second" |]))
+        formatObject obj |> shouldEqual "{Tags=[first; second]}"
+
+    [<Fact>]
+    let ``formatObject formats Option DateOnly array Some as ISO 8601 list``() =
+        let obj =
+            FmtOptionDateOnlyArray(Some([| DateOnly(2025, 1, 1); DateOnly(2025, 12, 31) |]))
+
+        formatObject obj |> shouldEqual "{Dates=[2025-01-01; 2025-12-31]}"
 
 
 
