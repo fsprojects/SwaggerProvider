@@ -359,12 +359,50 @@ module RuntimeHelpers =
                     (name, prop))
         )
 
+    // Appends a single value to the StringBuilder used by formatObject.
+    // Handles string (quoted), DateOnly/TimeOnly (ISO 8601), and all other types (ToString).
+    let private appendFormattedValue (sb: System.Text.StringBuilder) (x: obj) (xTy: Type) =
+        if xTy = typeof<string> then
+            sb.Append('"').Append(x.ToString()).Append('"') |> ignore
+        elif xTy.FullName = dateOnlyTypeName then
+            sb.Append(formatDateOrTimeValue "yyyy-MM-dd" xTy x) |> ignore
+        elif xTy.FullName = timeOnlyTypeName then
+            sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" xTy x) |> ignore
+        else
+            sb.Append(x.ToString()) |> ignore
+
     /// Formats a generated API object as a string in the form `{Prop1=value1; Prop2=value2}`.
     /// Only declared public instance properties are included, sorted alphabetically by name.
     /// Used by the emitted ToString() override to keep the generated method body O(1) in size.
     let formatObject(obj: obj) : string =
         let props = getProperties(obj.GetType())
         let sb = System.Text.StringBuilder()
+
+        let appendFormattedArray(v: obj) =
+            let vTy = v.GetType()
+            sb.Append('[') |> ignore
+            let mutable firstEl = true
+            let elTy = vTy.GetElementType()
+            let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
+            let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
+
+            for x in (v :?> Array) |> Seq.cast<obj> do
+                if not firstEl then
+                    sb.Append("; ") |> ignore
+
+                firstEl <- false
+
+                if isNull x then
+                    sb.Append("null") |> ignore
+                elif isDateOnly then
+                    sb.Append(formatDateOrTimeValue "yyyy-MM-dd" elTy x) |> ignore
+                elif isTimeOnly then
+                    sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" elTy x) |> ignore
+                else
+                    sb.Append(x.ToString()) |> ignore
+
+            sb.Append(']') |> ignore
+
         sb.Append('{') |> ignore
 
         for i in 0 .. props.Length - 1 do
@@ -380,40 +418,35 @@ module RuntimeHelpers =
             else
                 let vTy = v.GetType()
 
-                if vTy = typeof<string> then
-                    sb.Append('"').Append(v.ToString()).Append('"') |> ignore
-                elif vTy.FullName = dateOnlyTypeName then
-                    sb.Append(formatDateOrTimeValue "yyyy-MM-dd" vTy v) |> ignore
-                elif vTy.FullName = timeOnlyTypeName then
-                    sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" vTy v) |> ignore
-                elif vTy.IsArray then
-                    sb.Append('[') |> ignore
-                    let mutable firstEl = true
-                    let elTy = vTy.GetElementType()
-                    let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
-                    let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
+                if vTy.IsArray then
+                    appendFormattedArray v
+                // Unwrap F# Option<T> before formatting: Some(x) → format x, None → "null".
+                // Without this arm, Option<DateOnly> and Option<TimeOnly> properties fall through
+                // to obj.ToString(), which produces "Some(07/04/2025)" (locale-specific) instead
+                // of the ISO 8601 value expected by callers.
+                elif
+                    vTy.IsGenericType
+                    && vTy.GetGenericTypeDefinition() = typedefof<option<_>>
+                then
+                    let tagReader = optionTagReaderCache.GetOrAdd(vTy, optionTagReaderFactory)
 
-                    for x in (v :?> Array) |> Seq.cast<obj> do
-                        if not firstEl then
-                            sb.Append("; ") |> ignore
+                    if tagReader v = 1 then // 1 = Some
+                        let valueProp = optionValueCache.GetOrAdd(vTy, optionValueFactory)
+                        let inner = valueProp.GetValue(v)
 
-                        firstEl <- false
-
-                        if isNull x then
+                        if isNull inner then
                             sb.Append("null") |> ignore
                         else
-                            let xTy = x.GetType()
+                            let innerTy = inner.GetType()
 
-                            if isDateOnly then
-                                sb.Append(formatDateOrTimeValue "yyyy-MM-dd" xTy x) |> ignore
-                            elif isTimeOnly then
-                                sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" xTy x) |> ignore
+                            if innerTy.IsArray then
+                                appendFormattedArray inner
                             else
-                                sb.Append(x.ToString()) |> ignore
-
-                    sb.Append(']') |> ignore
+                                appendFormattedValue sb inner innerTy
+                    else
+                        sb.Append("null") |> ignore
                 else
-                    sb.Append(v.ToString()) |> ignore
+                    appendFormattedValue sb v vTy
 
         sb.Append('}').ToString()
 

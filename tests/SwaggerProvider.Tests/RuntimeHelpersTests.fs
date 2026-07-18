@@ -1166,6 +1166,24 @@ type FmtDateOnlyArray(dates: DateOnly[]) =
 type FmtTimeOnlyArray(times: TimeOnly[]) =
     member _.Times = times
 
+type FmtOptionDateOnly(date: DateOnly option) =
+    member _.Date = date
+
+type FmtOptionTimeOnly(time: TimeOnly option) =
+    member _.Time = time
+
+type FmtOptionString(name: string option) =
+    member _.Name = name
+
+type FmtOptionInt(count: int option) =
+    member _.Count = count
+
+type FmtOptionStringArray(tags: string[] option) =
+    member _.Tags = tags
+
+type FmtOptionDateOnlyArray(dates: DateOnly[] option) =
+    member _.Dates = dates
+
 
 module FormatObjectTests =
 
@@ -1240,8 +1258,59 @@ module FormatObjectTests =
         let obj = FmtTimeOnlyArray([| TimeOnly(8, 0, 0); TimeOnly(14, 30, 45, 500) |])
         formatObject obj |> shouldEqual "{Times=[08:00:00; 14:30:45.5]}"
 
+    [<Fact>]
+    let ``formatObject formats Option DateOnly Some as ISO 8601``() =
+        let obj = FmtOptionDateOnly(Some(DateOnly(2025, 7, 4)))
+        formatObject obj |> shouldEqual "{Date=2025-07-04}"
 
-module ToFormUrlEncodedContentTests =
+    [<Fact>]
+    let ``formatObject formats Option DateOnly None as null``() =
+        let obj = FmtOptionDateOnly(None)
+        formatObject obj |> shouldEqual "{Date=null}"
+
+    [<Fact>]
+    let ``formatObject formats Option TimeOnly Some using HH:mm:ss.FFFFFFF``() =
+        let obj = FmtOptionTimeOnly(Some(TimeOnly(14, 30, 0)))
+        formatObject obj |> shouldEqual "{Time=14:30:00}"
+
+    [<Fact>]
+    let ``formatObject formats Option TimeOnly None as null``() =
+        let obj = FmtOptionTimeOnly(None)
+        formatObject obj |> shouldEqual "{Time=null}"
+
+    [<Fact>]
+    let ``formatObject formats Option string Some with quotes``() =
+        let obj = FmtOptionString(Some "hello")
+        formatObject obj |> shouldEqual "{Name=\"hello\"}"
+
+    [<Fact>]
+    let ``formatObject formats Option string None as null``() =
+        let obj = FmtOptionString(None)
+        formatObject obj |> shouldEqual "{Name=null}"
+
+    [<Fact>]
+    let ``formatObject formats Option int Some as integer``() =
+        let obj = FmtOptionInt(Some 42)
+        formatObject obj |> shouldEqual "{Count=42}"
+
+    [<Fact>]
+    let ``formatObject formats Option int None as null``() =
+        let obj = FmtOptionInt(None)
+        formatObject obj |> shouldEqual "{Count=null}"
+
+    [<Fact>]
+    let ``formatObject formats Option string array Some as bracketed list``() =
+        let obj = FmtOptionStringArray(Some([| "first"; "second" |]))
+        formatObject obj |> shouldEqual "{Tags=[first; second]}"
+
+    [<Fact>]
+    let ``formatObject formats Option DateOnly array Some as ISO 8601 list``() =
+        let obj =
+            FmtOptionDateOnlyArray(Some([| DateOnly(2025, 1, 1); DateOnly(2025, 12, 31) |]))
+
+        formatObject obj |> shouldEqual "{Dates=[2025-01-01; 2025-12-31]}"
+
+
 
     [<Fact>]
     let ``toFormUrlEncodedContent encodes key-value pairs``() =
