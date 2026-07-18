@@ -1,6 +1,6 @@
 {
-  "run": "2026-07-11",
-  "rid": "29137612698",
+  "run": "2026-07-18",
+  "rid": "29628354166",
   "monthly": "467",
   "monthly_issue": 467,
   "comments_made": {
@@ -8,9 +8,7 @@
     "358": "2026-04-12"
   },
   "open_prs": {
-    "bytes_fix": "PR #465: fix toParam byte[] encoding (open, pending review)",
-    "fmt_dateonly": "#aw_fmt_dateonly: improve formatObject ISO 8601 for DateOnly/TimeOnly (2026-07-11)",
-    "sdk301": "#aw_sdk301_pr: update global.json SDK to 10.0.301 (2026-07-11)"
+    "fmtopt_fix": "#aw_fmtopt_fix: fix formatObject Option<DateOnly>/Option<TimeOnly> (2026-07-18)"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs merged; v4.1.0 released. 2026-06-27: PRs #460,#461,#462,#463,#464 all merged. 2026-07-04: Closed June monthly issue #458, created July monthly issue #467. Created PR #465: fix toParam byte[] encoding. Previous SDK PR branch exists but had no changes/PR. 2026-07-11: Created PR #aw_fmt_dateonly (formatObject DateOnly/TimeOnly ISO 8601, 522->525 tests). Created PR #aw_sdk301_pr (SDK 10.0.301). Issue #411 still open (workflow file protected, cannot fix). Issue #33 (feature request, help wanted) - last RA comment 2026-04-03, no new human activity. Issue #358 (OpenApi migration) - last RA comment 2026-04-12, blocked pending .NET 11."
+  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs merged; v4.1.0 released. 2026-06-27: PRs #460,#461,#462,#463,#464 all merged. 2026-07-04: PR #465 merged (byte[] base64 fix). 2026-07-11: PR #468 merged (formatObject DateOnly/TimeOnly ISO 8601). PR #470 merged (SDK 10.0.301). 2026-07-18: Created PR #aw_fmtopt_fix: fix formatObject for Option<DateOnly>/Option<TimeOnly> (540 tests). Dependabot PRs #471 (setup-dotnet 5→6) and #472 (setup-node 6→7) open - workflow files, cannot bundle. Issue #411 still open (workflow file protected). Issue #33 (feature request, help wanted) - last RA comment 2026-04-03, no new human activity. Issue #358 (OpenApi migration) - blocked pending .NET 11."
 }
