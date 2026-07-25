@@ -1184,6 +1184,15 @@ type FmtOptionStringArray(tags: string[] option) =
 type FmtOptionDateOnlyArray(dates: DateOnly[] option) =
     member _.Dates = dates
 
+type FmtOptionDateOnlyElements(dates: DateOnly option[]) =
+    member _.Dates = dates
+
+type FmtOptionTimeOnlyElements(times: TimeOnly option[]) =
+    member _.Times = times
+
+type FmtOptionStringElements(names: string option[]) =
+    member _.Names = names
+
 
 module FormatObjectTests =
 
@@ -1310,6 +1319,34 @@ module FormatObjectTests =
 
         formatObject obj |> shouldEqual "{Dates=[2025-01-01; 2025-12-31]}"
 
+    [<Fact>]
+    let ``formatObject formats array of Option DateOnly Some elements as ISO 8601``() =
+        let obj =
+            FmtOptionDateOnlyElements([| Some(DateOnly(2025, 1, 1)); Some(DateOnly(2025, 12, 31)) |])
+
+        formatObject obj |> shouldEqual "{Dates=[2025-01-01; 2025-12-31]}"
+
+    [<Fact>]
+    let ``formatObject formats array of Option DateOnly with None elements as null``() =
+        let obj = FmtOptionDateOnlyElements([| Some(DateOnly(2025, 7, 4)); None |])
+        formatObject obj |> shouldEqual "{Dates=[2025-07-04; null]}"
+
+    [<Fact>]
+    let ``formatObject formats array of Option TimeOnly Some elements using HH:mm:ss.FFFFFFF``() =
+        let obj =
+            FmtOptionTimeOnlyElements([| Some(TimeOnly(14, 30, 0)); Some(TimeOnly(9, 5, 3, 123)) |])
+
+        formatObject obj |> shouldEqual "{Times=[14:30:00; 09:05:03.123]}"
+
+    [<Fact>]
+    let ``formatObject formats array of Option TimeOnly with None elements as null``() =
+        let obj = FmtOptionTimeOnlyElements([| None; Some(TimeOnly(8, 0, 0)) |])
+        formatObject obj |> shouldEqual "{Times=[null; 08:00:00]}"
+
+    [<Fact>]
+    let ``formatObject formats array of Option string elements``() =
+        let obj = FmtOptionStringElements([| Some "hello"; None; Some "world" |])
+        formatObject obj |> shouldEqual "{Names=[\"hello\"; null; \"world\"]}"
 
 
     [<Fact>]

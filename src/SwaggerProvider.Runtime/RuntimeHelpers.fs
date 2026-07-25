@@ -385,6 +385,13 @@ module RuntimeHelpers =
             let elTy = vTy.GetElementType()
             let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
             let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
+            // Detect array<Option<T>> so elements are correctly unwrapped and formatted.
+            // Without this, Option<DateOnly>/Option<TimeOnly> elements fall through to
+            // obj.ToString(), producing locale-specific "Some(07/04/2025)" instead of ISO 8601.
+            let isOptionEl =
+                not(isNull elTy)
+                && elTy.IsGenericType
+                && elTy.GetGenericTypeDefinition() = typedefof<option<_>>
 
             for x in (v :?> Array) |> Seq.cast<obj> do
                 if not firstEl then
@@ -398,6 +405,19 @@ module RuntimeHelpers =
                     sb.Append(formatDateOrTimeValue "yyyy-MM-dd" elTy x) |> ignore
                 elif isTimeOnly then
                     sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" elTy x) |> ignore
+                elif isOptionEl then
+                    let tagReader = optionTagReaderCache.GetOrAdd(elTy, optionTagReaderFactory)
+
+                    if tagReader x = 1 then // 1 = Some
+                        let valueProp = optionValueCache.GetOrAdd(elTy, optionValueFactory)
+                        let inner = valueProp.GetValue(x)
+
+                        if isNull inner then
+                            sb.Append("null") |> ignore
+                        else
+                            appendFormattedValue sb inner (inner.GetType())
+                    else
+                        sb.Append("null") |> ignore
                 else
                     sb.Append(x.ToString()) |> ignore
 
