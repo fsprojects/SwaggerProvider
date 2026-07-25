@@ -378,7 +378,7 @@ module RuntimeHelpers =
         let props = getProperties(obj.GetType())
         let sb = System.Text.StringBuilder()
 
-        let appendFormattedArray(v: obj) =
+        let rec appendFormattedArray(v: obj) =
             let vTy = v.GetType()
             sb.Append('[') |> ignore
             let mutable firstEl = true
