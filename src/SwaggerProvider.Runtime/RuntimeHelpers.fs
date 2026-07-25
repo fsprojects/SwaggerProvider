@@ -393,6 +393,18 @@ module RuntimeHelpers =
                 && elTy.IsGenericType
                 && elTy.GetGenericTypeDefinition() = typedefof<option<_>>
 
+            let optionTagReader =
+                if isOptionEl then
+                    Some(optionTagReaderCache.GetOrAdd(elTy, optionTagReaderFactory))
+                else
+                    None
+
+            let optionValueProp =
+                if isOptionEl then
+                    Some(optionValueCache.GetOrAdd(elTy, optionValueFactory))
+                else
+                    None
+
             for x in (v :?> Array) |> Seq.cast<obj> do
                 if not firstEl then
                     sb.Append("; ") |> ignore
@@ -406,11 +418,8 @@ module RuntimeHelpers =
                 elif isTimeOnly then
                     sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" elTy x) |> ignore
                 elif isOptionEl then
-                    let tagReader = optionTagReaderCache.GetOrAdd(elTy, optionTagReaderFactory)
-
-                    if tagReader x = 1 then // 1 = Some
-                        let valueProp = optionValueCache.GetOrAdd(elTy, optionValueFactory)
-                        let inner = valueProp.GetValue(x)
+                    if optionTagReader.Value x = 1 then // 1 = Some
+                        let inner = optionValueProp.Value.GetValue(x)
 
                         if isNull inner then
                             sb.Append("null") |> ignore
