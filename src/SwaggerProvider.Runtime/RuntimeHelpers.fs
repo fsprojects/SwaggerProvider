@@ -415,7 +415,12 @@ module RuntimeHelpers =
                         if isNull inner then
                             sb.Append("null") |> ignore
                         else
-                            appendFormattedValue sb inner (inner.GetType())
+                            let innerTy = inner.GetType()
+
+                            if innerTy.IsArray then
+                                appendFormattedArray inner
+                            else
+                                appendFormattedValue sb inner innerTy
                     else
                         sb.Append("null") |> ignore
                 else
