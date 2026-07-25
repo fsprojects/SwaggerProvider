@@ -378,13 +378,32 @@ module RuntimeHelpers =
         let props = getProperties(obj.GetType())
         let sb = System.Text.StringBuilder()
 
-        let appendFormattedArray(v: obj) =
+        let rec appendFormattedArray(v: obj) =
             let vTy = v.GetType()
             sb.Append('[') |> ignore
             let mutable firstEl = true
             let elTy = vTy.GetElementType()
             let isDateOnly = not(isNull elTy) && elTy.FullName = dateOnlyTypeName
             let isTimeOnly = not(isNull elTy) && elTy.FullName = timeOnlyTypeName
+            // Detect array<Option<T>> so elements are correctly unwrapped and formatted.
+            // Without this, Option<DateOnly>/Option<TimeOnly> elements fall through to
+            // obj.ToString(), producing locale-specific "Some(07/04/2025)" instead of ISO 8601.
+            let isOptionEl =
+                not(isNull elTy)
+                && elTy.IsGenericType
+                && elTy.GetGenericTypeDefinition() = typedefof<option<_>>
+
+            let optionTagReader =
+                if isOptionEl then
+                    Some(optionTagReaderCache.GetOrAdd(elTy, optionTagReaderFactory))
+                else
+                    None
+
+            let optionValueProp =
+                if isOptionEl then
+                    Some(optionValueCache.GetOrAdd(elTy, optionValueFactory))
+                else
+                    None
 
             for x in (v :?> Array) |> Seq.cast<obj> do
                 if not firstEl then
@@ -398,6 +417,21 @@ module RuntimeHelpers =
                     sb.Append(formatDateOrTimeValue "yyyy-MM-dd" elTy x) |> ignore
                 elif isTimeOnly then
                     sb.Append(formatDateOrTimeValue "HH:mm:ss.FFFFFFF" elTy x) |> ignore
+                elif isOptionEl then
+                    if optionTagReader.Value x = 1 then // 1 = Some
+                        let inner = optionValueProp.Value.GetValue(x)
+
+                        if isNull inner then
+                            sb.Append("null") |> ignore
+                        else
+                            let innerTy = inner.GetType()
+
+                            if innerTy.IsArray then
+                                appendFormattedArray inner
+                            else
+                                appendFormattedValue sb inner innerTy
+                    else
+                        sb.Append("null") |> ignore
                 else
                     sb.Append(x.ToString()) |> ignore
 
