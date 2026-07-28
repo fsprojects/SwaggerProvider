@@ -236,13 +236,23 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
         providedField, providedProperty
 
     let registerInNsAndInDef tyPath (ns: NamespaceAbstraction) (name, ty: Type) =
+        // Detect alias: a ProvidedTypeDefinition that was already registered for a different
+        // component path (e.g. a named component that is a single-ref oneOf/anyOf/allOf wrapper).
+        // For aliases we only need the pathToType cache entry; adding the same
+        // ProvidedTypeDefinition to the namespace a second time would cause a
+        // "duplicate entry" error during assembly emit (issue #477).
+        let isAlias =
+            match ty with
+            | :? ProvidedTypeDefinition -> pathToType.Values |> Seq.exists(fun v -> obj.ReferenceEquals(v, ty))
+            | _ -> false
+
         if not <| pathToType.ContainsKey tyPath then
             pathToType.Add(tyPath, ty)
-        //else failwithf "Second time compilation of type definition '%s'. This is a bug in DefinitionCompiler" tyPath
 
-        match ty with
-        | :? ProvidedTypeDefinition as prTy -> ns.RegisterType(name, prTy)
-        | _ -> ()
+        if not isAlias then
+            match ty with
+            | :? ProvidedTypeDefinition as prTy -> ns.RegisterType(name, prTy)
+            | _ -> ()
 
     let rec compileByPath(tyPath: string) : Type =
         match pathToType.TryGetValue tyPath with
