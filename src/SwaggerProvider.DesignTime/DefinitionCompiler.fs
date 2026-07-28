@@ -254,6 +254,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             | true, def ->
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
+                // An alias can resolve to an existing provided type, so only cache its component path here.
                 registerInDef tyPath ty
                 ty :> Type
             | false, _ when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->

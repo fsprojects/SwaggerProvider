@@ -1,0 +1,114 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Multiple named object aliases",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/parent-a": {
+      "get": {
+        "operationId": "getParentA",
+        "responses": {
+          "200": {
+            "description": "First alias response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentA"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parent-b": {
+      "get": {
+        "operationId": "getParentB",
+        "responses": {
+          "200": {
+            "description": "Second alias response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParentB"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alias-chain": {
+      "get": {
+        "operationId": "getAliasChain",
+        "responses": {
+          "200": {
+            "description": "Alias chain response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliasA"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ParentA": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Child"
+          }
+        ]
+      },
+      "ParentB": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/Child"
+          }
+        ]
+      },
+      "Child": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "AliasA": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AliasB"
+          }
+        ]
+      },
+      "AliasB": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AliasC"
+          }
+        ]
+      },
+      "AliasC": {
+        "type": "object",
+        "required": [
+          "chainValue"
+        ],
+        "properties": {
+          "chainValue": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
