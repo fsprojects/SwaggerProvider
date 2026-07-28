@@ -5,21 +5,22 @@ open Xunit
 open FsUnitTyped
 
 [<Literal>]
-let OneOfSchema = __SOURCE_DIRECTORY__ + "/Schemas/named-object-alias-oneof.json"
+let OneOfSchema = __SOURCE_DIRECTORY__ + "/Schemas/v3/named-object-alias-oneof.json"
 
 [<Literal>]
-let AnyOfSchema = __SOURCE_DIRECTORY__ + "/Schemas/named-object-alias-anyof.json"
+let AnyOfSchema = __SOURCE_DIRECTORY__ + "/Schemas/v3/named-object-alias-anyof.json"
 
 [<Literal>]
-let AllOfSchema = __SOURCE_DIRECTORY__ + "/Schemas/named-object-alias-allof.json"
+let AllOfSchema = __SOURCE_DIRECTORY__ + "/Schemas/v3/named-object-alias-allof.json"
 
 [<Literal>]
 let NamespacedSchema =
-    __SOURCE_DIRECTORY__ + "/Schemas/named-object-alias-namespaced.json"
+    __SOURCE_DIRECTORY__
+    + "/Schemas/v3/named-object-alias-namespaced.json"
 
 [<Literal>]
 let MultipleAliasesSchema =
-    __SOURCE_DIRECTORY__ + "/Schemas/named-object-alias-multiple.json"
+    __SOURCE_DIRECTORY__ + "/Schemas/v3/named-object-alias-multiple.json"
 
 type OneOfApi = OpenApiClientProvider<OneOfSchema, SsrfProtection=false>
 type AnyOfApi = OpenApiClientProvider<AnyOfSchema, SsrfProtection=false>
@@ -80,24 +81,28 @@ let ``namespaced aliases with equal leaf names register the child object only on
     response.Value |> shouldEqual "namespaced"
 
 [<Fact>]
-let ``multiple aliases and alias chains resolve to their object types``() =
+let ``multiple aliases resolve to their shared object type``() =
     getResponseType typeof<MultipleAliasesApi.Client> "GetParentA"
     |> shouldEqual typeof<MultipleAliasesApi.Child>
 
     getResponseType typeof<MultipleAliasesApi.Client> "GetParentB"
     |> shouldEqual typeof<MultipleAliasesApi.Child>
 
-    getResponseType typeof<MultipleAliasesApi.Client> "GetAliasChain"
-    |> shouldEqual typeof<MultipleAliasesApi.AliasC>
-
     let child = MultipleAliasesApi.Child("shared")
     child.Value |> shouldEqual "shared"
-
-    let chained = MultipleAliasesApi.AliasC("chained")
-    chained.ChainValue |> shouldEqual "chained"
 
     let generatedTypeNames = getGeneratedTypeNames typeof<MultipleAliasesApi.Child>
     generatedTypeNames |> shouldNotContain "ParentA"
     generatedTypeNames |> shouldNotContain "ParentB"
+
+[<Fact>]
+let ``alias chains resolve to their final object type``() =
+    getResponseType typeof<MultipleAliasesApi.Client> "GetAliasChain"
+    |> shouldEqual typeof<MultipleAliasesApi.AliasC>
+
+    let chained = MultipleAliasesApi.AliasC("chained")
+    chained.ChainValue |> shouldEqual "chained"
+
+    let generatedTypeNames = getGeneratedTypeNames typeof<MultipleAliasesApi.AliasC>
     generatedTypeNames |> shouldNotContain "AliasA"
     generatedTypeNames |> shouldNotContain "AliasB"
