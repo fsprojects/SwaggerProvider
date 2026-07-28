@@ -1,0 +1,48 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Namespaced named object alias",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/alias": {
+      "get": {
+        "operationId": "getParent",
+        "responses": {
+          "200": {
+            "description": "Alias response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/A.Parent"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "A.Parent": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/B.Parent"
+          }
+        ]
+      },
+      "B.Parent": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Named anyOf object alias",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/parent": {
+      "get": {
+        "operationId": "getParent",
+        "responses": {
+          "200": {
+            "description": "Parent response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Parent"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Parent": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/Parent_Child"
+          }
+        ]
+      },
+      "Parent_Child": {
+        "type": "object",
+        "required": [
+          "childValue"
+        ],
+        "properties": {
+          "childValue": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
