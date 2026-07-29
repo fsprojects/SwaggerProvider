@@ -235,24 +235,16 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
         providedField, providedProperty
 
-    let registerInNsAndInDef tyPath (ns: NamespaceAbstraction) (name, ty: Type) =
-        // Detect alias: a ProvidedTypeDefinition that was already registered for a different
-        // component path (e.g. a named component that is a single-ref oneOf/anyOf/allOf wrapper).
-        // For aliases we only need the pathToType cache entry; adding the same
-        // ProvidedTypeDefinition to the namespace a second time would cause a
-        // "duplicate entry" error during assembly emit (issue #477).
-        let isAlias =
-            match ty with
-            | :? ProvidedTypeDefinition -> pathToType.Values |> Seq.exists(fun v -> obj.ReferenceEquals(v, ty))
-            | _ -> false
-
+    let registerInDef tyPath (ty: Type) =
         if not <| pathToType.ContainsKey tyPath then
             pathToType.Add(tyPath, ty)
 
-        if not isAlias then
-            match ty with
-            | :? ProvidedTypeDefinition as prTy -> ns.RegisterType(name, prTy)
-            | _ -> ()
+    let registerInNsAndInDef tyPath (ns: NamespaceAbstraction) (name, ty: Type) =
+        registerInDef tyPath ty
+
+        match ty with
+        | :? ProvidedTypeDefinition as prTy -> ns.RegisterType(name, prTy)
+        | _ -> ()
 
     let rec compileByPath(tyPath: string) : Type =
         match pathToType.TryGetValue tyPath with
@@ -262,6 +254,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             | true, def ->
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
+                // An alias can resolve to an existing provided type, so only cache its component path here.
+                registerInDef tyPath ty
                 ty :> Type
             | false, _ when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
@@ -615,6 +609,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         enumTy.AddMember field
                         intValue <- intValue + 1L
 
+                registerNew(tyName, enumTy :> Type)
                 enumTy :> Type
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
@@ -650,9 +645,6 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         elTy.MakeArrayType 1
                     | ty, format -> failwithf $"Type %s{tyName}(%A{ty},%s{format}) should be caught by other match statement (%A{resolvedType})"
-
-        if fromByPathCompiler then
-            registerNew(tyName, tyType)
 
         if isRequired then
             tyType

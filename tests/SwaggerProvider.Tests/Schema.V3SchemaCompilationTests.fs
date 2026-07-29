@@ -77,10 +77,13 @@ let private anyOfSingleRefSchema =
 }"""
 
 [<Fact>]
-let ``allOf single $ref resolves to the referenced type without creating a new object type``() =
+let ``allOf single $ref resolves to exactly one referenced type``() =
     let types = compileV3Schema allOfSingleRefSchema false
-    // PetRef collapses into Pet via ReleaseNameReservation; the referenced type is present.
-    types |> List.exists(fun t -> t.Name = "Pet") |> shouldEqual true
+    // PetRef collapses into Pet via ReleaseNameReservation; the referenced type is registered once.
+    types
+    |> List.filter(fun t -> t.Name = "Pet")
+    |> List.length
+    |> shouldEqual 1
 
 [<Fact>]
 let ``allOf single $ref does not produce a separate wrapper type``() =
@@ -89,9 +92,13 @@ let ``allOf single $ref does not produce a separate wrapper type``() =
     types |> List.exists(fun t -> t.Name = "PetRef") |> shouldEqual false
 
 [<Fact>]
-let ``oneOf single $ref resolves to the referenced type``() =
+let ``oneOf single $ref resolves to exactly one referenced type``() =
     let types = compileV3Schema oneOfSingleRefSchema false
-    types |> List.exists(fun t -> t.Name = "Dog") |> shouldEqual true
+
+    types
+    |> List.filter(fun t -> t.Name = "Dog")
+    |> List.length
+    |> shouldEqual 1
 
 [<Fact>]
 let ``oneOf single $ref does not produce a separate wrapper type``() =
@@ -99,116 +106,18 @@ let ``oneOf single $ref does not produce a separate wrapper type``() =
     types |> List.exists(fun t -> t.Name = "DogRef") |> shouldEqual false
 
 [<Fact>]
-let ``anyOf single $ref resolves to the referenced type``() =
+let ``anyOf single $ref resolves to exactly one referenced type``() =
     let types = compileV3Schema anyOfSingleRefSchema false
-    types |> List.exists(fun t -> t.Name = "Cat") |> shouldEqual true
+
+    types
+    |> List.filter(fun t -> t.Name = "Cat")
+    |> List.length
+    |> shouldEqual 1
 
 [<Fact>]
 let ``anyOf single $ref does not produce a separate wrapper type``() =
     let types = compileV3Schema anyOfSingleRefSchema false
     types |> List.exists(fun t -> t.Name = "CatRef") |> shouldEqual false
-
-// ── Named component alias to another named object component (issue #477) ─────
-//
-// When a named component schema is a single-ref oneOf/anyOf/allOf wrapper that
-// resolves to another named object component, the resolved ProvidedTypeDefinition
-// must appear in the type list exactly once.  Before the fix, registerInNsAndInDef
-// would register the same PTD a second time (once for the target, once for the
-// alias), causing "duplicate entry '<name>' in type index table" during assembly emit.
-
-let private namedAliasOneOfSchema =
-    """{
-  "openapi": "3.0.0",
-  "info": { "title": "Test", "version": "1.0.0" },
-  "paths": {},
-  "components": {
-    "schemas": {
-      "Parent": {
-        "oneOf": [ { "$ref": "#/components/schemas/Parent_Child" } ]
-      },
-      "Parent_Child": {
-        "type": "object",
-        "required": ["childValue"],
-        "properties": {
-          "childValue": { "type": "string" }
-        }
-      }
-    }
-  }
-}"""
-
-let private namedAliasAllOfSchema =
-    """{
-  "openapi": "3.0.0",
-  "info": { "title": "Test", "version": "1.0.0" },
-  "paths": {},
-  "components": {
-    "schemas": {
-      "MyAlias": {
-        "allOf": [ { "$ref": "#/components/schemas/MyObject" } ]
-      },
-      "MyObject": {
-        "type": "object",
-        "properties": { "value": { "type": "integer" } }
-      }
-    }
-  }
-}"""
-
-let private namedAliasAnyOfSchema =
-    """{
-  "openapi": "3.0.0",
-  "info": { "title": "Test", "version": "1.0.0" },
-  "paths": {},
-  "components": {
-    "schemas": {
-      "AliasAnyOf": {
-        "anyOf": [ { "$ref": "#/components/schemas/TargetObject" } ]
-      },
-      "TargetObject": {
-        "type": "object",
-        "properties": { "name": { "type": "string" } }
-      }
-    }
-  }
-}"""
-
-[<Fact>]
-let ``oneOf named alias to object component does not produce duplicate provided type``() =
-    // Regression test for issue #477: Parent aliases Parent_Child via oneOf.
-    // The resolved ProvidedTypeDefinition must appear exactly once.
-    let types = compileV3Schema namedAliasOneOfSchema false
-
-    types
-    |> List.filter(fun t -> t.Name = "Parent_Child")
-    |> List.length
-    |> shouldEqual 1
-
-[<Fact>]
-let ``oneOf named alias to object component exposes the target type``() =
-    let types = compileV3Schema namedAliasOneOfSchema false
-
-    types
-    |> List.exists(fun t -> t.Name = "Parent_Child")
-    |> shouldEqual true
-
-[<Fact>]
-let ``allOf named alias to object component does not produce duplicate provided type``() =
-    let types = compileV3Schema namedAliasAllOfSchema false
-
-    types
-    |> List.filter(fun t -> t.Name = "MyObject")
-    |> List.length
-    |> shouldEqual 1
-
-[<Fact>]
-let ``anyOf named alias to object component does not produce duplicate provided type``() =
-    let types = compileV3Schema namedAliasAnyOfSchema false
-
-    types
-    |> List.filter(fun t -> t.Name = "TargetObject")
-    |> List.length
-    |> shouldEqual 1
 
 // ── Required vs optional properties ──────────────────────────────────────────
 
