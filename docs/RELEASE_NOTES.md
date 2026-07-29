@@ -1,3 +1,22 @@
+#### 4.2.0 - July 29, 2026
+
+- fix: prevent duplicate `ProvidedTypeDefinition` for named component aliases (#478)
+- fix: `formatObject` correctly handles `Option<T>` elements in arrays (#475)
+- fix: `formatObject` correctly handles `Option<DateOnly>` and `Option<TimeOnly>` properties (#473)
+- fix: encode `byte[]` as base64 instead of calling `ToString()` in `toParam` (#465)
+- fix: correct string enum array serialization in `toQueryParams` (#462)
+- improve: format `DateOnly`/`TimeOnly` properties with ISO 8601 in `formatObject` (#468)
+- perf: replace `UriBuilder`+`ParseQueryString` with `StringBuilder` in query construction (#457)
+- refactor: deduplicate `CallAsync` error branch (#460)
+- eng: update TypeProviders SDK for thread-safety and performance (#480)
+- eng: update global.json SDK baseline from 10.0.201 to 10.0.301 (#470)
+- eng: bump GitHub Actions workflows (checkout 6→7.0.1, cache 5→6, setup-dotnet 5→6, setup-node 6→7)
+- eng: bump postcss 8.5.10 → 8.5.23 in docs
+- test: add missing coverage for `Option<byte[]>`, plain `Guid`, and leading-slash+fragment URLs (#464)
+- test: add enum query-param tests (#462)
+- test: add stream-array and HTTP-fallback tests (#460)
+- test: add 9 query-construction tests (500→509) (#457)
+
 #### 4.1.0 - May 28, 2026
 
 - fix: skip empty `Cookie` header when no cookie parameters are present (#454)
