@@ -235,10 +235,12 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
         providedField, providedProperty
 
-    let registerInNsAndInDef tyPath (ns: NamespaceAbstraction) (name, ty: Type) =
+    let registerInDef tyPath (ty: Type) =
         if not <| pathToType.ContainsKey tyPath then
             pathToType.Add(tyPath, ty)
-        //else failwithf "Second time compilation of type definition '%s'. This is a bug in DefinitionCompiler" tyPath
+
+    let registerInNsAndInDef tyPath (ns: NamespaceAbstraction) (name, ty: Type) =
+        registerInDef tyPath ty
 
         match ty with
         | :? ProvidedTypeDefinition as prTy -> ns.RegisterType(name, prTy)
@@ -252,6 +254,8 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
             | true, def ->
                 let ns, tyName = tyPath |> DefinitionPath.Parse |> nsRoot.Resolve
                 let ty = compileBySchema ns tyName def true (registerInNsAndInDef tyPath ns) true
+                // An alias can resolve to an existing provided type, so only cache its component path here.
+                registerInDef tyPath ty
                 ty :> Type
             | false, _ when tyPath.StartsWith DefinitionPath.DefinitionPrefix ->
                 failwithf $"Cannot find definition '%s{tyPath}' in schema definitions %A{pathToType.Keys |> Seq.toArray}"
@@ -605,6 +609,7 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
                         enumTy.AddMember field
                         intValue <- intValue + 1L
 
+                registerNew(tyName, enumTy :> Type)
                 enumTy :> Type
             | _ ->
                 ns.MarkTypeAsNameAlias tyName
@@ -640,9 +645,6 @@ type DefinitionCompiler(schema: OpenApiDocument, provideNullable, useDateOnly: b
 
                         elTy.MakeArrayType 1
                     | ty, format -> failwithf $"Type %s{tyName}(%A{ty},%s{format}) should be caught by other match statement (%A{resolvedType})"
-
-        if fromByPathCompiler then
-            registerNew(tyName, tyType)
 
         if isRequired then
             tyType

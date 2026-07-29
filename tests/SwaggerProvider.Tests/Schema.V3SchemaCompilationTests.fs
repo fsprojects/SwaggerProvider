@@ -77,10 +77,13 @@ let private anyOfSingleRefSchema =
 }"""
 
 [<Fact>]
-let ``allOf single $ref resolves to the referenced type without creating a new object type``() =
+let ``allOf single $ref resolves to exactly one referenced type``() =
     let types = compileV3Schema allOfSingleRefSchema false
-    // PetRef collapses into Pet via ReleaseNameReservation; the referenced type is present.
-    types |> List.exists(fun t -> t.Name = "Pet") |> shouldEqual true
+    // PetRef collapses into Pet via ReleaseNameReservation; the referenced type is registered once.
+    types
+    |> List.filter(fun t -> t.Name = "Pet")
+    |> List.length
+    |> shouldEqual 1
 
 [<Fact>]
 let ``allOf single $ref does not produce a separate wrapper type``() =
@@ -89,9 +92,13 @@ let ``allOf single $ref does not produce a separate wrapper type``() =
     types |> List.exists(fun t -> t.Name = "PetRef") |> shouldEqual false
 
 [<Fact>]
-let ``oneOf single $ref resolves to the referenced type``() =
+let ``oneOf single $ref resolves to exactly one referenced type``() =
     let types = compileV3Schema oneOfSingleRefSchema false
-    types |> List.exists(fun t -> t.Name = "Dog") |> shouldEqual true
+
+    types
+    |> List.filter(fun t -> t.Name = "Dog")
+    |> List.length
+    |> shouldEqual 1
 
 [<Fact>]
 let ``oneOf single $ref does not produce a separate wrapper type``() =
@@ -99,9 +106,13 @@ let ``oneOf single $ref does not produce a separate wrapper type``() =
     types |> List.exists(fun t -> t.Name = "DogRef") |> shouldEqual false
 
 [<Fact>]
-let ``anyOf single $ref resolves to the referenced type``() =
+let ``anyOf single $ref resolves to exactly one referenced type``() =
     let types = compileV3Schema anyOfSingleRefSchema false
-    types |> List.exists(fun t -> t.Name = "Cat") |> shouldEqual true
+
+    types
+    |> List.filter(fun t -> t.Name = "Cat")
+    |> List.length
+    |> shouldEqual 1
 
 [<Fact>]
 let ``anyOf single $ref does not produce a separate wrapper type``() =
