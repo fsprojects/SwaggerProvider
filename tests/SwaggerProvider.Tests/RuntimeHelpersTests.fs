@@ -1212,9 +1212,9 @@ module FormatObjectTests =
         formatObject obj |> shouldEqual "{Label=null}"
 
     [<Fact>]
-    let ``formatObject formats array property as bracketed list``() =
+    let ``formatObject formats array property as bracketed list with quoted strings``() =
         let obj = FmtArray([| "alpha"; "beta" |])
-        formatObject obj |> shouldEqual "{Tags=[alpha; beta]}"
+        formatObject obj |> shouldEqual "{Tags=[\"alpha\"; \"beta\"]}"
 
     [<Fact>]
     let ``formatObject formats empty array property as empty brackets``() =
@@ -1229,7 +1229,7 @@ module FormatObjectTests =
     [<Fact>]
     let ``formatObject formats array with mixed null and non-null elements``() =
         let obj = FmtArray([| "a"; null; "b" |])
-        formatObject obj |> shouldEqual "{Tags=[a; null; b]}"
+        formatObject obj |> shouldEqual "{Tags=[\"a\"; null; \"b\"]}"
 
     [<Fact>]
     let ``formatObject formats object with no properties as empty braces``() =
@@ -1310,7 +1310,7 @@ module FormatObjectTests =
     [<Fact>]
     let ``formatObject formats Option string array Some as bracketed list``() =
         let obj = FmtOptionStringArray(Some([| "first"; "second" |]))
-        formatObject obj |> shouldEqual "{Tags=[first; second]}"
+        formatObject obj |> shouldEqual "{Tags=[\"first\"; \"second\"]}"
 
     [<Fact>]
     let ``formatObject formats Option DateOnly array Some as ISO 8601 list``() =

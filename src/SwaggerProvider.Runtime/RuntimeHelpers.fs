@@ -433,7 +433,7 @@ module RuntimeHelpers =
                     else
                         sb.Append("null") |> ignore
                 else
-                    sb.Append(x.ToString()) |> ignore
+                    appendFormattedValue sb x (x.GetType())
 
             sb.Append(']') |> ignore
 
