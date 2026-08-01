@@ -1,6 +1,6 @@
 {
-  "run": "2026-07-25",
-  "rid": "30141778929",
+  "run": "2026-07-30",
+  "rid": "30681506116",
   "monthly": "467",
   "monthly_issue": 467,
   "comments_made": {
@@ -8,7 +8,7 @@
     "358": "2026-04-12"
   },
   "open_prs": {
-    "fmtarr_fix": "#aw_fmtarr_fix: fix formatObject Option<T> elements in arrays (2026-07-25)"
+    "formatobject_array_quoting": "repo-assist/improve-formatobject-array-string-quoting: fix string quoting in formatObject array elements (2026-07-30)"
   },
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs merged; v4.1.0 released. 2026-07-04: PR #465 merged (byte[] base64 fix). 2026-07-11: PR #468 merged (formatObject DateOnly/TimeOnly ISO 8601). PR #470 merged (SDK 10.0.301). 2026-07-18: PR #473 merged (fix formatObject for Option<DateOnly>/Option<TimeOnly> scalar props). PRs #471,#472 merged by maintainer. 2026-07-25: Created PR #aw_fmtarr_fix: fix formatObject for Option<T> array elements (540->547 tests). PR #474 (Dependabot actions/checkout 7.0.0->7.0.1) open - workflow file, awaiting maintainer. Issue #411 still open (workflow file protected). Issue #33 (feature request, help wanted) - last RA comment 2026-04-03, no new human activity. Issue #358 (OpenApi migration) - blocked pending .NET 11."
+  "notes": "2026-05-10: PR #428 closed by maintainer - do not create release notes PRs. 2026-07-04: PR #465 merged. 2026-07-11: PRs #468, #470 merged. v4.1.0 released. 2026-07-18: PR #473 merged. PRs #471,#472 merged. 2026-07-25: PR #aw_fmtarr_fix merged (Option<T> array elements). PR #474 workflow-only, merged. 2026-07-28: PR fix-issue-477 merged (duplicate PTD fix). v4.2.0 released 2026-07-29. 2026-07-30: Created PR improve-formatobject-array-string-quoting (string quoting consistency in array formatting). Issue #411 still open (workflow file protected). Issue #33 (feature request, help wanted) - no new human activity. Issue #358 (OpenApi migration) - blocked pending .NET 11."
 }
