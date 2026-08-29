@@ -1,14 +1,14 @@
 {
-  "run": "2026-07-30",
-  "rid": "30681506116",
-  "monthly": "467",
-  "monthly_issue": 467,
+  "run": "2026-08-29",
+  "rid": "33228882898",
+  "monthly": "August 2026",
+  "monthly_issue": "new (title: [repo-assist] Monthly Activity 2026-08)",
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
   "open_prs": {
-    "formatobject_array_quoting": "repo-assist/improve-formatobject-array-string-quoting: fix string quoting in formatObject array elements (2026-07-30)"
+    "eng_bump_deps": "repo-assist/eng-bump-deps-20260829: dotnet paket update refresh of paket.lock (2026-08-29)"
   },
-  "notes": "2026-05-10: PR #428 closed by maintainer - do not create release notes PRs. 2026-07-04: PR #465 merged. 2026-07-11: PRs #468, #470 merged. v4.1.0 released. 2026-07-18: PR #473 merged. PRs #471,#472 merged. 2026-07-25: PR #aw_fmtarr_fix merged (Option<T> array elements). PR #474 workflow-only, merged. 2026-07-28: PR fix-issue-477 merged (duplicate PTD fix). v4.2.0 released 2026-07-29. 2026-07-30: Created PR improve-formatobject-array-string-quoting (string quoting consistency in array formatting). Issue #411 still open (workflow file protected). Issue #33 (feature request, help wanted) - no new human activity. Issue #358 (OpenApi migration) - blocked pending .NET 11."
+  "notes": "2026-07-30: PR improve-formatobject-array-string-quoting merged. 2026-08-29: Selected tasks 3,2,4. No fixable bug/help-wanted issues found (Task 3 n/a, fallback to Task 2 - no new human activity on #33/#358). Ran Task 4: dotnet paket update refreshed paket.lock (Microsoft.OpenApi 2.7.5->2.12.2, FSharp.Core 10.1.300->10.1.400, SharpYaml, xunit v3, test tooling); build succeeded, 548 unit tests pass. Integration/provider tests blocked by sandbox proxy 403 (pre-existing infra limitation, confirmed reproduces on master without change too). Closed July monthly issue #467, created new August one. Issue #411 still open (workflow file protected, needs manual PR). Issue #358 blocked pending .NET 11. Issue #33 no new activity."
 }

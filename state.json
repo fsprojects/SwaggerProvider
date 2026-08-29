@@ -1,7 +1,7 @@
 {
-  "last_run": "2026-07-28T12:00:00Z",
-  "last_run_id": "30356342841",
-  "monthly_activity_issue": 467,
+  "last_run": "2026-08-29T02:26:00Z",
+  "last_run_id": "33228882898",
+  "monthly_activity_issue": "new-2026-08",
   "issue_backlog_cursor": 477,
   "comments_made": {
     "33": "2026-04-03T22:21:07Z",
@@ -9,7 +9,7 @@
     "477": "2026-07-28T12:00:00Z"
   },
   "fix_attempts": [
-    {"issue": 477, "pr_branch": "repo-assist/fix-issue-477-named-alias-duplicate-type", "status": "open", "date": "2026-07-28"}
+    {"issue": 477, "pr_branch": "repo-assist/fix-issue-477-named-alias-duplicate-type", "status": "merged", "date": "2026-07-28"}
   ],
-  "notes": "2026-05-10: PR #428 (beta04 release notes) was closed by maintainer - do not create release notes PRs. 2026-06-01: All May PRs merged; v4.1.0 released. 2026-07-04: PR #465 merged (byte[] base64 fix). 2026-07-11: PR #468 merged (formatObject DateOnly/TimeOnly ISO 8601). PR #470 merged (SDK 10.0.301). 2026-07-18: PR #473 merged (fix formatObject for Option<DateOnly>/Option<TimeOnly> scalar props). PRs #471,#472 merged by maintainer. 2026-07-25: Created PR fmtarr_fix: fix formatObject for Option<T> array elements (540->547 tests). PR #474 (Dependabot actions/checkout 7.0.0->7.0.1) open - workflow file, awaiting maintainer. 2026-07-28: Labelled+fixed issue #477 (duplicate PTD for named aliases); PR branch fix-issue-477 created (547->551 tests)."
+  "notes": "2026-08-29: Created PR repo-assist/eng-bump-deps-20260829 (dotnet paket update, 548 unit tests pass). No fixable issues for Task 3; no new activity for Task 2. Closed July monthly #467, created August monthly. Issue #411 still needs manual maintainer PR (workflow file protected). Issue #358 blocked on .NET 11."
 }
