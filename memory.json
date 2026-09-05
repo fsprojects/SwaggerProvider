@@ -1,14 +1,15 @@
 {
-  "run": "2026-08-29",
-  "rid": "33228882898",
-  "monthly": "August 2026",
-  "monthly_issue": "new (title: [repo-assist] Monthly Activity 2026-08)",
+  "run": "2026-09-05",
+  "rid": "33939125420",
+  "monthly": "September 2026",
+  "monthly_issue": "new (title: [repo-assist] Monthly Activity 2026-09), closed August #487",
   "comments_made": {
     "33": "2026-04-03",
     "358": "2026-04-12"
   },
   "open_prs": {
-    "eng_bump_deps": "repo-assist/eng-bump-deps-20260829: dotnet paket update refresh of paket.lock (2026-08-29)"
+    "eng_bump_deps": "repo-assist/eng-bump-deps-20260829: dotnet paket update refresh of paket.lock (2026-08-29)",
+    "perf_tostrarray": "repo-assist/perf-toStrArray-alloc: avoid intermediate array allocation in toStrArray helpers (2026-09-05)"
   },
-  "notes": "2026-07-30: PR improve-formatobject-array-string-quoting merged. 2026-08-29: Selected tasks 3,2,4. No fixable bug/help-wanted issues found (Task 3 n/a, fallback to Task 2 - no new human activity on #33/#358). Ran Task 4: dotnet paket update refreshed paket.lock (Microsoft.OpenApi 2.7.5->2.12.2, FSharp.Core 10.1.300->10.1.400, SharpYaml, xunit v3, test tooling); build succeeded, 548 unit tests pass. Integration/provider tests blocked by sandbox proxy 403 (pre-existing infra limitation, confirmed reproduces on master without change too). Closed July monthly issue #467, created new August one. Issue #411 still open (workflow file protected, needs manual PR). Issue #358 blocked pending .NET 11. Issue #33 no new activity."
+  "notes": "2026-09-05: Selected tasks 3,8,2. Task 3: no fixable bug/help-wanted/good-first-issue issues found. Task 2: no new human activity on #33/#358/#411; skipped to avoid spam. Task 8 (performance): reviewed RuntimeHelpers.fs, DefinitionCompiler.fs, ProvidedApiClientBase.fs for perf opportunities (many prior perf commits already optimized hot paths). Found toStrArray/toStrArrayDateTime/toStrArrayDateTimeOffset used Array.map |> Array.toList (intermediate array alloc) on query-param serialization hot path; replaced with single backward loop building list directly. Build succeeded, 548 unit tests pass. Provider/integration tests pre-existing build failures unrelated (confirmed reproduces on master too, needs test server + full solution build). Closed September monthly issue creation, closed #487 (August)."
 }
