@@ -38,20 +38,32 @@ type TaskExtensions() =
         }
 
 module RuntimeHelpers =
-    let inline private toStrArray name values =
-        values
-        |> Array.map(fun value -> name, value.ToString())
-        |> Array.toList
+    // Builds the (name, str) list directly in a single backward pass over the array,
+    // avoiding the intermediate array allocation that `Array.map |> Array.toList` would
+    // otherwise produce (this runs once per array-typed query/path/header parameter).
+    let inline private toStrArray name (values: 'a[]) =
+        let mutable acc = []
+
+        for i in values.Length - 1 .. -1 .. 0 do
+            acc <- (name, values[i].ToString()) :: acc
+
+        acc
 
     let inline private toStrArrayDateTime name (values: DateTime array) =
-        values
-        |> Array.map(fun value -> name, value.ToString("O"))
-        |> Array.toList
+        let mutable acc = []
+
+        for i in values.Length - 1 .. -1 .. 0 do
+            acc <- (name, values[i].ToString("O")) :: acc
+
+        acc
 
     let inline private toStrArrayDateTimeOffset name (values: DateTimeOffset array) =
-        values
-        |> Array.map(fun value -> name, value.ToString("O"))
-        |> Array.toList
+        let mutable acc = []
+
+        for i in values.Length - 1 .. -1 .. 0 do
+            acc <- (name, values[i].ToString("O")) :: acc
+
+        acc
 
     let inline private toStrArrayOpt name values =
         values |> Array.choose(id) |> toStrArray name
