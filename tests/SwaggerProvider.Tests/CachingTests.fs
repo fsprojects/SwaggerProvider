@@ -88,16 +88,16 @@ module InMemoryCacheTests =
 
     [<Fact>]
     let ``TryRetrieve with extendCacheExpiration=true keeps the entry alive past the original expiration``() =
-        let cache = createInMemoryCache(TimeSpan.FromMilliseconds 150.0)
+        let cache = createInMemoryCache(TimeSpan.FromMilliseconds 500.0)
         cache.Set("key1", "value")
         // Read partway through the window and extend the expiration.
-        Thread.Sleep(80)
+        Thread.Sleep(200)
 
         cache.TryRetrieve("key1", extendCacheExpiration = true)
         |> shouldEqual(Some "value")
-        // Total elapsed time (80 + 100 = 180ms) exceeds the original 150ms window,
-        // but the extension at 80ms should have reset the clock, so it should still be present.
-        Thread.Sleep(100)
+        // Total elapsed time (200 + 350 = 550ms) exceeds the original 500ms window,
+        // but the extension at 200ms should have reset the clock, so it should still be present.
+        Thread.Sleep(350)
         cache.TryRetrieve("key1") |> shouldEqual(Some "value")
 
     [<Fact>]
