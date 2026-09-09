@@ -1,15 +1,17 @@
 {
-  "run": "2026-09-05",
-  "rid": "33939125420",
+  "run": "2026-09-09-1707",
+  "rid": "34380739176",
   "monthly": "September 2026",
-  "monthly_issue": "new (title: [repo-assist] Monthly Activity 2026-09), closed August #487",
+  "monthly_issue": "489",
   "comments_made": {
     "33": "2026-04-03",
-    "358": "2026-04-12"
+    "358": "2026-04-12",
+    "490": "2026-09-09"
   },
   "open_prs": {
-    "eng_bump_deps": "repo-assist/eng-bump-deps-20260829: dotnet paket update refresh of paket.lock (2026-08-29)",
-    "perf_tostrarray": "repo-assist/perf-toStrArray-alloc: avoid intermediate array allocation in toStrArray helpers (2026-09-05)"
+    "eng_bump_deps_20260909": "repo-assist/eng-bump-deps-20260909: paket.lock patch-level refresh (2026-09-09)",
+    "test_caching_coverage": "repo-assist/test-caching-coverage: unit tests for Caching.createInMemoryCache (2026-09-09)",
+    "test_validateContentType": "repo-assist/test-validateContentType-coverage: unit tests for SchemaReader.validateContentType SSRF guard (2026-09-09, from prior run)"
   },
-  "notes": "2026-09-05: Selected tasks 3,8,2. Task 3: no fixable bug/help-wanted/good-first-issue issues found. Task 2: no new human activity on #33/#358/#411; skipped to avoid spam. Task 8 (performance): reviewed RuntimeHelpers.fs, DefinitionCompiler.fs, ProvidedApiClientBase.fs for perf opportunities (many prior perf commits already optimized hot paths). Found toStrArray/toStrArrayDateTime/toStrArrayDateTimeOffset used Array.map |> Array.toList (intermediate array alloc) on query-param serialization hot path; replaced with single backward loop building list directly. Build succeeded, 548 unit tests pass. Provider/integration tests pre-existing build failures unrelated (confirmed reproduces on master too, needs test server + full solution build). Closed September monthly issue creation, closed #487 (August)."
+  "notes": "2026-09-09 17:07 run. Selected tasks 2,4,9. Task 2: read issue #490 (OpenApiClientProvider not found, .NET 10.0.400) - root cause is FSharp.Core 10.1.0.0 FileNotFoundException at design-time; DesignTime.fsproj pins FSharp.Core PackageReference Version=8.0.403 with ExcludeAssets=runtime;contentFiles (intentionally excludes FSharp.Core.dll from output, relies on host compiler to supply it). Posted comment with restore/clean/IDE-reload troubleshooting steps; asked for dotnet restore -v:detailed output if unresolved. NOTE: the DesignTime.fsproj FSharp.Core PackageReference Update version (8.0.403) is stale relative to paket.lock's resolved FSharp.Core 10.1.400 - this mismatch may be worth investigating further in a future run as a potential root cause fix (not just a workaround), but did not change it this run since it's unclear if bumping the pinned version would actually change build output (paket may already override it) and needs careful testing before altering packaging-critical config. FLAG FOR NEXT RUN: investigate whether bumping the 8.0.403 pin in src/SwaggerProvider.DesignTime/SwaggerProvider.DesignTime.fsproj to match paket.lock's FSharp.Core version fixes any real issue, or if it's a red herring. Task 4: ran `dotnet paket update`, found only patch-level bumps (FSharp.Core 10.1.400->10.1.401, System.Text.Json/System.IO.Pipelines/etc 10.0.11->10.0.12, ASPNetCore 2.3.12->2.3.13). Created PR repo-assist/eng-bump-deps-20260909. Build succeeded, 562/562 unit tests pass. Task 9: found SwaggerProvider.Caching.createInMemoryCache (Caching.fs, used by Provider.OpenApiClient.fs to cache generated provided types) had zero unit tests. Added 11 tests in new CachingTests.fs covering Set/TryRetrieve/Remove/GetOrAdd, per-key isolation, expiration, and extendCacheExpiration behavior. Build + fantomas --check pass, 573/573 unit tests pass (562->573). Created draft PR repo-assist/test-caching-coverage. Task 11: updated monthly issue #489 - added new run entry, added 2 new PRs to suggested actions, added check-comment item for #490, kept future-work notes."
 }

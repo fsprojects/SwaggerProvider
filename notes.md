@@ -64,3 +64,23 @@
 - Task 2: No new human activity on #33/#358; skipped to avoid spam.
 - Task 4: Created PR repo-assist/eng-bump-deps-20260829 — `dotnet paket update` refresh of paket.lock (Microsoft.OpenApi 2.7.5->2.12.2, FSharp.Core, SharpYaml, xunit v3, test tooling). Build + 548 unit tests pass. Integration tests blocked by sandbox proxy (pre-existing, confirmed on master too).
 ### Task 11: Closed July monthly #467, created new August 2026 monthly activity issue.
+
+## Run: 2026-09-09 17:07 UTC (run 34380739176)
+### Selected Tasks: 2, 4, 9
+- Task 2: Investigated issue #490 (OpenApiClientProvider not found on .NET 10.0.400). Root cause:
+  FSharp.Core 10.1.0.0 FileNotFoundException at design-time load. DesignTime.fsproj pins FSharp.Core
+  PackageReference Version=8.0.403 (stale vs paket.lock's resolved 10.1.400/10.1.401) with
+  ExcludeAssets=runtime;contentFiles - the design-time dll intentionally does NOT ship FSharp.Core.dll,
+  relying on the host compiler to supply a compatible version. Posted troubleshooting comment with
+  restore/clean/IDE-reload steps and asked for a verbose restore log if unresolved.
+  FLAG: consider in a future run whether bumping the 8.0.403 pin to match paket.lock actually changes
+  build output (verify with assembly inspection before touching - packaging-critical, don't guess).
+- Task 4: `dotnet paket update` found only patch-level bumps (FSharp.Core 10.1.400->10.1.401,
+  System.Text.Json/IO.Pipelines/etc 10.0.11->10.0.12, ASP.NET Core 2.3.12->2.3.13). Created PR
+  repo-assist/eng-bump-deps-20260909. Build succeeded, 562/562 unit tests pass.
+- Task 9: `Caching.createInMemoryCache` (Caching.fs) had zero unit tests despite being used by
+  Provider.OpenApiClient.fs to cache generated provided types. Added 11 tests in new CachingTests.fs
+  (Set/TryRetrieve/Remove/GetOrAdd, per-key isolation, expiration, extendCacheExpiration). Build +
+  fantomas + 573/573 tests pass (562->573). Created draft PR repo-assist/test-caching-coverage.
+- Task 11: Updated monthly issue #489 - added new run entry, added 2 new PRs and 1 check-comment
+  item (#490) to suggested actions, kept #411 close-issue item and future-work notes.

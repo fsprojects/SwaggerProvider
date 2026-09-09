@@ -1,18 +1,21 @@
 {
-  "last_run": "2026-09-09T14:37:00Z",
-  "last_run_id": "34364464627",
+  "last_run": "2026-09-09T17:07:00Z",
+  "last_run_id": "34380739176",
   "monthly_activity_issue": "489",
-  "issue_backlog_cursor": 477,
+  "issue_backlog_cursor": 490,
   "comments_made": {
     "33": "2026-04-03T22:21:07Z",
     "358": "2026-04-12T00:00:00Z",
-    "477": "2026-07-28T12:00:00Z"
+    "477": "2026-07-28T12:00:00Z",
+    "490": "2026-09-09T17:07:00Z"
   },
   "fix_attempts": [
     {"issue": 477, "pr_branch": "repo-assist/fix-issue-477-named-alias-duplicate-type", "status": "merged", "date": "2026-07-28"}
   ],
   "open_prs": {
-    "test_validateContentType": "repo-assist/test-validateContentType-coverage: unit tests for SchemaReader.validateContentType SSRF guard (2026-09-09)"
+    "test_validateContentType": "repo-assist/test-validateContentType-coverage: unit tests for SchemaReader.validateContentType SSRF guard (2026-09-09)",
+    "eng_bump_deps_20260909": "repo-assist/eng-bump-deps-20260909: paket.lock patch-level refresh (2026-09-09)",
+    "test_caching_coverage": "repo-assist/test-caching-coverage: unit tests for Caching.createInMemoryCache (2026-09-09)"
   },
-  "notes": "2026-09-09: Selected tasks 5,8,9. Confirmed prior PRs eng-bump-deps-20260829 (#486) and perf-toStrArray-alloc (#488) are merged/closed. Task 5/8: reviewed RuntimeHelpers.fs, DefinitionCompiler.fs, OperationCompiler.fs, Caching.fs, Utils.fs (DesignTime) for coding/perf improvements; no new clearly-beneficial low-risk changes found beyond what many prior runs already addressed (hot paths already heavily optimized: toStrArray, formatObject, toParam, query construction, propCache, propNameCache). Substituted with Task 9. Task 9: found SchemaReader.validateContentType (Utils.fs, SSRF Content-Type allow-list) had zero direct unit tests despite being security-relevant; added 14 tests in SsrfSecurityTests.fs covering allowed media types, charset stripping, case-insensitivity, null handling, rejection of html/image types, and SSRF-disabled bypass. Build succeeded, fantomas --check passed, 562/562 unit tests pass (548->562). Created draft PR repo-assist/test-validateContentType-coverage. New issue #490 opened (OpenApiClientProvider not found on .NET 10.0.400, related to previously-closed #248) - flagged for future triage/investigation, not yet commented on (needs deeper investigation into design-time assembly resolution before responding substantively). Updated monthly issue #489 with current suggested actions and run history."
+  "notes": "2026-09-09 17:07 run. Selected tasks 2,4,9. Investigated #490 (OpenApiClientProvider not found, .NET 10.0.400): root cause traced to FSharp.Core 10.1.0.0 FileNotFoundException during design-time assembly load. src/SwaggerProvider.DesignTime/SwaggerProvider.DesignTime.fsproj pins FSharp.Core PackageReference Version=8.0.403 (stale vs paket.lock's resolved 10.1.400) with ExcludeAssets=runtime;contentFiles, meaning FSharp.Core.dll is NOT shipped in the design-time output folder and the host compiler must supply a compatible version. Posted troubleshooting comment (restore/clean/IDE-reload steps, asked for verbose restore log). FLAG FOR NEXT RUN: consider whether bumping the FSharp.Core Version pin in DesignTime.fsproj from 8.0.403 to match paket.lock (10.1.400/10.1.401) would help, but this needs careful build verification first since paket may already be overriding the pin transparently - do NOT change blindly, verify actual DLL/manifest output before touching this packaging-critical setting. Task 4: dotnet paket update found only patch-level bumps; created PR repo-assist/eng-bump-deps-20260909 (build + 562 tests pass). Task 9: added CachingTests.fs (11 tests) for previously-untested Caching.createInMemoryCache; created PR repo-assist/test-caching-coverage (build + fantomas + 573 tests pass, 562->573). Task 11: updated monthly issue #489 with new run entry and updated suggested-actions list (2 new PRs, 1 new check-comment item for #490; kept #411 close-issue item)."
 }
