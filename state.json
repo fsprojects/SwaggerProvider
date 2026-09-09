@@ -1,7 +1,7 @@
 {
-  "last_run": "2026-09-05T02:29:00Z",
-  "last_run_id": "33939125420",
-  "monthly_activity_issue": "new-2026-09",
+  "last_run": "2026-09-09T14:37:00Z",
+  "last_run_id": "34364464627",
+  "monthly_activity_issue": "489",
   "issue_backlog_cursor": 477,
   "comments_made": {
     "33": "2026-04-03T22:21:07Z",
@@ -11,5 +11,8 @@
   "fix_attempts": [
     {"issue": 477, "pr_branch": "repo-assist/fix-issue-477-named-alias-duplicate-type", "status": "merged", "date": "2026-07-28"}
   ],
-  "notes": "2026-09-05: Created PR repo-assist/perf-toStrArray-alloc (avoid intermediate array alloc in toStrArray helpers, RuntimeHelpers.fs). 548 unit tests pass. No fixable issues for Task 3; no new activity for Task 2 on #33/#358/#411. Closed August monthly #487, created September monthly issue. Issue #411 still needs manual maintainer PR (workflow file protected). Issue #358 blocked on .NET 11. Prior open PR eng-bump-deps-20260829 still pending review."
+  "open_prs": {
+    "test_validateContentType": "repo-assist/test-validateContentType-coverage: unit tests for SchemaReader.validateContentType SSRF guard (2026-09-09)"
+  },
+  "notes": "2026-09-09: Selected tasks 5,8,9. Confirmed prior PRs eng-bump-deps-20260829 (#486) and perf-toStrArray-alloc (#488) are merged/closed. Task 5/8: reviewed RuntimeHelpers.fs, DefinitionCompiler.fs, OperationCompiler.fs, Caching.fs, Utils.fs (DesignTime) for coding/perf improvements; no new clearly-beneficial low-risk changes found beyond what many prior runs already addressed (hot paths already heavily optimized: toStrArray, formatObject, toParam, query construction, propCache, propNameCache). Substituted with Task 9. Task 9: found SchemaReader.validateContentType (Utils.fs, SSRF Content-Type allow-list) had zero direct unit tests despite being security-relevant; added 14 tests in SsrfSecurityTests.fs covering allowed media types, charset stripping, case-insensitivity, null handling, rejection of html/image types, and SSRF-disabled bypass. Build succeeded, fantomas --check passed, 562/562 unit tests pass (548->562). Created draft PR repo-assist/test-validateContentType-coverage. New issue #490 opened (OpenApiClientProvider not found on .NET 10.0.400, related to previously-closed #248) - flagged for future triage/investigation, not yet commented on (needs deeper investigation into design-time assembly resolution before responding substantively). Updated monthly issue #489 with current suggested actions and run history."
 }

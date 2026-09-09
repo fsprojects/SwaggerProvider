@@ -22,6 +22,20 @@
 - Updated issue #467 (July 2026 monthly)
 - Added new run entry and new PR to suggested actions
 
+## Run: 2026-09-09 14:37 UTC (run 34364464627)
+### Selected Tasks: 5, 8, 9
+- Task 5/8: No new low-risk clearly-beneficial coding/perf improvements found (hot paths
+  already heavily optimized from many prior runs). Substituted with Task 9.
+- Task 9: `SchemaReader.validateContentType` (SSRF Content-Type allow-list guard, Utils.fs)
+  had zero direct unit tests. Added 14 tests to SsrfSecurityTests.fs covering allowed
+  media types, charset stripping, case-insensitivity, null handling, html/image rejection,
+  and SSRF-disabled bypass. 562/562 tests pass (548->562). Build + fantomas check pass.
+  PR: repo-assist/test-validateContentType-coverage (draft)
+- Confirmed PRs #486 (eng-bump-deps) and #488 (perf-toStrArray-alloc) merged/closed.
+- New issue #490 (OpenApiClientProvider not found on .NET 10.0.400) flagged for future
+  triage - related to previously-closed #248 but needs fresh investigation before commenting.
+- Task 11: Updated monthly issue #489 with current suggested actions and run history.
+
 ## Infrastructure Notes
 - Issue #411: dead .paket CI cache step — requires manual PR (protected workflow files)
 - Issue #358: Microsoft.OpenApi 3.x migration — blocked, revisit with .NET 11
