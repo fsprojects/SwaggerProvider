@@ -352,3 +352,70 @@ module SsrfBypassTests =
         | ex when ex.Message.Contains("Only HTTPS") ->
             Assert.True(false, $"HTTP should not be rejected by SSRF validation when disabled: {ex.Message}")
         | _ -> ()
+
+/// Tests for validateContentType - Critical: SSRF protection via Content-Type validation.
+/// Prevents processing of non-schema responses (HTML, images, binaries) that an attacker-controlled
+/// endpoint could return in an SSRF attempt. Previously had no direct unit test coverage.
+module ContentTypeValidationTests =
+    open System.Net.Http.Headers
+
+    [<Fact>]
+    let ``Allow application/json when SSRF protection is enabled``() =
+        let contentType = MediaTypeHeaderValue("application/json")
+        validateContentType false contentType
+
+    [<Theory>]
+    [<InlineData("application/yaml")>]
+    [<InlineData("application/x-yaml")>]
+    [<InlineData("text/yaml")>]
+    [<InlineData("text/x-yaml")>]
+    [<InlineData("text/plain")>]
+    [<InlineData("application/octet-stream")>]
+    let ``Allow known schema Content-Types when SSRF protection is enabled``(mediaType: string) =
+        let contentType = MediaTypeHeaderValue(mediaType)
+        validateContentType false contentType
+
+    [<Fact>]
+    let ``Allow Content-Type with charset parameter``() =
+        // e.g. "application/json; charset=utf-8" — parameters must be stripped before comparison
+        let contentType = MediaTypeHeaderValue("application/json")
+        contentType.CharSet <- "utf-8"
+        validateContentType false contentType
+
+    [<Fact>]
+    let ``Reject text/html Content-Type when SSRF protection is enabled``() =
+        let contentType = MediaTypeHeaderValue("text/html")
+
+        let thrown =
+            Assert.Throws<Exception>(fun () -> validateContentType false contentType)
+
+        Assert.Contains("Invalid Content-Type", thrown.Message)
+
+    [<Fact>]
+    let ``Reject image Content-Type when SSRF protection is enabled``() =
+        let contentType = MediaTypeHeaderValue("image/png")
+
+        let thrown =
+            Assert.Throws<Exception>(fun () -> validateContentType false contentType)
+
+        Assert.Contains("Invalid Content-Type", thrown.Message)
+
+    [<Fact>]
+    let ``Content-Type comparison is case-insensitive``() =
+        let contentType = MediaTypeHeaderValue("APPLICATION/JSON")
+        validateContentType false contentType
+
+    [<Fact>]
+    let ``Allow null Content-Type when SSRF protection is enabled``() =
+        // Some servers omit Content-Type entirely; validation should not fail in this case.
+        validateContentType false null
+
+    [<Fact>]
+    let ``Allow any Content-Type when SSRF protection is disabled``() =
+        let contentType = MediaTypeHeaderValue("text/html")
+        // Should not throw when ignoreSsrfProtection=true (development mode)
+        validateContentType true contentType
+
+    [<Fact>]
+    let ``Allow null Content-Type when SSRF protection is disabled``() =
+        validateContentType true null
