@@ -24,6 +24,7 @@
     <Compile Include="SsrfSecurityTests.fs" />
     <Compile Include="RuntimeHelpersTests.fs" />
     <Compile Include="UtilsTests.fs" />
+    <Compile Include="CachingTests.fs" />
     <None Include="paket.references" />
     <ProjectReference Include="..\..\src\SwaggerProvider.DesignTime\SwaggerProvider.DesignTime.fsproj" />
   </ItemGroup>
