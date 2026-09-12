@@ -84,3 +84,33 @@
   fantomas + 573/573 tests pass (562->573). Created draft PR repo-assist/test-caching-coverage.
 - Task 11: Updated monthly issue #489 - added new run entry, added 2 new PRs and 1 check-comment
   item (#490) to suggested actions, kept #411 close-issue item and future-work notes.
+
+## Run: 2026-09-12 02:30 UTC (run 34667753282)
+### Selected Tasks: 8, 4, 1
+- Task 1: Labelled #490 (`bug`, `needs investigation`) - had zero labels despite being an active bug report.
+- Task 4: `dotnet paket outdated` found only Microsoft.Identity.Client/Extensions.Msal (transitive,
+  test group) 4.88->4.89. Ran full `dotnet paket update`; only paket.lock changed. Created PR
+  repo-assist/eng-bump-deps-20260912. Build (dotnet fsi build.fsx -t Build) succeeded, 573/573 tests pass.
+- Task 8 (perf): reviewed all key DesignTime/Runtime files (via explore agent + manual review) -
+  no new low-risk measurable perf win found; codebase already heavily optimized across ~15 prior
+  runs (caching dictionaries, StringBuilder, avoided allocations - all documented in code comments).
+  Substituted with Task 9.
+- Task 9 (testing) substitute: reviewed test coverage across all major modules
+  (RuntimeHelpersTests.fs has 214 cases for 808-line RuntimeHelpers.fs; UtilsTests, SsrfSecurityTests,
+  CachingTests, PathResolutionTests, ProviderTests integration suite for CancellationToken/
+  SchemaReaderErrors/etc.) - coverage already comprehensive, no gaps found. Substituted with Task 5.
+- Task 5 (coding improvements) substitute: reviewed README/docs for recent features
+  (IgnoreParseErrors, SchemaReaderErrors) - already documented. No low-risk improvement found.
+- **KEY FINDING**: Resolved the FLAG left by the 2026-09-09 17:07 run about the stale
+  `FSharp.Core Version=8.0.403` pin in `SwaggerProvider.DesignTime.fsproj`. Built the design-time
+  assembly and inspected its actual FSharp.Core AssemblyReference via System.Reflection.Metadata:
+  the real reference is `10.1.0.0` (matches paket.lock's resolved FSharp.Core version), NOT the
+  stale 8.0.403 pin. CONCLUSION: this pin is a harmless cosmetic red herring that does not affect
+  build output (paket overrides it during restore/build). **Do not attempt to "fix" this pin in
+  future runs** - it's confirmed to have zero effect. Issue #490's underlying problem remains an
+  environment-side FSharp.Core resolution issue in the reporter's own toolchain, not a packaging
+  defect in this repo; already addressed via troubleshooting comment on 2026-09-09.
+- Task 11: Updated monthly issue #489 - confirmed PRs #493 (test-caching-coverage) and #491
+  (test-validateContentType-coverage) both merged, removed from suggested actions; added new PR
+  eng-bump-deps-20260912; added FSharp.Core-pin resolution note to Future Work; kept #411
+  close-issue item and #490 check-comment item.

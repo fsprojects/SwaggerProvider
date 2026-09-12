@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-09-09T17:07:00Z",
-  "last_run_id": "34380739176",
+  "last_run": "2026-09-12T02:30:00Z",
+  "last_run_id": "34667753282",
   "monthly_activity_issue": "489",
   "issue_backlog_cursor": 490,
   "comments_made": {
@@ -13,9 +13,10 @@
     {"issue": 477, "pr_branch": "repo-assist/fix-issue-477-named-alias-duplicate-type", "status": "merged", "date": "2026-07-28"}
   ],
   "open_prs": {
-    "test_validateContentType": "repo-assist/test-validateContentType-coverage: unit tests for SchemaReader.validateContentType SSRF guard (2026-09-09)",
-    "eng_bump_deps_20260909": "repo-assist/eng-bump-deps-20260909: paket.lock patch-level refresh (2026-09-09)",
-    "test_caching_coverage": "repo-assist/test-caching-coverage: unit tests for Caching.createInMemoryCache (2026-09-09)"
+    "eng_bump_deps_20260912": "repo-assist/eng-bump-deps-20260912: bump transitive Microsoft.Identity.Client/Extensions.Msal test deps 4.88->4.89 (2026-09-12)"
   },
-  "notes": "2026-09-09 17:07 run. Selected tasks 2,4,9. Investigated #490 (OpenApiClientProvider not found, .NET 10.0.400): root cause traced to FSharp.Core 10.1.0.0 FileNotFoundException during design-time assembly load. src/SwaggerProvider.DesignTime/SwaggerProvider.DesignTime.fsproj pins FSharp.Core PackageReference Version=8.0.403 (stale vs paket.lock's resolved 10.1.400) with ExcludeAssets=runtime;contentFiles, meaning FSharp.Core.dll is NOT shipped in the design-time output folder and the host compiler must supply a compatible version. Posted troubleshooting comment (restore/clean/IDE-reload steps, asked for verbose restore log). FLAG FOR NEXT RUN: consider whether bumping the FSharp.Core Version pin in DesignTime.fsproj from 8.0.403 to match paket.lock (10.1.400/10.1.401) would help, but this needs careful build verification first since paket may already be overriding the pin transparently - do NOT change blindly, verify actual DLL/manifest output before touching this packaging-critical setting. Task 4: dotnet paket update found only patch-level bumps; created PR repo-assist/eng-bump-deps-20260909 (build + 562 tests pass). Task 9: added CachingTests.fs (11 tests) for previously-untested Caching.createInMemoryCache; created PR repo-assist/test-caching-coverage (build + fantomas + 573 tests pass, 562->573). Task 11: updated monthly issue #489 with new run entry and updated suggested-actions list (2 new PRs, 1 new check-comment item for #490; kept #411 close-issue item)."
+  "labels_applied": {
+    "490": ["bug", "needs investigation"]
+  },
+  "notes": "2026-09-12 02:30 run. Selected tasks 8,4,1. RESOLVED FLAG from prior run: inspected built SwaggerProvider.DesignTime.dll's FSharp.Core AssemblyReference via System.Reflection.Metadata - actual reference is 10.1.0.0 (matches paket.lock), confirming the stale FSharp.Core Version=8.0.403 pin in DesignTime.fsproj is a harmless cosmetic red herring, NOT the root cause of any build issue - do not attempt to fix this pin in future runs. Task 1: labelled issue #490 (bug, needs investigation) which had zero labels. Task 4: dotnet paket outdated found only Microsoft.Identity.Client/Extensions.Msal (transitive test-group) 4.88->4.89; ran dotnet paket update, only paket.lock changed; created PR repo-assist/eng-bump-deps-20260912; build + 573/573 tests pass. Task 8/9/5: extensive review found no new low-risk perf, testing, or coding improvements - codebase is thoroughly optimized/tested/documented from ~15+ prior automated runs; genuinely nothing actionable found this run beyond what was already done. Task 11: updated monthly issue #489, confirmed test-caching-coverage (PR #493) and test-validateContentType-coverage (PR #491) both merged and removed from suggested actions list, added new eng-bump-deps-20260912 PR to suggested actions, added resolution note re: FSharp.Core pin investigation to Future Work section."
 }
