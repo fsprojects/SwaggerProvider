@@ -66,13 +66,15 @@ let internal logTime category (instance: string) =
             let instance = instance.Replace("\r", null).Replace("\n", "\\n")
 
             sprintf "%s|%s|%d" category instance s.ElapsedMilliseconds
-            |> appendToLog "log.csv" }
+            |> appendToLog "log.csv"
+    }
 
 #else
 
 let internal dummyDisposable =
     { new IDisposable with
-        member _.Dispose() = () }
+        member _.Dispose() = ()
+    }
 
 let inline internal log(_: string) = ()
 let inline internal logWithStackTrace(_: string) = ()
@@ -142,4 +144,5 @@ let createInMemoryCache(expiration: TimeSpan) =
             if added then
                 invalidationFunction key |> Async.Start
 
-            res }
+            res
+    }

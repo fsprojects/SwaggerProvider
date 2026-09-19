@@ -44,13 +44,15 @@ type public OpenApiClientTypeProvider(cfg: TypeProviderConfig) as this =
             ProvidedTypeDefinition(asm, ns, "OpenApiClientProvider", Some typeof<obj>, isErased = false)
 
         let staticParams =
-            [ ProvidedStaticParameter("Schema", typeof<string>)
-              ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
-              ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
-              ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
-              ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
-              ProvidedStaticParameter("SsrfProtection", typeof<bool>, true)
-              ProvidedStaticParameter("IgnoreParseErrors", typeof<bool>, false) ]
+            [
+                ProvidedStaticParameter("Schema", typeof<string>)
+                ProvidedStaticParameter("IgnoreOperationId", typeof<bool>, false)
+                ProvidedStaticParameter("IgnoreControllerPrefix", typeof<bool>, true)
+                ProvidedStaticParameter("PreferNullable", typeof<bool>, false)
+                ProvidedStaticParameter("PreferAsync", typeof<bool>, false)
+                ProvidedStaticParameter("SsrfProtection", typeof<bool>, true)
+                ProvidedStaticParameter("IgnoreParseErrors", typeof<bool>, false)
+            ]
 
         t.AddXmlDoc
             """<summary>Statically typed OpenAPI provider.</summary>

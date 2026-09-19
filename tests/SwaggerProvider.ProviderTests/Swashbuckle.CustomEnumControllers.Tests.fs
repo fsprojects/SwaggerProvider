@@ -15,19 +15,23 @@ let ``Return Priority POST Test``() =
 let ``Return Array Priority GET Test``() =
     api.GetApiReturnArrayPriority()
     |> asyncEqual
-        [| WebAPI.Priority.Low
-           WebAPI.Priority.Normal
-           WebAPI.Priority.High
-           WebAPI.Priority.Critical |]
+        [|
+            WebAPI.Priority.Low
+            WebAPI.Priority.Normal
+            WebAPI.Priority.High
+            WebAPI.Priority.Critical
+        |]
 
 [<Fact>]
 let ``Return Array Priority POST Test``() =
     api.PostApiReturnArrayPriority()
     |> asyncEqual
-        [| WebAPI.Priority.Low
-           WebAPI.Priority.Normal
-           WebAPI.Priority.High
-           WebAPI.Priority.Critical |]
+        [|
+            WebAPI.Priority.Low
+            WebAPI.Priority.Normal
+            WebAPI.Priority.High
+            WebAPI.Priority.Critical
+        |]
 
 [<Fact>]
 let ``Update Priority GET Test``() =
@@ -42,27 +46,35 @@ let ``Update Priority POST Test``() =
 [<Fact>]
 let ``Update Array Priority GET Test``() =
     api.GetApiUpdateArrayPriority(
-        [| WebAPI.Priority.Critical
-           WebAPI.Priority.High
-           WebAPI.Priority.Normal
-           WebAPI.Priority.Low |]
+        [|
+            WebAPI.Priority.Critical
+            WebAPI.Priority.High
+            WebAPI.Priority.Normal
+            WebAPI.Priority.Low
+        |]
     )
     |> asyncEqual
-        [| WebAPI.Priority.Low
-           WebAPI.Priority.Normal
-           WebAPI.Priority.High
-           WebAPI.Priority.Critical |]
+        [|
+            WebAPI.Priority.Low
+            WebAPI.Priority.Normal
+            WebAPI.Priority.High
+            WebAPI.Priority.Critical
+        |]
 
 [<Fact>]
 let ``Update Array Priority POST Test``() =
     api.PostApiUpdateArrayPriority(
-        [| WebAPI.Priority.Critical
-           WebAPI.Priority.High
-           WebAPI.Priority.Normal
-           WebAPI.Priority.Low |]
+        [|
+            WebAPI.Priority.Critical
+            WebAPI.Priority.High
+            WebAPI.Priority.Normal
+            WebAPI.Priority.Low
+        |]
     )
     |> asyncEqual
-        [| WebAPI.Priority.Low
-           WebAPI.Priority.Normal
-           WebAPI.Priority.High
-           WebAPI.Priority.Critical |]
+        [|
+            WebAPI.Priority.Low
+            WebAPI.Priority.Normal
+            WebAPI.Priority.High
+            WebAPI.Priority.Critical
+        |]
