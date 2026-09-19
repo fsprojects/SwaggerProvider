@@ -256,7 +256,8 @@ module ToQueryParamsTests =
                 JsonSerializer.Serialize v
 
             override _.Deserialize(s, t) =
-                JsonSerializer.Deserialize(s, t) }
+                JsonSerializer.Deserialize(s, t)
+        }
 
     [<Fact>]
     let ``toQueryParams handles string array``() =
@@ -594,8 +595,10 @@ module ToQueryParamsTests =
     let ``toQueryParams handles string enum array``() =
         // Each element is serialised to its OpenAPI wire value.
         let values: EnumToParamTests.StringStatus[] =
-            [| EnumToParamTests.StringStatus.Active
-               EnumToParamTests.StringStatus.InProgress |]
+            [|
+                EnumToParamTests.StringStatus.Active
+                EnumToParamTests.StringStatus.InProgress
+            |]
 
         let result = toQueryParams "status" (box values) stubClient
 
@@ -996,7 +999,8 @@ module OpenApiExceptionTests =
                 JsonSerializer.Serialize v
 
             override _.Deserialize(s, t) =
-                JsonSerializer.Deserialize(s, t) }
+                JsonSerializer.Deserialize(s, t)
+        }
 
     [<Fact>]
     let ``OpenApiException message includes description when no body``() =
@@ -1053,7 +1057,9 @@ module OpenApiExceptionTests =
             let! ex =
                 Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
                     task {
-                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        let! _ =
+                            client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+
                         ()
                     })
 
@@ -1074,7 +1080,9 @@ module OpenApiExceptionTests =
             let! ex =
                 Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
                     task {
-                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        let! _ =
+                            client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+
                         ()
                     })
 
@@ -1096,7 +1104,9 @@ module OpenApiExceptionTests =
             let! ex =
                 Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
                     task {
-                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        let! _ =
+                            client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+
                         ()
                     })
 

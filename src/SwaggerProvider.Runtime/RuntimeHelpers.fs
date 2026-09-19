@@ -292,11 +292,13 @@ module RuntimeHelpers =
                 let elTy = xs.GetType().GetElementType()
                 let serializer = enumSerializerCache.GetOrAdd(elTy, enumSerializerFactory)
 
-                [ for i in 0 .. xs.Length - 1 do
-                      let param = serializer(xs.GetValue(i))
+                [
+                    for i in 0 .. xs.Length - 1 do
+                        let param = serializer(xs.GetValue(i))
 
-                      if not(isNull param) then
-                          yield name, param ]
+                        if not(isNull param) then
+                            yield name, param
+                ]
             | :? array<bool> as xs -> xs |> toStrArray name
             | :? array<int32> as xs -> xs |> toStrArray name
             | :? array<int64> as xs -> xs |> toStrArray name
@@ -508,7 +510,8 @@ module RuntimeHelpers =
             member _.ConstructorArguments =
                 [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
 
-            member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_>
+        }
 
     // Cached constructor for JsonConverterAttribute (used to apply JsonStringEnumConverter to generated enum types).
     let private jsonConverterCtor =
@@ -521,9 +524,13 @@ module RuntimeHelpers =
             member _.Constructor = jsonConverterCtor
 
             member _.ConstructorArguments =
-                [| Reflection.CustomAttributeTypedArgument(typeof<Type>, typeof<JsonStringEnumConverter>) |] :> Collections.Generic.IList<_>
+                [|
+                    Reflection.CustomAttributeTypedArgument(typeof<Type>, typeof<JsonStringEnumConverter>)
+                |]
+                :> Collections.Generic.IList<_>
 
-            member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+            member _.NamedArguments = [||] :> Collections.Generic.IList<_>
+        }
 
     /// Builds a CustomAttributeData representing [JsonStringEnumMemberName(name)].
     /// Apply this to individual string-enum members so System.Text.Json (9.0+) honours
@@ -541,7 +548,8 @@ module RuntimeHelpers =
                     member _.ConstructorArguments =
                         [| Reflection.CustomAttributeTypedArgument(typeof<string>, name) |] :> Collections.Generic.IList<_>
 
-                    member _.NamedArguments = [||] :> Collections.Generic.IList<_> }
+                    member _.NamedArguments = [||] :> Collections.Generic.IList<_>
+                }
             )
 
     let toStringContent(valueStr: string) =
@@ -648,14 +656,16 @@ module RuntimeHelpers =
     // allocating a normalized string for lookup.
     let private standardHttpMethods =
         let methods =
-            [| HttpMethod.Get
-               HttpMethod.Post
-               HttpMethod.Put
-               HttpMethod.Delete
-               HttpMethod("PATCH")
-               HttpMethod.Head
-               HttpMethod.Options
-               HttpMethod.Trace |]
+            [|
+                HttpMethod.Get
+                HttpMethod.Post
+                HttpMethod.Put
+                HttpMethod.Delete
+                HttpMethod("PATCH")
+                HttpMethod.Head
+                HttpMethod.Options
+                HttpMethod.Trace
+            |]
 
         let dictionary =
             System.Collections.Generic.Dictionary<string, HttpMethod>(StringComparer.OrdinalIgnoreCase)

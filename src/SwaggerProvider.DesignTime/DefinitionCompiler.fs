@@ -13,9 +13,11 @@ open Microsoft.FSharp.Quotations
 open Microsoft.OpenApi
 
 type DefinitionPath =
-    { Namespace: string list
-      RequestedTypeName: string
-      ProvidedTypeNameCandidate: string }
+    {
+        Namespace: string list
+        RequestedTypeName: string
+        ProvidedTypeNameCandidate: string
+    }
 
     static member DefinitionPrefix = "#/components/schemas/"
 
@@ -41,9 +43,11 @@ type DefinitionPath =
         let lastDot = definitionPath.LastIndexOf(nsSeparator, getCharInTypeName 0)
 
         if lastDot < 0 then
-            { Namespace = []
-              RequestedTypeName = definitionPath
-              ProvidedTypeNameCandidate = nicePascalName definitionPath }
+            {
+                Namespace = []
+                RequestedTypeName = definitionPath
+                ProvidedTypeNameCandidate = nicePascalName definitionPath
+            }
         else
             let nsPath =
                 definitionPath.Substring(0, lastDot).Split([| nsSeparator |], StringSplitOptions.RemoveEmptyEntries)
@@ -51,9 +55,11 @@ type DefinitionPath =
 
             let tyName = definitionPath.Substring(lastDot + 1)
 
-            { Namespace = nsPath
-              RequestedTypeName = tyName
-              ProvidedTypeNameCandidate = nicePascalName tyName }
+            {
+                Namespace = nsPath
+                RequestedTypeName = tyName
+                ProvidedTypeNameCandidate = nicePascalName tyName
+            }
 
 type NamespaceEntry =
     | Reservation

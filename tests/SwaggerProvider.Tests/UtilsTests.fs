@@ -123,9 +123,11 @@ module BuildEnumDocTests =
     let ``multiple string enum values are comma-separated``() =
         let values =
             List<JsonNode>(
-                [| JsonValue.Create("active") :> JsonNode
-                   JsonValue.Create("inactive") :> JsonNode
-                   JsonValue.Create("pending") :> JsonNode |]
+                [|
+                    JsonValue.Create("active") :> JsonNode
+                    JsonValue.Create("inactive") :> JsonNode
+                    JsonValue.Create("pending") :> JsonNode
+                |]
             )
             :> IList<JsonNode>
 

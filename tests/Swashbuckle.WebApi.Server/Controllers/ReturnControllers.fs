@@ -57,10 +57,12 @@ type ReturnPriorityController() =
 type ReturnArrayPriorityController() =
     inherit
         ReturnController<Types.Priority array>(
-            [| Types.Priority.Low
-               Types.Priority.Normal
-               Types.Priority.High
-               Types.Priority.Critical |]
+            [|
+                Types.Priority.Low
+                Types.Priority.Normal
+                Types.Priority.High
+                Types.Priority.Critical
+            |]
         )
 
 type ReturnListIntController() =
