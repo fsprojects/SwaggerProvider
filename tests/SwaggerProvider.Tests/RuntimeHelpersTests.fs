@@ -968,6 +968,22 @@ type private EmptyReasonPhraseHandler(statusCode: HttpStatusCode) =
         response.Content <- new StringContent("")
         Task.FromResult(response)
 
+/// A stub handler that returns a fixed status code with content declaring an invalid
+/// charset. HttpClient's automatic response buffering only copies raw bytes (no charset
+/// decoding), but the explicit ReadAsStringAsync() call inside CallAsync's readBody
+/// helper fails to resolve the bogus charset, exercising the try/with fallback to "".
+type private InvalidCharsetHandler(statusCode: HttpStatusCode) =
+    inherit HttpMessageHandler()
+
+    override _.SendAsync(_request: HttpRequestMessage, cancellationToken: CancellationToken) =
+        cancellationToken.ThrowIfCancellationRequested()
+        let response = new HttpResponseMessage(statusCode)
+        let content = new StringContent("some body")
+        content.Headers.ContentType <- Headers.MediaTypeHeaderValue("text/plain")
+        content.Headers.ContentType.CharSet <- "not-a-real-charset"
+        response.Content <- content
+        Task.FromResult(response)
+
 
 module OpenApiExceptionTests =
 
@@ -1136,6 +1152,27 @@ module OpenApiExceptionTests =
 
             ex.StatusCode |> shouldEqual 503
             ex.Message |> shouldEqual "HTTP 503"
+        }
+
+    [<Fact>]
+    let ``CallAsync falls back to empty body when reading response content throws``() =
+        task {
+            // InvalidCharsetHandler declares a bogus charset, exercising CallAsync's
+            // readBody try/with fallback that swallows the decode failure and uses "".
+            use handler = new InvalidCharsetHandler(HttpStatusCode.NotFound)
+            let client = makeClient handler
+            use request = new HttpRequestMessage(HttpMethod.Get, "http://stub/pets/1")
+
+            let! ex =
+                Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
+                    task {
+                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        ()
+                    })
+
+            ex.StatusCode |> shouldEqual 404
+            ex.ResponseBody |> shouldEqual ""
+            ex.Message |> shouldEqual "Pet not found"
         }
 
 type FmtSingle(name: string) =
