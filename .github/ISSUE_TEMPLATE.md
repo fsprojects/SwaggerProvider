@@ -22,11 +22,6 @@ Please provide a description of the actual behavior you observe.
 
 Please provide a description of any known workarounds.
 
-### Affected Type Providers
-
-- [ ] SwaggerClientProvider
-- [ ] OpenApiClientProvider
-
 ### Related information
 
 * Operating system
