@@ -1176,7 +1176,9 @@ module OpenApiExceptionTests =
             let! ex =
                 Assert.ThrowsAsync<Swagger.OpenApiException>(fun () ->
                     task {
-                        let! _ = client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+                        let! _ =
+                            client.CallAsync(request, [| "404" |], [| "Pet not found" |], CancellationToken.None)
+
                         ()
                     })
 
