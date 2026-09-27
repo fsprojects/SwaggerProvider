@@ -248,6 +248,36 @@ module EnumToParamTests =
         result |> shouldEqual "inactive"
 
 
+module ToJsonParamTests =
+
+    let private stubClient =
+        { new Swagger.ProvidedApiClientBase(null, JsonSerializerOptions()) with
+            override _.Serialize(v) =
+                JsonSerializer.Serialize v
+
+            override _.Deserialize(s, t) =
+                JsonSerializer.Deserialize(s, t)
+        }
+
+    [<Fact>]
+    let ``toJsonParam serializes object values with the client serializer``() =
+        let result = toJsonParam (box {| stageLocation = "stage-a"; fileSize = 42L |}) stubClient
+        result |> shouldContainText "\"stageLocation\":\"stage-a\""
+        result |> shouldContainText "\"fileSize\":42"
+
+    [<Fact>]
+    let ``toJsonParam returns null for Option None``() =
+        let result = toJsonParam (box(None: string option)) stubClient
+        result |> shouldEqual null
+
+    [<Fact>]
+    let ``toJsonQueryParam keeps content-typed values as a single serialized pair``() =
+        let result = toJsonQueryParam "properties" (box {| stageLocation = "stage-a"; fileSize = 42L |}) stubClient
+        result |> shouldHaveLength 1
+        fst result[0] |> shouldEqual "properties"
+        snd result[0] |> shouldContainText "\"stageLocation\":\"stage-a\""
+        snd result[0] |> shouldContainText "\"fileSize\":42"
+
 module ToQueryParamsTests =
 
     let private stubClient =

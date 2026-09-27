@@ -219,6 +219,26 @@ module RuntimeHelpers =
     let private enumSerializerFactory =
         System.Func<Type, obj -> string>(buildEnumSerializer)
 
+    let rec private unwrapOptionalValue(obj: obj) =
+        if isNull obj then
+            null
+        else
+            let ty = obj.GetType()
+
+            if
+                ty.IsGenericType
+                && ty.GetGenericTypeDefinition() = typedefof<option<_>>
+            then
+                let tagReader = optionTagReaderCache.GetOrAdd(ty, optionTagReaderFactory)
+
+                if tagReader obj = 1 then // 1 = Some
+                    let valueProp = optionValueCache.GetOrAdd(ty, optionValueFactory)
+                    unwrapOptionalValue(valueProp.GetValue(obj))
+                else
+                    null
+            else
+                obj
+
     let rec toParam(obj: obj) =
         match obj with
         | :? DateTime as dt -> dt.ToString("O")
@@ -272,6 +292,18 @@ module RuntimeHelpers =
                 serializer obj
             else
                 obj.ToString()
+
+    let toJsonParam(obj: obj) (client: Swagger.ProvidedApiClientBase) =
+        let value = unwrapOptionalValue obj
+
+        if isNull value then
+            null
+        else
+            client.Serialize value
+
+    let toJsonQueryParam (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
+        let param = toJsonParam obj client
+        if isNull param then [] else [ name, param ]
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         if isNull obj then

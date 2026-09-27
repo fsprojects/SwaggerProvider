@@ -58,6 +58,16 @@ let private containsDuplicateVarObject vars =
         |> List.exists(fun other -> obj.ReferenceEquals(v, other)))
     |> List.exists id
 
+let private containsMethodCall (methodName: string) expr =
+    let rec loop expr =
+        match expr with
+        | Call(_, m, args) -> m.Name = methodName || (args |> List.exists loop)
+        | ShapeVar _ -> false
+        | ShapeLambda(_, body) -> loop body
+        | ShapeCombination(_, args) -> args |> List.exists loop
+
+    loop expr
+
 // ── Simple GET with no parameters ─────────────────────────────────────────────
 
 let private simpleGetSchema =
@@ -1747,6 +1757,96 @@ components:
   schemas: {}
 """
 
+let private contentTypedQueryParamSchema =
+    """openapi: "3.1.1"
+info:
+  title: QueryContentTypedParameterTest
+  version: "1.0.0"
+paths:
+  /api/v1/catalogues/search:
+    get:
+      operationId: Search
+      parameters:
+        - name: filters
+          in: query
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                properties:
+                  stage-location:
+                    type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``content-typed parameter rejects invalid definitions that specify both schema and content``() =
+    let invalidSchema =
+        """openapi: "3.1.1"
+info:
+  title: InvalidParameterTest
+  version: "1.0.0"
+paths:
+  /scan:
+    post:
+      operationId: Scan
+      parameters:
+        - name: properties
+          in: header
+          schema:
+            type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stage-location:
+                    type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+    let ex = Assert.ThrowsAny<exn>(fun () -> compileTaskSchema invalidSchema |> ignore)
+    ex.Message |> shouldContainText "cannot define both schema and content"
+
+[<Fact>]
+let ``content-typed parameter rejects content entries without a schema``() =
+    let invalidSchema =
+        """openapi: "3.1.1"
+info:
+  title: InvalidContentSchemaTest
+  version: "1.0.0"
+paths:
+  /scan:
+    post:
+      operationId: Scan
+      parameters:
+        - name: properties
+          in: header
+          content:
+            application/json:
+              examples: {}
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {}
+"""
+
+    let ex = Assert.ThrowsAny<exn>(fun () -> compileTaskSchema invalidSchema |> ignore)
+    ex.Message |> shouldContainText "must define a schema"
+
 [<Fact>]
 let ``content-typed parameter does not throw and is compiled using its content schema``() =
     let types = compileTaskSchema contentTypedHeaderParamSchema
@@ -1760,3 +1860,37 @@ let ``content-typed parameter does not throw and is compiled using its content s
     // The content schema is an inline object with properties, so it must compile to a
     // generated provided type (not `obj`, which would indicate the schema was lost).
     propertiesParam.ParameterType |> shouldNotEqual typeof<obj>
+
+[<Fact>]
+let ``content-typed json header uses json parameter serialization in request generation``() =
+    let types = compileTaskSchema contentTypedHeaderParamSchema
+    let method = (findMethod types "Scan").Value
+    let invokeCode = getInvokeCode method
+    let parameters = method.GetParameters()
+    let propertiesParam = parameters |> Array.find(fun p -> p.Name = "properties")
+
+    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
+    let propertiesExpr = Expr.Var(Var("properties", propertiesParam.ParameterType))
+    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
+    let body = invokeCode [ thisExpr; propertiesExpr; ctExpr ]
+
+    body
+    |> containsMethodCall "toJsonParam"
+    |> shouldEqual true
+
+[<Fact>]
+let ``content-typed json query parameter uses json query serialization in request generation``() =
+    let types = compileTaskSchema contentTypedQueryParamSchema
+    let method = (findMethod types "Search").Value
+    let invokeCode = getInvokeCode method
+    let parameters = method.GetParameters()
+    let filtersParam = parameters |> Array.find(fun p -> p.Name = "filters")
+
+    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
+    let filtersExpr = Expr.Var(Var("filters", filtersParam.ParameterType))
+    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
+    let body = invokeCode [ thisExpr; filtersExpr; ctExpr ]
+
+    body
+    |> containsMethodCall "toJsonQueryParam"
+    |> shouldEqual true
