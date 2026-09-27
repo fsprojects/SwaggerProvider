@@ -1818,10 +1818,12 @@ components:
 """
 
     let ex = Assert.ThrowsAny<exn>(fun () -> compileTaskSchema invalidSchema |> ignore)
-    ex.Message |> shouldContainText "cannot define both schema and content"
+
+    ex.Message
+    |> shouldContainText "cannot define both schema and content"
 
 [<Fact>]
-let ``content-typed parameter rejects content entries without a schema``() =
+let ``content-typed parameter without schema compiles and falls back to obj``() =
     let invalidSchema =
         """openapi: "3.1.1"
 info:
@@ -1844,8 +1846,11 @@ components:
   schemas: {}
 """
 
-    let ex = Assert.ThrowsAny<exn>(fun () -> compileTaskSchema invalidSchema |> ignore)
-    ex.Message |> shouldContainText "must define a schema"
+    let types = compileTaskSchema invalidSchema
+    let method = (findMethod types "Scan").Value
+    let parameters = method.GetParameters()
+    let propertiesParam = parameters |> Array.find(fun p -> p.Name = "properties")
+    propertiesParam.ParameterType |> shouldEqual typeof<obj>
 
 [<Fact>]
 let ``content-typed parameter does not throw and is compiled using its content schema``() =
@@ -1874,9 +1879,7 @@ let ``content-typed json header uses json parameter serialization in request gen
     let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
     let body = invokeCode [ thisExpr; propertiesExpr; ctExpr ]
 
-    body
-    |> containsMethodCall "toJsonParam"
-    |> shouldEqual true
+    body |> containsMethodCall "toJsonParam" |> shouldEqual true
 
 [<Fact>]
 let ``content-typed json query parameter uses json query serialization in request generation``() =
@@ -1891,6 +1894,4 @@ let ``content-typed json query parameter uses json query serialization in reques
     let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
     let body = invokeCode [ thisExpr; filtersExpr; ctExpr ]
 
-    body
-    |> containsMethodCall "toJsonQueryParam"
-    |> shouldEqual true
+    body |> containsMethodCall "toJsonQueryParam" |> shouldEqual true

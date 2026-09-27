@@ -144,13 +144,13 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                 Some(kv.Key, kv.Value)
             else
                 let mediaTypes = param.Content.Keys |> String.concat ";"
+
                 failwithf
                     $"Operation '%s{operationId}' parameter '%s{param.Name}' defines content entries [%s{mediaTypes}], but parameters defined via content must contain exactly one media type entry"
 
         let resolveParamContentSchema(param: IOpenApiParameter) =
             match tryGetSingleParamContent param with
-            | Some(mediaType, mediaTy) when isNull mediaTy.Schema ->
-                failwithf $"Operation '%s{operationId}' parameter '%s{param.Name}' content media type '%s{mediaType}' must define a schema"
+            | Some(_, mediaTy) when isNull mediaTy.Schema -> Some(OpenApiSchema() :> IOpenApiSchema)
             | Some(_, mediaTy) -> Some mediaTy.Schema
             | None -> None
 
@@ -180,8 +180,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             if not(isNull param.Schema) then
                 param.Schema
             else
-                resolveParamContentSchema param
-                |> Option.toObj
+                resolveParamContentSchema param |> Option.toObj
 
         let openApiParameters =
             [
