@@ -150,7 +150,21 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
         let resolveParamContentSchema(param: IOpenApiParameter) =
             match tryGetSingleParamContent param with
-            | Some(_, mediaTy) when isNull mediaTy.Schema -> Some(OpenApiSchema() :> IOpenApiSchema)
+            | Some(mediaType, mediaTy) when isNull mediaTy.Schema ->
+                let canonicalType =
+                    if String.IsNullOrWhiteSpace mediaType then
+                        null
+                    else
+                        mediaType.Split(';').[0].Trim()
+
+                if
+                    not(isNull canonicalType)
+                    && (canonicalType.Equals(MediaTypes.ApplicationJson, StringComparison.OrdinalIgnoreCase)
+                        || canonicalType.EndsWith("+json", StringComparison.OrdinalIgnoreCase))
+                then
+                    Some(OpenApiSchema() :> IOpenApiSchema)
+                else
+                    failwithf $"Operation '%s{operationId}' parameter '%s{param.Name}' uses unsupported content media type '%s{mediaType}'"
             | Some(_, mediaTy) -> Some mediaTy.Schema
             | None -> None
 
