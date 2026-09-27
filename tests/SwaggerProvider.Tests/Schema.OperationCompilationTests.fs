@@ -1700,3 +1700,63 @@ let ``200 response schema is used not 201 when both are present``() =
     let returnArg = method.ReturnType.GetGenericArguments()[0]
     returnArg |> shouldNotEqual typeof<int32>
     returnArg |> shouldEqual typeof<string>
+
+// ── Parameter defined via `content` instead of `schema` (regression, issue #501) ──
+
+/// Per the OpenAPI spec, a parameter's type may be described either by `schema`
+/// or by `content` (a map with a single media type entry) but not both. Previously
+/// the compiler only ever read `parameter.Schema`, which is null for content-typed
+/// parameters, causing a NullReferenceException deep in the definition compiler.
+let private contentTypedHeaderParamSchema =
+    """openapi: "3.1.1"
+info:
+  title: Testing | v1
+  version: "0.2.0.0"
+paths:
+  /api/v1/catalogues/scan:
+    post:
+      tags:
+        - Catalogue
+      summary: Testing
+      description: Testing
+      operationId: Scan
+      parameters:
+        - name: properties
+          in: header
+          description: header description
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stage-location:
+                    type: string
+                    description: location
+                  file-size:
+                    minimum: 0
+                    type: integer
+                    format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+[<Fact>]
+let ``content-typed parameter does not throw and is compiled using its content schema``() =
+    let types = compileTaskSchema contentTypedHeaderParamSchema
+    let method = (findMethod types "Scan").Value
+    let parameters = method.GetParameters()
+    // properties (object, required by default since Required is unset -> false) + cancellationToken
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "properties"
+
+    let propertiesParam = parameters |> Array.find(fun p -> p.Name = "properties")
+    // The content schema is an inline object with properties, so it must compile to a
+    // generated provided type (not `obj`, which would indicate the schema was lost).
+    propertiesParam.ParameterType |> shouldNotEqual typeof<obj>

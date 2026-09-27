@@ -109,6 +109,17 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let unambiguousName(par: IOpenApiParameter) =
             $"%s{par.Name}In%A{par.In}"
 
+        // Per the OpenAPI spec, a parameter defines its type via either `schema`
+        // or `content` (a map with a single media type entry), but not both.
+        // Fall back to the schema of the sole `content` entry when `schema` is absent.
+        let resolveParamSchema(param: IOpenApiParameter) =
+            if not(isNull param.Schema) then
+                param.Schema
+            elif not(isNull param.Content) && param.Content.Count > 0 then
+                (Seq.head param.Content.Values).Schema
+            else
+                null
+
         let openApiParameters =
             [
                 if not(isNull pathItem.Parameters) then
@@ -204,7 +215,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     let names, paramName = uniqueParamName names current
 
                     let paramType =
-                        defCompiler.CompileTy providedMethodName paramName current.Schema current.Required
+                        defCompiler.CompileTy providedMethodName paramName (resolveParamSchema current) current.Required
 
                     let providedParam =
                         if current.Required then
@@ -545,10 +556,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let xmlDoc =
             let buildParamDesc(p: IOpenApiParameter) =
                 let enumDoc =
-                    if not(isNull p.Schema) then
-                        XmlDoc.buildEnumDoc p.Schema.Enum
-                    else
-                        None
+                    match resolveParamSchema p with
+                    | null -> None
+                    | schema -> XmlDoc.buildEnumDoc schema.Enum
 
                 XmlDoc.combineDescAndEnum p.Description enumDoc
 
