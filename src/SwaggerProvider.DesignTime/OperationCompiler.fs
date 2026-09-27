@@ -149,22 +149,23 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     $"Operation '%s{operationId}' parameter '%s{param.Name}' defines content entries [%s{mediaTypes}], but parameters defined via content must contain exactly one media type entry"
 
         let resolveParamContentSchema(param: IOpenApiParameter) =
+            let isJsonMediaType mediaType =
+                if String.IsNullOrWhiteSpace mediaType then
+                    false
+                else
+                    let canonicalType = mediaType.Split(';').[0].Trim()
+
+                    canonicalType.Equals(MediaTypes.ApplicationJson, StringComparison.OrdinalIgnoreCase)
+                    || canonicalType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
+
             match tryGetSingleParamContent param with
             | Some(mediaType, mediaTy) when isNull mediaTy.Schema ->
-                let canonicalType =
-                    if String.IsNullOrWhiteSpace mediaType then
-                        null
-                    else
-                        mediaType.Split(';').[0].Trim()
-
-                if
-                    not(isNull canonicalType)
-                    && (canonicalType.Equals(MediaTypes.ApplicationJson, StringComparison.OrdinalIgnoreCase)
-                        || canonicalType.EndsWith("+json", StringComparison.OrdinalIgnoreCase))
-                then
+                if isJsonMediaType mediaType then
                     Some(OpenApiSchema() :> IOpenApiSchema)
                 else
                     failwithf $"Operation '%s{operationId}' parameter '%s{param.Name}' uses unsupported content media type '%s{mediaType}'"
+            | Some(mediaType, _) when not(isJsonMediaType mediaType) ->
+                failwithf $"Operation '%s{operationId}' parameter '%s{param.Name}' uses unsupported content media type '%s{mediaType}'"
             | Some(_, mediaTy) -> Some mediaTy.Schema
             | None -> None
 
