@@ -293,13 +293,10 @@ module RuntimeHelpers =
             else
                 obj.ToString()
 
-    let toJsonParam(obj: obj) (client: Swagger.ProvidedApiClientBase) =
+    let toJsonParam (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         let value = unwrapOptionalValue obj
 
-        if isNull value then
-            null
-        else
-            client.Serialize value
+        if isNull value then null else client.Serialize value
 
     let toJsonQueryParam (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         let param = toJsonParam obj client

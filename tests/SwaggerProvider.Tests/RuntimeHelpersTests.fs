@@ -261,7 +261,15 @@ module ToJsonParamTests =
 
     [<Fact>]
     let ``toJsonParam serializes object values with the client serializer``() =
-        let result = toJsonParam (box {| stageLocation = "stage-a"; fileSize = 42L |}) stubClient
+        let result =
+            toJsonParam
+                (box
+                    {|
+                        stageLocation = "stage-a"
+                        fileSize = 42L
+                    |})
+                stubClient
+
         result |> shouldContainText "\"stageLocation\":\"stage-a\""
         result |> shouldContainText "\"fileSize\":42"
 
@@ -272,7 +280,16 @@ module ToJsonParamTests =
 
     [<Fact>]
     let ``toJsonQueryParam keeps content-typed values as a single serialized pair``() =
-        let result = toJsonQueryParam "properties" (box {| stageLocation = "stage-a"; fileSize = 42L |}) stubClient
+        let result =
+            toJsonQueryParam
+                "properties"
+                (box
+                    {|
+                        stageLocation = "stage-a"
+                        fileSize = 42L
+                    |})
+                stubClient
+
         result |> shouldHaveLength 1
         fst result[0] |> shouldEqual "properties"
         snd result[0] |> shouldContainText "\"stageLocation\":\"stage-a\""
