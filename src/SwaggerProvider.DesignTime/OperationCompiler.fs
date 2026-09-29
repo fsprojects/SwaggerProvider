@@ -138,7 +138,11 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             validateParamSchemaAndContent param
 
             if isNull param.Content || param.Content.Count = 0 then
-                None
+                if isNull param.Schema then
+                    failwithf
+                        $"Operation '%s{operationId}' parameter '%s{param.Name}' must define either schema or exactly one content media type entry"
+                else
+                    None
             elif param.Content.Count = 1 then
                 let kv = param.Content |> Seq.head
                 Some(kv.Key, kv.Value)
