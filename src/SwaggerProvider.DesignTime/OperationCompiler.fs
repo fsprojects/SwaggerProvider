@@ -72,17 +72,17 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         | _ -> failwith "Cannot extract toQueryParams MethodInfo"
 
     let toJsonParamMethod =
-        match <@@ RuntimeHelpers.toJsonParam null Unchecked.defaultof<ProvidedApiClientBase> @@> with
+        match <@@ RuntimeHelpers.toJsonParam null Unchecked.defaultof<ProvidedApiClientBase> false @@> with
         | Call(None, m, _) -> m
         | _ -> failwith "Cannot extract toJsonParam MethodInfo"
 
     let toEscapedJsonParamMethod =
-        match <@@ RuntimeHelpers.toEscapedJsonParam null Unchecked.defaultof<ProvidedApiClientBase> @@> with
+        match <@@ RuntimeHelpers.toEscapedJsonParam null Unchecked.defaultof<ProvidedApiClientBase> false @@> with
         | Call(None, m, _) -> m
         | _ -> failwith "Cannot extract toEscapedJsonParam MethodInfo"
 
     let toJsonQueryParamMethod =
-        match <@@ RuntimeHelpers.toJsonQueryParam "" null Unchecked.defaultof<ProvidedApiClientBase> @@> with
+        match <@@ RuntimeHelpers.toJsonQueryParam "" null Unchecked.defaultof<ProvidedApiClientBase> false @@> with
         | Call(None, m, _) -> m
         | _ -> failwith "Cannot extract toJsonQueryParam MethodInfo"
 
@@ -125,10 +125,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
             $"%s{par.Name}In%A{par.In}"
 
         let isJsonMediaType(mediaType: string) =
-            let t = mediaType.Split(';').[0].Trim()
-
-            t.Equals(MediaTypes.ApplicationJson, StringComparison.OrdinalIgnoreCase)
-            || t.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
+            mediaType.Equals(MediaTypes.ApplicationJson, StringComparison.OrdinalIgnoreCase)
+            || mediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
 
         /// OpenAPI 3.x: a parameter's type comes from `schema` or from its single `content` entry.
         /// Returns (schema, serializeAsJson). `schema` wins if both are present (invalid, but seen in the wild).
@@ -144,7 +142,22 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     else
                         kv.Value.Schema
 
-                schema, isJsonMediaType kv.Key
+                let mediaType = kv.Key.Split(';').[0].Trim()
+                let serializeAsJson = isJsonMediaType mediaType
+
+                let isPlainString =
+                    mediaType.Equals(MediaTypes.TextPlain, StringComparison.OrdinalIgnoreCase)
+                    && schema.Type = Nullable(JsonSchemaType.String)
+                    && String.IsNullOrEmpty schema.Format
+
+                if not serializeAsJson && not isPlainString then
+                    failwithf
+                        "Operation '%s' parameter '%s' uses unsupported content '%s'. Only JSON and unformatted text/plain strings are supported."
+                        providedMethodName
+                        p.Name
+                        kv.Key
+
+                schema, serializeAsJson
 
         let openApiParameters =
             [
@@ -411,16 +424,18 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                             match resolveParam param with
                             | _, true when escapeJson ->
-                                Expr.Call(toEscapedJsonParamMethod, [ obj; this ])
+                                Expr.Call(toEscapedJsonParamMethod, [ obj; this; Expr.Value param.Required ])
                                 |> Expr.Cast<string>
-                            | _, true -> Expr.Call(toJsonParamMethod, [ obj; this ]) |> Expr.Cast<string>
+                            | _, true ->
+                                Expr.Call(toJsonParamMethod, [ obj; this; Expr.Value param.Required ])
+                                |> Expr.Cast<string>
                             | _, false -> Expr.Call(toParamMethod, [ obj ]) |> Expr.Cast<string>
 
                         let coerceQueryString (param: IOpenApiParameter) name expr =
                             let obj = Expr.Coerce(expr, typeof<obj>)
 
                             if snd(resolveParam param) then
-                                Expr.Call(toJsonQueryParamMethod, [ Expr.Value name; obj; this ])
+                                Expr.Call(toJsonQueryParamMethod, [ Expr.Value name; obj; this; Expr.Value param.Required ])
                                 |> Expr.Cast<(string * string) list>
                             else
                                 Expr.Call(toQueryParamsMethod, [ Expr.Value name; obj; this ])

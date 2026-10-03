@@ -269,14 +269,60 @@ module ToJsonParamTests =
                         fileSize = 42L
                     |})
                 stubClient
+                false
 
         result |> shouldContainText "\"stageLocation\":\"stage-a\""
         result |> shouldContainText "\"fileSize\":42"
 
     [<Fact>]
     let ``toJsonParam returns null for Option None``() =
-        let result = toJsonParam (box(None: string option)) stubClient
+        let result = toJsonParam (box(None: string option)) stubClient false
         result |> shouldEqual null
+
+    [<Theory>]
+    [<InlineData(false)>]
+    [<InlineData(true)>]
+    let ``JSON null is sent for required parameters and omitted for missing optional parameters``(required: bool) =
+        let value = toJsonParam null stubClient required
+        let escaped = toEscapedJsonParam null stubClient required
+        let expected = if required then "null" else null
+        value |> shouldEqual expected
+        escaped |> shouldEqual expected
+
+        use request =
+            createHttpRequest "GET" "/scan" (toJsonQueryParam "value" null stubClient required)
+
+        fillHeadersAndCookies request [ "X-Value", value ] [ "session", escaped ]
+
+        request.RequestUri.OriginalString
+        |> shouldEqual(if required then "scan?value=null" else "scan")
+
+        request.Headers.Contains "X-Value" |> shouldEqual required
+        request.Headers.Contains "Cookie" |> shouldEqual required
+
+        if required then
+            request.Headers.GetValues "X-Value"
+            |> Seq.toList
+            |> shouldEqual [ "null" ]
+
+            request.Headers.GetValues "Cookie"
+            |> Seq.toList
+            |> shouldEqual [ "session=null" ]
+
+    [<Fact>]
+    let ``toJsonQueryParam preserves explicitly present optional null``() =
+        toJsonQueryParam "value" (box(Some(null: string))) stubClient false
+        |> shouldEqual [ "value", "null" ]
+
+    [<Fact>]
+    let ``toJsonParam unwraps Some before serialization``() =
+        toJsonParam (box(Some "hello")) stubClient false
+        |> shouldEqual "\"hello\""
+
+    [<Fact>]
+    let ``toEscapedJsonParam encodes JSON strings``() =
+        toEscapedJsonParam (box "a/b?c;d") stubClient true
+        |> shouldEqual "%22a%2Fb%3Fc%3Bd%22"
 
     [<Fact>]
     let ``toJsonQueryParam keeps content-typed values as a single serialized pair``() =
@@ -289,6 +335,7 @@ module ToJsonParamTests =
                         fileSize = 42L
                     |})
                 stubClient
+                false
 
         result |> shouldHaveLength 1
         fst result[0] |> shouldEqual "properties"

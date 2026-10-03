@@ -1874,6 +1874,75 @@ let ``non-JSON content parameter uses its schema and plain serialization``() =
     body |> containsMethodCall "toParam" |> shouldEqual true
     body |> containsMethodCall "toJsonParam" |> shouldEqual false
 
+[<Theory>]
+[<InlineData("application/xml", "type: object")>]
+[<InlineData("application/xml", "type: string")>]
+[<InlineData("application/octet-stream", "type: string\n                format: binary")>]
+[<InlineData("text/plain", "type: array\n                items:\n                  type: string")>]
+[<InlineData("text/plain", "type: object")>]
+[<InlineData("text/plain", "type: integer")>]
+[<InlineData("text/plain", "type: string\n                format: binary")>]
+[<InlineData("text/plain", "{}")>]
+let ``unsupported content parameters fail during compilation`` (mediaType: string) (schemaYaml: string) =
+    let schema =
+        singleParamSchema
+            $"""        - name: value
+          in: query
+          content:
+            {mediaType}:
+              schema:
+                {schemaYaml}"""
+
+    let ex = Assert.Throws<Exception>(fun () -> compileTaskSchema schema |> ignore)
+    ex.Message |> shouldContainText "Scan"
+    ex.Message |> shouldContainText "value"
+    ex.Message |> shouldContainText mediaType
+    ex.Message |> shouldContainText "unsupported content"
+
+[<Theory>]
+[<InlineData("path", true)>]
+[<InlineData("query", true)>]
+[<InlineData("query", false)>]
+[<InlineData("header", true)>]
+[<InlineData("header", false)>]
+[<InlineData("cookie", true)>]
+[<InlineData("cookie", false)>]
+let ``JSON parameter serialization receives requiredness`` (location: string) (required: bool) =
+    let requiredYaml = if required then "true" else "false"
+
+    let types =
+        singleParamSchema
+            $"""        - name: id
+          in: {location}
+          required: {requiredYaml}
+          content:
+            application/json:
+              schema:
+                type: 'null'"""
+        |> compileTaskSchema
+
+    paramType types "id" |> shouldEqual typeof<obj>
+
+    let helperName =
+        match location with
+        | "query" -> "toJsonQueryParam"
+        | "header" -> "toJsonParam"
+        | _ -> "toEscapedJsonParam"
+
+    let rec hasRequiredArgument expr =
+        match expr with
+        | Call(_, m, args) when m.Name = helperName ->
+            match List.last args with
+            | Value(:? bool as actual, _) -> actual = required
+            | _ -> false
+        | ShapeVar _ -> false
+        | ShapeLambda(_, body) -> hasRequiredArgument body
+        | ShapeCombination(_, args) -> args |> List.exists hasRequiredArgument
+
+    buildInvokeBody types "Scan"
+    |> hasRequiredArgument
+    |> shouldEqual true
+
 [<Fact>]
 let ``content-typed json path and cookie parameters are percent-encoded``() =
     let types =

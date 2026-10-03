@@ -293,19 +293,21 @@ module RuntimeHelpers =
             else
                 obj.ToString()
 
-    let toJsonParam (obj: obj) (client: Swagger.ProvidedApiClientBase) =
-        let value = unwrapOptionalValue obj
-
-        if isNull value then null else client.Serialize value
+    let toJsonParam (obj: obj) (client: Swagger.ProvidedApiClientBase) (required: bool) =
+        // Only a missing optional argument is omitted; required null and Some null are JSON values.
+        if isNull obj && not required then
+            null
+        else
+            client.Serialize(unwrapOptionalValue obj)
 
     /// JSON-serialized and percent-encoded, for path segments and cookie values.
-    let toEscapedJsonParam (obj: obj) (client: Swagger.ProvidedApiClientBase) =
-        match toJsonParam obj client with
+    let toEscapedJsonParam (obj: obj) (client: Swagger.ProvidedApiClientBase) (required: bool) =
+        match toJsonParam obj client required with
         | null -> null
         | s -> Uri.EscapeDataString s
 
-    let toJsonQueryParam (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
-        let param = toJsonParam obj client
+    let toJsonQueryParam (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) (required: bool) =
+        let param = toJsonParam obj client required
         if isNull param then [] else [ name, param ]
 
     let toQueryParams (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
