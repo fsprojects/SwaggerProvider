@@ -1787,19 +1787,44 @@ components:
   schemas: {}
 """
 
-[<Fact>]
-let ``content-typed parameter rejects invalid definitions that specify both schema and content``() =
-    let invalidSchema =
-        """openapi: "3.1.1"
+/// Builds the generated request body expression for an operation, binding every method parameter to a Var.
+let private buildInvokeBody types opName =
+    let method = (findMethod types opName).Value
+
+    let args =
+        Expr.Var(Var("this", method.DeclaringType))
+        :: [ for p in method.GetParameters() -> Expr.Var(Var(p.Name, p.ParameterType)) ]
+
+    getInvokeCode method args
+
+let private singleParamSchema(paramYaml: string) =
+    $"""openapi: "3.1.1"
 info:
-  title: InvalidParameterTest
+  title: ParameterTest
   version: "1.0.0"
 paths:
-  /scan:
+  /scan/{{id}}:
     post:
       operationId: Scan
       parameters:
-        - name: properties
+{paramYaml}
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {{}}
+"""
+
+let private paramType types name =
+    (findMethod types "Scan").Value.GetParameters()
+    |> Array.find(fun p -> p.Name = name)
+    |> _.ParameterType
+
+[<Fact>]
+let ``parameter with both schema and content prefers schema``() =
+    let types =
+        singleParamSchema
+            """        - name: properties
           in: header
           schema:
             type: string
@@ -1809,55 +1834,81 @@ paths:
                 type: object
                 properties:
                   stage-location:
-                    type: string
-      responses:
-        "200":
-          description: OK
-components:
-  schemas: {}
-"""
+                    type: string"""
+        |> compileTaskSchema
 
-    let ex = Assert.ThrowsAny<exn>(fun () -> compileTaskSchema invalidSchema |> ignore)
+    paramType types "properties" |> shouldEqual typeof<string option>
 
-    ex.Message
-    |> shouldContainText "cannot define both schema and content"
+    buildInvokeBody types "Scan"
+    |> containsMethodCall "toJsonParam"
+    |> shouldEqual false
 
 [<Fact>]
 let ``content-typed parameter without schema compiles and falls back to obj``() =
-    let invalidSchema =
-        """openapi: "3.1.1"
-info:
-  title: InvalidContentSchemaTest
-  version: "1.0.0"
-paths:
-  /scan:
-    post:
-      operationId: Scan
-      parameters:
-        - name: properties
+    let types =
+        singleParamSchema
+            """        - name: properties
           in: header
           content:
             application/json:
-              examples: {}
-      responses:
-        "200":
-          description: OK
-components:
-  schemas: {}
-"""
+              examples: {}"""
+        |> compileTaskSchema
 
-    let types = compileTaskSchema invalidSchema
-    let method = (findMethod types "Scan").Value
-    let parameters = method.GetParameters()
-    let propertiesParam = parameters |> Array.find(fun p -> p.Name = "properties")
-    propertiesParam.ParameterType |> shouldEqual typeof<obj>
+    paramType types "properties" |> shouldEqual typeof<obj>
+
+[<Fact>]
+let ``non-JSON content parameter uses its schema and plain serialization``() =
+    let types =
+        singleParamSchema
+            """        - name: note
+          in: header
+          content:
+            text/plain:
+              schema:
+                type: string"""
+        |> compileTaskSchema
+
+    paramType types "note" |> shouldEqual typeof<string option>
+
+    let body = buildInvokeBody types "Scan"
+    body |> containsMethodCall "toParam" |> shouldEqual true
+    body |> containsMethodCall "toJsonParam" |> shouldEqual false
+
+[<Fact>]
+let ``content-typed json path and cookie parameters are percent-encoded``() =
+    let types =
+        singleParamSchema
+            """        - name: id
+          in: path
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  x:
+                    type: string
+        - name: session
+          in: cookie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  y:
+                    type: string"""
+        |> compileTaskSchema
+
+    let body = buildInvokeBody types "Scan"
+    body |> containsMethodCall "toEscapedJsonParam" |> shouldEqual true
+    body |> containsMethodCall "toJsonParam" |> shouldEqual false
 
 [<Fact>]
 let ``content-typed parameter does not throw and is compiled using its content schema``() =
     let types = compileTaskSchema contentTypedHeaderParamSchema
     let method = (findMethod types "Scan").Value
     let parameters = method.GetParameters()
-    // properties (object, required by default since Required is unset -> false) + cancellationToken
+    // properties (optional header, since Required is unset) + cancellationToken
     let paramNames = parameters |> Array.map(fun p -> p.Name)
     paramNames |> shouldContain "properties"
 
@@ -1868,30 +1919,12 @@ let ``content-typed parameter does not throw and is compiled using its content s
 
 [<Fact>]
 let ``content-typed json header uses json parameter serialization in request generation``() =
-    let types = compileTaskSchema contentTypedHeaderParamSchema
-    let method = (findMethod types "Scan").Value
-    let invokeCode = getInvokeCode method
-    let parameters = method.GetParameters()
-    let propertiesParam = parameters |> Array.find(fun p -> p.Name = "properties")
-
-    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
-    let propertiesExpr = Expr.Var(Var("properties", propertiesParam.ParameterType))
-    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
-    let body = invokeCode [ thisExpr; propertiesExpr; ctExpr ]
-
-    body |> containsMethodCall "toJsonParam" |> shouldEqual true
+    buildInvokeBody (compileTaskSchema contentTypedHeaderParamSchema) "Scan"
+    |> containsMethodCall "toJsonParam"
+    |> shouldEqual true
 
 [<Fact>]
 let ``content-typed json query parameter uses json query serialization in request generation``() =
-    let types = compileTaskSchema contentTypedQueryParamSchema
-    let method = (findMethod types "Search").Value
-    let invokeCode = getInvokeCode method
-    let parameters = method.GetParameters()
-    let filtersParam = parameters |> Array.find(fun p -> p.Name = "filters")
-
-    let thisExpr = Expr.Var(Var("this", method.DeclaringType))
-    let filtersExpr = Expr.Var(Var("filters", filtersParam.ParameterType))
-    let ctExpr = Expr.Var(Var("cancellationToken", typeof<CancellationToken>))
-    let body = invokeCode [ thisExpr; filtersExpr; ctExpr ]
-
-    body |> containsMethodCall "toJsonQueryParam" |> shouldEqual true
+    buildInvokeBody (compileTaskSchema contentTypedQueryParamSchema) "Search"
+    |> containsMethodCall "toJsonQueryParam"
+    |> shouldEqual true

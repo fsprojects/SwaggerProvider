@@ -298,6 +298,12 @@ module RuntimeHelpers =
 
         if isNull value then null else client.Serialize value
 
+    /// JSON-serialized and percent-encoded, for path segments and cookie values.
+    let toEscapedJsonParam (obj: obj) (client: Swagger.ProvidedApiClientBase) =
+        match toJsonParam obj client with
+        | null -> null
+        | s -> Uri.EscapeDataString s
+
     let toJsonQueryParam (name: string) (obj: obj) (client: Swagger.ProvidedApiClientBase) =
         let param = toJsonParam obj client
         if isNull param then [] else [ name, param ]
