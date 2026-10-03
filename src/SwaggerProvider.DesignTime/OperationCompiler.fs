@@ -71,6 +71,21 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         | Call(None, m, _) -> m
         | _ -> failwith "Cannot extract toQueryParams MethodInfo"
 
+    let toJsonParamMethod =
+        match <@@ RuntimeHelpers.toJsonParam null Unchecked.defaultof<ProvidedApiClientBase> false @@> with
+        | Call(None, m, _) -> m
+        | _ -> failwith "Cannot extract toJsonParam MethodInfo"
+
+    let toEscapedJsonParamMethod =
+        match <@@ RuntimeHelpers.toEscapedJsonParam null Unchecked.defaultof<ProvidedApiClientBase> false @@> with
+        | Call(None, m, _) -> m
+        | _ -> failwith "Cannot extract toEscapedJsonParam MethodInfo"
+
+    let toJsonQueryParamMethod =
+        match <@@ RuntimeHelpers.toJsonQueryParam "" null Unchecked.defaultof<ProvidedApiClientBase> false @@> with
+        | Call(None, m, _) -> m
+        | _ -> failwith "Cannot extract toJsonQueryParam MethodInfo"
+
     let resolveCastMethod(ownerType: Type) =
         ownerType.GetMethods(BindingFlags.Public ||| BindingFlags.Static)
         |> Array.tryFind(fun m ->
@@ -108,6 +123,42 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
         let unambiguousName(par: IOpenApiParameter) =
             $"%s{par.Name}In%A{par.In}"
+
+        let isJsonMediaType(mediaType: string) =
+            mediaType.Equals(MediaTypes.ApplicationJson, StringComparison.OrdinalIgnoreCase)
+            || mediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
+
+        /// OpenAPI 3.x: a parameter's type comes from `schema` or from its single `content` entry.
+        /// Returns (schema, serializeAsJson). `schema` wins if both are present (invalid, but seen in the wild).
+        let resolveParam(p: IOpenApiParameter) =
+            if not(isNull p.Schema) || isNull p.Content || p.Content.Count = 0 then
+                p.Schema, false
+            else
+                let kv = Seq.head p.Content // spec requires exactly one entry
+
+                let schema =
+                    if isNull kv.Value.Schema then
+                        OpenApiSchema() :> IOpenApiSchema
+                    else
+                        kv.Value.Schema
+
+                let mediaType = kv.Key.Split(';').[0].Trim()
+                let serializeAsJson = isJsonMediaType mediaType
+
+                let isPlainString =
+                    mediaType.Equals(MediaTypes.TextPlain, StringComparison.OrdinalIgnoreCase)
+                    && (schema.Type = Nullable(JsonSchemaType.String)
+                        || schema.Type = Nullable(JsonSchemaType.String ||| JsonSchemaType.Null))
+                    && String.IsNullOrEmpty schema.Format
+
+                if not serializeAsJson && not isPlainString then
+                    failwithf
+                        "Operation '%s' parameter '%s' uses unsupported content '%s'. Only JSON and unformatted text/plain strings are supported."
+                        providedMethodName
+                        p.Name
+                        kv.Key
+
+                schema, serializeAsJson
 
         let openApiParameters =
             [
@@ -204,7 +255,7 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                     let names, paramName = uniqueParamName names current
 
                     let paramType =
-                        defCompiler.CompileTy providedMethodName paramName current.Schema current.Required
+                        defCompiler.CompileTy providedMethodName paramName (fst(resolveParam current)) current.Required
 
                     let providedParam =
                         if current.Required then
@@ -367,15 +418,29 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
                         // object across all calls, causing "duplicate key" exceptions in ProvidedTypes
                         // when the same helper is called for multiple parameters in one operation.
                         // Instead, build the call expression directly without an intermediate binding.
-                        let coerceString exp =
+                        // JSON values in path segments and cookies are percent-encoded: raw JSON
+                        // contains characters ('/', '?', '"', ';', ',') that break those locations.
+                        let coerceString escapeJson (param: IOpenApiParameter) exp =
                             let obj = Expr.Coerce(exp, typeof<obj>)
-                            Expr.Call(toParamMethod, [ obj ]) |> Expr.Cast<string>
 
-                        let rec coerceQueryString name expr =
+                            match resolveParam param with
+                            | _, true when escapeJson ->
+                                Expr.Call(toEscapedJsonParamMethod, [ obj; this; Expr.Value param.Required ])
+                                |> Expr.Cast<string>
+                            | _, true ->
+                                Expr.Call(toJsonParamMethod, [ obj; this; Expr.Value param.Required ])
+                                |> Expr.Cast<string>
+                            | _, false -> Expr.Call(toParamMethod, [ obj ]) |> Expr.Cast<string>
+
+                        let coerceQueryString (param: IOpenApiParameter) name expr =
                             let obj = Expr.Coerce(expr, typeof<obj>)
 
-                            Expr.Call(toQueryParamsMethod, [ Expr.Value name; obj; this ])
-                            |> Expr.Cast<(string * string) list>
+                            if snd(resolveParam param) then
+                                Expr.Call(toJsonQueryParamMethod, [ Expr.Value name; obj; this; Expr.Value param.Required ])
+                                |> Expr.Cast<(string * string) list>
+                            else
+                                Expr.Call(toQueryParamsMethod, [ Expr.Value name; obj; this ])
+                                |> Expr.Cast<(string * string) list>
 
                         // Partitions arguments based on their locations
                         let path, queryParamLists, headers, cookies =
@@ -387,19 +452,19 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                                         match param.In.Value with
                                         | ParameterLocation.Path ->
-                                            let value = coerceString valueExpr
+                                            let value = coerceString true param valueExpr
                                             let pattern = $"{{%s{name}}}"
                                             let path' = <@ (%path).Replace(pattern, %value) @>
                                             (path', queryParamLists, headers, cookies)
                                         | ParameterLocation.Query ->
-                                            let listValues = coerceQueryString name valueExpr
+                                            let listValues = coerceQueryString param name valueExpr
                                             (path, listValues :: queryParamLists, headers, cookies)
                                         | ParameterLocation.Header ->
-                                            let value = coerceString valueExpr
+                                            let value = coerceString false param valueExpr
                                             let headers' = <@ (name, %value) :: (%headers) @>
                                             (path, queryParamLists, headers', cookies)
                                         | ParameterLocation.Cookie ->
-                                            let value = coerceString valueExpr
+                                            let value = coerceString true param valueExpr
                                             let cookies' = <@ (name, %value) :: (%cookies) @>
                                             (path, queryParamLists, headers, cookies')
                                         | x -> failwithf $"Unsupported parameter location '%A{x}'"
@@ -545,10 +610,9 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
         let xmlDoc =
             let buildParamDesc(p: IOpenApiParameter) =
                 let enumDoc =
-                    if not(isNull p.Schema) then
-                        XmlDoc.buildEnumDoc p.Schema.Enum
-                    else
-                        None
+                    match fst(resolveParam p) with
+                    | null -> None
+                    | schema -> XmlDoc.buildEnumDoc schema.Enum
 
                 XmlDoc.combineDescAndEnum p.Description enumDoc
 

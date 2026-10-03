@@ -58,6 +58,16 @@ let private containsDuplicateVarObject vars =
         |> List.exists(fun other -> obj.ReferenceEquals(v, other)))
     |> List.exists id
 
+let private containsMethodCall (methodName: string) expr =
+    let rec loop expr =
+        match expr with
+        | Call(_, m, args) -> m.Name = methodName || (args |> List.exists loop)
+        | ShapeVar _ -> false
+        | ShapeLambda(_, body) -> loop body
+        | ShapeCombination(_, args) -> args |> List.exists loop
+
+    loop expr
+
 // ── Simple GET with no parameters ─────────────────────────────────────────────
 
 let private simpleGetSchema =
@@ -1700,3 +1710,290 @@ let ``200 response schema is used not 201 when both are present``() =
     let returnArg = method.ReturnType.GetGenericArguments()[0]
     returnArg |> shouldNotEqual typeof<int32>
     returnArg |> shouldEqual typeof<string>
+
+// ── Parameter defined via `content` instead of `schema` (regression, issue #501) ──
+
+/// Per the OpenAPI spec, a parameter's type may be described either by `schema`
+/// or by `content` (a map with a single media type entry) but not both. Previously
+/// the compiler only ever read `parameter.Schema`, which is null for content-typed
+/// parameters, causing a NullReferenceException deep in the definition compiler.
+let private contentTypedHeaderParamSchema =
+    """openapi: "3.1.1"
+info:
+  title: Testing | v1
+  version: "0.2.0.0"
+paths:
+  /api/v1/catalogues/scan:
+    post:
+      tags:
+        - Catalogue
+      summary: Testing
+      description: Testing
+      operationId: Scan
+      parameters:
+        - name: properties
+          in: header
+          description: header description
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stage-location:
+                    type: string
+                    description: location
+                  file-size:
+                    minimum: 0
+                    type: integer
+                    format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+let private contentTypedQueryParamSchema =
+    """openapi: "3.1.1"
+info:
+  title: QueryContentTypedParameterTest
+  version: "1.0.0"
+paths:
+  /api/v1/catalogues/search:
+    get:
+      operationId: Search
+      parameters:
+        - name: filters
+          in: query
+          content:
+            application/problem+json:
+              schema:
+                type: object
+                properties:
+                  stage-location:
+                    type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas: {}
+"""
+
+/// Builds the generated request body expression for an operation, binding every method parameter to a Var.
+let private buildInvokeBody types opName =
+    let method = (findMethod types opName).Value
+
+    let args =
+        Expr.Var(Var("this", method.DeclaringType))
+        :: [ for p in method.GetParameters() -> Expr.Var(Var(p.Name, p.ParameterType)) ]
+
+    getInvokeCode method args
+
+let private singleParamSchema(paramYaml: string) =
+    $"""openapi: "3.1.1"
+info:
+  title: ParameterTest
+  version: "1.0.0"
+paths:
+  /scan/{{id}}:
+    post:
+      operationId: Scan
+      parameters:
+{paramYaml}
+      responses:
+        "200":
+          description: OK
+components:
+  schemas: {{}}
+"""
+
+let private paramType types name =
+    (findMethod types "Scan").Value.GetParameters()
+    |> Array.find(fun p -> p.Name = name)
+    |> _.ParameterType
+
+[<Fact>]
+let ``parameter with both schema and content prefers schema``() =
+    let types =
+        singleParamSchema
+            """        - name: properties
+          in: header
+          schema:
+            type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stage-location:
+                    type: string"""
+        |> compileTaskSchema
+
+    paramType types "properties" |> shouldEqual typeof<string option>
+
+    buildInvokeBody types "Scan"
+    |> containsMethodCall "toJsonParam"
+    |> shouldEqual false
+
+[<Fact>]
+let ``content-typed parameter without schema compiles and falls back to obj``() =
+    let types =
+        singleParamSchema
+            """        - name: properties
+          in: header
+          content:
+            application/json:
+              examples: {}"""
+        |> compileTaskSchema
+
+    paramType types "properties" |> shouldEqual typeof<obj>
+
+[<Fact>]
+let ``non-JSON content parameter uses its schema and plain serialization``() =
+    let types =
+        singleParamSchema
+            """        - name: note
+          in: header
+          content:
+            text/plain:
+              schema:
+                type: string"""
+        |> compileTaskSchema
+
+    paramType types "note" |> shouldEqual typeof<string option>
+
+    let body = buildInvokeBody types "Scan"
+    body |> containsMethodCall "toParam" |> shouldEqual true
+    body |> containsMethodCall "toJsonParam" |> shouldEqual false
+
+[<Theory>]
+[<InlineData("application/xml", "type: object")>]
+[<InlineData("application/xml", "type: string")>]
+[<InlineData("application/octet-stream", "type: string\n                format: binary")>]
+[<InlineData("text/plain", "type: array\n                items:\n                  type: string")>]
+[<InlineData("text/plain", "type: object")>]
+[<InlineData("text/plain", "type: integer")>]
+[<InlineData("text/plain", "type: string\n                format: binary")>]
+[<InlineData("text/plain", "{}")>]
+let ``unsupported content parameters fail during compilation`` (mediaType: string) (schemaYaml: string) =
+    let schema =
+        singleParamSchema
+            $"""        - name: value
+          in: query
+          content:
+            {mediaType}:
+              schema:
+                {schemaYaml}"""
+
+    let ex = Assert.Throws<Exception>(fun () -> compileTaskSchema schema |> ignore)
+    ex.Message |> shouldContainText "Scan"
+    ex.Message |> shouldContainText "value"
+    ex.Message |> shouldContainText mediaType
+    ex.Message |> shouldContainText "unsupported content"
+
+[<Theory>]
+[<InlineData("path", true)>]
+[<InlineData("query", true)>]
+[<InlineData("query", false)>]
+[<InlineData("header", true)>]
+[<InlineData("header", false)>]
+[<InlineData("cookie", true)>]
+[<InlineData("cookie", false)>]
+let ``JSON parameter serialization receives requiredness`` (location: string) (required: bool) =
+    let requiredYaml = if required then "true" else "false"
+
+    let types =
+        singleParamSchema
+            $"""        - name: id
+          in: {location}
+          required: {requiredYaml}
+          content:
+            application/json:
+              schema:
+                type: 'null'"""
+        |> compileTaskSchema
+
+    paramType types "id" |> shouldEqual typeof<obj>
+
+    let helperName =
+        match location with
+        | "query" -> "toJsonQueryParam"
+        | "header" -> "toJsonParam"
+        | _ -> "toEscapedJsonParam"
+
+    let rec hasRequiredArgument expr =
+        match expr with
+        | Call(_, m, args) when m.Name = helperName ->
+            match List.last args with
+            | Value(:? bool as actual, _) -> actual = required
+            | _ -> false
+        | ShapeVar _ -> false
+        | ShapeLambda(_, body) -> hasRequiredArgument body
+        | ShapeCombination(_, args) -> args |> List.exists hasRequiredArgument
+
+    buildInvokeBody types "Scan"
+    |> hasRequiredArgument
+    |> shouldEqual true
+
+[<Fact>]
+let ``content-typed json path and cookie parameters are percent-encoded``() =
+    let types =
+        singleParamSchema
+            """        - name: id
+          in: path
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  x:
+                    type: string
+        - name: session
+          in: cookie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  y:
+                    type: string"""
+        |> compileTaskSchema
+
+    let body = buildInvokeBody types "Scan"
+    body |> containsMethodCall "toEscapedJsonParam" |> shouldEqual true
+    body |> containsMethodCall "toJsonParam" |> shouldEqual false
+
+[<Fact>]
+let ``content-typed parameter does not throw and is compiled using its content schema``() =
+    let types = compileTaskSchema contentTypedHeaderParamSchema
+    let method = (findMethod types "Scan").Value
+    let parameters = method.GetParameters()
+    // properties (optional header, since Required is unset) + cancellationToken
+    let paramNames = parameters |> Array.map(fun p -> p.Name)
+    paramNames |> shouldContain "properties"
+
+    let propertiesParam = parameters |> Array.find(fun p -> p.Name = "properties")
+    // The content schema is an inline object with properties, so it must compile to a
+    // generated provided type (not `obj`, which would indicate the schema was lost).
+    propertiesParam.ParameterType |> shouldNotEqual typeof<obj>
+
+[<Fact>]
+let ``content-typed json header uses json parameter serialization in request generation``() =
+    buildInvokeBody (compileTaskSchema contentTypedHeaderParamSchema) "Scan"
+    |> containsMethodCall "toJsonParam"
+    |> shouldEqual true
+
+[<Fact>]
+let ``content-typed json query parameter uses json query serialization in request generation``() =
+    buildInvokeBody (compileTaskSchema contentTypedQueryParamSchema) "Search"
+    |> containsMethodCall "toJsonQueryParam"
+    |> shouldEqual true
