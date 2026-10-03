@@ -147,7 +147,8 @@ type OperationCompiler(schema: OpenApiDocument, defCompiler: DefinitionCompiler,
 
                 let isPlainString =
                     mediaType.Equals(MediaTypes.TextPlain, StringComparison.OrdinalIgnoreCase)
-                    && schema.Type = Nullable(JsonSchemaType.String)
+                    && (schema.Type = Nullable(JsonSchemaType.String)
+                        || schema.Type = Nullable(JsonSchemaType.String ||| JsonSchemaType.Null))
                     && String.IsNullOrEmpty schema.Format
 
                 if not serializeAsJson && not isPlainString then
