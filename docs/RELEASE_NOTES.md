@@ -1,3 +1,12 @@
+#### 4.2.1 - October 6, 2026
+
+- fix: support OpenAPI parameters defined with JSON or plain-text `content`, with correct serialization and escaping for path and cookie values (#501, #502)
+- fix: quote string elements when formatting arrays in `formatObject` (#481)
+- perf: avoid intermediate array allocation when converting array parameters to strings (#488)
+- eng: update Fantomas to 8.0.6 and refresh dependencies
+- eng: coordinate runtime/design-time builds to avoid parallel restore races (#502)
+- test: add coverage for content-based parameters, in-memory caching, content-type validation, and response-body fallback (#491, #493, #496, #502)
+
 #### 4.2.0 - July 29, 2026
 
 - fix: prevent duplicate `ProvidedTypeDefinition` for named component aliases (#478)
