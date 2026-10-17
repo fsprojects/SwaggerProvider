@@ -13,6 +13,10 @@ description: |
   - Maintains a persistent memory of work done and what remains
   Always polite, constructive, and mindful of the project's goals.
 
+engine:
+  id: copilot
+  copilot-sdk: true
+
 on:
   schedule: weekly
   workflow_dispatch:
