@@ -1,8 +1,8 @@
-version 9.0.2
+version 12.0.0
 source https://api.nuget.org/v3/index.json
 storage: none
 
-nuget FSharp.Core >= 8
+nuget FSharp.Core >= 8 < 11
 nuget System.Text.Json >= 8 < 11
 nuget FSharp.SystemTextJson
 nuget Microsoft.OpenApi ~> 2 # https://github.com/microsoft/OpenAPI.NET/blob/main/CONTRIBUTING.md#branches-and-support-policy
@@ -24,9 +24,12 @@ group Server
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Mvc
     nuget Microsoft.AspNetCore.HttpsPolicy
+    nuget Microsoft.AspNetCore.WebUtilities < 11
+    nuget Microsoft.Net.Http.Headers < 11
     nuget Swashbuckle.AspNetCore
     nuget Microsoft.OpenApi ~> 2
-    nuget FSharp.Core
+    nuget FSharp.Core < 11
+    nuget Swashbuckle.AspNetCore.SwaggerUI < 11
     nuget System.Text.Json
 
 
@@ -35,7 +38,7 @@ group Test
     frameworks: net10.0
 
     nuget FSharp.Compiler.Service
-    nuget FSharp.Core
+    nuget FSharp.Core < 11
 
     nuget Microsoft.NET.Test.Sdk
     nuget FsUnit.Xunit

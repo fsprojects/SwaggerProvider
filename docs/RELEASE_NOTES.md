@@ -1,3 +1,13 @@
+#### 4.3.0 - November 14, 2026
+
+- eng: bump Paket from 10.3.1 to 11.0.1 (#510, #517)
+- eng: upgrade Paket to 12.0.0 and refresh NuGet and GitHub dependency locks
+- eng: update Fantomas to 8.1.1 (#511, #516, #519, #520)
+- eng: bound FSharp.Core and selected server dependencies to preserve the .NET 10 build
+- ci: update GitHub Actions dependencies: download-artifact 8.0.2, setup-node 7.1.0, upload-artifact 7.0.2 (#507, #508, #509)
+- docs: update Vue and source-map-js dependencies (#505, #506)
+- ci: update repo-assist automation, enable Copilot SDK, and refresh workflow locks
+
 #### 4.2.1 - October 6, 2026
 
 - fix: support OpenAPI parameters defined with JSON or plain-text `content`, with correct serialization and escaping for path and cookie values (#501, #502)
